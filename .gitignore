@@ -1,0 +1,29 @@
+# API Keys and Secrets
+# config.js - TEMPORARILY ALLOWED FOR CLOUDFLARE DEPLOYMENT
+# WARNING: Only push to PRIVATE repositories!
+# techzaa.in/techauth/config.js
+
+# Environment files
+.env
+.env.local
+*.env
+
+# Node modules
+node_modules/
+
+# MacOS
+.DS_Store
+**/.DS_Store
+
+# IDE
+.vscode/
+.idea/
+
+# Large files
+techzaa.in/techauth/tailwindcss
+
+# Sensitive files with API keys
+CLOUDFLARE_HOSTING_GUIDE.md
+CLOUDFLARE_WORKER_SETUP.md
+DEPLOY_NOW.md
+techzaa.in/techauth/config.js

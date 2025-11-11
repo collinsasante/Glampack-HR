@@ -1,0 +1,10 @@
+# Cloudflare Pages redirects
+
+# Redirect root to signin page
+/  /signin-2.html  200
+
+# Redirect techauth root to signin
+/techauth  /signin-2.html  200
+
+# Handle 404s - redirect to signin
+/* /signin-2.html 404

@@ -1,0 +1,410 @@
+<html lang="en">
+  <!-- Mirrored from techzaa.in/packaging-glamour-hr/signup-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 01 Nov 2025 16:44:54 GMT -->
+  <head>
+    <meta charset="utf-8" />
+    <title>Packaging Glamour HR</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      content="Packaging Glamour HR - Authentication Pages Tailwind CSS 3 HTML Template, It’s fully responsive and built Tailwind v3"
+      name="description"
+    />
+    <meta content="Techzaa" name="author" />
+
+    <!-- favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico" />
+
+    <!-- Font Awesome Icon -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
+
+    <!-- Style css -->
+    <link href="assets/css/style.min.css" rel="stylesheet" type="text/css" />
+
+    <!-- Configuration Script - Load FIRST -->
+    <script src="config.js"></script>
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <!-- Mobile Responsive Styles -->
+    <style>
+      @media (max-width: 768px) {
+        /* Make section min-height instead of h-screen for better mobile scrolling */
+        section {
+          min-height: 100vh !important;
+          height: auto !important;
+          padding: 2rem 0;
+        }
+
+        /* Adjust container padding */
+        .container {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+
+        /* Force single column layout on mobile */
+        .grid.xl\:grid-cols-5,
+        .grid.lg\:grid-cols-3,
+        .grid.md\:grid-cols-2 {
+          grid-template-columns: 1fr !important;
+        }
+
+        /* Hide or minimize the side panel on mobile */
+        .xl\:col-span-2,
+        .lg\:col-span-1 {
+          display: none;
+        }
+
+        /* Full width for form section */
+        .xl\:col-span-3,
+        .lg\:col-span-2 {
+          grid-column: span 1 !important;
+        }
+
+        /* Reduce padding on mobile */
+        .lg\:m-10 {
+          margin: 1.5rem !important;
+        }
+
+        .m-5 {
+          margin: 1rem !important;
+        }
+
+        /* Smaller headings */
+        .text-3xl\/tight {
+          font-size: 1.5rem !important;
+          line-height: 1.3 !important;
+        }
+
+        /* Adjust social icons */
+        .flex.items-center.justify-center.gap-2 {
+          gap: 0.5rem !important;
+        }
+
+        .h-10.w-10 {
+          height: 2rem !important;
+          width: 2rem !important;
+        }
+
+        /* Input fields */
+        input,
+        select,
+        button {
+          font-size: 0.875rem !important;
+        }
+
+        /* Buttons */
+        button.bg-red-600 {
+          padding: 0.75rem 2rem !important;
+          font-size: 0.875rem !important;
+        }
+
+        /* Form spacing */
+        .space-y-5 {
+          margin-top: 1.5rem !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        /* Extra small devices */
+        .container {
+          padding: 0.5rem !important;
+        }
+
+        .m-5 {
+          margin: 0.75rem !important;
+        }
+
+        .text-3xl\/tight {
+          font-size: 1.25rem !important;
+        }
+
+        /* Reduce social icon size further */
+        .h-10.w-10 {
+          height: 1.75rem !important;
+          width: 1.75rem !important;
+          font-size: 0.75rem !important;
+        }
+
+        /* Tighter form spacing */
+        .space-y-5 > * + * {
+          margin-top: 0.75rem !important;
+        }
+      }
+
+      /* Show mobile-friendly nav on small screens */
+      @media (max-width: 768px) {
+        /* Add a simple header for mobile */
+        .mobile-header {
+          display: block;
+          text-align: center;
+          padding: 1rem;
+          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+          color: white;
+          font-weight: 600;
+          margin-bottom: 1rem;
+          border-radius: 0.5rem;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .mobile-header {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <section
+      class="h-screen flex items-center justify-center bg-no-repeat inset-0 bg-cover bg-center"
+      style="background-image: url('assets/images/bg-2.png');"
+    >
+      <div class="container 2xl:px-80 xl:px-52">
+        <div
+          class="bg-white rounded-lg overflow-hidden"
+          style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
+        >
+          <div class="grid xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 gap-6">
+            <div class="xl:col-span-2 lg:col-span-1">
+              <div
+                class="bg-gradient-to-br from-red-600 to-red-700 text-white gap-10 h-full w-full p-7 space-y-6 lg:space-y-0 flex flex-col shadow-xl"
+              >
+                <!-- Logo at top -->
+                <div class="flex justify-center">
+                  <img
+                    src="../images/logo_red.png"
+                    alt="Packaging Glamour HR"
+                    class="h-12 w-auto opacity-90 brightness-0 invert"
+                  />
+                </div>
+
+                <div class="flex flex-col justify-center text-center flex-1">
+                  <h1 class="text-3xl/tight mb-4">Welcome Back!</h1>
+                  <p class="text-gray-200 font-normal leading-relaxed">
+                    To keep connected with us please login with your personal
+                    info
+                  </p>
+                  <div class="my-8">
+                    <a
+                      href="signin-2.html"
+                      class="bg-red-600 text-black font-semibold text-sm rounded-full transition-all duration-300 hover:bg-red-700 hover:scale-105 focus:bg-red-700 focus:ring-4 focus:ring-red-500/30 px-14 py-3 inline-block shadow-lg hover:shadow-xl"
+                      >Sign In</a
+                    >
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="xl:col-span-3 lg:col-span-2 lg:m-10 m-5">
+              <div class="text-center">
+                <h1 class="text-3xl/tight text-red-600 mb-3">Create Account</h1>
+
+                <form id="signupForm" class="space-y-5 mt-10">
+                  <!-- Role Selector -->
+                  <div class="flex items-center justify-center gap-4 mb-4">
+                    <label class="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="Employee"
+                        checked
+                        class="mr-2 text-red-600 focus:ring-red-500"
+                      />
+                      <span class="text-sm font-medium text-gray-700">
+                        <i class="fas fa-user mr-1"></i> Employee
+                      </span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                      <input
+                        type="radio"
+                        name="role"
+                        value="Admin"
+                        class="mr-2 text-red-600 focus:ring-red-500"
+                      />
+                      <span class="text-sm font-medium text-gray-700">
+                        <i class="fas fa-user-shield mr-1"></i> Admin
+                      </span>
+                    </label>
+                  </div>
+
+                  <div class="relative">
+                    <input
+                      class="text-gray-500 border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
+                      type="text"
+                      id="fullName"
+                      name="fullName"
+                      placeholder="Full Name"
+                      required
+                    />
+                    <div
+                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
+                    >
+                      <i class="fa-solid fa-user"></i>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <input
+                      class="text-gray-500 border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
+                      type="email"
+                      id="email"
+                      name="email"
+                      placeholder="Email"
+                      required
+                    />
+                    <div
+                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
+                    >
+                      <i class="fa-solid fa-envelope"></i>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <select
+                      class="text-gray-500 border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
+                      id="status"
+                      name="status"
+                      required
+                    >
+                      <option value="">Select Status</option>
+                      <option value="Permanent">Permanent</option>
+                      <option value="Intern">Intern</option>
+                      <option value="National Service Personnel">
+                        National Service Personnel
+                      </option>
+                      <option value="Independent Contractor">
+                        Independent Contractor
+                      </option>
+                    </select>
+                    <div
+                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
+                    >
+                      <i class="fa-solid fa-briefcase"></i>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <input
+                      class="text-gray-500 border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
+                      type="password"
+                      id="password"
+                      name="password"
+                      placeholder="Password"
+                      required
+                      minlength="6"
+                    />
+                    <div
+                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
+                    >
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
+                  </div>
+
+                  <div class="relative">
+                    <input
+                      class="text-gray-500 border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
+                      type="password"
+                      id="confirmPassword"
+                      name="confirmPassword"
+                      placeholder="Confirm Password"
+                      required
+                      minlength="6"
+                    />
+                    <div
+                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
+                    >
+                      <i class="fa-solid fa-lock"></i>
+                    </div>
+                  </div>
+
+                  <div class="mt-8">
+                    <button
+                      type="submit"
+                      class="bg-red-600 text-black font-semibold text-sm rounded-full transition-all duration-300 hover:bg-red-700 hover:scale-105 focus:bg-red-700 focus:ring-4 focus:ring-red-500/30 px-14 py-3 shadow-lg hover:shadow-xl"
+                    >
+                      Sign Up
+                    </button>
+                  </div>
+                </form>
+
+                <script>
+                  // Handle signup form submission
+                  document
+                    .getElementById("signupForm")
+                    .addEventListener("submit", async function (e) {
+                      e.preventDefault();
+
+                      const fullName =
+                        document.getElementById("fullName").value;
+                      const email = document.getElementById("email").value;
+                      const status = document.getElementById("status").value;
+                      const password =
+                        document.getElementById("password").value;
+                      const confirmPassword =
+                        document.getElementById("confirmPassword").value;
+                      const selectedRole = document.querySelector(
+                        'input[name="role"]:checked'
+                      ).value;
+
+                      // Validate passwords match
+                      if (password !== confirmPassword) {
+                        showError("Passwords do not match");
+                        return;
+                      }
+
+                      // Validate password strength (minimum 6 characters)
+                      if (password.length < 6) {
+                        showError(
+                          "Password must be at least 6 characters long"
+                        );
+                        return;
+                      }
+
+                      const success = await signup(
+                        fullName,
+                        email,
+                        status,
+                        password,
+                        selectedRole // Pass role to signup function
+                      );
+
+                      if (success) {
+                        showSuccess(
+                          "Account created successfully! Redirecting..."
+                        );
+                        setTimeout(() => {
+                          // Redirect based on role
+                          if (selectedRole === "Admin") {
+                            window.location.href = "admin-dashboard.html";
+                          } else {
+                            window.location.href = "dashboard.html";
+                          }
+                        }, 1500);
+                      }
+                    });
+
+                  // Check if already logged in
+                  if (isLoggedIn()) {
+                    const currentUser = getCurrentUser();
+                    if (currentUser.role === "Admin") {
+                      window.location.href = "admin-dashboard.html";
+                    } else {
+                      window.location.href = "dashboard.html";
+                    }
+                  }
+                </script>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </body>
+
+  <!-- Mirrored from techzaa.in/packaging-glamour-hr/signup-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 01 Nov 2025 16:44:54 GMT -->
+</html>

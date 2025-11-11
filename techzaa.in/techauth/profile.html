@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packaging Glamour HR</title>
+
+    <!-- Tailwind CSS (Local) -->
+    <link rel="stylesheet" href="assets/css/tailwind.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        .tab-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .tab-button::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 0;
+            height: 100%;
+            background: linear-gradient(90deg, #dc2626, #0ea5e9);
+            transition: width 0.3s ease;
+            z-index: -1;
+        }
+        .tab-button.active::before {
+            width: 100%;
+        }
+        .tab-button.active {
+            color: white;
+            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+        }
+        .tab-button:not(.active):hover {
+            background: rgba(220, 38, 38, 0.05);
+            transform: translateX(4px);
+        }
+        .section-hidden {
+            display: none;
+        }
+        .profile-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .stat-badge {
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        .input-field {
+            transition: all 0.3s ease;
+        }
+        .input-field:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
+        }
+        .edit-mode .input-field {
+            background: white !important;
+            border-color: #dc2626;
+        }
+        .badge-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 52px;
+            height: 28px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #cbd5e1;
+            transition: 0.4s;
+            border-radius: 28px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .strength-bar {
+            height: 4px;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation Bar -->
+    <nav class="glass-effect shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                            <i class="fas fa-briefcase text-white text-sm"></i>
+                        </div>
+                        <h1 class="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">HR System</h1>
+                    </div>
+                    <span class="text-gray-600 text-sm" id="userInfo"></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-chart-line mr-1"></i> Dashboard
+                    </a>
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-clock mr-1"></i> Attendance
+                    </a>
+                    <a href="leave-request.html" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="profile.html" class="text-purple-600 font-semibold">
+                        <i class="fas fa-user mr-1"></i> Profile
+                    </a>
+                    <a href="announcements.html" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
+                    </a>
+                    <a href="payroll.html" class="text-gray-600 hover:text-purple-600 transition">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+            <!-- Sidebar -->
+            <div class="lg:col-span-3 space-y-6">
+
+                <!-- Profile Card -->
+                <div class="profile-card rounded-2xl shadow-2xl p-6 text-white">
+                    <div class="text-center">
+                        <div class="relative inline-block mb-4">
+                            <div class="w-28 h-28 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center border-4 border-white/30">
+                                <span class="text-white text-4xl font-bold" id="profileInitials">U</span>
+                            </div>
+                            <div class="absolute bottom-1 right-1 w-7 h-7 bg-green-400 border-3 border-white rounded-full flex items-center justify-center">
+                                <i class="fas fa-check text-white text-xs"></i>
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold mb-1" id="sidebarName">Loading...</h3>
+                        <p class="text-white/80 text-sm mb-2" id="sidebarJobTitle">Loading...</p>
+                        <span class="inline-block px-4 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium" id="sidebarStatus">Active</span>
+                    </div>
+
+                    <!-- Quick Stats -->
+                    <div class="mt-6 grid grid-cols-2 gap-3">
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center stat-badge" style="animation-delay: 0.1s">
+                            <div class="text-2xl font-bold" id="quickAnnualLeave">0</div>
+                            <div class="text-xs text-white/80">Leave Days</div>
+                        </div>
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-3 text-center stat-badge" style="animation-delay: 0.2s">
+                            <div class="text-2xl font-bold" id="quickYearsService">0</div>
+                            <div class="text-xs text-white/80">Years</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <div class="glass-effect rounded-2xl shadow-lg overflow-hidden">
+                    <button onclick="showTab('profile')" id="tab-profile" class="tab-button active w-full text-left px-5 py-4 font-medium flex items-center gap-3 relative z-10">
+                        <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-user text-red-600"></i>
+                        </div>
+                        <span>Personal Info</span>
+                    </button>
+                    <button onclick="showTab('employment')" id="tab-employment" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700 relative z-10">
+                        <div class="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
+                            <i class="fas fa-briefcase text-purple-600"></i>
+                        </div>
+                        <span>Employment</span>
+                    </button>
+                    <button onclick="showTab('security')" id="tab-security" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700 relative z-10">
+                        <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
+                            <i class="fas fa-lock text-green-600"></i>
+                        </div>
+                        <span>Security</span>
+                    </button>
+                    <button onclick="showTab('notifications')" id="tab-notifications" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700 relative z-10">
+                        <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
+                            <i class="fas fa-bell text-yellow-600"></i>
+                        </div>
+                        <span>Notifications</span>
+                    </button>
+                    <button onclick="showTab('emergency')" id="tab-emergency" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700 relative z-10">
+                        <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
+                            <i class="fas fa-phone text-red-600"></i>
+                        </div>
+                        <span>Emergency</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Main Content Area -->
+            <div class="lg:col-span-9">
+
+                <!-- Profile Section -->
+                <div id="section-profile" class="glass-effect rounded-2xl shadow-lg p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-gray-800 mb-2">Personal Information</h3>
+                            <p class="text-gray-600">Update your personal details and contact information</p>
+                        </div>
+                        <button onclick="toggleEditProfile()" id="editProfileBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-6 rounded-xl transition shadow-lg hover:shadow-xl">
+                            <i class="fas fa-edit mr-2"></i> Edit Profile
+                        </button>
+                    </div>
+
+                    <form id="profileForm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Full Name -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>Full Name
+                                </label>
+                                <input type="text" id="fullName" required
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       readonly>
+                            </div>
+
+                            <!-- Email -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>Email Address
+                                </label>
+                                <input type="email" id="email" required
+                                       class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl bg-gray-100 cursor-not-allowed"
+                                       readonly>
+                                <p class="text-xs text-gray-500 mt-1 ml-1">Email cannot be changed</p>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-phone text-gray-400 mr-2"></i>Phone Number
+                                </label>
+                                <input type="tel" id="phoneNumber"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       placeholder="+1 (555) 000-0000"
+                                       readonly>
+                            </div>
+
+                            <!-- Date of Birth -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-birthday-cake text-gray-400 mr-2"></i>Date of Birth
+                                </label>
+                                <input type="date" id="dateOfBirth"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       readonly>
+                            </div>
+
+                            <!-- City -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-city text-gray-400 mr-2"></i>City
+                                </label>
+                                <input type="text" id="city"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       readonly>
+                            </div>
+
+                            <!-- Country -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-globe text-gray-400 mr-2"></i>Country
+                                </label>
+                                <input type="text" id="country"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       readonly>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>Address
+                                </label>
+                                <textarea id="address" rows="3"
+                                          class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50 resize-none"
+                                          placeholder="Street, City, State, ZIP"
+                                          readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div id="profileFormButtons" class="mt-8 flex gap-3 hidden">
+                            <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl">
+                                <i class="fas fa-save mr-2"></i> Save Changes
+                            </button>
+                            <button type="button" onclick="cancelEditProfile()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-xl transition">
+                                <i class="fas fa-times mr-2"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Employment Section -->
+                <div id="section-employment" class="section-hidden glass-effect rounded-2xl shadow-lg p-8">
+                    <div class="mb-8">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-2">Employment Details</h3>
+                        <p class="text-gray-600">Your work information and leave balances</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                        <!-- Employee ID -->
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-2xl border border-blue-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-id-card text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-blue-600 font-medium mb-1">Employee ID</p>
+                            <p class="text-2xl font-bold text-blue-900" id="employeeId">--</p>
+                        </div>
+
+                        <!-- Job Title -->
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-2xl border border-purple-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-briefcase text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-purple-600 font-medium mb-1">Job Title</p>
+                            <p class="text-2xl font-bold text-purple-900" id="empJobTitle">--</p>
+                        </div>
+
+                        <!-- Department -->
+                        <div class="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-2xl border border-pink-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-pink-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-building text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-pink-600 font-medium mb-1">Department</p>
+                            <p class="text-2xl font-bold text-pink-900" id="department">--</p>
+                        </div>
+
+                        <!-- Employment Type -->
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-2xl border border-green-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-user-tie text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-green-600 font-medium mb-1">Employment Type</p>
+                            <p class="text-xl font-bold text-green-900" id="employmentType">--</p>
+                        </div>
+
+                        <!-- Joining Date -->
+                        <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-2xl border border-yellow-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-yellow-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-calendar-check text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-yellow-600 font-medium mb-1">Joining Date</p>
+                            <p class="text-xl font-bold text-yellow-900" id="joiningDate">--</p>
+                        </div>
+
+                        <!-- Salary -->
+                        <div class="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-2xl border border-emerald-200">
+                            <div class="flex items-center justify-between mb-3">
+                                <div class="w-12 h-12 bg-emerald-500 rounded-xl flex items-center justify-center">
+                                    <i class="fas fa-dollar-sign text-white text-xl"></i>
+                                </div>
+                            </div>
+                            <p class="text-sm text-emerald-600 font-medium mb-1">Monthly Salary</p>
+                            <p class="text-2xl font-bold text-emerald-900" id="salary">--</p>
+                        </div>
+                    </div>
+
+                    <!-- Leave Balances -->
+                    <div class="bg-gradient-to-br from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-200">
+                        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-umbrella-beach text-indigo-600 mr-3"></i>
+                            Leave Balances
+                        </h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-2">Annual Leave</p>
+                                        <p class="text-4xl font-bold text-indigo-600" id="annualLeave">0</p>
+                                        <p class="text-xs text-gray-500 mt-2">days remaining</p>
+                                    </div>
+                                    <div class="w-16 h-16 bg-indigo-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-umbrella-beach text-indigo-600 text-2xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-white p-6 rounded-xl shadow-sm">
+                                <div class="flex items-center justify-between">
+                                    <div>
+                                        <p class="text-sm text-gray-600 mb-2">Sick Leave</p>
+                                        <p class="text-4xl font-bold text-green-600" id="sickLeave">0</p>
+                                        <p class="text-xs text-gray-500 mt-2">days remaining</p>
+                                    </div>
+                                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
+                                        <i class="fas fa-heartbeat text-green-600 text-2xl"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Section -->
+                <div id="section-security" class="section-hidden glass-effect rounded-2xl shadow-lg p-8">
+                    <div class="mb-8">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-2">Security Settings</h3>
+                        <p class="text-gray-600">Manage your password and account security</p>
+                    </div>
+
+                    <!-- Change Password -->
+                    <div class="bg-gradient-to-br from-slate-50 to-gray-100 p-8 rounded-2xl border border-gray-200">
+                        <h4 class="text-xl font-bold text-gray-800 mb-6 flex items-center">
+                            <i class="fas fa-key text-red-600 mr-3"></i>
+                            Change Password
+                        </h4>
+                        <form id="changePasswordForm" class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
+                                <div class="relative">
+                                    <input type="password" id="currentPassword" required
+                                           class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500"
+                                           placeholder="Enter current password">
+                                    <button type="button" onclick="togglePassword('currentPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
+                                <div class="relative">
+                                    <input type="password" id="newPassword" required minlength="6"
+                                           class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500"
+                                           placeholder="Min 6 characters">
+                                    <button type="button" onclick="togglePassword('newPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div id="passwordStrength" class="mt-3 hidden">
+                                    <div class="h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="passwordStrengthBar" class="strength-bar h-full"></div>
+                                    </div>
+                                    <p id="passwordStrengthText" class="text-xs mt-2 font-medium"></p>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
+                                <div class="relative">
+                                    <input type="password" id="confirmPassword" required minlength="6"
+                                           class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500"
+                                           placeholder="Confirm new password">
+                                    <button type="button" onclick="togglePassword('confirmPassword')" class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl">
+                                <i class="fas fa-save mr-2"></i> Update Password
+                            </button>
+                        </form>
+
+                        <div class="mt-6 pt-6 border-t border-gray-300">
+                            <p class="text-sm text-gray-600">
+                                <i class="fas fa-info-circle text-blue-500 mr-2"></i>
+                                Last password change: <span id="lastPasswordChange" class="font-semibold text-gray-800">Never</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifications Section -->
+                <div id="section-notifications" class="section-hidden glass-effect rounded-2xl shadow-lg p-8">
+                    <div class="mb-8">
+                        <h3 class="text-3xl font-bold text-gray-800 mb-2">Notification Preferences</h3>
+                        <p class="text-gray-600">Choose how you want to receive updates</p>
+                    </div>
+
+                    <form id="notificationForm">
+                        <div class="space-y-4">
+                            <!-- Email Notifications -->
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl border border-blue-200">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-blue-500 rounded-xl flex items-center justify-center">
+                                            <i class="fas fa-envelope text-white text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">Email Notifications</h4>
+                                            <p class="text-sm text-gray-600">Receive updates via email</p>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="emailNotifications" checked>
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="ml-16 space-y-3">
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" id="emailLeaveApproval" class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500" checked>
+                                        <span class="text-sm text-gray-700">Leave approval/rejection</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" id="emailAnnouncements" class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500" checked>
+                                        <span class="text-sm text-gray-700">Company announcements</span>
+                                    </label>
+                                    <label class="flex items-center gap-3 cursor-pointer">
+                                        <input type="checkbox" id="emailPayroll" class="w-5 h-5 rounded text-blue-600 focus:ring-blue-500">
+                                        <span class="text-sm text-gray-700">Payroll updates</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Push Notifications -->
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 p-6 rounded-2xl border border-purple-200">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center">
+                                            <i class="fas fa-bell text-white text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">Push Notifications</h4>
+                                            <p class="text-sm text-gray-600">Receive browser notifications</p>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="pushNotifications">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- SMS Notifications -->
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 p-6 rounded-2xl border border-green-200">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center">
+                                            <i class="fas fa-sms text-white text-xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="font-bold text-gray-800">SMS Notifications</h4>
+                                            <p class="text-sm text-gray-600">Receive text messages</p>
+                                        </div>
+                                    </div>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="smsNotifications">
+                                        <span class="toggle-slider"></span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <button type="submit" class="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl">
+                                <i class="fas fa-save mr-2"></i> Save Preferences
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Emergency Contact Section -->
+                <div id="section-emergency" class="section-hidden glass-effect rounded-2xl shadow-lg p-8">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-3xl font-bold text-gray-800 mb-2">Emergency Contact</h3>
+                            <p class="text-gray-600">Contact person in case of emergency</p>
+                        </div>
+                        <button onclick="toggleEditEmergency()" id="editEmergencyBtn" class="bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-medium py-3 px-6 rounded-xl transition shadow-lg hover:shadow-xl">
+                            <i class="fas fa-edit mr-2"></i> Edit
+                        </button>
+                    </div>
+
+                    <form id="emergencyForm">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Contact Name -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-user text-gray-400 mr-2"></i>Contact Name
+                                </label>
+                                <input type="text" id="emergencyContactName" required
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       placeholder="Full name"
+                                       readonly>
+                            </div>
+
+                            <!-- Relationship -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-heart text-gray-400 mr-2"></i>Relationship
+                                </label>
+                                <select id="emergencyRelationship" required
+                                        class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                        disabled>
+                                    <option value="">Select relationship</option>
+                                    <option value="Spouse">Spouse</option>
+                                    <option value="Parent">Parent</option>
+                                    <option value="Sibling">Sibling</option>
+                                    <option value="Child">Child</option>
+                                    <option value="Friend">Friend</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <!-- Phone Number -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-phone text-gray-400 mr-2"></i>Phone Number
+                                </label>
+                                <input type="tel" id="emergencyPhone" required
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       placeholder="+1 (555) 000-0000"
+                                       readonly>
+                            </div>
+
+                            <!-- Alternate Phone -->
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-mobile-alt text-gray-400 mr-2"></i>Alternate Phone
+                                </label>
+                                <input type="tel" id="emergencyAlternatePhone"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       placeholder="+1 (555) 000-0000"
+                                       readonly>
+                            </div>
+
+                            <!-- Email -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-envelope text-gray-400 mr-2"></i>Email
+                                </label>
+                                <input type="email" id="emergencyEmail"
+                                       class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50"
+                                       placeholder="email@example.com"
+                                       readonly>
+                            </div>
+
+                            <!-- Address -->
+                            <div class="md:col-span-2">
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-2"></i>Address
+                                </label>
+                                <textarea id="emergencyAddress" rows="3"
+                                          class="input-field w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:outline-none focus:border-red-500 bg-gray-50 resize-none"
+                                          placeholder="Street, City, State, ZIP"
+                                          readonly></textarea>
+                            </div>
+                        </div>
+
+                        <div id="emergencyFormButtons" class="mt-8 flex gap-3 hidden">
+                            <button type="submit" class="bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl">
+                                <i class="fas fa-save mr-2"></i> Save Changes
+                            </button>
+                            <button type="button" onclick="cancelEditEmergency()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-8 rounded-xl transition">
+                                <i class="fas fa-times mr-2"></i> Cancel
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // AUTHENTICATION CHECK
+        // ========================================
+        if (!requireAuth()) {
+            // Will redirect automatically
+        }
+
+        const currentUser = getCurrentUser();
+
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const PROFILE_CONFIG = {
+            apiKey: 'YOUR_AIRTABLE_API_KEY',
+            baseId: 'YOUR_AIRTABLE_BASE_ID',
+            employeesTable: 'Employees'
+        };
+
+        let employeeData = null;
+
+        // ========================================
+        // INITIALIZE PAGE
+        // ========================================
+        async function initializePage() {
+            document.getElementById('userInfo').textContent = `${currentUser.name}`;
+            await loadEmployeeData();
+        }
+
+        // ========================================
+        // LOAD EMPLOYEE DATA
+        // ========================================
+        async function loadEmployeeData() {
+            try {
+                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to load employee data');
+
+                const data = await response.json();
+                employeeData = data.fields;
+
+                populateProfile();
+                populateEmployment();
+                populateEmergencyContact();
+                calculateYearsOfService();
+            } catch (error) {
+                console.error('Error loading employee data:', error);
+                showError('Failed to load profile data');
+            }
+        }
+
+        // ========================================
+        // POPULATE PROFILE
+        // ========================================
+        function populateProfile() {
+            // Sidebar
+            const name = employeeData['Full Name'] || 'User';
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            document.getElementById('profileInitials').textContent = initials;
+            document.getElementById('sidebarName').textContent = name;
+            document.getElementById('sidebarJobTitle').textContent = employeeData['Job Title'] || 'Employee';
+            document.getElementById('sidebarStatus').textContent = employeeData['Status'] || 'Active';
+            document.getElementById('quickAnnualLeave').textContent = employeeData['Annual Leave Balance'] || 0;
+
+            // Form fields
+            document.getElementById('fullName').value = employeeData['Full Name'] || '';
+            document.getElementById('email').value = employeeData['Email'] || '';
+            document.getElementById('phoneNumber').value = employeeData['Phone Number'] || '';
+            document.getElementById('dateOfBirth').value = employeeData['Date of Birth'] || '';
+            document.getElementById('address').value = employeeData['Address'] || '';
+            document.getElementById('city').value = employeeData['City'] || '';
+            document.getElementById('country').value = employeeData['Country'] || '';
+        }
+
+        // ========================================
+        // POPULATE EMPLOYMENT
+        // ========================================
+        function populateEmployment() {
+            document.getElementById('employeeId').textContent = employeeData['Employee ID'] || '--';
+            document.getElementById('empJobTitle').textContent = employeeData['Job Title'] || '--';
+            document.getElementById('department').textContent = employeeData['Department'] || '--';
+            document.getElementById('employmentType').textContent = employeeData['Employment Type'] || '--';
+            document.getElementById('joiningDate').textContent = employeeData['Joining Date'] ? new Date(employeeData['Joining Date']).toLocaleDateString() : '--';
+            document.getElementById('salary').textContent = employeeData['Salary'] ? `$${parseFloat(employeeData['Salary']).toLocaleString()}` : '--';
+            document.getElementById('annualLeave').textContent = employeeData['Annual Leave Balance'] || 0;
+            document.getElementById('sickLeave').textContent = employeeData['Sick Leave Balance'] || 0;
+        }
+
+        // ========================================
+        // CALCULATE YEARS OF SERVICE
+        // ========================================
+        function calculateYearsOfService() {
+            if (employeeData['Joining Date']) {
+                const joiningDate = new Date(employeeData['Joining Date']);
+                const today = new Date();
+                const years = Math.floor((today - joiningDate) / (365.25 * 24 * 60 * 60 * 1000));
+                document.getElementById('quickYearsService').textContent = years;
+            }
+        }
+
+        // ========================================
+        // POPULATE EMERGENCY CONTACT
+        // ========================================
+        function populateEmergencyContact() {
+            document.getElementById('emergencyContactName').value = employeeData['Emergency Contact Name'] || '';
+            document.getElementById('emergencyRelationship').value = employeeData['Emergency Contact Relationship'] || '';
+            document.getElementById('emergencyPhone').value = employeeData['Emergency Contact Phone'] || '';
+            document.getElementById('emergencyAlternatePhone').value = employeeData['Emergency Contact Alternate Phone'] || '';
+            document.getElementById('emergencyEmail').value = employeeData['Emergency Contact Email'] || '';
+            document.getElementById('emergencyAddress').value = employeeData['Emergency Contact Address'] || '';
+        }
+
+        // ========================================
+        // TAB SWITCHING
+        // ========================================
+        function showTab(tabName) {
+            // Hide all sections
+            document.querySelectorAll('[id^="section-"]').forEach(section => {
+                section.classList.add('section-hidden');
+            });
+
+            // Remove active class from all tabs
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(`section-${tabName}`).classList.remove('section-hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('active');
+        }
+
+        // ========================================
+        // TOGGLE EDIT PROFILE
+        // ========================================
+        function toggleEditProfile() {
+            const form = document.getElementById('profileForm');
+            const inputs = document.querySelectorAll('#profileForm input:not(#email), #profileForm textarea');
+            const isReadonly = inputs[0].hasAttribute('readonly');
+
+            inputs.forEach(input => {
+                if (isReadonly) {
+                    input.removeAttribute('readonly');
+                    form.classList.add('edit-mode');
+                } else {
+                    input.setAttribute('readonly', true);
+                    form.classList.remove('edit-mode');
+                }
+            });
+
+            document.getElementById('profileFormButtons').classList.toggle('hidden');
+            document.getElementById('editProfileBtn').innerHTML = isReadonly
+                ? '<i class="fas fa-times mr-2"></i> Cancel'
+                : '<i class="fas fa-edit mr-2"></i> Edit Profile';
+        }
+
+        function cancelEditProfile() {
+            toggleEditProfile();
+            populateProfile();
+        }
+
+        // ========================================
+        // TOGGLE EDIT EMERGENCY
+        // ========================================
+        function toggleEditEmergency() {
+            const form = document.getElementById('emergencyForm');
+            const inputs = document.querySelectorAll('#emergencyForm input, #emergencyForm textarea, #emergencyForm select');
+            const isReadonly = inputs[0].hasAttribute('readonly');
+
+            inputs.forEach(input => {
+                if (input.tagName === 'SELECT') {
+                    input.disabled = !input.disabled;
+                } else {
+                    if (isReadonly) {
+                        input.removeAttribute('readonly');
+                        form.classList.add('edit-mode');
+                    } else {
+                        input.setAttribute('readonly', true);
+                        form.classList.remove('edit-mode');
+                    }
+                }
+            });
+
+            document.getElementById('emergencyFormButtons').classList.toggle('hidden');
+            document.getElementById('editEmergencyBtn').innerHTML = isReadonly
+                ? '<i class="fas fa-times mr-2"></i> Cancel'
+                : '<i class="fas fa-edit mr-2"></i> Edit';
+        }
+
+        function cancelEditEmergency() {
+            toggleEditEmergency();
+            populateEmergencyContact();
+        }
+
+        // ========================================
+        // SUBMIT PROFILE FORM
+        // ========================================
+        document.getElementById('profileForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            try {
+                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
+
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Full Name': document.getElementById('fullName').value,
+                            'Phone Number': document.getElementById('phoneNumber').value,
+                            'Date of Birth': document.getElementById('dateOfBirth').value,
+                            'Address': document.getElementById('address').value,
+                            'City': document.getElementById('city').value,
+                            'Country': document.getElementById('country').value
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update profile');
+
+                showSuccess('Profile updated successfully!');
+                toggleEditProfile();
+                await loadEmployeeData();
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                showError('Failed to update profile. Please try again.');
+            }
+        });
+
+        // ========================================
+        // SUBMIT EMERGENCY FORM
+        // ========================================
+        document.getElementById('emergencyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            try {
+                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
+
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Emergency Contact Name': document.getElementById('emergencyContactName').value,
+                            'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
+                            'Emergency Contact Phone': document.getElementById('emergencyPhone').value,
+                            'Emergency Contact Alternate Phone': document.getElementById('emergencyAlternatePhone').value,
+                            'Emergency Contact Email': document.getElementById('emergencyEmail').value,
+                            'Emergency Contact Address': document.getElementById('emergencyAddress').value
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update emergency contact');
+
+                showSuccess('Emergency contact updated successfully!');
+                toggleEditEmergency();
+                await loadEmployeeData();
+            } catch (error) {
+                console.error('Error updating emergency contact:', error);
+                showError('Failed to update emergency contact. Please try again.');
+            }
+        });
+
+        // ========================================
+        // CHANGE PASSWORD
+        // ========================================
+        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const current = document.getElementById('currentPassword').value;
+            const newPass = document.getElementById('newPassword').value;
+            const confirm = document.getElementById('confirmPassword').value;
+
+            // Verify current password
+            if (current !== employeeData['Password']) {
+                showError('Current password is incorrect');
+                return;
+            }
+
+            // Check if new passwords match
+            if (newPass !== confirm) {
+                showError('New passwords do not match');
+                return;
+            }
+
+            // Check password strength
+            if (newPass.length < 6) {
+                showError('Password must be at least 6 characters long');
+                return;
+            }
+
+            try {
+                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
+
+                const response = await fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Password': newPass,
+                            'Last Password Change': new Date().toISOString().split('T')[0]
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to update password');
+
+                showSuccess('Password updated successfully!');
+                document.getElementById('changePasswordForm').reset();
+                await loadEmployeeData();
+            } catch (error) {
+                console.error('Error updating password:', error);
+                showError('Failed to update password. Please try again.');
+            }
+        });
+
+        // Password strength indicator
+        document.getElementById('newPassword').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('passwordStrengthBar');
+            const strengthText = document.getElementById('passwordStrengthText');
+            const strengthContainer = document.getElementById('passwordStrength');
+
+            if (password.length === 0) {
+                strengthContainer.classList.add('hidden');
+                return;
+            }
+
+            strengthContainer.classList.remove('hidden');
+
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+            if (/\d/.test(password)) strength++;
+            if (/[^a-zA-Z\d]/.test(password)) strength++;
+
+            const colors = ['bg-red-500', 'bg-orange-500', 'bg-yellow-500', 'bg-blue-500', 'bg-green-500'];
+            const textColors = ['text-red-600', 'text-orange-600', 'text-yellow-600', 'text-blue-600', 'text-green-600'];
+            const texts = ['Very Weak', 'Weak', 'Fair', 'Good', 'Strong'];
+            const widths = ['20%', '40%', '60%', '80%', '100%'];
+
+            strengthBar.className = `strength-bar h-full ${colors[strength - 1]}`;
+            strengthBar.style.width = widths[strength - 1];
+            strengthText.textContent = texts[strength - 1];
+            strengthText.className = `text-xs mt-2 font-medium ${textColors[strength - 1]}`;
+        });
+
+        // ========================================
+        // NOTIFICATION PREFERENCES
+        // ========================================
+        document.getElementById('notificationForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const preferences = {
+                emailNotifications: document.getElementById('emailNotifications').checked,
+                emailLeaveApproval: document.getElementById('emailLeaveApproval').checked,
+                emailAnnouncements: document.getElementById('emailAnnouncements').checked,
+                emailPayroll: document.getElementById('emailPayroll').checked,
+                pushNotifications: document.getElementById('pushNotifications').checked,
+                smsNotifications: document.getElementById('smsNotifications').checked
+            };
+
+            // Save to localStorage
+            localStorage.setItem(`notifications_${currentUser.id}`, JSON.stringify(preferences));
+            showSuccess('Notification preferences saved!');
+        });
+
+        // Load notification preferences
+        function loadNotificationPreferences() {
+            const saved = localStorage.getItem(`notifications_${currentUser.id}`);
+            if (saved) {
+                const preferences = JSON.parse(saved);
+                Object.keys(preferences).forEach(key => {
+                    const element = document.getElementById(key);
+                    if (element) element.checked = preferences[key];
+                });
+            }
+        }
+
+        // ========================================
+        // TOGGLE PASSWORD VISIBILITY
+        // ========================================
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = input.nextElementSibling.querySelector('i');
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        // ========================================
+        // SHOW MESSAGE
+        // ========================================
+        function showMessage(message, type = 'error') {
+            const toast = document.createElement('div');
+            toast.className = `fixed top-4 right-4 z-50 max-w-md p-4 rounded-xl shadow-2xl ${
+                type === 'success' ? 'bg-gradient-to-r from-green-500 to-emerald-500' : 'bg-gradient-to-r from-red-500 to-pink-500'
+            } text-white transition-all duration-300 transform translate-x-full`;
+
+            toast.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'} text-2xl"></i>
+                    <div class="flex-1">
+                        <p class="font-bold">${type === 'success' ? 'Success' : 'Error'}</p>
+                        <p class="text-sm mt-1 text-white/90">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white/80 hover:text-white">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('translate-x-full');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
+
+        function showError(message) {
+            showMessage(message, 'error');
+        }
+
+        function showSuccess(message) {
+            showMessage(message, 'success');
+        }
+
+        // Initialize page
+        initializePage();
+        loadNotificationPreferences();
+
+        // Show last password change
+        setTimeout(() => {
+            if (employeeData && employeeData['Last Password Change']) {
+                const date = new Date(employeeData['Last Password Change']);
+                document.getElementById('lastPasswordChange').textContent = date.toLocaleDateString();
+            }
+        }, 1000);
+    </script>
+</body>
+</html>

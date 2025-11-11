@@ -1,0 +1,929 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Packaging Glamour HR</title>
+
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <style>
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+
+      /* Mobile Responsive Styles */
+      @media (max-width: 768px) {
+        nav .flex {
+          flex-direction: column;
+          gap: 1rem;
+        }
+
+        nav .flex.items-center.space-x-4 {
+          flex-direction: column;
+          align-items: flex-start;
+          width: 100%;
+        }
+
+        nav .flex.items-center.space-x-4:last-child {
+          flex-direction: row;
+          flex-wrap: wrap;
+          justify-content: center;
+          gap: 0.5rem;
+        }
+
+        nav a,
+        nav button {
+          font-size: 0.875rem;
+          padding: 0.5rem;
+        }
+
+        .container {
+          padding-left: 1rem !important;
+          padding-right: 1rem !important;
+        }
+
+        .grid.md\:grid-cols-3 {
+          grid-template-columns: 1fr !important;
+        }
+
+        .grid.lg\:grid-cols-3 {
+          grid-template-columns: 1fr !important;
+        }
+
+        .text-2xl {
+          font-size: 1.5rem !important;
+        }
+
+        .text-3xl {
+          font-size: 2rem !important;
+        }
+      }
+
+      @media (max-width: 480px) {
+        body {
+          font-size: 14px;
+        }
+
+        .text-xl {
+          font-size: 1.125rem !important;
+        }
+
+        nav {
+          padding: 0.5rem 0;
+        }
+
+        .container {
+          padding: 0.5rem !important;
+        }
+      }
+    </style>
+  </head>
+  <body class="bg-gray-100">
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+      <div class="container mx-auto px-4">
+        <div class="flex justify-between items-center py-4">
+          <div class="flex items-center space-x-4">
+            <h1 class="text-2xl font-bold text-red-600">HR System</h1>
+            <span class="text-gray-600" id="userInfo"></span>
+          </div>
+          <div class="flex items-center space-x-4">
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="attendance-tracker.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-clock mr-1"></i> Attendance
+            </a>
+            <a href="leave-request.html" class="text-red-600 font-semibold">
+              <i class="fas fa-calendar-alt mr-1"></i> Leave
+            </a>
+            <a href="profile.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-user mr-1"></i> Profile
+            </a>
+            <a
+              href="announcements.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-bullhorn mr-1"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+      <!-- Leave Balance Cards -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        <!-- Annual Leave Balance -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Annual Leave</p>
+              <p class="text-3xl font-bold text-red-600" id="annualLeave">--</p>
+              <p class="text-xs text-gray-500 mt-1">days remaining</p>
+            </div>
+            <div class="bg-red-100 p-3 rounded-full">
+              <i class="fas fa-umbrella-beach text-red-600 text-2xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Requests -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-gray-600 text-sm">Pending Requests</p>
+              <p
+                class="text-3xl font-bold text-yellow-600"
+                id="pendingRequests"
+              >
+                0
+              </p>
+              <p class="text-xs text-gray-500 mt-1">awaiting approval</p>
+            </div>
+            <div class="bg-yellow-100 p-3 rounded-full">
+              <i class="fas fa-hourglass-half text-yellow-600 text-2xl"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Policy Information -->
+      <div
+        class="mb-6 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg shadow-md p-6 border border-red-200"
+      >
+        <div class="flex items-start gap-4">
+          <div class="bg-red-600 rounded-full p-3">
+            <i class="fas fa-info-circle text-white text-2xl"></i>
+          </div>
+          <div class="flex-1">
+            <h3 class="text-lg font-bold text-gray-800 mb-3">Leave Policy</h3>
+            <div class="grid md:grid-cols-4 gap-4 text-sm">
+              <div>
+                <h4 class="font-semibold text-red-700 mb-2">
+                  <i class="fas fa-umbrella-beach mr-1"></i> Vacation
+                </h4>
+                <ul class="text-gray-600 space-y-1">
+                  <li>• 20 business days per year</li>
+                  <li>• Max 1 week per quarter</li>
+                  <li>• Blackout: Nov & Dec</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-green-700 mb-2">
+                  <i class="fas fa-heartbeat mr-1"></i> Sick Leave
+                </h4>
+                <ul class="text-gray-600 space-y-1">
+                  <li>• Advance booking allowed</li>
+                  <li>• Medical certificate may be required</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-purple-700 mb-2">
+                  <i class="fas fa-graduation-cap mr-1"></i> Study Leave
+                </h4>
+                <ul class="text-gray-600 space-y-1">
+                  <li>• For educational purposes</li>
+                  <li>• Proof may be required</li>
+                </ul>
+              </div>
+              <div>
+                <h4 class="font-semibold text-red-700 mb-2">
+                  <i class="fas fa-exclamation-triangle mr-1"></i> Other
+                  (Emergency)
+                </h4>
+                <ul class="text-gray-600 space-y-1">
+                  <li>• Same-day application only</li>
+                  <li>• Subject to approval</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Leave Request Form -->
+        <div class="lg:col-span-1 bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-6">Request Leave</h2>
+
+          <form id="leaveRequestForm" class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Leave Type</label
+              >
+              <select
+                id="leaveType"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              >
+                <option value="">Select type</option>
+                <option value="Vacation">Vacation (Annual Leave)</option>
+                <option value="Sick">Sick Leave</option>
+                <option value="Study">Study Leave</option>
+                <option value="Other">Other (Emergency)</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Start Date</label
+              >
+              <input
+                type="date"
+                id="startDate"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >End Date</label
+              >
+              <input
+                type="date"
+                id="endDate"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                required
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Notes</label
+              >
+              <textarea
+                id="notes"
+                rows="4"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+                placeholder="Please provide details or reason for your leave..."
+                required
+              ></textarea>
+            </div>
+
+            <div id="daysCount" class="text-sm text-gray-600">
+              <!-- Days calculation will appear here -->
+            </div>
+
+            <button
+              type="submit"
+              class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition"
+            >
+              <i class="fas fa-paper-plane mr-2"></i>Submit Request
+            </button>
+          </form>
+        </div>
+
+        <!-- Leave History -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-800">My Leave History</h2>
+            <select
+              id="filterStatus"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"
+              onchange="filterLeaveHistory()"
+            >
+              <option value="all">All Requests</option>
+              <option value="Pending">Pending</option>
+              <option value="Approved">Approved</option>
+              <option value="Rejected">Rejected</option>
+            </select>
+          </div>
+
+          <!-- Loading State -->
+          <div id="loadingState" class="text-center py-8">
+            <i class="fas fa-spinner fa-spin text-red-600 text-3xl"></i>
+            <p class="text-gray-500 mt-2">Loading leave history...</p>
+          </div>
+
+          <!-- Leave History List -->
+          <div id="leaveHistoryContainer" class="hidden space-y-4">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyState" class="hidden text-center py-8">
+            <i class="fas fa-inbox text-gray-300 text-5xl mb-4"></i>
+            <p class="text-gray-500">No leave requests found</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ========================================
+      // AUTHENTICATION CHECK
+      // ========================================
+      if (!requireAuth()) {
+        // Will redirect automatically
+      }
+
+      const currentUser = getCurrentUser();
+
+      // ========================================
+      // LEAVE SYSTEM CONFIGURATION
+      // ========================================
+      const LEAVE_CONFIG = {
+        apiKey:
+          "YOUR_AIRTABLE_API_KEY",
+        baseId: "YOUR_AIRTABLE_BASE_ID",
+        employeesTable: "Employees",
+        leaveRequestsTable: "Leave Requests",
+      };
+
+      let allLeaveRequests = [];
+
+      // ========================================
+      // INITIALIZE PAGE
+      // ========================================
+      async function initializePage() {
+        // Display user info
+        document.getElementById("userInfo").textContent =
+          `Welcome, ${currentUser.name}`;
+
+        // Set minimum date to today
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("startDate").setAttribute("min", today);
+        document.getElementById("endDate").setAttribute("min", today);
+
+        // Load leave balances
+        await loadLeaveBalances();
+
+        // Load leave history
+        await loadLeaveHistory();
+
+        // Setup change listeners
+        document
+          .getElementById("leaveType")
+          .addEventListener("change", calculateDays);
+        document
+          .getElementById("startDate")
+          .addEventListener("change", calculateDays);
+        document
+          .getElementById("endDate")
+          .addEventListener("change", calculateDays);
+      }
+
+      // ========================================
+      // LOAD LEAVE BALANCES
+      // ========================================
+      async function loadLeaveBalances() {
+        try {
+          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.employeesTable}/${currentUser.id}`;
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch leave balances");
+          }
+
+          const data = await response.json();
+
+          document.getElementById("annualLeave").textContent =
+            data.fields["Annual Leave Balance"] || 0;
+        } catch (error) {
+          console.error("Error loading leave balances:", error);
+          showError("Failed to load leave balances");
+        }
+      }
+
+      // ========================================
+      // LOAD LEAVE HISTORY
+      // ========================================
+      async function loadLeaveHistory() {
+        try {
+          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}`;
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Failed to fetch leave history");
+          }
+
+          const data = await response.json();
+
+          // Filter records for current employee
+          allLeaveRequests = data.records.filter((record) => {
+            const employeeField = record.fields["Employee"];
+            if (Array.isArray(employeeField)) {
+              return employeeField.includes(currentUser.id);
+            }
+            return false;
+          });
+
+          // Update pending count
+          const pendingCount = allLeaveRequests.filter(
+            (req) => req.fields["Status"] === "Pending"
+          ).length;
+          document.getElementById("pendingRequests").textContent = pendingCount;
+
+          // Render leave history
+          renderLeaveHistory(allLeaveRequests);
+        } catch (error) {
+          console.error("Error loading leave history:", error);
+          showError("Failed to load leave history");
+        }
+      }
+
+      // ========================================
+      // RENDER LEAVE HISTORY
+      // ========================================
+      function renderLeaveHistory(requests) {
+        const container = document.getElementById("leaveHistoryContainer");
+        const loadingState = document.getElementById("loadingState");
+        const emptyState = document.getElementById("emptyState");
+
+        loadingState.classList.add("hidden");
+
+        if (requests.length === 0) {
+          emptyState.classList.remove("hidden");
+          container.classList.add("hidden");
+          return;
+        }
+
+        emptyState.classList.add("hidden");
+        container.classList.remove("hidden");
+        container.innerHTML = "";
+
+        requests.forEach((request) => {
+          const status = request.fields["Status"] || "Pending";
+          const leaveType = request.fields["Leave Type"];
+          const requestId = request.fields["Request ID"] || "N/A";
+
+          // Parse dates safely
+          const startDateStr = request.fields["Start Date"];
+          const endDateStr = request.fields["End Date"];
+          const startDate = startDateStr
+            ? new Date(startDateStr).toLocaleDateString()
+            : "N/A";
+          const endDate = endDateStr
+            ? new Date(endDateStr).toLocaleDateString()
+            : "N/A";
+
+          const days = request.fields["Days"] || 0;
+          const notes = request.fields["Notes"] || "No notes provided";
+          const approvedBy = request.fields["Approved By"] || null;
+
+          // Map leave type to display name
+          const leaveTypeDisplay =
+            {
+              Vacation: "Vacation (Annual Leave)",
+              Sick: "Sick Leave",
+              Study: "Study Leave",
+              Other: "Other (Emergency)",
+            }[leaveType] || leaveType;
+
+          let statusClass = "bg-yellow-100 text-yellow-800";
+          let statusIcon = "fa-hourglass-half";
+          if (status === "Approved") {
+            statusClass = "bg-green-100 text-green-800";
+            statusIcon = "fa-check-circle";
+          } else if (status === "Rejected") {
+            statusClass = "bg-red-100 text-red-800";
+            statusIcon = "fa-times-circle";
+          }
+
+          const card = document.createElement("div");
+          card.className =
+            "border border-gray-200 rounded-lg p-4 hover:shadow-md transition";
+          card.innerHTML = `
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2">
+                                <h3 class="font-semibold text-gray-800">${leaveTypeDisplay}</h3>
+                                <span class="text-xs text-gray-500">#${requestId}</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mt-1">
+                                <i class="fas fa-calendar mr-1"></i>${startDate} - ${endDate}
+                                <span class="font-medium">(${days} ${days === 1 ? "day" : "days"})</span>
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${statusClass} whitespace-nowrap ml-2">
+                            <i class="fas ${statusIcon} mr-1"></i>${status}
+                        </span>
+                    </div>
+                    <div class="mt-2 p-3 bg-gray-50 rounded-lg">
+                        <p class="text-xs font-medium text-gray-700 mb-1"><i class="fas fa-sticky-note mr-1"></i>Notes:</p>
+                        <p class="text-sm text-gray-600">${notes}</p>
+                    </div>
+                    ${
+                      approvedBy
+                        ? `
+                        <div class="mt-2 text-xs text-gray-500">
+                            <i class="fas fa-user-check mr-1"></i>Reviewed by: ${Array.isArray(approvedBy) ? "Admin" : approvedBy}
+                        </div>
+                    `
+                        : ""
+                    }
+                `;
+          container.appendChild(card);
+        });
+      }
+
+      // ========================================
+      // FILTER LEAVE HISTORY
+      // ========================================
+      function filterLeaveHistory() {
+        const filterValue = document.getElementById("filterStatus").value;
+
+        let filteredRequests = allLeaveRequests;
+        if (filterValue !== "all") {
+          filteredRequests = allLeaveRequests.filter(
+            (req) => req.fields["Status"] === filterValue
+          );
+        }
+
+        renderLeaveHistory(filteredRequests);
+      }
+
+      // ========================================
+      // CALCULATE BUSINESS DAYS (INCLUDING WEEKENDS)
+      // ========================================
+      // Business days = total days (20 days allocation includes all 7 days of week)
+      function calculateBusinessDays(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+
+        // Calculate total days including weekends
+        const totalDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+
+        return totalDays;
+      }
+
+      // ========================================
+      // GET QUARTER FOR DATE
+      // ========================================
+      function getQuarter(date) {
+        const month = date.getMonth() + 1; // 0-11, so add 1
+        if (month >= 1 && month <= 3) return 1; // Q1: Jan-Mar
+        if (month >= 4 && month <= 6) return 2; // Q2: Apr-Jun
+        if (month >= 7 && month <= 9) return 3; // Q3: Jul-Sep
+        return 4; // Q4: Oct-Dec
+      }
+
+      // ========================================
+      // VALIDATE LEAVE REQUEST
+      // ========================================
+      function validateLeaveRequest(leaveType, startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Reset time for comparison
+
+        const errors = [];
+
+        // Calculate days
+        const days = calculateBusinessDays(startDate, endDate);
+
+        if (days <= 0) {
+          errors.push("End date must be on or after start date");
+          return { valid: false, errors, days: 0 };
+        }
+
+        // EMERGENCY LEAVE VALIDATION (Other category)
+        if (leaveType === "Other") {
+          // Emergency leave can only be applied on the same day
+          if (start.getTime() !== today.getTime()) {
+            errors.push(
+              "Emergency leave (Other) can only be applied for today"
+            );
+          }
+        }
+
+        // ANNUAL LEAVE VALIDATION (Vacation category)
+        if (leaveType === "Vacation") {
+          const startMonth = start.getMonth() + 1;
+          const endMonth = end.getMonth() + 1;
+
+          // No annual leave in November or December
+          if (
+            startMonth === 11 ||
+            startMonth === 12 ||
+            endMonth === 11 ||
+            endMonth === 12
+          ) {
+            errors.push("Annual leave is not allowed in November or December");
+          }
+
+          // Annual leave is divided into 4 parts over 3 sections (quarters)
+          // Every 3 months you can apply for 1 week (5-7 days)
+          // Maximum 1 week per quarter
+          if (days > 7) {
+            errors.push(
+              "Annual leave is limited to 1 week (7 days) per quarter"
+            );
+          }
+
+          // Check if leave spans multiple quarters
+          const startQuarter = getQuarter(start);
+          const endQuarter = getQuarter(end);
+          if (startQuarter !== endQuarter) {
+            errors.push("Annual leave cannot span multiple quarters");
+          }
+        }
+
+        // MAXIMUM LEAVE DAYS (20 business days per year total)
+        if (days > 20) {
+          errors.push(
+            "Leave request exceeds maximum allowed days (20 days per year)"
+          );
+        }
+
+        return {
+          valid: errors.length === 0,
+          errors,
+          days,
+        };
+      }
+
+      // ========================================
+      // CALCULATE AND DISPLAY DAYS
+      // ========================================
+      function calculateDays() {
+        const leaveType = document.getElementById("leaveType").value;
+        const startDate = document.getElementById("startDate").value;
+        const endDate = document.getElementById("endDate").value;
+        const daysCountDiv = document.getElementById("daysCount");
+
+        if (!leaveType || !startDate || !endDate) {
+          daysCountDiv.innerHTML = "";
+          return;
+        }
+
+        const validation = validateLeaveRequest(leaveType, startDate, endDate);
+
+        if (validation.valid) {
+          daysCountDiv.innerHTML = `
+                    <div class="p-3 bg-red-50 border border-red-200 rounded-lg">
+                        <i class="fas fa-calendar-alt mr-2 text-red-600"></i>
+                        <strong class="text-red-700">${validation.days} business day${validation.days > 1 ? "s" : ""}</strong>
+                        ${leaveType === "Vacation" ? `<span class="text-xs text-gray-600 block mt-1">Quarter: Q${getQuarter(new Date(startDate))}</span>` : ""}
+                    </div>
+                `;
+        } else {
+          const errorMessages = validation.errors
+            .map(
+              (err) =>
+                `<div class="flex items-start gap-2 mt-1">
+                        <i class="fas fa-exclamation-circle text-red-600 mt-0.5"></i>
+                        <span>${err}</span>
+                    </div>`
+            )
+            .join("");
+
+          daysCountDiv.innerHTML = `
+                    <div class="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                        ${errorMessages}
+                    </div>
+                `;
+        }
+      }
+
+      // ========================================
+      // CHECK QUARTERLY LEAVE USAGE
+      // ========================================
+      async function checkQuarterlyLeaveUsage(startDate) {
+        try {
+          const quarter = getQuarter(new Date(startDate));
+          const year = new Date(startDate).getFullYear();
+
+          // Get start and end dates for the quarter
+          let quarterStart, quarterEnd;
+          switch (quarter) {
+            case 1:
+              quarterStart = `${year}-01-01`;
+              quarterEnd = `${year}-03-31`;
+              break;
+            case 2:
+              quarterStart = `${year}-04-01`;
+              quarterEnd = `${year}-06-30`;
+              break;
+            case 3:
+              quarterStart = `${year}-07-01`;
+              quarterEnd = `${year}-09-30`;
+              break;
+            case 4:
+              quarterStart = `${year}-10-01`;
+              quarterEnd = `${year}-12-31`;
+              break;
+          }
+
+          // Query approved vacation (annual) leave requests in this quarter
+          const filterFormula = `AND(
+                    FIND('${currentUser.id}', ARRAYJOIN({Employee})),
+                    {Leave Type} = 'Vacation',
+                    OR({Status} = 'Approved', {Status} = 'Pending'),
+                    IS_AFTER({Start Date}, '${quarterStart}'),
+                    IS_BEFORE({Start Date}, '${quarterEnd}')
+                )`;
+
+          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
+
+          const response = await fetch(url, {
+            method: "GET",
+            headers: {
+              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            console.error("Failed to check quarterly usage");
+            return { hasQuarterlyLeave: false, daysUsed: 0 };
+          }
+
+          const data = await response.json();
+
+          if (data.records && data.records.length > 0) {
+            const totalDays = data.records.reduce((sum, record) => {
+              return sum + (record.fields["Days"] || 0);
+            }, 0);
+
+            return {
+              hasQuarterlyLeave: true,
+              daysUsed: totalDays,
+              quarter: quarter,
+            };
+          }
+
+          return { hasQuarterlyLeave: false, daysUsed: 0, quarter: quarter };
+        } catch (error) {
+          console.error("Error checking quarterly usage:", error);
+          return { hasQuarterlyLeave: false, daysUsed: 0 };
+        }
+      }
+
+      // ========================================
+      // HANDLE FORM SUBMISSION
+      // ========================================
+      document
+        .getElementById("leaveRequestForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const leaveType = document.getElementById("leaveType").value;
+          const startDate = document.getElementById("startDate").value;
+          const endDate = document.getElementById("endDate").value;
+          const notes = document.getElementById("notes").value;
+
+          // Validate the request
+          const validation = validateLeaveRequest(
+            leaveType,
+            startDate,
+            endDate
+          );
+
+          if (!validation.valid) {
+            showError(validation.errors.join("\n"));
+            return;
+          }
+
+          const days = validation.days;
+
+          // Additional check for annual leave (Vacation) quarterly usage
+          if (leaveType === "Vacation") {
+            const quarterlyUsage = await checkQuarterlyLeaveUsage(startDate);
+
+            if (quarterlyUsage.hasQuarterlyLeave) {
+              showError(
+                `You already have vacation leave approved/pending in Q${quarterlyUsage.quarter} (${quarterlyUsage.daysUsed} days used). Only one vacation leave period per quarter is allowed.`
+              );
+              return;
+            }
+          }
+
+          try {
+            const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}`;
+
+            const response = await fetch(url, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                fields: {
+                  Employee: [currentUser.id],
+                  "Leave Type": leaveType,
+                  "Start Date": startDate,
+                  "End Date": endDate,
+                  Notes: notes,
+                  Status: "Pending",
+                },
+              }),
+            });
+
+            if (!response.ok) {
+              const errorData = await response.json();
+              throw new Error(
+                errorData.error?.message || "Failed to submit leave request"
+              );
+            }
+
+            showSuccess(
+              "Leave request submitted successfully! Awaiting approval."
+            );
+
+            // Reset form
+            document.getElementById("leaveRequestForm").reset();
+            document.getElementById("daysCount").innerHTML = "";
+
+            // Reload data
+            await loadLeaveBalances();
+            await loadLeaveHistory();
+          } catch (error) {
+            console.error("Error submitting leave request:", error);
+            showError(`Failed to submit leave request: ${error.message}`);
+          }
+        });
+
+      // ========================================
+      // SHOW MESSAGE (ERROR/SUCCESS)
+      // ========================================
+      function showMessage(message, type = "error") {
+        // Create toast notification
+        const toast = document.createElement("div");
+        toast.className = `fixed top-4 right-4 z-50 max-w-md p-4 rounded-lg shadow-lg ${
+          type === "success" ? "bg-green-500" : "bg-red-500"
+        } text-white transition-all duration-300 transform translate-x-full`;
+
+        toast.innerHTML = `
+                <div class="flex items-start gap-3">
+                    <i class="fas ${type === "success" ? "fa-check-circle" : "fa-exclamation-circle"} text-xl"></i>
+                    <div class="flex-1">
+                        <p class="font-medium">${type === "success" ? "Success" : "Error"}</p>
+                        <p class="text-sm mt-1 whitespace-pre-line">${message}</p>
+                    </div>
+                    <button onclick="this.parentElement.parentElement.remove()" class="text-white hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+
+        document.body.appendChild(toast);
+
+        // Slide in
+        setTimeout(() => {
+          toast.classList.remove("translate-x-full");
+        }, 10);
+
+        // Auto remove after 5 seconds
+        setTimeout(() => {
+          toast.classList.add("translate-x-full");
+          setTimeout(() => toast.remove(), 300);
+        }, 5000);
+      }
+
+      function showError(message) {
+        showMessage(message, "error");
+      }
+
+      function showSuccess(message) {
+        showMessage(message, "success");
+      }
+
+      // Initialize page on load
+      initializePage();
+    </script>
+  </body>
+</html>

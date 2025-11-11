@@ -1,0 +1,99 @@
+@import "tailwindcss";
+
+/* Custom Styles */
+body {
+  font-family: 'Montserrat', sans-serif;
+}
+
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+  nav .flex {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  nav .flex.items-center.space-x-4 {
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+  }
+
+  nav .flex.items-center.space-x-4:last-child {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  nav a,
+  nav button {
+    font-size: 0.875rem;
+    padding: 0.5rem;
+  }
+
+  .container {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .grid.md\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .grid.md\:grid-cols-4 {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 0.75rem !important;
+  }
+
+  .grid.lg\:grid-cols-3 {
+    grid-template-columns: 1fr !important;
+  }
+
+  .text-2xl {
+    font-size: 1.5rem !important;
+  }
+
+  .text-3xl {
+    font-size: 2rem !important;
+  }
+
+  /* Table - Enable horizontal scroll */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  table {
+    font-size: 0.75rem;
+  }
+
+  table th,
+  table td {
+    padding: 0.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  body {
+    font-size: 14px;
+  }
+
+  .text-xl {
+    font-size: 1.125rem !important;
+  }
+
+  nav {
+    padding: 0.5rem 0;
+  }
+
+  .container {
+    padding: 0.5rem !important;
+  }
+
+  /* Hide less important table columns on very small screens */
+  table th:nth-child(4),
+  table td:nth-child(4),
+  table th:last-child,
+  table td:last-child {
+    display: none;
+  }
+}

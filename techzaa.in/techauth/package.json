@@ -1,0 +1,19 @@
+{
+  "name": "techauth",
+  "version": "1.0.0",
+  "description": "A comprehensive, modern HR Management System built with vanilla JavaScript, Tailwind CSS, and Airtable as the backend database.",
+  "main": "admin.js",
+  "scripts": {
+    "build": "./tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --minify",
+    "watch": "./tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch",
+    "dev": "./tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch"
+  },
+  "keywords": ["hr", "management", "attendance", "leave", "airtable", "tailwind"],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "autoprefixer": "^10.4.21",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^4.1.17"
+  }
+}

@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packaging Glamour HR</title>
+
+    <!-- Tailwind CSS (Local) -->
+    <link rel="stylesheet" href="assets/css/tailwind.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .announcement-card {
+            transition: all 0.2s ease;
+        }
+        .announcement-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        .unread {
+            border-left: 4px solid #dc2626;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-red-600">HR System</h1>
+                    <span class="text-gray-600" id="userInfo"></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-chart-line mr-1"></i> Dashboard
+                    </a>
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-clock mr-1"></i> Attendance
+                    </a>
+                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-user mr-1"></i> Profile
+                    </a>
+                    <a href="announcements.html" class="text-red-600 font-semibold">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
+                    </a>
+                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        <!-- Header Section -->
+        <div class="flex justify-between items-center mb-6">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800">Company Announcements</h2>
+                <p class="text-gray-600 mt-1">Stay updated with the latest news and information</p>
+            </div>
+            <button id="createAnnouncementBtn" onclick="toggleCreateForm()" class="hidden bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
+                <i class="fas fa-plus mr-2"></i> Create Announcement
+            </button>
+        </div>
+
+        <!-- Create Announcement Form (Hidden by default) -->
+        <div id="createForm" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-xl font-bold text-gray-800">Create New Announcement</h3>
+                <button onclick="toggleCreateForm()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <form id="announcementForm" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
+                    <input type="text" id="announcementTitle" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                           placeholder="Enter announcement title">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
+                    <select id="announcementType" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        <option value="General">General</option>
+                        <option value="HR">HR</option>
+                        <option value="Urgent">Urgent</option>
+                        <option value="Event">Event</option>
+                        <option value="Policy">Policy</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
+                    <textarea id="announcementMessage" required rows="5"
+                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                              placeholder="Enter announcement details..."></textarea>
+                </div>
+                <div class="flex justify-end space-x-3">
+                    <button type="button" onclick="toggleCreateForm()"
+                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit"
+                            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
+                        <i class="fas fa-paper-plane mr-2"></i> Publish
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Filter Section -->
+        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+            <div class="flex flex-wrap items-center gap-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-700 mr-2">Filter by Type:</label>
+                </div>
+                <button onclick="filterByType('All')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-red-600 text-white">
+                    All
+                </button>
+                <button onclick="filterByType('General')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    General
+                </button>
+                <button onclick="filterByType('HR')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    HR
+                </button>
+                <button onclick="filterByType('Urgent')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    Urgent
+                </button>
+                <button onclick="filterByType('Event')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    Event
+                </button>
+                <button onclick="filterByType('Policy')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    Policy
+                </button>
+                <div class="ml-auto flex items-center space-x-3">
+                    <label class="flex items-center text-sm font-medium text-gray-700">
+                        <input type="checkbox" id="showUnreadOnly" onchange="filterAnnouncements()" class="mr-2">
+                        Unread Only
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Announcements List -->
+        <div id="announcementsList" class="space-y-4">
+            <!-- Loading state -->
+            <div class="text-center py-12">
+                <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
+                <p class="text-gray-600 mt-4">Loading announcements...</p>
+            </div>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden bg-white rounded-lg shadow-md p-12 text-center">
+            <i class="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
+            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Announcements Yet</h3>
+            <p class="text-gray-500">Check back later for updates and news</p>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // AUTHENTICATION CHECK
+        // ========================================
+        if (!requireAuth()) {
+            // Will redirect automatically
+        }
+
+        const currentUser = getCurrentUser();
+
+        // Display user info
+        function updateUserInfo() {
+            const userInfoElement = document.getElementById('userInfo');
+            if (userInfoElement && currentUser) {
+                userInfoElement.textContent = `Welcome, ${currentUser.name}`;
+            }
+        }
+        updateUserInfo();
+
+        // AIRTABLE_CONFIG is already declared in auth.js
+
+        // ========================================
+        // GLOBAL STATE
+        // ========================================
+        let allAnnouncements = [];
+        let currentFilter = 'All';
+        let readAnnouncements = new Set();
+
+        // ========================================
+        // CHECK IF USER IS ADMIN
+        // ========================================
+        async function checkIfAdmin() {
+            try {
+                // Check if current user has admin role
+                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${currentUser.id}`;
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    const role = data.fields['Role'] || '';
+                    if (role === 'Admin' || role === 'HR') {
+                        document.getElementById('createAnnouncementBtn').classList.remove('hidden');
+                    }
+                }
+            } catch (error) {
+                console.error('Error checking admin status:', error);
+            }
+        }
+
+        // ========================================
+        // TOGGLE CREATE FORM
+        // ========================================
+        function toggleCreateForm() {
+            const form = document.getElementById('createForm');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden')) {
+                document.getElementById('announcementTitle').focus();
+            }
+        }
+
+        // ========================================
+        // CREATE ANNOUNCEMENT
+        // ========================================
+        document.getElementById('announcementForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const title = document.getElementById('announcementTitle').value;
+            const type = document.getElementById('announcementType').value;
+            const message = document.getElementById('announcementMessage').value;
+
+            try {
+                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.announcements}`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Title': title,
+                            'Type': type,
+                            'Message': message,
+                            'Created By': [currentUser.id],
+                            'Date': new Date().toISOString().split('T')[0]
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    alert('Announcement published successfully!');
+                    document.getElementById('announcementForm').reset();
+                    toggleCreateForm();
+                    loadAnnouncements();
+                } else {
+                    alert('Failed to publish announcement. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error creating announcement:', error);
+                alert('Error creating announcement. Please try again.');
+            }
+        });
+
+        // ========================================
+        // LOAD ANNOUNCEMENTS
+        // ========================================
+        async function loadAnnouncements() {
+            try {
+                // Load announcements
+                const announcementsUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.announcements}?sort[0][field]=Date&sort[0][direction]=desc`;
+                const announcementsResponse = await fetch(announcementsUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!announcementsResponse.ok) {
+                    throw new Error('Failed to fetch announcements');
+                }
+
+                const announcementsData = await announcementsResponse.json();
+                allAnnouncements = announcementsData.records;
+
+                // Read receipts feature disabled - requires AnnouncementReads table in Airtable
+                // Uncomment below if you want to track which announcements users have read
+                /*
+                const readsUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads?filterByFormula={Employee}='${currentUser.id}'`;
+                const readsResponse = await fetch(readsUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (readsResponse.ok) {
+                    const readsData = await readsResponse.json();
+                    readAnnouncements = new Set(readsData.records.map(r => r.fields['Announcement'][0]));
+                }
+                */
+
+                displayAnnouncements();
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                document.getElementById('announcementsList').innerHTML = `
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        <p>Error loading announcements. Please refresh the page.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ========================================
+        // FILTER ANNOUNCEMENTS
+        // ========================================
+        function filterByType(type) {
+            currentFilter = type;
+
+            // Update button styles
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('bg-red-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            event.target.classList.remove('bg-gray-200', 'text-gray-700');
+            event.target.classList.add('bg-red-600', 'text-white');
+
+            displayAnnouncements();
+        }
+
+        function filterAnnouncements() {
+            displayAnnouncements();
+        }
+
+        // ========================================
+        // DISPLAY ANNOUNCEMENTS
+        // ========================================
+        function displayAnnouncements() {
+            const showUnreadOnly = document.getElementById('showUnreadOnly').checked;
+
+            let filtered = allAnnouncements.filter(announcement => {
+                const type = announcement.fields['Type'];
+                const isRead = readAnnouncements.has(announcement.id);
+
+                const matchesType = currentFilter === 'All' || type === currentFilter;
+                const matchesReadStatus = !showUnreadOnly || !isRead;
+
+                return matchesType && matchesReadStatus;
+            });
+
+            const listContainer = document.getElementById('announcementsList');
+            const emptyState = document.getElementById('emptyState');
+
+            if (filtered.length === 0) {
+                listContainer.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+
+            listContainer.innerHTML = filtered.map(announcement => {
+                const isRead = readAnnouncements.has(announcement.id);
+                const type = announcement.fields['Type'];
+                const title = announcement.fields['Title'];
+                const message = announcement.fields['Message'];
+                const date = announcement.fields['Date'];
+
+                // Format date
+                const dateObj = new Date(date);
+                const formattedDate = dateObj.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+
+                // Type badge colors
+                const typeColors = {
+                    'General': 'bg-blue-100 text-blue-800',
+                    'HR': 'bg-purple-100 text-purple-800',
+                    'Urgent': 'bg-red-100 text-red-800',
+                    'Event': 'bg-green-100 text-green-800',
+                    'Policy': 'bg-yellow-100 text-yellow-800'
+                };
+
+                const typeColor = typeColors[type] || 'bg-gray-100 text-gray-800';
+
+                return `
+                    <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? 'unread' : ''}" data-id="${announcement.id}">
+                        <div class="flex justify-between items-start mb-3">
+                            <div class="flex items-center space-x-3">
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${typeColor}">
+                                    ${type}
+                                </span>
+                                ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ''}
+                            </div>
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-calendar mr-1"></i> ${formattedDate}
+                            </div>
+                        </div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">${title}</h3>
+                        <p class="text-gray-600 mb-4 whitespace-pre-line">${message}</p>
+                        <div class="flex justify-between items-center">
+                            <div class="text-sm text-gray-500">
+                                <i class="fas fa-user mr-1"></i> Posted by HR
+                            </div>
+                            ${!isRead ? `
+                                <button onclick="markAsRead('${announcement.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                    <i class="fas fa-check mr-1"></i> Mark as Read
+                                </button>
+                            ` : '<span class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i> Read</span>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ========================================
+        // MARK ANNOUNCEMENT AS READ (DISABLED)
+        // ========================================
+        async function markAsRead(announcementId) {
+            // Read receipts feature disabled - requires AnnouncementReads table
+            // Just add to local set for UI purposes
+            readAnnouncements.add(announcementId);
+            displayAnnouncements();
+
+            /* Uncomment if you have AnnouncementReads table in Airtable
+            try {
+                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads`;
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Announcement': [announcementId],
+                            'Employee': [currentUser.id],
+                            'Read Date': new Date().toISOString().split('T')[0]
+                        }
+                    })
+                });
+
+                if (response.ok) {
+                    readAnnouncements.add(announcementId);
+                    displayAnnouncements();
+                } else {
+                    alert('Failed to mark as read. Please try again.');
+                }
+            } catch (error) {
+                console.error('Error marking as read:', error);
+                alert('Error marking as read. Please try again.');
+            }
+            */
+        }
+
+        // ========================================
+        // INITIALIZE
+        // ========================================
+        checkIfAdmin();
+        loadAnnouncements();
+    </script>
+</body>
+</html>

@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Packaging Glamour HR</title>
+
+    <!-- Tailwind CSS (Local) -->
+    <link rel="stylesheet" href="assets/css/tailwind.css" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Chart.js for charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+        }
+        .stat-card {
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+        .pulse-dot {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.5;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- Navigation Bar -->
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-4">
+                    <h1 class="text-2xl font-bold text-red-600">HR System</h1>
+                    <span class="text-gray-600" id="userInfo"></span>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-red-600 font-semibold">
+                        <i class="fas fa-chart-line mr-1"></i> Dashboard
+                    </a>
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-clock mr-1"></i> Attendance
+                    </a>
+                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-user mr-1"></i> Profile
+                    </a>
+                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
+                    </a>
+                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+                    </a>
+                    <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
+                        <i class="fas fa-user-shield mr-1"></i> Admin
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+
+        <!-- Welcome Header -->
+        <div class="mb-8">
+            <h2 class="text-3xl font-bold text-gray-800">Welcome back, <span id="userName">User</span>!</h2>
+            <p class="text-gray-600 mt-1">Here's what's happening with your work today.</p>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <!-- Today's Status -->
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Today's Status</p>
+                        <h3 class="text-2xl font-bold text-green-600 mt-2" id="todayStatus">--</h3>
+                        <p class="text-xs text-gray-500 mt-1" id="checkInTime">--</p>
+                    </div>
+                    <div class="bg-green-100 rounded-full p-4">
+                        <i class="fas fa-check-circle text-green-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hours This Month -->
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Hours This Month</p>
+                        <h3 class="text-2xl font-bold text-blue-600 mt-2" id="monthlyHours">0</h3>
+                        <p class="text-xs text-gray-500 mt-1">of 160 hours</p>
+                    </div>
+                    <div class="bg-blue-100 rounded-full p-4">
+                        <i class="fas fa-clock text-blue-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Leave Balance -->
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card cursor-pointer" onclick="window.location.href='leave-request.html'">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Leave Balance</p>
+                        <h3 class="text-2xl font-bold text-purple-600 mt-2" id="leaveBalance">--</h3>
+                        <p class="text-xs text-gray-500 mt-1">days remaining</p>
+                    </div>
+                    <div class="bg-purple-100 rounded-full p-4">
+                        <i class="fas fa-umbrella-beach text-purple-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pending Requests -->
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card cursor-pointer" onclick="window.location.href='leave-request.html'">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Pending Requests</p>
+                        <h3 class="text-2xl font-bold text-yellow-600 mt-2" id="pendingRequests">0</h3>
+                        <p class="text-xs text-gray-500 mt-1">awaiting approval</p>
+                    </div>
+                    <div class="bg-yellow-100 rounded-full p-4">
+                        <i class="fas fa-hourglass-half text-yellow-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+            <!-- Attendance Overview -->
+            <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Attendance Overview</h3>
+                    <select id="attendanceMonthFilter" onchange="filterAttendanceChart()" class="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-red-500">
+                        <option value="current">This Month</option>
+                        <option value="last">Last Month</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                <div class="relative" style="height: 300px;">
+                    <canvas id="attendanceChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Quick Actions</h3>
+                <div class="space-y-3">
+                    <button onclick="quickCheckIn()" id="quickCheckInBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-sign-in-alt mr-2"></i> Check In
+                    </button>
+                    <button onclick="quickCheckOut()" id="quickCheckOutBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center hidden">
+                        <i class="fas fa-sign-out-alt mr-2"></i> Check Out
+                    </button>
+                    <button onclick="window.location.href='leave-request.html'" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-calendar-plus mr-2"></i> Request Leave
+                    </button>
+                    <button onclick="window.location.href='profile.html'" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-user-edit mr-2"></i> Update Profile
+                    </button>
+                    <button onclick="window.location.href='payroll.html'" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-receipt mr-2"></i> View Payslip
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <!-- Recent Announcements -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h3 class="text-xl font-bold text-gray-800">Recent Announcements</h3>
+                    <a href="announcements.html" class="text-red-600 hover:text-red-700 text-sm font-medium">View All <i class="fas fa-arrow-right ml-1"></i></a>
+                </div>
+                <div id="announcementsList" class="space-y-4">
+                    <!-- Loading State -->
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p>Loading announcements...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Activity -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Recent Activity</h3>
+                <div id="activityFeed" class="space-y-4">
+                    <!-- Loading State -->
+                    <div class="text-center py-8 text-gray-500">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p>Loading activity...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ========================================
+        // AUTHENTICATION CHECK
+        // ========================================
+        if (!requireAuth()) {
+            // Will redirect automatically
+        }
+
+        const currentUser = getCurrentUser();
+
+        // ========================================
+        // CONFIGURATION
+        // ========================================
+        const DASHBOARD_CONFIG = {
+            apiKey: 'YOUR_AIRTABLE_API_KEY',
+            baseId: 'YOUR_AIRTABLE_BASE_ID',
+            employeesTable: 'Employees',
+            attendanceTable: 'Attendance',
+            leaveRequestsTable: 'Leave Requests',
+            announcementsTable: 'Announcements'
+        };
+
+        let attendanceChart = null;
+        let allAttendanceRecords = [];
+
+        // ========================================
+        // INITIALIZE DASHBOARD
+        // ========================================
+        async function initializeDashboard() {
+            // Display user name
+            document.getElementById('userName').textContent = currentUser.name.split(' ')[0];
+            document.getElementById('userInfo').textContent = `Welcome, ${currentUser.name}`;
+
+            // Show admin link if user is admin
+            if (currentUser.role === 'Admin') {
+                document.getElementById('adminLink').style.display = 'inline-block';
+            }
+
+            // Load all data
+            await Promise.all([
+                loadTodayStatus(),
+                loadMonthlyHours(),
+                loadLeaveBalance(),
+                loadPendingRequests(),
+                loadAttendanceData(),
+                loadAnnouncements(),
+                loadRecentActivity()
+            ]);
+        }
+
+        // ========================================
+        // LOAD TODAY'S STATUS
+        // ========================================
+        async function loadTodayStatus() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Date} = '${today}')`;
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch today status');
+
+                const data = await response.json();
+
+                if (data.records.length > 0) {
+                    const record = data.records[0];
+                    const checkIn = record.fields['Check-in Time'];
+                    const checkOut = record.fields['Check-out Time'];
+
+                    if (checkOut) {
+                        document.getElementById('todayStatus').textContent = 'Checked Out';
+                        document.getElementById('checkInTime').textContent = `${checkIn} - ${checkOut}`;
+                        document.getElementById('quickCheckInBtn').classList.add('hidden');
+                    } else if (checkIn) {
+                        document.getElementById('todayStatus').textContent = 'Checked In';
+                        document.getElementById('checkInTime').textContent = `Since ${checkIn}`;
+                        document.getElementById('quickCheckInBtn').classList.add('hidden');
+                        document.getElementById('quickCheckOutBtn').classList.remove('hidden');
+                    }
+                } else {
+                    document.getElementById('todayStatus').textContent = 'Not Checked In';
+                    document.getElementById('checkInTime').textContent = 'No record today';
+                }
+            } catch (error) {
+                console.error('Error loading today status:', error);
+                document.getElementById('todayStatus').textContent = '--';
+            }
+        }
+
+        // ========================================
+        // LOAD MONTHLY HOURS
+        // ========================================
+        async function loadMonthlyHours() {
+            try {
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+                const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
+
+                const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch monthly hours');
+
+                const data = await response.json();
+
+                let totalHours = 0;
+                data.records.forEach(record => {
+                    const hours = parseFloat(record.fields['Hours Worked']) || 0;
+                    totalHours += hours;
+                });
+
+                document.getElementById('monthlyHours').textContent = totalHours.toFixed(1);
+            } catch (error) {
+                console.error('Error loading monthly hours:', error);
+                document.getElementById('monthlyHours').textContent = '0';
+            }
+        }
+
+        // ========================================
+        // LOAD LEAVE BALANCE
+        // ========================================
+        async function loadLeaveBalance() {
+            try {
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.employeesTable}/${currentUser.id}`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch leave balance');
+
+                const data = await response.json();
+                const balance = data.fields['Annual Leave Balance'] || 0;
+                document.getElementById('leaveBalance').textContent = balance;
+            } catch (error) {
+                console.error('Error loading leave balance:', error);
+                document.getElementById('leaveBalance').textContent = '--';
+            }
+        }
+
+        // ========================================
+        // LOAD PENDING REQUESTS
+        // ========================================
+        async function loadPendingRequests() {
+            try {
+                const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Status} = 'Pending')`;
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.leaveRequestsTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch pending requests');
+
+                const data = await response.json();
+                document.getElementById('pendingRequests').textContent = data.records.length;
+            } catch (error) {
+                console.error('Error loading pending requests:', error);
+                document.getElementById('pendingRequests').textContent = '0';
+            }
+        }
+
+        // ========================================
+        // LOAD ATTENDANCE DATA
+        // ========================================
+        async function loadAttendanceData() {
+            try {
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=90`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch attendance data');
+
+                const data = await response.json();
+                allAttendanceRecords = data.records;
+
+                renderAttendanceChart(allAttendanceRecords);
+            } catch (error) {
+                console.error('Error loading attendance data:', error);
+            }
+        }
+
+        // ========================================
+        // RENDER ATTENDANCE CHART
+        // ========================================
+        function renderAttendanceChart(records) {
+            const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+            // Process data - group by week
+            const weeklyData = {};
+            records.forEach(record => {
+                const date = new Date(record.fields['Date']);
+                const weekStart = getWeekStart(date);
+                const weekLabel = weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+                if (!weeklyData[weekLabel]) {
+                    weeklyData[weekLabel] = 0;
+                }
+                weeklyData[weekLabel] += parseFloat(record.fields['Hours Worked']) || 0;
+            });
+
+            // Get last 8 weeks
+            const labels = Object.keys(weeklyData).reverse().slice(0, 8).reverse();
+            const data = labels.map(label => weeklyData[label].toFixed(1));
+
+            if (attendanceChart) {
+                attendanceChart.destroy();
+            }
+
+            attendanceChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Hours Worked',
+                        data: data,
+                        backgroundColor: 'rgba(220, 38, 38, 0.7)',
+                        borderColor: 'rgba(220, 38, 38, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y} hours`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + 'h';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function getWeekStart(date) {
+            const d = new Date(date);
+            const day = d.getDay();
+            const diff = d.getDate() - day;
+            return new Date(d.setDate(diff));
+        }
+
+        // ========================================
+        // LOAD ANNOUNCEMENTS
+        // ========================================
+        async function loadAnnouncements() {
+            try {
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.announcementsTable}?maxRecords=3&sort[0][field]=Date&sort[0][direction]=desc`;
+
+                const response = await fetch(url, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) throw new Error('Failed to fetch announcements');
+
+                const data = await response.json();
+                const container = document.getElementById('announcementsList');
+
+                if (data.records.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-2"></i>
+                            <p>No announcements</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = data.records.map(record => {
+                    const title = record.fields['Title'] || 'Untitled';
+                    const message = record.fields['Message'] || '';
+                    const date = record.fields['Date'] ? new Date(record.fields['Date']).toLocaleDateString() : '';
+                    const priority = record.fields['Priority'] || 'Medium';
+
+                    const priorityColors = {
+                        'High': 'bg-red-100 text-red-800',
+                        'Medium': 'bg-yellow-100 text-yellow-800',
+                        'Low': 'bg-blue-100 text-blue-800'
+                    };
+
+                    const borderColors = {
+                        'High': 'border-red-500',
+                        'Medium': 'border-yellow-500',
+                        'Low': 'border-blue-500'
+                    };
+
+                    return `
+                        <div class="border-l-4 ${borderColors[priority]} bg-gray-50 p-4 rounded-r-lg">
+                            <div class="flex justify-between items-start mb-2">
+                                <h4 class="font-semibold text-gray-800">${title}</h4>
+                                <span class="px-2 py-1 text-xs font-medium rounded-full ${priorityColors[priority]}">${priority} Priority</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">${message.substring(0, 100)}${message.length > 100 ? '...' : ''}</p>
+                            <p class="text-xs text-gray-500"><i class="fas fa-calendar mr-1"></i>${date}</p>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading announcements:', error);
+                document.getElementById('announcementsList').innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p>Failed to load announcements</p>
+                    </div>
+                `;
+            }
+        }
+
+        // ========================================
+        // LOAD RECENT ACTIVITY
+        // ========================================
+        async function loadRecentActivity() {
+            try {
+                const container = document.getElementById('activityFeed');
+                const activities = [];
+
+                // Get recent attendance
+                const attendanceUrl = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=5`;
+                const attendanceRes = await fetch(attendanceUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`
+                    }
+                });
+                const attendanceData = await attendanceRes.json();
+
+                attendanceData.records.forEach(record => {
+                    const date = record.fields['Date'];
+                    const checkIn = record.fields['Check-in Time'];
+                    const checkOut = record.fields['Check-out Time'];
+                    activities.push({
+                        type: 'attendance',
+                        date: date,
+                        icon: 'fa-clock',
+                        color: 'text-green-600',
+                        text: checkOut ? `Checked in at ${checkIn}, out at ${checkOut}` : `Checked in at ${checkIn}`
+                    });
+                });
+
+                // Get recent leave requests
+                const leaveUrl = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.leaveRequestsTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=createdTime&sort[0][direction]=desc&maxRecords=3`;
+                const leaveRes = await fetch(leaveUrl, {
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`
+                    }
+                });
+                const leaveData = await leaveRes.json();
+
+                leaveData.records.forEach(record => {
+                    const leaveType = record.fields['Leave Type'];
+                    const status = record.fields['Status'];
+                    const startDate = record.fields['Start Date'];
+                    activities.push({
+                        type: 'leave',
+                        date: startDate,
+                        icon: 'fa-calendar-alt',
+                        color: status === 'Approved' ? 'text-green-600' : status === 'Rejected' ? 'text-red-600' : 'text-yellow-600',
+                        text: `${leaveType} leave request - ${status}`
+                    });
+                });
+
+                // Sort by date
+                activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+                if (activities.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-inbox text-3xl mb-2"></i>
+                            <p>No recent activity</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = activities.slice(0, 5).map(activity => {
+                    const date = new Date(activity.date);
+                    const timeAgo = getTimeAgo(date);
+
+                    return `
+                        <div class="flex items-start space-x-3 pb-4 border-b border-gray-200 last:border-0 last:pb-0">
+                            <div class="bg-gray-100 rounded-full p-2">
+                                <i class="fas ${activity.icon} ${activity.color}"></i>
+                            </div>
+                            <div class="flex-1">
+                                <p class="text-sm text-gray-800">${activity.text}</p>
+                                <p class="text-xs text-gray-500 mt-1">${timeAgo}</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading recent activity:', error);
+                document.getElementById('activityFeed').innerHTML = `
+                    <div class="text-center py-8 text-gray-500">
+                        <p>Failed to load activity</p>
+                    </div>
+                `;
+            }
+        }
+
+        function getTimeAgo(date) {
+            const now = new Date();
+            const diff = now - date;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+            if (days === 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 7) return `${days} days ago`;
+            if (days < 30) return `${Math.floor(days / 7)} weeks ago`;
+            return date.toLocaleDateString();
+        }
+
+        // ========================================
+        // QUICK CHECK IN
+        // ========================================
+        async function quickCheckIn() {
+            if (!confirm('Are you sure you want to check in now?')) return;
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const datetime = new Date().toISOString();
+
+                // Try to get location
+                let locationString = 'Location unavailable';
+                try {
+                    if (navigator.geolocation) {
+                        const position = await new Promise((resolve, reject) => {
+                            navigator.geolocation.getCurrentPosition(resolve, reject, {
+                                enableHighAccuracy: true,
+                                timeout: 5000,
+                                maximumAge: 0
+                            });
+                        });
+                        locationString = `Lat: ${position.coords.latitude.toFixed(6)}, Lng: ${position.coords.longitude.toFixed(6)} (±${position.coords.accuracy.toFixed(0)}m)`;
+                    }
+                } catch (locationError) {
+                    // Continue without location
+                }
+
+                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}`;
+
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        fields: {
+                            'Employee': [currentUser.id],
+                            'Date': today,
+                            'Check In': datetime,
+                            'Check In Location': locationString
+                        }
+                    })
+                });
+
+                if (!response.ok) throw new Error('Failed to check in');
+
+                alert('Checked in successfully!');
+                window.location.reload();
+            } catch (error) {
+                console.error('Error checking in:', error);
+                alert('Failed to check in. Please try again.');
+            }
+        }
+
+        // ========================================
+        // QUICK CHECK OUT
+        // ========================================
+        async function quickCheckOut() {
+            window.location.href = 'attendance-tracker.html';
+        }
+
+        // ========================================
+        // FILTER ATTENDANCE CHART
+        // ========================================
+        function filterAttendanceChart() {
+            const filter = document.getElementById('attendanceMonthFilter').value;
+            let filteredRecords = allAttendanceRecords;
+
+            if (filter === 'current') {
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+                filteredRecords = allAttendanceRecords.filter(record => {
+                    const date = new Date(record.fields['Date']);
+                    return date >= firstDay;
+                });
+            } else if (filter === 'last') {
+                const now = new Date();
+                const firstDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+                const lastDay = new Date(now.getFullYear(), now.getMonth(), 0);
+                filteredRecords = allAttendanceRecords.filter(record => {
+                    const date = new Date(record.fields['Date']);
+                    return date >= firstDay && date <= lastDay;
+                });
+            }
+
+            renderAttendanceChart(filteredRecords);
+        }
+
+        // Initialize dashboard on load
+        initializeDashboard();
+    </script>
+</body>
+</html>
