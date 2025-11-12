@@ -226,6 +226,25 @@ async function getPayroll(filterFormula = null) {
     return workerRequest(API_CONFIG.endpoints.payroll, 'GET', null, queryParams);
 }
 
+/**
+ * Create a payroll record
+ * @param {object} fields - Payroll data
+ * @returns {Promise<object>} Created payroll record
+ */
+async function createPayroll(fields) {
+    return workerRequest(API_CONFIG.endpoints.payroll, 'POST', { fields });
+}
+
+/**
+ * Update a payroll record
+ * @param {string} recordId - Airtable record ID
+ * @param {object} fields - Updated payroll data
+ * @returns {Promise<object>} Updated payroll record
+ */
+async function updatePayroll(recordId, fields) {
+    return workerRequest(`${API_CONFIG.endpoints.payroll}/${recordId}`, 'PATCH', { fields });
+}
+
 // ========================================
 // BACKWARD COMPATIBILITY
 // ========================================

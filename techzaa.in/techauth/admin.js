@@ -817,38 +817,375 @@ async function generatePayrollReport() {
 }
 
 // ========================================
-// PAYROLL MANAGEMENT (PLACEHOLDER)
+// PAYROLL MANAGEMENT
 // ========================================
-// Note: Payroll management functions are placeholders
-// Full implementation requires business logic for salary calculations
+let allPayrollRecords = [];
+let customAllowances = [];
+let customDeductions = [];
 
-function openAddPayrollModal() {
-    alert('Payroll management feature is under development. Please use the dedicated Payroll page for now.');
-}
+async function loadPayrollRecords() {
+    const employeeFilter = document.getElementById('payrollEmployeeFilter').value;
+    const monthFilter = document.getElementById('payrollMonthFilter').value;
 
-function closePayrollModal() {
-    const modal = document.getElementById('payrollModal');
-    if (modal) modal.classList.remove('active');
-}
+    try {
+        // Build filter formula
+        let filters = [];
+        if (employeeFilter) {
+            filters.push(`FIND('${employeeFilter}', ARRAYJOIN({Employee}))`);
+        }
+        if (monthFilter) {
+            filters.push(`{Month} = '${monthFilter}'`);
+        }
 
-function loadPayrollRecords() {
-    const tbody = document.getElementById('payrollTableBody');
-    if (tbody) {
-        tbody.innerHTML = `
+        const filterFormula = filters.length > 0 ? `AND(${filters.join(',')})` : null;
+        const data = await getPayroll(filterFormula);
+        allPayrollRecords = data.records || [];
+
+        // Sort by month descending
+        allPayrollRecords.sort((a, b) => {
+            const monthA = a.fields['Month'] || '';
+            const monthB = b.fields['Month'] || '';
+            return monthB.localeCompare(monthA);
+        });
+
+        displayPayrollRecords();
+    } catch (error) {
+        console.error('Error loading payroll:', error);
+        document.getElementById('payrollTableBody').innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
-                    <i class="fas fa-info-circle text-4xl mb-4"></i>
-                    <p class="text-lg">Payroll management is under development.</p>
-                    <p class="mt-2">Please use the <a href="payroll.html" class="text-red-600 hover:underline">dedicated Payroll page</a> to view employee payroll information.</p>
+                <td colspan="8" class="px-6 py-4 text-center text-red-600">
+                    Error loading payroll records. Please try again.
                 </td>
             </tr>
         `;
     }
 }
 
-function calculateNetSalary() {
-    // Placeholder for salary calculation logic
+async function displayPayrollRecords() {
+    const tbody = document.getElementById('payrollTableBody');
+
+    if (allPayrollRecords.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-receipt text-4xl mb-4"></i>
+                    <p>No payroll records found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    // Fetch employee names
+    const employeePromises = allPayrollRecords.map(async (record) => {
+        if (record.fields['Employee'] && record.fields['Employee'][0]) {
+            try {
+                const employee = await getEmployee(record.fields['Employee'][0]);
+                return { id: record.id, name: employee.fields['Full Name'] || 'Unknown' };
+            } catch (error) {
+                return { id: record.id, name: 'Unknown' };
+            }
+        }
+        return { id: record.id, name: 'Unknown' };
+    });
+
+    const employeeNames = await Promise.all(employeePromises);
+    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
+
+    tbody.innerHTML = allPayrollRecords.map(record => {
+        const fields = record.fields;
+        const employeeName = nameMap[record.id];
+
+        return `
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employeeName}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fields['Month'] || '--'}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Basic Salary'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Total Allowances'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Total Deductions'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">$${parseFloat(fields['Gross Salary'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">$${parseFloat(fields['Net Salary'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
 }
+
+async function openAddPayrollModal() {
+    document.getElementById('payrollModalTitle').textContent = 'Create Payroll';
+    document.getElementById('payrollForm').reset();
+    document.getElementById('payrollId').value = '';
+
+    // Reset custom arrays
+    customAllowances = [];
+    customDeductions = [];
+    updateCustomAllowancesList();
+    updateCustomDeductionsList();
+
+    // Set default month to current month
+    const now = new Date();
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    document.getElementById('payrollMonth').value = currentMonth;
+
+    // Populate employee dropdown
+    const select = document.getElementById('payrollEmployee');
+    select.innerHTML = '<option value="">Select Employee</option>';
+
+    try {
+        const data = await getEmployees();
+        const employees = data.records || [];
+        employees.sort((a, b) => {
+            const nameA = (a.fields['Full Name'] || '').toLowerCase();
+            const nameB = (b.fields['Full Name'] || '').toLowerCase();
+            return nameA.localeCompare(nameB);
+        });
+
+        employees.forEach(emp => {
+            const option = document.createElement('option');
+            option.value = emp.id;
+            option.textContent = emp.fields['Full Name'];
+            select.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading employees:', error);
+    }
+
+    document.getElementById('payrollModal').classList.add('active');
+}
+
+function closePayrollModal() {
+    document.getElementById('payrollModal').classList.remove('active');
+}
+
+function editPayroll(record) {
+    document.getElementById('payrollModalTitle').textContent = 'Edit Payroll';
+    document.getElementById('payrollId').value = record.id;
+
+    const fields = record.fields;
+    document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
+    document.getElementById('payrollMonth').value = fields['Month'] || '';
+    document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
+    document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
+    document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
+    document.getElementById('benefits').value = fields['Benefits'] || 0;
+    document.getElementById('otherAllowances').value = fields['Other Allowances'] || 0;
+    document.getElementById('incomeTax').value = fields['Income Tax'] || 0;
+    document.getElementById('welfare').value = fields['Welfare'] || 0;
+    document.getElementById('socialSecurity').value = fields['Social Security'] || 0;
+    document.getElementById('healthInsurance').value = fields['Health Insurance'] || 0;
+    document.getElementById('otherDeductions').value = fields['Other Deductions'] || 0;
+
+    calculateNetSalary();
+    document.getElementById('payrollModal').classList.add('active');
+}
+
+function calculateNetSalary() {
+    // Get all allowances
+    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+    const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
+    const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
+    const benefits = parseFloat(document.getElementById('benefits').value) || 0;
+    const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
+
+    // Add custom allowances
+    const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+    // Calculate total allowances and gross
+    const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
+    const grossSalary = basicSalary + totalAllowances;
+
+    // Get all deductions
+    const incomeTax = parseFloat(document.getElementById('incomeTax').value) || 0;
+    const welfare = parseFloat(document.getElementById('welfare').value) || 0;
+    const socialSecurity = parseFloat(document.getElementById('socialSecurity').value) || 0;
+    const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
+    const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+
+    // Add custom deductions
+    const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+    // Calculate total deductions and net
+    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const netSalary = grossSalary - totalDeductions;
+
+    // Update displays
+    document.getElementById('totalAllowancesDisplay').textContent = `$${totalAllowances.toFixed(2)}`;
+    document.getElementById('totalDeductionsDisplay').textContent = `$${totalDeductions.toFixed(2)}`;
+    document.getElementById('grossSalaryDisplay').textContent = `$${grossSalary.toFixed(2)}`;
+    document.getElementById('netSalaryDisplay').textContent = `$${netSalary.toFixed(2)}`;
+}
+
+// Custom Allowances Management
+function addCustomAllowance() {
+    const name = prompt('Allowance name (e.g., "Performance Bonus", "Travel Allowance"):');
+    if (!name) return;
+
+    const amount = prompt('Amount:');
+    if (!amount || isNaN(amount)) {
+        alert('Please enter a valid number');
+        return;
+    }
+
+    customAllowances.push({ name, amount: parseFloat(amount) });
+    updateCustomAllowancesList();
+    calculateNetSalary();
+}
+
+function removeCustomAllowance(index) {
+    customAllowances.splice(index, 1);
+    updateCustomAllowancesList();
+    calculateNetSalary();
+}
+
+function updateCustomAllowancesList() {
+    const container = document.getElementById('customAllowancesList');
+    if (!container) return;
+
+    if (customAllowances.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 italic">No custom allowances added</p>';
+        return;
+    }
+
+    container.innerHTML = customAllowances.map((item, index) => `
+        <div class="flex justify-between items-center p-2 bg-green-50 rounded border border-green-200">
+            <span class="text-sm">${item.name}: <strong>$${parseFloat(item.amount).toFixed(2)}</strong></span>
+            <button onclick="removeCustomAllowance(${index})" class="text-red-600 hover:text-red-800 text-sm">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+// Custom Deductions Management
+function addCustomDeduction() {
+    const name = prompt('Deduction name (e.g., "Loan Repayment", "Uniform"):');
+    if (!name) return;
+
+    const amount = prompt('Amount:');
+    if (!amount || isNaN(amount)) {
+        alert('Please enter a valid number');
+        return;
+    }
+
+    const isRecurring = confirm('Is this a recurring deduction?\n\nClick OK for Yes, Cancel for No');
+
+    let months = 1;
+    if (isRecurring) {
+        const monthsInput = prompt('For how many months? (Enter number):');
+        if (monthsInput && !isNaN(monthsInput)) {
+            months = parseInt(monthsInput);
+        }
+    }
+
+    customDeductions.push({
+        name,
+        amount: parseFloat(amount),
+        recurring: isRecurring,
+        months: months,
+        monthsRemaining: months
+    });
+
+    updateCustomDeductionsList();
+    calculateNetSalary();
+}
+
+function removeCustomDeduction(index) {
+    customDeductions.splice(index, 1);
+    updateCustomDeductionsList();
+    calculateNetSalary();
+}
+
+function updateCustomDeductionsList() {
+    const container = document.getElementById('customDeductionsList');
+    if (!container) return;
+
+    if (customDeductions.length === 0) {
+        container.innerHTML = '<p class="text-sm text-gray-500 italic">No custom deductions added</p>';
+        return;
+    }
+
+    container.innerHTML = customDeductions.map((item, index) => `
+        <div class="flex justify-between items-center p-2 bg-red-50 rounded border border-red-200">
+            <div class="text-sm">
+                ${item.name}: <strong>$${parseFloat(item.amount).toFixed(2)}</strong>
+                ${item.recurring ? `<br><span class="text-xs text-gray-600">Recurring: ${item.monthsRemaining} of ${item.months} months remaining</span>` : ''}
+            </div>
+            <button onclick="removeCustomDeduction(${index})" class="text-red-600 hover:text-red-800 text-sm">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    `).join('');
+}
+
+// Form submission
+document.getElementById('payrollForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const payrollId = document.getElementById('payrollId').value;
+
+    // Calculate all values
+    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
+    const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
+    const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
+    const benefits = parseFloat(document.getElementById('benefits').value) || 0;
+    const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
+    const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+    const incomeTax = parseFloat(document.getElementById('incomeTax').value) || 0;
+    const welfare = parseFloat(document.getElementById('welfare').value) || 0;
+    const socialSecurity = parseFloat(document.getElementById('socialSecurity').value) || 0;
+    const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
+    const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+    const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
+
+    const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
+    const grossSalary = basicSalary + totalAllowances;
+    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const netSalary = grossSalary - totalDeductions;
+
+    const payrollData = {
+        'Employee': [document.getElementById('payrollEmployee').value],
+        'Month': document.getElementById('payrollMonth').value,
+        'Basic Salary': basicSalary,
+        'Housing Allowance': housingAllowance,
+        'Transport Allowance': transportAllowance,
+        'Benefits': benefits,
+        'Other Allowances': otherAllowances + customAllowancesTotal,
+        'Total Allowances': totalAllowances,
+        'Gross Salary': grossSalary,
+        'Income Tax': incomeTax,
+        'Welfare': welfare,
+        'Social Security': socialSecurity,
+        'Health Insurance': healthInsurance,
+        'Other Deductions': otherDeductions + customDeductionsTotal,
+        'Total Deductions': totalDeductions,
+        'Net Salary': netSalary,
+        'Custom Allowances': JSON.stringify(customAllowances),
+        'Custom Deductions': JSON.stringify(customDeductions),
+        'Status': 'Processed',
+        'Payment Date': new Date().toISOString().split('T')[0]
+    };
+
+    try {
+        if (payrollId) {
+            await updatePayroll(payrollId, payrollData);
+            alert('Payroll updated successfully!');
+        } else {
+            await createPayroll(payrollData);
+            alert('Payroll created successfully!');
+        }
+
+        closePayrollModal();
+        loadPayrollRecords();
+    } catch (error) {
+        console.error('Error saving payroll:', error);
+        alert('Error saving payroll. Please try again.');
+    }
+});
 
 // ========================================
 // INITIALIZE
