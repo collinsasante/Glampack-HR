@@ -12,26 +12,12 @@ async function login(email, password) {
         // Show loading state
         showLoading(true);
 
-        // Fetch employee by email from Airtable
+        // Fetch employee by email using Worker API
         const filterFormula = `{Email} = '${email}'`;
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.employeesTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
-
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to authenticate');
-        }
-
-        const data = await response.json();
+        const data = await getEmployees(filterFormula);
 
         // Check if employee exists
-        if (data.records.length === 0) {
+        if (!data.records || data.records.length === 0) {
             showError('Invalid email or password');
             showLoading(false);
             return false;
@@ -96,21 +82,11 @@ async function signup(fullName, email, status, password, role = 'Employee') {
     try {
         showLoading(true);
 
-        // Check if employee already exists
+        // Check if employee already exists using Worker API
         const filterFormula = `{Email} = '${email}'`;
-        const checkUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.employeesTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
+        const checkData = await getEmployees(filterFormula);
 
-        const checkResponse = await fetch(checkUrl, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        const checkData = await checkResponse.json();
-
-        if (checkData.records.length > 0) {
+        if (checkData.records && checkData.records.length > 0) {
             showError('An account with this email already exists. Please sign in.');
             showLoading(false);
             return false;
@@ -119,34 +95,21 @@ async function signup(fullName, email, status, password, role = 'Employee') {
         // Generate unique Employee ID
         const empId = 'EMP' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-        // Create new employee record with password and role
-        const createUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.employeesTable}`;
-
-        const createResponse = await fetch(createUrl, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    'Full Name': fullName,
-                    'Email': email,
-                    'Password': password,
-                    'Role': role
-                }
-            })
+        // Create new employee record with password and role using Worker API
+        const createData = await createEmployee({
+            'Full Name': fullName,
+            'Email': email,
+            'Password': password,
+            'Role': role
         });
 
-        if (!createResponse.ok) {
+        if (!createData || !createData.id) {
             throw new Error('Failed to create account');
         }
 
-        const newEmployee = await createResponse.json();
-
         // Auto-login the user after signup
         const userData = {
-            id: newEmployee.id,
+            id: createData.id,
             name: fullName,
             email: email,
             role: role
@@ -172,7 +135,7 @@ async function signup(fullName, email, status, password, role = 'Employee') {
 // ========================================
 function logout() {
     sessionStorage.removeItem('currentUser');
-    window.location.href = 'signin-2.html';
+    window.location.href = 'packaging-glamour-signin.html';
 }
 
 // ========================================
