@@ -3,10 +3,8 @@
 // All API calls now go through the Cloudflare Worker which stores credentials securely
 
 const API_CONFIG = {
-    // IMPORTANT: Replace this URL with your actual Worker URL after deployment
-    // Deploy the Worker first using: wrangler deploy
-    // Then update this URL with the output from the deployment
-    workerUrl: 'https://glampack-hr-api.YOUR-SUBDOMAIN.workers.dev',
+    // Cloudflare Worker URL for secure API proxy
+    workerUrl: 'https://glampack-hr-api.mr-asanteeprog.workers.dev',
 
     // API endpoints
     endpoints: {
