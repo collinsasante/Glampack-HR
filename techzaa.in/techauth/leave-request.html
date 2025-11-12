@@ -23,6 +23,9 @@
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js"></script>
+
     <style>
       body {
         font-family: "Montserrat", sans-serif;
@@ -397,21 +400,8 @@
       // ========================================
       async function loadLeaveBalances() {
         try {
-          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.employeesTable}/${currentUser.id}`;
-
-          const response = await fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch leave balances");
-          }
-
-          const data = await response.json();
+          // Use Worker API to fetch employee data
+          const data = await getEmployee(currentUser.id);
 
           document.getElementById("annualLeave").textContent =
             data.fields["Annual Leave Balance"] || 0;
@@ -426,30 +416,12 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
-          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}`;
+          // Use Worker API to fetch leave requests
+          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          const data = await getLeaveRequests(filterFormula);
 
-          const response = await fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            throw new Error("Failed to fetch leave history");
-          }
-
-          const data = await response.json();
-
-          // Filter records for current employee
-          allLeaveRequests = data.records.filter((record) => {
-            const employeeField = record.fields["Employee"];
-            if (Array.isArray(employeeField)) {
-              return employeeField.includes(currentUser.id);
-            }
-            return false;
-          });
+          // Store filtered records
+          allLeaveRequests = data.records || [];
 
           // Update pending count
           const pendingCount = allLeaveRequests.filter(
@@ -748,7 +720,7 @@
               break;
           }
 
-          // Query approved vacation (annual) leave requests in this quarter
+          // Query approved vacation (annual) leave requests in this quarter using Worker API
           const filterFormula = `AND(
                     FIND('${currentUser.id}', ARRAYJOIN({Employee})),
                     {Leave Type} = 'Vacation',
@@ -757,22 +729,7 @@
                     IS_BEFORE({Start Date}, '${quarterEnd}')
                 )`;
 
-          const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
-
-          const response = await fetch(url, {
-            method: "GET",
-            headers: {
-              Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
-              "Content-Type": "application/json",
-            },
-          });
-
-          if (!response.ok) {
-            console.error("Failed to check quarterly usage");
-            return { hasQuarterlyLeave: false, daysUsed: 0 };
-          }
-
-          const data = await response.json();
+          const data = await getLeaveRequests(filterFormula);
 
           if (data.records && data.records.length > 0) {
             const totalDays = data.records.reduce((sum, record) => {
@@ -833,32 +790,15 @@
           }
 
           try {
-            const url = `https://api.airtable.com/v0/${LEAVE_CONFIG.baseId}/${LEAVE_CONFIG.leaveRequestsTable}`;
-
-            const response = await fetch(url, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${LEAVE_CONFIG.apiKey}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                fields: {
-                  Employee: [currentUser.id],
-                  "Leave Type": leaveType,
-                  "Start Date": startDate,
-                  "End Date": endDate,
-                  Notes: notes,
-                  Status: "Pending",
-                },
-              }),
+            // Use Worker API to create leave request
+            await createLeaveRequest({
+              Employee: [currentUser.id],
+              "Leave Type": leaveType,
+              "Start Date": startDate,
+              "End Date": endDate,
+              Notes: notes,
+              Status: "Pending",
             });
-
-            if (!response.ok) {
-              const errorData = await response.json();
-              throw new Error(
-                errorData.error?.message || "Failed to submit leave request"
-              );
-            }
 
             showSuccess(
               "Leave request submitted successfully! Awaiting approval."
