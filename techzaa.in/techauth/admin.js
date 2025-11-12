@@ -817,6 +817,40 @@ async function generatePayrollReport() {
 }
 
 // ========================================
+// PAYROLL MANAGEMENT (PLACEHOLDER)
+// ========================================
+// Note: Payroll management functions are placeholders
+// Full implementation requires business logic for salary calculations
+
+function openAddPayrollModal() {
+    alert('Payroll management feature is under development. Please use the dedicated Payroll page for now.');
+}
+
+function closePayrollModal() {
+    const modal = document.getElementById('payrollModal');
+    if (modal) modal.classList.remove('active');
+}
+
+function loadPayrollRecords() {
+    const tbody = document.getElementById('payrollTableBody');
+    if (tbody) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-info-circle text-4xl mb-4"></i>
+                    <p class="text-lg">Payroll management is under development.</p>
+                    <p class="mt-2">Please use the <a href="payroll.html" class="text-red-600 hover:underline">dedicated Payroll page</a> to view employee payroll information.</p>
+                </td>
+            </tr>
+        `;
+    }
+}
+
+function calculateNetSalary() {
+    // Placeholder for salary calculation logic
+}
+
+// ========================================
 // INITIALIZE
 // ========================================
 checkAdminAccess().then(hasAccess => {
