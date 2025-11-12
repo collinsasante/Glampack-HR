@@ -404,7 +404,7 @@
           const data = await getEmployee(currentUser.id);
 
           document.getElementById("annualLeave").textContent =
-            data.fields["Annual Leave Balance"] || 0;
+            data.fields["Annual Leave Balance"] !== undefined ? data.fields["Annual Leave Balance"] : 20;
         } catch (error) {
           console.error("Error loading leave balances:", error);
           showError("Failed to load leave balances");

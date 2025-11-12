@@ -333,7 +333,7 @@
             try {
                 // Use Worker API
                 const data = await getEmployee(currentUser.id);
-                const balance = data.fields['Annual Leave Balance'] || 0;
+                const balance = data.fields['Annual Leave Balance'] !== undefined ? data.fields['Annual Leave Balance'] : 20;
                 document.getElementById('leaveBalance').textContent = balance;
             } catch (error) {
                 console.error('Error loading leave balance:', error);

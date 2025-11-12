@@ -781,7 +781,7 @@
             document.getElementById('sidebarName').textContent = name;
             document.getElementById('sidebarJobTitle').textContent = employeeData['Job Title'] || 'Employee';
             document.getElementById('sidebarStatus').textContent = employeeData['Status'] || 'Active';
-            document.getElementById('quickAnnualLeave').textContent = employeeData['Annual Leave Balance'] || 0;
+            document.getElementById('quickAnnualLeave').textContent = employeeData['Annual Leave Balance'] !== undefined ? employeeData['Annual Leave Balance'] : 20;
 
             // Form fields
             document.getElementById('fullName').value = employeeData['Full Name'] || '';
@@ -802,8 +802,8 @@
             document.getElementById('department').textContent = employeeData['Department'] || '--';
             document.getElementById('employmentType').textContent = employeeData['Employment Type'] || '--';
             document.getElementById('joiningDate').textContent = employeeData['Joining Date'] ? new Date(employeeData['Joining Date']).toLocaleDateString() : '--';
-            document.getElementById('salary').textContent = employeeData['Salary'] ? `$${parseFloat(employeeData['Salary']).toLocaleString()}` : '--';
-            document.getElementById('annualLeave').textContent = employeeData['Annual Leave Balance'] || 0;
+            document.getElementById('salary').textContent = employeeData['Salary'] ? `GH₵${parseFloat(employeeData['Salary']).toLocaleString()}` : '--';
+            document.getElementById('annualLeave').textContent = employeeData['Annual Leave Balance'] !== undefined ? employeeData['Annual Leave Balance'] : 20;
             document.getElementById('sickLeave').textContent = employeeData['Sick Leave Balance'] || 0;
         }
 
