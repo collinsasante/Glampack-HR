@@ -127,6 +127,15 @@ async function getAttendance(filterFormula = null) {
 }
 
 /**
+ * Get a specific attendance record by ID
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Attendance record
+ */
+async function getAttendanceRecord(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.attendance}/${recordId}`, 'GET');
+}
+
+/**
  * Create an attendance record
  * @param {object} fields - Attendance data
  * @returns {Promise<object>} Created attendance record

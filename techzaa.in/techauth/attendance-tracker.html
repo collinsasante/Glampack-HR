@@ -14,6 +14,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js?v=2"></script>
+
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 </head>
@@ -717,24 +720,9 @@
         async function findTodayRecord() {
             const today = getTodayDate();
 
-            // Get all records for this employee
+            // Get all records for this employee using Worker API
             const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
-
-            const url = `https://api.airtable.com/v0/${ATTENDANCE_CONFIG.baseId}/${ATTENDANCE_CONFIG.tableName}?filterByFormula=${encodeURIComponent(filterFormula)}`;
-
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${ATTENDANCE_CONFIG.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to fetch records');
-            }
-
-            const data = await response.json();
+            const data = await getAttendance(filterFormula);
 
             // Filter in JavaScript to find today's record
             const todayRecord = data.records.find(record => {
@@ -749,50 +737,14 @@
         // CREATE NEW ATTENDANCE RECORD
         // ========================================
         async function createRecord(fields) {
-            const url = `https://api.airtable.com/v0/${ATTENDANCE_CONFIG.baseId}/${ATTENDANCE_CONFIG.tableName}`;
-
-            const response = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${ATTENDANCE_CONFIG.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fields: fields
-                })
-            });
-
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(`Failed to create record: ${errorData.error.message || 'Unknown error'}`);
-            }
-
-            const createdRecord = await response.json();
-            return createdRecord;
+            return await createAttendance(fields);
         }
 
         // ========================================
         // UPDATE EXISTING ATTENDANCE RECORD
         // ========================================
         async function updateRecord(recordId, fields) {
-            const url = `https://api.airtable.com/v0/${ATTENDANCE_CONFIG.baseId}/${ATTENDANCE_CONFIG.tableName}/${recordId}`;
-
-            const response = await fetch(url, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${ATTENDANCE_CONFIG.apiKey}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    fields: fields
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update record');
-            }
-
-            return await response.json();
+            return await updateAttendance(recordId, fields);
         }
 
         // ========================================
@@ -805,22 +757,13 @@
                 // Try to get record ID from memory or localStorage
                 let recordId = todayRecordId || getTodayRecordId();
 
-                // If we have a stored record ID, fetch it directly
+                // If we have a stored record ID, fetch it directly using Worker API
                 if (recordId) {
-                    const url = `https://api.airtable.com/v0/${ATTENDANCE_CONFIG.baseId}/${ATTENDANCE_CONFIG.tableName}/${recordId}`;
-                    const response = await fetch(url, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${ATTENDANCE_CONFIG.apiKey}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-
-                    if (response.ok) {
-                        todayRecord = await response.json();
+                    try {
+                        todayRecord = await getAttendanceRecord(recordId);
                         // Sync the memory variable
                         todayRecordId = recordId;
-                    } else {
+                    } catch (error) {
                         // Record ID might be invalid, clear it and search again
                         clearTodayRecordId();
                         todayRecordId = null;
@@ -914,29 +857,21 @@
             try {
                 const filter = document.getElementById('monthFilter').value;
 
-                // Fetch ALL records and filter on client side
-                // This is more reliable than Airtable formula filtering for linked records
-                const url = `https://api.airtable.com/v0/${ATTENDANCE_CONFIG.baseId}/${ATTENDANCE_CONFIG.tableName}?sort[0][field]=Date&sort[0][direction]=desc`;
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${ATTENDANCE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch attendance records');
-                }
-
-                const data = await response.json();
+                // Fetch ALL records using Worker API and filter/sort on client side
+                const data = await getAttendance();
 
                 // Filter records for this employee on the client side
                 let records = data.records.filter(record => {
                     const employeeField = record.fields['Employee'];
                     // Check if Employee field exists and contains this employee's ID
                     return employeeField && Array.isArray(employeeField) && employeeField.includes(EMPLOYEE_ID);
+                });
+
+                // Sort by Date descending (client-side)
+                records.sort((a, b) => {
+                    const dateA = new Date(a.fields['Date'] || 0);
+                    const dateB = new Date(b.fields['Date'] || 0);
+                    return dateB - dateA;
                 });
 
                 // Filter by date in JavaScript
