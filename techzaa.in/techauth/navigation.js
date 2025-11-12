@@ -14,23 +14,11 @@ function createNavigation(currentPage = '') {
 
     async function checkIfUserIsAdmin() {
         try {
-            const AIRTABLE_CONFIG = {
-                apiKey: 'YOUR_AIRTABLE_API_KEY',
-                baseId: 'YOUR_AIRTABLE_BASE_ID'
-            };
+            // Use Worker API to fetch employee data
+            const employee = await getEmployee(currentUser.id);
 
-            const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${currentUser.id}`;
-            const response = await fetch(url, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const role = data.fields['Role'] || '';
+            if (employee && employee.fields) {
+                const role = employee.fields['Role'] || '';
                 return role === 'Admin' || role === 'HR';
             }
         } catch (error) {
