@@ -17,6 +17,9 @@
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js?v=2"></script>
+
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
@@ -247,21 +250,8 @@
         // ========================================
         async function loadSalaryInfo() {
             try {
-                // Fetch all payroll records for this employee
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.payroll}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch payroll info');
-                }
-
-                const data = await response.json();
+                // Fetch all payroll records using Worker API
+                const data = await getPayroll();
 
                 // Filter for this employee's payroll records (client-side)
                 const employeePayrolls = data.records.filter(record => {
@@ -340,21 +330,8 @@
             `;
 
             try {
-                // Fetch all payroll records
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.payroll}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) {
-                    throw new Error('Failed to fetch payment history');
-                }
-
-                const data = await response.json();
+                // Fetch all payroll records using Worker API
+                const data = await getPayroll();
 
                 // Filter for this employee's payroll records (client-side)
                 let employeePayrolls = data.records.filter(record => {

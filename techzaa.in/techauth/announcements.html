@@ -14,6 +14,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js?v=2"></script>
+
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
@@ -210,19 +213,11 @@
         // ========================================
         async function checkIfAdmin() {
             try {
-                // Check if current user has admin role
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${currentUser.id}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
+                // Check if current user has admin role using Worker API
+                const employee = await getEmployee(currentUser.id);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const role = data.fields['Role'] || '';
+                if (employee && employee.fields) {
+                    const role = employee.fields['Role'] || '';
                     if (role === 'Admin' || role === 'HR') {
                         document.getElementById('createAnnouncementBtn').classList.remove('hidden');
                     }
@@ -254,32 +249,19 @@
             const message = document.getElementById('announcementMessage').value;
 
             try {
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.announcements}`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Title': title,
-                            'Type': type,
-                            'Message': message,
-                            'Created By': [currentUser.id],
-                            'Date': new Date().toISOString().split('T')[0]
-                        }
-                    })
+                // Create announcement using Worker API
+                await createAnnouncement({
+                    'Title': title,
+                    'Type': type,
+                    'Message': message,
+                    'Created By': [currentUser.id],
+                    'Date': new Date().toISOString().split('T')[0]
                 });
 
-                if (response.ok) {
-                    alert('Announcement published successfully!');
-                    document.getElementById('announcementForm').reset();
-                    toggleCreateForm();
-                    loadAnnouncements();
-                } else {
-                    alert('Failed to publish announcement. Please try again.');
-                }
+                alert('Announcement published successfully!');
+                document.getElementById('announcementForm').reset();
+                toggleCreateForm();
+                loadAnnouncements();
             } catch (error) {
                 console.error('Error creating announcement:', error);
                 alert('Error creating announcement. Please try again.');
@@ -291,22 +273,16 @@
         // ========================================
         async function loadAnnouncements() {
             try {
-                // Load announcements
-                const announcementsUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/${AIRTABLE_CONFIG.tables.announcements}?sort[0][field]=Date&sort[0][direction]=desc`;
-                const announcementsResponse = await fetch(announcementsUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
+                // Load announcements using Worker API
+                const announcementsData = await getAnnouncements();
+                allAnnouncements = announcementsData.records || [];
+
+                // Sort by Date descending (client-side)
+                allAnnouncements.sort((a, b) => {
+                    const dateA = new Date(a.fields['Date'] || 0);
+                    const dateB = new Date(b.fields['Date'] || 0);
+                    return dateB - dateA;
                 });
-
-                if (!announcementsResponse.ok) {
-                    throw new Error('Failed to fetch announcements');
-                }
-
-                const announcementsData = await announcementsResponse.json();
-                allAnnouncements = announcementsData.records;
 
                 // Read receipts feature disabled - requires AnnouncementReads table in Airtable
                 // Uncomment below if you want to track which announcements users have read
