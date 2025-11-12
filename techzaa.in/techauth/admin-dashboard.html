@@ -655,6 +655,78 @@
         </div>
     </div>
 
+    <!-- Custom Allowance Modal -->
+    <div id="customAllowanceModal" class="modal">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-800">Add Custom Allowance</h3>
+                <button onclick="closeCustomAllowanceModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="customAllowanceForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Allowance Name *</label>
+                    <input type="text" id="allowanceName" required placeholder="e.g., Performance Bonus, Travel Allowance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+                    <input type="number" id="allowanceAmount" step="0.01" min="0" required placeholder="0.00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeCustomAllowanceModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200">
+                        <i class="fas fa-plus mr-2"></i> Add Allowance
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Custom Deduction Modal -->
+    <div id="customDeductionModal" class="modal">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+            <div class="flex justify-between items-center p-6 border-b">
+                <h3 class="text-xl font-bold text-gray-800">Add Custom Deduction</h3>
+                <button onclick="closeCustomDeductionModal()" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+            </div>
+            <form id="customDeductionForm" class="p-6 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Deduction Name *</label>
+                    <input type="text" id="deductionName" required placeholder="e.g., Loan Repayment, Uniform, Salary Advance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
+                    <input type="number" id="deductionAmount" step="0.01" min="0" required placeholder="0.00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                </div>
+                <div class="border-t pt-4">
+                    <label class="flex items-center space-x-2 cursor-pointer">
+                        <input type="checkbox" id="isRecurring" class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                        <span class="text-sm font-medium text-gray-700">This is a recurring deduction</span>
+                    </label>
+                    <p class="text-xs text-gray-500 mt-1 ml-7">For salary advances that need to be deducted over multiple months</p>
+                </div>
+                <div id="recurringMonthsContainer" class="hidden">
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Number of Months *</label>
+                    <input type="number" id="recurringMonths" min="1" max="24" placeholder="e.g., 3, 6, 12" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                    <p class="text-xs text-gray-500 mt-1">This deduction will be automatically applied for this many months</p>
+                </div>
+                <div class="flex justify-end space-x-3 pt-4">
+                    <button type="button" onclick="closeCustomDeductionModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
+                        <i class="fas fa-plus mr-2"></i> Add Deduction
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- jsPDF for PDF generation -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>

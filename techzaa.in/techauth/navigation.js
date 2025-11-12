@@ -5,10 +5,13 @@
 function createNavigation(currentPage = '') {
     const currentUser = getCurrentUser();
 
-    // Check if user is admin/HR
-    let isAdmin = false;
+    // Check if user is admin/HR - use cached value first
+    let isAdmin = localStorage.getItem('isAdmin') === 'true';
+
+    // Update admin status in background
     checkIfUserIsAdmin().then(result => {
         isAdmin = result;
+        localStorage.setItem('isAdmin', isAdmin);
         updateAdminLink();
     });
 
@@ -29,8 +32,13 @@ function createNavigation(currentPage = '') {
 
     function updateAdminLink() {
         const adminLinkContainer = document.getElementById('adminLinkContainer');
+        const mobileAdminLinkContainer = document.getElementById('mobileAdminLinkContainer');
+
         if (adminLinkContainer && isAdmin) {
             adminLinkContainer.classList.remove('hidden');
+        }
+        if (mobileAdminLinkContainer && isAdmin) {
+            mobileAdminLinkContainer.classList.remove('hidden');
         }
     }
 
@@ -56,9 +64,9 @@ function createNavigation(currentPage = '') {
         `;
     }).join('');
 
-    // Admin link (hidden by default)
+    // Admin link (shown if user is admin from cache)
     const adminLink = `
-        <div id="adminLinkContainer" class="hidden">
+        <div id="adminLinkContainer" class="${isAdmin ? '' : 'hidden'}">
             <a href="admin-dashboard.html" class="${currentPage === 'admin' ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-red-600'}">
                 <i class="fas fa-user-shield mr-1"></i> Admin
             </a>
@@ -76,9 +84,9 @@ function createNavigation(currentPage = '') {
         `;
     }).join('');
 
-    // Mobile Admin Link
+    // Mobile Admin Link (shown if user is admin from cache)
     const mobileAdminLink = `
-        <div id="mobileAdminLinkContainer" class="hidden">
+        <div id="mobileAdminLinkContainer" class="${isAdmin ? '' : 'hidden'}">
             <a href="admin-dashboard.html" class="block px-4 py-3 ${currentPage === 'admin' ? 'bg-red-100 text-red-600 font-semibold' : 'text-gray-700 hover:bg-gray-100'} rounded-lg">
                 <i class="fas fa-user-shield mr-2"></i> Admin
             </a>

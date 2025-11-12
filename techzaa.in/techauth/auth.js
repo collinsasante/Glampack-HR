@@ -135,6 +135,7 @@ async function signup(fullName, email, status, password, role = 'Employee') {
 // ========================================
 function logout() {
     sessionStorage.removeItem('currentUser');
+    localStorage.removeItem('isAdmin');
     window.location.href = 'packaging-glamour-signin.html';
 }
 

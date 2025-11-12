@@ -1021,19 +1021,33 @@ function calculateNetSalary() {
 
 // Custom Allowances Management
 function addCustomAllowance() {
-    const name = prompt('Allowance name (e.g., "Performance Bonus", "Travel Allowance"):');
-    if (!name) return;
-
-    const amount = prompt('Amount:');
-    if (!amount || isNaN(amount)) {
-        alert('Please enter a valid number');
-        return;
-    }
-
-    customAllowances.push({ name, amount: parseFloat(amount) });
-    updateCustomAllowancesList();
-    calculateNetSalary();
+    document.getElementById('customAllowanceModal').classList.add('active');
 }
+
+function closeCustomAllowanceModal() {
+    document.getElementById('customAllowanceModal').classList.remove('active');
+    document.getElementById('customAllowanceForm').reset();
+}
+
+// Handle custom allowance form submission
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('customAllowanceForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('allowanceName').value;
+            const amount = document.getElementById('allowanceAmount').value;
+
+            if (name && amount && !isNaN(amount)) {
+                customAllowances.push({ name, amount: parseFloat(amount) });
+                updateCustomAllowancesList();
+                calculateNetSalary();
+                closeCustomAllowanceModal();
+            }
+        });
+    }
+});
 
 function removeCustomAllowance(index) {
     customAllowances.splice(index, 1);
@@ -1062,36 +1076,62 @@ function updateCustomAllowancesList() {
 
 // Custom Deductions Management
 function addCustomDeduction() {
-    const name = prompt('Deduction name (e.g., "Loan Repayment", "Uniform"):');
-    if (!name) return;
-
-    const amount = prompt('Amount:');
-    if (!amount || isNaN(amount)) {
-        alert('Please enter a valid number');
-        return;
-    }
-
-    const isRecurring = confirm('Is this a recurring deduction?\n\nClick OK for Yes, Cancel for No');
-
-    let months = 1;
-    if (isRecurring) {
-        const monthsInput = prompt('For how many months? (Enter number):');
-        if (monthsInput && !isNaN(monthsInput)) {
-            months = parseInt(monthsInput);
-        }
-    }
-
-    customDeductions.push({
-        name,
-        amount: parseFloat(amount),
-        recurring: isRecurring,
-        months: months,
-        monthsRemaining: months
-    });
-
-    updateCustomDeductionsList();
-    calculateNetSalary();
+    document.getElementById('customDeductionModal').classList.add('active');
 }
+
+function closeCustomDeductionModal() {
+    document.getElementById('customDeductionModal').classList.remove('active');
+    document.getElementById('customDeductionForm').reset();
+    document.getElementById('recurringMonthsContainer').classList.add('hidden');
+}
+
+// Handle recurring checkbox toggle
+document.addEventListener('DOMContentLoaded', function() {
+    const recurringCheckbox = document.getElementById('isRecurring');
+    if (recurringCheckbox) {
+        recurringCheckbox.addEventListener('change', function() {
+            const monthsContainer = document.getElementById('recurringMonthsContainer');
+            if (this.checked) {
+                monthsContainer.classList.remove('hidden');
+                document.getElementById('recurringMonths').required = true;
+            } else {
+                monthsContainer.classList.add('hidden');
+                document.getElementById('recurringMonths').required = false;
+            }
+        });
+    }
+
+    // Handle custom deduction form submission
+    const deductionForm = document.getElementById('customDeductionForm');
+    if (deductionForm) {
+        deductionForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const name = document.getElementById('deductionName').value;
+            const amount = document.getElementById('deductionAmount').value;
+            const isRecurring = document.getElementById('isRecurring').checked;
+            let months = 1;
+
+            if (isRecurring) {
+                months = parseInt(document.getElementById('recurringMonths').value) || 1;
+            }
+
+            if (name && amount && !isNaN(amount)) {
+                customDeductions.push({
+                    name,
+                    amount: parseFloat(amount),
+                    recurring: isRecurring,
+                    months: months,
+                    monthsRemaining: months
+                });
+
+                updateCustomDeductionsList();
+                calculateNetSalary();
+                closeCustomDeductionModal();
+            }
+        });
+    }
+});
 
 function removeCustomDeduction(index) {
     customDeductions.splice(index, 1);
