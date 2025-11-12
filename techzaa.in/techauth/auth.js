@@ -100,7 +100,9 @@ async function signup(fullName, email, status, password, role = 'Employee') {
             'Full Name': fullName,
             'Email': email,
             'Password': password,
-            'Role': role
+            'Role': role,
+            'Annual Leave Balance': 20,  // Default leave balance for new employees
+            'Status': status
         });
 
         if (!createData || !createData.id) {

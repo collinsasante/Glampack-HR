@@ -17,6 +17,9 @@
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js"></script>
+
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -738,15 +741,6 @@
 
         const currentUser = getCurrentUser();
 
-        // ========================================
-        // CONFIGURATION
-        // ========================================
-        const PROFILE_CONFIG = {
-            apiKey: 'YOUR_AIRTABLE_API_KEY',
-            baseId: 'YOUR_AIRTABLE_BASE_ID',
-            employeesTable: 'Employees'
-        };
-
         let employeeData = null;
 
         // ========================================
@@ -762,19 +756,8 @@
         // ========================================
         async function loadEmployeeData() {
             try {
-                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to load employee data');
-
-                const data = await response.json();
+                // Use Worker API
+                const data = await getEmployee(currentUser.id);
                 employeeData = data.fields;
 
                 populateProfile();
@@ -936,27 +919,15 @@
             e.preventDefault();
 
             try {
-                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
-
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Full Name': document.getElementById('fullName').value,
-                            'Phone Number': document.getElementById('phoneNumber').value,
-                            'Date of Birth': document.getElementById('dateOfBirth').value,
-                            'Address': document.getElementById('address').value,
-                            'City': document.getElementById('city').value,
-                            'Country': document.getElementById('country').value
-                        }
-                    })
+                // Use Worker API
+                await updateEmployee(currentUser.id, {
+                    'Full Name': document.getElementById('fullName').value,
+                    'Phone Number': document.getElementById('phoneNumber').value,
+                    'Date of Birth': document.getElementById('dateOfBirth').value,
+                    'Address': document.getElementById('address').value,
+                    'City': document.getElementById('city').value,
+                    'Country': document.getElementById('country').value
                 });
-
-                if (!response.ok) throw new Error('Failed to update profile');
 
                 showSuccess('Profile updated successfully!');
                 toggleEditProfile();
@@ -974,27 +945,15 @@
             e.preventDefault();
 
             try {
-                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
-
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Emergency Contact Name': document.getElementById('emergencyContactName').value,
-                            'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
-                            'Emergency Contact Phone': document.getElementById('emergencyPhone').value,
-                            'Emergency Contact Alternate Phone': document.getElementById('emergencyAlternatePhone').value,
-                            'Emergency Contact Email': document.getElementById('emergencyEmail').value,
-                            'Emergency Contact Address': document.getElementById('emergencyAddress').value
-                        }
-                    })
+                // Use Worker API
+                await updateEmployee(currentUser.id, {
+                    'Emergency Contact Name': document.getElementById('emergencyContactName').value,
+                    'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
+                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value,
+                    'Emergency Contact Alternate Phone': document.getElementById('emergencyAlternatePhone').value,
+                    'Emergency Contact Email': document.getElementById('emergencyEmail').value,
+                    'Emergency Contact Address': document.getElementById('emergencyAddress').value
                 });
-
-                if (!response.ok) throw new Error('Failed to update emergency contact');
 
                 showSuccess('Emergency contact updated successfully!');
                 toggleEditEmergency();
@@ -1034,23 +993,11 @@
             }
 
             try {
-                const url = `https://api.airtable.com/v0/${PROFILE_CONFIG.baseId}/${PROFILE_CONFIG.employeesTable}/${currentUser.id}`;
-
-                const response = await fetch(url, {
-                    method: 'PATCH',
-                    headers: {
-                        'Authorization': `Bearer ${PROFILE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Password': newPass,
-                            'Last Password Change': new Date().toISOString().split('T')[0]
-                        }
-                    })
+                // Use Worker API
+                await updateEmployee(currentUser.id, {
+                    'Password': newPass,
+                    'Last Password Change': new Date().toISOString().split('T')[0]
                 });
-
-                if (!response.ok) throw new Error('Failed to update password');
 
                 showSuccess('Password updated successfully!');
                 document.getElementById('changePasswordForm').reset();

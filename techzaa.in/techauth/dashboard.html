@@ -20,6 +20,9 @@
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js"></script>
+
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
@@ -232,18 +235,6 @@
 
         const currentUser = getCurrentUser();
 
-        // ========================================
-        // CONFIGURATION
-        // ========================================
-        const DASHBOARD_CONFIG = {
-            apiKey: 'YOUR_AIRTABLE_API_KEY',
-            baseId: 'YOUR_AIRTABLE_BASE_ID',
-            employeesTable: 'Employees',
-            attendanceTable: 'Attendance',
-            leaveRequestsTable: 'Leave Requests',
-            announcementsTable: 'Announcements'
-        };
-
         let attendanceChart = null;
         let allAttendanceRecords = [];
 
@@ -279,19 +270,9 @@
             try {
                 const today = new Date().toISOString().split('T')[0];
                 const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Date} = '${today}')`;
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch today status');
-
-                const data = await response.json();
+                // Use Worker API
+                const data = await getAttendance(filterFormula);
 
                 if (data.records.length > 0) {
                     const record = data.records[0];
@@ -328,19 +309,9 @@
                 const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().split('T')[0];
 
                 const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch monthly hours');
-
-                const data = await response.json();
+                // Use Worker API
+                const data = await getAttendance(filterFormula);
 
                 let totalHours = 0;
                 data.records.forEach(record => {
@@ -360,19 +331,8 @@
         // ========================================
         async function loadLeaveBalance() {
             try {
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.employeesTable}/${currentUser.id}`;
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch leave balance');
-
-                const data = await response.json();
+                // Use Worker API
+                const data = await getEmployee(currentUser.id);
                 const balance = data.fields['Annual Leave Balance'] || 0;
                 document.getElementById('leaveBalance').textContent = balance;
             } catch (error) {
@@ -387,19 +347,9 @@
         async function loadPendingRequests() {
             try {
                 const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Status} = 'Pending')`;
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.leaveRequestsTable}?filterByFormula=${encodeURIComponent(filterFormula)}`;
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch pending requests');
-
-                const data = await response.json();
+                // Use Worker API
+                const data = await getLeaveRequests(filterFormula);
                 document.getElementById('pendingRequests').textContent = data.records.length;
             } catch (error) {
                 console.error('Error loading pending requests:', error);
@@ -412,19 +362,10 @@
         // ========================================
         async function loadAttendanceData() {
             try {
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=90`;
+                const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
 
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch attendance data');
-
-                const data = await response.json();
+                // Use Worker API (Note: sort and maxRecords not supported in filter, will filter client-side)
+                const data = await getAttendance(filterFormula);
                 allAttendanceRecords = data.records;
 
                 renderAttendanceChart(allAttendanceRecords);
@@ -514,19 +455,8 @@
         // ========================================
         async function loadAnnouncements() {
             try {
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.announcementsTable}?maxRecords=3&sort[0][field]=Date&sort[0][direction]=desc`;
-
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (!response.ok) throw new Error('Failed to fetch announcements');
-
-                const data = await response.json();
+                // Use Worker API (will sort and limit client-side)
+                const data = await getAnnouncements();
                 const container = document.getElementById('announcementsList');
 
                 if (data.records.length === 0) {
@@ -539,7 +469,12 @@
                     return;
                 }
 
-                container.innerHTML = data.records.map(record => {
+                // Sort by date descending and take first 3
+                const sortedRecords = data.records
+                    .sort((a, b) => new Date(b.fields['Date'] || 0) - new Date(a.fields['Date'] || 0))
+                    .slice(0, 3);
+
+                container.innerHTML = sortedRecords.map(record => {
                     const title = record.fields['Title'] || 'Untitled';
                     const message = record.fields['Message'] || '';
                     const date = record.fields['Date'] ? new Date(record.fields['Date']).toLocaleDateString() : '';
@@ -586,16 +521,16 @@
                 const container = document.getElementById('activityFeed');
                 const activities = [];
 
-                // Get recent attendance
-                const attendanceUrl = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=Date&sort[0][direction]=desc&maxRecords=5`;
-                const attendanceRes = await fetch(attendanceUrl, {
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`
-                    }
-                });
-                const attendanceData = await attendanceRes.json();
+                // Get recent attendance using Worker API
+                const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+                const attendanceData = await getAttendance(filterFormula);
 
-                attendanceData.records.forEach(record => {
+                // Sort by date descending and take first 5
+                const recentAttendance = attendanceData.records
+                    .sort((a, b) => new Date(b.fields['Date']) - new Date(a.fields['Date']))
+                    .slice(0, 5);
+
+                recentAttendance.forEach(record => {
                     const date = record.fields['Date'];
                     const checkIn = record.fields['Check-in Time'];
                     const checkOut = record.fields['Check-out Time'];
@@ -608,16 +543,16 @@
                     });
                 });
 
-                // Get recent leave requests
-                const leaveUrl = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.leaveRequestsTable}?filterByFormula=FIND('${currentUser.id}', ARRAYJOIN({Employee}))&sort[0][field]=createdTime&sort[0][direction]=desc&maxRecords=3`;
-                const leaveRes = await fetch(leaveUrl, {
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`
-                    }
-                });
-                const leaveData = await leaveRes.json();
+                // Get recent leave requests using Worker API
+                const leaveFilterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+                const leaveData = await getLeaveRequests(leaveFilterFormula);
 
-                leaveData.records.forEach(record => {
+                // Sort by createdTime descending and take first 3
+                const recentLeave = leaveData.records
+                    .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
+                    .slice(0, 3);
+
+                recentLeave.forEach(record => {
                     const leaveType = record.fields['Leave Type'];
                     const status = record.fields['Status'];
                     const startDate = record.fields['Start Date'];
@@ -708,25 +643,13 @@
                     // Continue without location
                 }
 
-                const url = `https://api.airtable.com/v0/${DASHBOARD_CONFIG.baseId}/${DASHBOARD_CONFIG.attendanceTable}`;
-
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${DASHBOARD_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Employee': [currentUser.id],
-                            'Date': today,
-                            'Check In': datetime,
-                            'Check In Location': locationString
-                        }
-                    })
+                // Use Worker API to create attendance record
+                await createAttendance({
+                    'Employee': [currentUser.id],
+                    'Date': today,
+                    'Check In': datetime,
+                    'Check In Location': locationString
                 });
-
-                if (!response.ok) throw new Error('Failed to check in');
 
                 alert('Checked in successfully!');
                 window.location.reload();
