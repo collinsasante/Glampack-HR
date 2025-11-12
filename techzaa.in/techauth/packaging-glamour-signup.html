@@ -162,7 +162,7 @@
   <body>
     <section
       class="h-screen flex items-center justify-center bg-no-repeat inset-0 bg-cover bg-center"
-      style="background-image: url('assets/images/bg-2.png');"
+      style="background-image: url(&quot;assets/images/bg-2.png&quot;)"
     >
       <div class="container 2xl:px-80 xl:px-52">
         <div
@@ -172,7 +172,15 @@
           <div class="grid xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 gap-6">
             <div class="xl:col-span-2 lg:col-span-1">
               <div
-                class="text-white gap-10 h-full w-full p-7 space-y-6 lg:space-y-0 flex flex-col shadow-xl bg-cover bg-center bg-no-repeat" style="background-image: linear-gradient(rgba(220, 38, 38, 0.7), rgba(185, 28, 28, 0.7)), url('assets/images/images.jpeg');"
+                class="text-white gap-10 h-full w-full p-7 space-y-6 lg:space-y-0 flex flex-col shadow-xl bg-cover bg-center bg-no-repeat"
+                style="
+                  background-image:
+                    linear-gradient(
+                      rgba(150, 150, 150, 0.7),
+                      rgba(80, 80, 80, 0.7)
+                    ),
+                    url(&quot;assets/images/images.jpeg&quot;);
+                "
               >
                 <!-- Logo at top -->
                 <div class="flex justify-center">
