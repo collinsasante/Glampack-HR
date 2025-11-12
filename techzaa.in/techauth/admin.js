@@ -10,24 +10,18 @@ const currentUser = getCurrentUser();
 // Check if user is admin
 async function checkAdminAccess() {
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${currentUser.id}`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        const employee = await getEmployee(currentUser.id);
 
-        if (response.ok) {
-            const data = await response.json();
-            const role = data.fields['Role'] || '';
+        if (employee && employee.fields) {
+            const role = employee.fields['Role'] || '';
             if (role !== 'Admin' && role !== 'HR') {
                 alert('Access denied. Admin privileges required.');
                 window.location.href = 'dashboard.html';
                 return false;
             }
             return true;
+        } else {
+            throw new Error('Failed to fetch employee data');
         }
     } catch (error) {
         console.error('Error checking admin access:', error);
@@ -93,21 +87,17 @@ function switchTab(tabName) {
 // ========================================
 async function loadEmployees() {
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees?sort[0][field]=Full Name&sort[0][direction]=asc`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
+        // Note: Worker API doesn't support sort parameters yet, so we'll sort client-side
+        const data = await getEmployees();
+        allEmployees = data.records || [];
+
+        // Sort by Full Name
+        allEmployees.sort((a, b) => {
+            const nameA = (a.fields['Full Name'] || '').toLowerCase();
+            const nameB = (b.fields['Full Name'] || '').toLowerCase();
+            return nameA.localeCompare(nameB);
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch employees');
-        }
-
-        const data = await response.json();
-        allEmployees = data.records;
         displayEmployees(allEmployees);
         populateEmployeeFilters();
     } catch (error) {
@@ -167,7 +157,7 @@ function displayEmployees(employees) {
                     <button onclick='editEmployee(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button onclick="deleteEmployee('${emp.id}', '${fields['Full Name']}')" class="text-red-600 hover:text-red-900">
+                    <button onclick="deleteEmployeeHandler('${emp.id}', '${fields['Full Name']}')" class="text-red-600 hover:text-red-900">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
@@ -244,61 +234,34 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     };
 
     try {
-        let url, method;
         if (employeeId) {
             // Update existing employee
-            url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${employeeId}`;
-            method = 'PATCH';
+            await updateEmployee(employeeId, data);
+            alert('Employee updated successfully!');
         } else {
             // Create new employee
-            url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees`;
-            method = 'POST';
-            // Add default password for new employees
             data['Password'] = 'password123';
+            await createEmployee(data);
+            alert('Employee added successfully! Default password: password123');
         }
 
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ fields: data })
-        });
-
-        if (response.ok) {
-            alert(employeeId ? 'Employee updated successfully!' : 'Employee added successfully! Default password: password123');
-            closeEmployeeModal();
-            loadEmployees();
-        } else {
-            alert('Failed to save employee. Please try again.');
-        }
+        closeEmployeeModal();
+        loadEmployees();
     } catch (error) {
         console.error('Error saving employee:', error);
         alert('Error saving employee. Please try again.');
     }
 });
 
-async function deleteEmployee(employeeId, employeeName) {
+async function deleteEmployeeHandler(employeeId, employeeName) {
     if (!confirm(`Are you sure you want to delete ${employeeName}? This action cannot be undone.`)) {
         return;
     }
 
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${employeeId}`;
-        const response = await fetch(url, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`
-            }
-        });
-
-        if (response.ok) {
-            alert('Employee deleted successfully!');
-            loadEmployees();
-        } else {
-            alert('Failed to delete employee. Please try again.');
-        }
+        await deleteEmployee(employeeId);
+        alert('Employee deleted successfully!');
+        loadEmployees();
     } catch (error) {
         console.error('Error deleting employee:', error);
         alert('Error deleting employee. Please try again.');
@@ -310,21 +273,17 @@ async function deleteEmployee(employeeId, employeeName) {
 // ========================================
 async function loadLeaveRequests() {
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Leave Requests?filterByFormula={Status}='Pending'&sort[0][field]=Start Date&sort[0][direction]=desc`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
+        const filterFormula = "{Status}='Pending'";
+        const data = await getLeaveRequests(filterFormula);
+        allLeaveRequests = data.records || [];
+
+        // Sort by Start Date descending (client-side)
+        allLeaveRequests.sort((a, b) => {
+            const dateA = new Date(a.fields['Start Date'] || 0);
+            const dateB = new Date(b.fields['Start Date'] || 0);
+            return dateB - dateA;
         });
 
-        if (!response.ok) {
-            throw new Error('Failed to fetch leave requests');
-        }
-
-        const data = await response.json();
-        allLeaveRequests = data.records;
         displayLeaveRequests(allLeaveRequests);
     } catch (error) {
         console.error('Error loading leave requests:', error);
@@ -352,21 +311,13 @@ async function displayLeaveRequests(requests) {
         return;
     }
 
-    // Fetch employee names
+    // Fetch employee names using Worker API
     const employeePromises = requests.map(async (req) => {
         if (req.fields['Employee'] && req.fields['Employee'][0]) {
             try {
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${req.fields['Employee'][0]}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    return { id: req.id, name: data.fields['Full Name'] };
+                const employee = await getEmployee(req.fields['Employee'][0]);
+                if (employee && employee.fields) {
+                    return { id: req.id, name: employee.fields['Full Name'] };
                 }
             } catch (error) {
                 console.error('Error fetching employee:', error);
@@ -419,27 +370,13 @@ async function approveLeave(leaveId) {
     const comment = prompt('Add a comment (optional):');
 
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Leave Requests/${leaveId}`;
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    'Status': 'Approved',
-                    'Admin Comments': comment || 'Approved by admin'
-                }
-            })
+        await updateLeaveRequest(leaveId, {
+            'Status': 'Approved',
+            'Admin Comments': comment || 'Approved by admin'
         });
 
-        if (response.ok) {
-            alert('Leave request approved!');
-            loadLeaveRequests();
-        } else {
-            alert('Failed to approve leave request. Please try again.');
-        }
+        alert('Leave request approved!');
+        loadLeaveRequests();
     } catch (error) {
         console.error('Error approving leave:', error);
         alert('Error approving leave. Please try again.');
@@ -454,27 +391,13 @@ async function rejectLeave(leaveId) {
     }
 
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Leave Requests/${leaveId}`;
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    'Status': 'Rejected',
-                    'Admin Comments': comment
-                }
-            })
+        await updateLeaveRequest(leaveId, {
+            'Status': 'Rejected',
+            'Admin Comments': comment
         });
 
-        if (response.ok) {
-            alert('Leave request rejected!');
-            loadLeaveRequests();
-        } else {
-            alert('Failed to reject leave request. Please try again.');
-        }
+        alert('Leave request rejected!');
+        loadLeaveRequests();
     } catch (error) {
         console.error('Error rejecting leave:', error);
         alert('Error rejecting leave. Please try again.');
@@ -494,21 +417,8 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} = '${date}', {Employee} = '${employeeId}')`;
         }
 
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Attendance?filterByFormula=${encodeURIComponent(filterFormula)}`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to fetch attendance records');
-        }
-
-        const data = await response.json();
-        allAttendanceRecords = data.records;
+        const data = await getAttendance(filterFormula);
+        allAttendanceRecords = data.records || [];
         await displayAttendanceRecords(allAttendanceRecords);
     } catch (error) {
         console.error('Error loading attendance records:', error);
@@ -536,21 +446,13 @@ async function displayAttendanceRecords(records) {
         return;
     }
 
-    // Fetch employee names
+    // Fetch employee names using Worker API
     const employeePromises = records.map(async (rec) => {
         if (rec.fields['Employee'] && rec.fields['Employee'][0]) {
             try {
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${rec.fields['Employee'][0]}`;
-                const response = await fetch(url, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    return { id: rec.id, name: data.fields['Full Name'], empId: rec.fields['Employee'][0] };
+                const employee = await getEmployee(rec.fields['Employee'][0]);
+                if (employee && employee.fields) {
+                    return { id: rec.id, name: employee.fields['Full Name'], empId: rec.fields['Employee'][0] };
                 }
             } catch (error) {
                 console.error('Error fetching employee:', error);
@@ -631,28 +533,14 @@ document.getElementById('attendanceForm').addEventListener('submit', async funct
     const checkOut = document.getElementById('attCheckOut').value;
 
     try {
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Attendance/${attendanceId}`;
-        const response = await fetch(url, {
-            method: 'PATCH',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                fields: {
-                    'Check In': checkIn,
-                    'Check Out': checkOut
-                }
-            })
+        await updateAttendance(attendanceId, {
+            'Check In': checkIn,
+            'Check Out': checkOut
         });
 
-        if (response.ok) {
-            alert('Attendance record updated successfully!');
-            closeAttendanceModal();
-            loadAttendanceRecords();
-        } else {
-            alert('Failed to update attendance record. Please try again.');
-        }
+        alert('Attendance record updated successfully!');
+        closeAttendanceModal();
+        loadAttendanceRecords();
     } catch (error) {
         console.error('Error updating attendance:', error);
         alert('Error updating attendance. Please try again.');
@@ -699,19 +587,8 @@ async function generateEmployeeReport() {
         doc.setTextColor(0, 0, 0);
         doc.text(`Generated on: ${new Date().toLocaleDateString()}`, 105, 30, { align: 'center' });
 
-        // Fetch all employees
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
-
-        if (!response.ok) throw new Error('Failed to fetch employees');
-
-        const data = await response.json();
+        // Fetch all employees using Worker API
+        const data = await getEmployees();
         const tableData = data.records.map(emp => {
             const fields = emp.fields;
             return [
@@ -757,38 +634,20 @@ async function generateAttendanceReport() {
         doc.setTextColor(0, 0, 0);
         doc.text(`Period: ${monthName}`, 148, 30, { align: 'center' });
 
-        // Fetch attendance records
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Attendance?filterByFormula=AND(YEAR({Date})=${year},MONTH({Date})=${parseInt(month)})`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        // Fetch attendance records using Worker API
+        const filterFormula = `AND(YEAR({Date})=${year},MONTH({Date})=${parseInt(month)})`;
+        const data = await getAttendance(filterFormula);
 
-        if (!response.ok) throw new Error('Failed to fetch attendance');
-
-        const data = await response.json();
-
-        // Fetch employee names
+        // Fetch employee names using Worker API
         const tableData = await Promise.all(data.records.map(async (rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
                 try {
-                    const empUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${fields['Employee'][0]}`;
-                    const empResponse = await fetch(empUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (empResponse.ok) {
-                        const empData = await empResponse.json();
-                        employeeName = empData.fields['Full Name'];
+                    const employee = await getEmployee(fields['Employee'][0]);
+                    if (employee && employee.fields) {
+                        employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
                     console.error('Error fetching employee:', error);
@@ -835,38 +694,20 @@ async function generateLeaveReport() {
         doc.setTextColor(0, 0, 0);
         doc.text(`Year: ${year}`, 105, 30, { align: 'center' });
 
-        // Fetch leave records
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Leave Requests?filterByFormula=YEAR({Start Date})=${year}`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        // Fetch leave records using Worker API
+        const filterFormula = `YEAR({Start Date})=${year}`;
+        const data = await getLeaveRequests(filterFormula);
 
-        if (!response.ok) throw new Error('Failed to fetch leave records');
-
-        const data = await response.json();
-
-        // Fetch employee names
+        // Fetch employee names using Worker API
         const tableData = await Promise.all(data.records.map(async (rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
                 try {
-                    const empUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${fields['Employee'][0]}`;
-                    const empResponse = await fetch(empUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (empResponse.ok) {
-                        const empData = await empResponse.json();
-                        employeeName = empData.fields['Full Name'];
+                    const employee = await getEmployee(fields['Employee'][0]);
+                    if (employee && employee.fields) {
+                        employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
                     console.error('Error fetching employee:', error);
@@ -917,38 +758,20 @@ async function generatePayrollReport() {
         doc.setTextColor(0, 0, 0);
         doc.text(`Period: ${monthName}`, 105, 30, { align: 'center' });
 
-        // Fetch payment records
-        const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/PaymentHistory?filterByFormula=AND(YEAR({Payment Date})=${year},MONTH({Payment Date})=${parseInt(month)})`;
-        const response = await fetch(url, {
-            method: 'GET',
-            headers: {
-                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                'Content-Type': 'application/json'
-            }
-        });
+        // Fetch payment records using Worker API
+        const filterFormula = `AND(YEAR({Payment Date})=${year},MONTH({Payment Date})=${parseInt(month)})`;
+        const data = await getPayroll(filterFormula);
 
-        if (!response.ok) throw new Error('Failed to fetch payroll records');
-
-        const data = await response.json();
-
-        // Fetch employee names and create table
+        // Fetch employee names and create table using Worker API
         const tableData = await Promise.all(data.records.map(async (rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
                 try {
-                    const empUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/Employees/${fields['Employee'][0]}`;
-                    const empResponse = await fetch(empUrl, {
-                        method: 'GET',
-                        headers: {
-                            'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                            'Content-Type': 'application/json'
-                        }
-                    });
-                    if (empResponse.ok) {
-                        const empData = await empResponse.json();
-                        employeeName = empData.fields['Full Name'];
+                    const employee = await getEmployee(fields['Employee'][0]);
+                    if (employee && employee.fields) {
+                        employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
                     console.error('Error fetching employee:', error);

@@ -135,6 +135,16 @@ async function createAttendance(fields) {
     return workerRequest(API_CONFIG.endpoints.attendance, 'POST', { fields });
 }
 
+/**
+ * Update an attendance record
+ * @param {string} recordId - Airtable record ID
+ * @param {object} fields - Updated attendance data
+ * @returns {Promise<object>} Updated attendance record
+ */
+async function updateAttendance(recordId, fields) {
+    return workerRequest(`${API_CONFIG.endpoints.attendance}/${recordId}`, 'PATCH', { fields });
+}
+
 // ========================================
 // LEAVE REQUESTS API
 // ========================================
