@@ -246,6 +246,27 @@ async function updatePayroll(recordId, fields) {
 }
 
 // ========================================
+// IP LOOKUP API
+// ========================================
+
+/**
+ * Get IP location information via Worker proxy
+ * @returns {Promise<object>} IP location data
+ */
+async function getIPLocation() {
+    try {
+        const response = await fetch(`${API_CONFIG.workerUrl}/api/iplookup`);
+        if (!response.ok) {
+            throw new Error('Failed to fetch IP location');
+        }
+        return response.json();
+    } catch (error) {
+        console.error('IP Lookup Error:', error);
+        throw error;
+    }
+}
+
+// ========================================
 // BACKWARD COMPATIBILITY
 // ========================================
 // For legacy code that expects AIRTABLE_CONFIG object

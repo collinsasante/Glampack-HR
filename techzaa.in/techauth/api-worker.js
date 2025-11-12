@@ -8,7 +8,7 @@ export default {
     const corsHeaders = {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
     };
 
     // Handle CORS preflight requests
@@ -19,6 +19,11 @@ export default {
     try {
       const url = new URL(request.url);
       const path = url.pathname;
+
+      // Handle IP lookup proxy (doesn't require Airtable credentials)
+      if (path === '/api/iplookup' || path === '/iplookup') {
+        return handleIPLookup(corsHeaders);
+      }
 
       // Get Airtable credentials from environment variables
       const AIRTABLE_API_KEY = env.AIRTABLE_API_KEY;
@@ -56,6 +61,36 @@ export default {
     }
   },
 };
+
+// IP Lookup proxy handler
+async function handleIPLookup(corsHeaders) {
+  try {
+    const response = await fetch('https://ipapi.co/json/', {
+      headers: {
+        'User-Agent': 'Glampack-HR-System/1.0'
+      }
+    });
+
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch IP information' }),
+        { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200,
+    });
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+}
 
 // Helper function to make Airtable API requests
 async function airtableRequest(endpoint, apiKey, method = 'GET', body = null) {
@@ -147,13 +182,21 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
 // Attendance API handler
 async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
   const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
   const tableName = 'Attendance';
 
   if (request.method === 'GET') {
-    const filterFormula = url.searchParams.get('filterByFormula');
-    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
-    if (filterFormula) {
-      airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+    const recordId = pathParts[3]; // /api/attendance/{recordId}
+
+    let airtableUrl;
+    if (recordId) {
+      airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+    } else {
+      const filterFormula = url.searchParams.get('filterByFormula');
+      airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+      if (filterFormula) {
+        airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+      }
     }
 
     const response = await airtableRequest(airtableUrl, apiKey);
@@ -168,6 +211,18 @@ async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
     const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'PATCH') {
+    const recordId = pathParts[3];
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
@@ -253,6 +308,7 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
 // Payroll API handler
 async function handlePayroll(request, env, apiKey, baseId, corsHeaders) {
   const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
   const tableName = 'Payroll';
 
   if (request.method === 'GET') {
@@ -263,6 +319,29 @@ async function handlePayroll(request, env, apiKey, baseId, corsHeaders) {
     }
 
     const response = await airtableRequest(airtableUrl, apiKey);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'POST') {
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'PATCH') {
+    const recordId = pathParts[3];
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
