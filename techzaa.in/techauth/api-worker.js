@@ -22,7 +22,7 @@ export default {
 
       // Handle IP lookup proxy (doesn't require Airtable credentials)
       if (path === '/api/iplookup' || path === '/iplookup') {
-        return handleIPLookup(corsHeaders);
+        return handleIPLookup(corsHeaders, request);
       }
 
       // Get Airtable credentials from environment variables
@@ -63,31 +63,86 @@ export default {
 };
 
 // IP Lookup proxy handler
-async function handleIPLookup(corsHeaders) {
+async function handleIPLookup(corsHeaders, request) {
   try {
-    const response = await fetch('https://ipapi.co/json/', {
+    // Get client IP from Cloudflare's CF-Connecting-IP header
+    const clientIP = request.headers.get('CF-Connecting-IP') || request.headers.get('X-Forwarded-For') || 'unknown';
+
+    // Use ip-api.com which is free and works well with Workers
+    // Note: ip-api.com allows 45 requests per minute for free
+    const response = await fetch(`http://ip-api.com/json/${clientIP}?fields=status,message,country,countryCode,region,regionName,city,lat,lon,timezone,isp,query`, {
       headers: {
-        'User-Agent': 'Glampack-HR-System/1.0'
+        'Accept': 'application/json'
       }
     });
 
     if (!response.ok) {
+      // Return fallback with client IP
       return new Response(
-        JSON.stringify({ error: 'Failed to fetch IP information' }),
-        { status: response.status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({
+          fallback: true,
+          ip: clientIP,
+          latitude: 0,
+          longitude: 0,
+          city: 'Unknown',
+          region: 'Unknown',
+          country_name: 'Unknown',
+          error: 'IP lookup service unavailable'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const data = await response.json();
 
-    return new Response(JSON.stringify(data), {
+    // Check if the API returned an error
+    if (data.status === 'fail') {
+      return new Response(
+        JSON.stringify({
+          fallback: true,
+          ip: clientIP,
+          latitude: 0,
+          longitude: 0,
+          city: 'Unknown',
+          region: 'Unknown',
+          country_name: 'Unknown',
+          error: data.message || 'IP lookup failed'
+        }),
+        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Transform ip-api.com response to match ipapi.co format
+    const transformedData = {
+      ip: data.query || clientIP,
+      latitude: data.lat,
+      longitude: data.lon,
+      city: data.city,
+      region: data.regionName,
+      country_name: data.country,
+      country_code: data.countryCode,
+      timezone: data.timezone,
+      isp: data.isp
+    };
+
+    return new Response(JSON.stringify(transformedData), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });
   } catch (error) {
+    // Return fallback data with error message
     return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      JSON.stringify({
+        fallback: true,
+        ip: 'unknown',
+        latitude: 0,
+        longitude: 0,
+        city: 'Unknown',
+        region: 'Unknown',
+        country_name: 'Unknown',
+        error: error.message
+      }),
+      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 }
