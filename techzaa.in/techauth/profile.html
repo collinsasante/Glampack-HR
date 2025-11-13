@@ -23,163 +23,53 @@
     <style>
         body {
             font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%);
         }
         .section-hidden {
             display: none;
         }
         .tab-button.active {
-            background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+            background-color: #dc2626;
             color: white;
-            box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
-            transform: translateX(5px);
         }
         .tab-button {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.3s ease;
         }
         .tab-button:hover:not(.active) {
             background-color: #fee2e2;
-            transform: translateX(3px);
-        }
-        .profile-card {
-            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        .profile-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 3s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        .avatar-circle {
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
-        }
-        .avatar-circle:hover {
-            transform: scale(1.05);
-        }
-        .info-card {
-            background: white;
-            border-radius: 12px;
-            padding: 1.25rem;
-            transition: all 0.3s ease;
-            border: 1px solid #f3f4f6;
-        }
-        .info-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            border-color: #dc2626;
-        }
-        .info-icon {
-            width: 48px;
-            height: 48px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            margin-bottom: 0.75rem;
-        }
-        .input-enhanced {
-            transition: all 0.3s ease;
-        }
-        .input-enhanced:focus {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.15);
-        }
-        .stat-card {
-            background: linear-gradient(135deg, #ffffff 0%, #fef2f2 100%);
-            border-left: 4px solid #dc2626;
-            transition: all 0.3s ease;
-        }
-        .stat-card:hover {
-            transform: translateX(5px);
-            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.15);
-        }
-        .badge {
-            display: inline-flex;
-            align-items: center;
-            padding: 0.5rem 1rem;
-            border-radius: 9999px;
-            font-size: 0.875rem;
-            font-weight: 600;
-            gap: 0.5rem;
-        }
-        .section-header {
-            border-bottom: 2px solid #f3f4f6;
-            padding-bottom: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        .password-strength {
-            height: 4px;
-            border-radius: 2px;
-            background: #e5e7eb;
-            margin-top: 0.5rem;
-            overflow: hidden;
-        }
-        .password-strength-bar {
-            height: 100%;
-            transition: all 0.3s ease;
-            background: linear-gradient(90deg, #dc2626 0%, #ef4444 100%);
-        }
-        .mobile-nav {
-            display: none;
-        }
-        @media (max-width: 1024px) {
-            .mobile-nav {
-                display: block;
-            }
-            .desktop-sidebar {
-                display: none;
-            }
         }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-gray-100">
 
     <!-- Navigation Bar -->
-    <nav class="bg-white shadow-lg sticky top-0 z-50">
+    <nav class="bg-white shadow-lg">
         <div class="container mx-auto px-4">
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
-                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10 w-auto">
-                    <div class="hidden md:block">
-                        <h1 class="text-xl font-bold text-red-600">Packaging Glamour HR</h1>
-                        <p class="text-xs text-gray-500" id="userInfo">Loading...</p>
-                    </div>
+                    <h1 class="text-2xl font-bold text-red-600">HR System</h1>
+                    <span class="text-gray-600" id="userInfo"></span>
                 </div>
-                <div class="flex items-center space-x-2 md:space-x-4 overflow-x-auto">
-                    <a href="#" onclick="goToDashboard()" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-chart-line mr-1"></i> <span class="hidden sm:inline">Dashboard</span>
+                <div class="flex items-center space-x-4">
+                    <a href="#" onclick="goToDashboard()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-chart-line mr-1"></i> Dashboard
                     </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-clock mr-1"></i> <span class="hidden sm:inline">Attendance</span>
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-clock mr-1"></i> Attendance
                     </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-calendar-alt mr-1"></i> <span class="hidden sm:inline">Leave</span>
+                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
                     </a>
-                    <a href="profile.html" class="text-white bg-red-600 font-semibold px-3 py-1 rounded-lg">
-                        <i class="fas fa-user mr-1"></i> <span class="hidden sm:inline">Profile</span>
+                    <a href="profile.html" class="text-red-600 font-semibold">
+                        <i class="fas fa-user mr-1"></i> Profile
                     </a>
-                    <a href="announcements.html" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-bullhorn mr-1"></i> <span class="hidden sm:inline">News</span>
+                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
                     </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-money-bill-wave mr-1"></i> <span class="hidden sm:inline">Payroll</span>
+                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
                     </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 transition px-2 py-1 rounded-lg hover:bg-red-50">
-                        <i class="fas fa-sign-out-alt mr-1"></i> <span class="hidden sm:inline">Logout</span>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
                     </button>
                 </div>
             </div>
@@ -188,81 +78,45 @@
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
-        <!-- Mobile Tab Navigation -->
-        <div class="mobile-nav mb-6">
-            <div class="bg-white rounded-lg shadow-md p-2 flex gap-2 overflow-x-auto">
-                <button onclick="showTab('profile')" id="mobile-tab-profile" class="tab-button active flex-1 whitespace-nowrap px-4 py-2 rounded-lg font-medium text-sm">
-                    <i class="fas fa-user"></i> Personal
-                </button>
-                <button onclick="showTab('employment')" id="mobile-tab-employment" class="tab-button flex-1 whitespace-nowrap px-4 py-2 rounded-lg font-medium text-sm text-gray-700">
-                    <i class="fas fa-briefcase"></i> Employment
-                </button>
-                <button onclick="showTab('security')" id="mobile-tab-security" class="tab-button flex-1 whitespace-nowrap px-4 py-2 rounded-lg font-medium text-sm text-gray-700">
-                    <i class="fas fa-lock"></i> Security
-                </button>
-                <button onclick="showTab('emergency')" id="mobile-tab-emergency" class="tab-button flex-1 whitespace-nowrap px-4 py-2 rounded-lg font-medium text-sm text-gray-700">
-                    <i class="fas fa-phone"></i> Emergency
-                </button>
-            </div>
+        <!-- Header -->
+        <div class="mb-6">
+            <h2 class="text-3xl font-bold text-gray-800">My Profile</h2>
+            <p class="text-gray-600 mt-1">Manage your personal information and settings</p>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
 
             <!-- Sidebar -->
-            <div class="lg:col-span-1 desktop-sidebar">
+            <div class="lg:col-span-1">
                 <!-- Profile Card -->
-                <div class="profile-card rounded-2xl shadow-2xl p-8 text-white mb-6 relative">
-                    <div class="text-center relative z-10">
-                        <div class="avatar-circle w-28 h-28 rounded-full mx-auto flex items-center justify-center mb-4">
-                            <span class="text-white text-4xl font-bold" id="profileInitials">U</span>
+                <div class="bg-red-600 rounded-lg shadow-lg p-6 text-white mb-6">
+                    <div class="text-center">
+                        <div class="w-24 h-24 rounded-full bg-white/20 mx-auto flex items-center justify-center mb-4">
+                            <span class="text-white text-3xl font-bold" id="profileInitials">U</span>
                         </div>
-                        <h3 class="text-2xl font-bold mb-1" id="sidebarName">Loading...</h3>
-                        <div class="badge bg-white/20 backdrop-blur-sm text-white mt-3" id="sidebarRoleBadge">
-                            <i class="fas fa-briefcase"></i>
-                            <span id="sidebarRole">Loading...</span>
-                        </div>
-                        <div class="mt-4 pt-4 border-t border-white/20">
-                            <p class="text-sm text-white/80 mb-1">Member Since</p>
-                            <p class="font-semibold" id="memberSince">--</p>
-                        </div>
+                        <h3 class="text-xl font-bold" id="sidebarName">Loading...</h3>
+                        <p class="text-red-100 text-sm" id="sidebarRole">Loading...</p>
                     </div>
                 </div>
 
                 <!-- Navigation Tabs -->
-                <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-                    <button onclick="showTab('profile')" id="tab-profile" class="tab-button active w-full text-left px-5 py-4 font-medium flex items-center gap-3">
-                        <i class="fas fa-user text-lg"></i>
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <button onclick="showTab('profile')" id="tab-profile" class="tab-button active w-full text-left px-4 py-3 font-medium flex items-center gap-3 transition">
+                        <i class="fas fa-user"></i>
                         <span>Personal Info</span>
                     </button>
-                    <button onclick="showTab('employment')" id="tab-employment" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700">
-                        <i class="fas fa-briefcase text-lg"></i>
+                    <button onclick="showTab('employment')" id="tab-employment" class="tab-button w-full text-left px-4 py-3 font-medium flex items-center gap-3 text-gray-700 transition hover:bg-gray-50">
+                        <i class="fas fa-briefcase"></i>
                         <span>Employment</span>
                     </button>
-                    <button onclick="showTab('security')" id="tab-security" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700">
-                        <i class="fas fa-lock text-lg"></i>
+                    <button onclick="showTab('security')" id="tab-security" class="tab-button w-full text-left px-4 py-3 font-medium flex items-center gap-3 text-gray-700 transition hover:bg-gray-50">
+                        <i class="fas fa-lock"></i>
                         <span>Security</span>
                     </button>
-                    <button onclick="showTab('emergency')" id="tab-emergency" class="tab-button w-full text-left px-5 py-4 font-medium flex items-center gap-3 text-gray-700">
-                        <i class="fas fa-phone text-lg"></i>
+                    <button onclick="showTab('emergency')" id="tab-emergency" class="tab-button w-full text-left px-4 py-3 font-medium flex items-center gap-3 text-gray-700 transition hover:bg-gray-50">
+                        <i class="fas fa-phone"></i>
                         <span>Emergency Contact</span>
                     </button>
-                </div>
-
-                <!-- Quick Stats -->
-                <div class="mt-6 bg-white rounded-xl shadow-lg p-5">
-                    <h4 class="font-bold text-gray-800 mb-4 flex items-center gap-2">
-                        <i class="fas fa-chart-bar text-red-600"></i>
-                        Quick Stats
-                    </h4>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center">
-                            <span class="text-sm text-gray-600">Profile Complete</span>
-                            <span class="font-bold text-red-600" id="profileCompleteness">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-2">
-                            <div id="profileCompletenessBar" class="bg-gradient-to-r from-red-600 to-red-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                    </div>
                 </div>
             </div>
 
@@ -270,80 +124,57 @@
             <div class="lg:col-span-3">
 
                 <!-- Profile Section -->
-                <div id="section-profile" class="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                    <div class="section-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h3 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                                    <i class="fas fa-user text-red-600"></i>
-                                </div>
-                                Personal Information
-                            </h3>
-                            <p class="text-gray-500 mt-1 text-sm">Manage your personal details and contact information</p>
-                        </div>
-                        <button onclick="toggleEditProfile()" id="editProfileBtn" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2.5 px-5 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                            <i class="fas fa-edit mr-2"></i> Edit Profile
+                <div id="section-profile" class="bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">Personal Information</h3>
+                        <button onclick="toggleEditProfile()" id="editProfileBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-edit mr-2"></i> Edit
                         </button>
                     </div>
 
                     <form id="profileForm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-user-circle text-red-600 mr-1"></i> Full Name
-                                </label>
-                                <input type="text" id="fullName" required class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                <input type="text" id="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-envelope text-red-600 mr-1"></i> Email Address
-                                </label>
-                                <input type="email" id="email" required class="w-full px-4 py-3 border border-gray-200 rounded-xl bg-gray-100 cursor-not-allowed" readonly>
-                                <p class="text-xs text-gray-500 mt-1">Email cannot be changed</p>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
+                                <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-phone text-red-600 mr-1"></i> Phone Number
-                                </label>
-                                <input type="tel" id="phoneNumber" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel" id="phoneNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-birthday-cake text-red-600 mr-1"></i> Date of Birth
-                                </label>
-                                <input type="date" id="dateOfBirth" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
+                                <input type="date" id="dateOfBirth" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-city text-red-600 mr-1"></i> City
-                                </label>
-                                <input type="text" id="city" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
+                                <input type="text" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-flag text-red-600 mr-1"></i> Country
-                                </label>
-                                <input type="text" id="country" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
+                                <input type="text" id="country" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-map-marker-alt text-red-600 mr-1"></i> Full Address
-                                </label>
-                                <textarea id="address" rows="3" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50 resize-none" readonly></textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <textarea id="address" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly></textarea>
                             </div>
                         </div>
 
-                        <div id="profileFormButtons" class="mt-8 flex gap-3 hidden">
-                            <button type="submit" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <div id="profileFormButtons" class="mt-6 flex gap-3 hidden">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition">
                                 <i class="fas fa-save mr-2"></i> Save Changes
                             </button>
-                            <button type="button" onclick="cancelEditProfile()" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <button type="button" onclick="cancelEditProfile()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
                                 <i class="fas fa-times mr-2"></i> Cancel
                             </button>
                         </div>
@@ -351,190 +182,105 @@
                 </div>
 
                 <!-- Employment Section -->
-                <div id="section-employment" class="section-hidden bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                    <div class="section-header">
-                        <h3 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                                <i class="fas fa-briefcase text-blue-600"></i>
-                            </div>
-                            Employment Details
-                        </h3>
-                        <p class="text-gray-500 mt-1 text-sm">View your employment information and work status</p>
-                    </div>
+                <div id="section-employment" class="section-hidden bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Employment Details</h3>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                        <div class="info-card">
-                            <div class="info-icon bg-red-100 text-red-600">
-                                <i class="fas fa-id-card"></i>
-                            </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Employee ID</p>
                             <p class="text-xl font-bold text-gray-900" id="employeeId">--</p>
                         </div>
 
-                        <div class="info-card">
-                            <div class="info-icon bg-blue-100 text-blue-600">
-                                <i class="fas fa-user-tie"></i>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Job Title</p>
                             <p class="text-xl font-bold text-gray-900" id="empJobTitle">--</p>
                         </div>
 
-                        <div class="info-card">
-                            <div class="info-icon bg-purple-100 text-purple-600">
-                                <i class="fas fa-building"></i>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Department</p>
                             <p class="text-xl font-bold text-gray-900" id="department">--</p>
                         </div>
 
-                        <div class="info-card">
-                            <div class="info-icon bg-green-100 text-green-600">
-                                <i class="fas fa-clipboard-check"></i>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Employment Type</p>
                             <p class="text-xl font-bold text-gray-900" id="employmentType">--</p>
                         </div>
 
-                        <div class="info-card">
-                            <div class="info-icon bg-yellow-100 text-yellow-600">
-                                <i class="fas fa-calendar-plus"></i>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Joining Date</p>
                             <p class="text-xl font-bold text-gray-900" id="joiningDate">--</p>
                         </div>
 
-                        <div class="info-card">
-                            <div class="info-icon bg-emerald-100 text-emerald-600">
-                                <i class="fas fa-money-bill-wave"></i>
-                            </div>
+                        <div class="bg-gray-50 p-4 rounded-lg">
                             <p class="text-sm text-gray-600 mb-1">Monthly Salary</p>
                             <p class="text-xl font-bold text-gray-900" id="salary">--</p>
                         </div>
                     </div>
 
                     <!-- Leave Balances -->
-                    <div class="bg-gradient-to-br from-red-50 to-orange-50 p-6 md:p-8 rounded-2xl border border-red-100">
-                        <h4 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-                            <i class="fas fa-umbrella-beach text-red-600"></i>
-                            Leave Balances
-                        </h4>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                            <div class="stat-card p-6 rounded-xl">
-                                <div class="flex items-center justify-between mb-3">
-                                    <p class="text-sm font-semibold text-gray-600">Annual Leave</p>
-                                    <div class="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                                        <i class="fas fa-plane text-red-600"></i>
-                                    </div>
-                                </div>
-                                <p class="text-4xl font-bold text-red-600 mb-1" id="annualLeave">0</p>
-                                <p class="text-xs text-gray-500">days remaining</p>
+                    <div class="mt-6 bg-red-50 p-6 rounded-lg border border-red-200">
+                        <h4 class="text-xl font-bold text-gray-800 mb-4">Leave Balances</h4>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-600 mb-2">Annual Leave</p>
+                                <p class="text-3xl font-bold text-red-600" id="annualLeave">0</p>
+                                <p class="text-xs text-gray-500 mt-1">days remaining</p>
                             </div>
 
-                            <div class="stat-card p-6 rounded-xl">
-                                <div class="flex items-center justify-between mb-3">
-                                    <p class="text-sm font-semibold text-gray-600">Sick Leave</p>
-                                    <div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center">
-                                        <i class="fas fa-notes-medical text-green-600"></i>
-                                    </div>
-                                </div>
-                                <p class="text-4xl font-bold text-green-600 mb-1" id="sickLeave">0</p>
-                                <p class="text-xs text-gray-500">days remaining</p>
+                            <div class="bg-white p-4 rounded-lg shadow-sm">
+                                <p class="text-sm text-gray-600 mb-2">Sick Leave</p>
+                                <p class="text-3xl font-bold text-green-600" id="sickLeave">0</p>
+                                <p class="text-xs text-gray-500 mt-1">days remaining</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Security Section -->
-                <div id="section-security" class="section-hidden bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                    <div class="section-header">
-                        <h3 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-lg bg-yellow-100 flex items-center justify-center">
-                                <i class="fas fa-shield-alt text-yellow-600"></i>
-                            </div>
-                            Security Settings
-                        </h3>
-                        <p class="text-gray-500 mt-1 text-sm">Update your password and security preferences</p>
-                    </div>
+                <div id="section-security" class="section-hidden bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Security Settings</h3>
 
-                    <div class="max-w-2xl">
-                        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-lg">
-                            <div class="flex items-start">
-                                <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
-                                <div>
-                                    <h4 class="font-semibold text-yellow-800 mb-1">Password Security Tips</h4>
-                                    <ul class="text-sm text-yellow-700 list-disc list-inside space-y-1">
-                                        <li>Use at least 6 characters</li>
-                                        <li>Include numbers and special characters</li>
-                                        <li>Don't reuse passwords from other accounts</li>
-                                    </ul>
-                                </div>
-                            </div>
+                    <form id="changePasswordForm" class="space-y-4 max-w-lg">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                            <input type="password" id="currentPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         </div>
 
-                        <form id="changePasswordForm" class="space-y-5">
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-key text-red-600 mr-1"></i> Current Password
-                                </label>
-                                <input type="password" id="currentPassword" required class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                            <input type="password" id="newPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-lock text-red-600 mr-1"></i> New Password
-                                </label>
-                                <input type="password" id="newPassword" required minlength="6" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent" oninput="checkPasswordStrength()">
-                                <div class="password-strength">
-                                    <div id="passwordStrengthBar" class="password-strength-bar" style="width: 0%"></div>
-                                </div>
-                                <p id="passwordStrengthText" class="text-xs text-gray-500 mt-1"></p>
-                            </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                        </div>
 
-                            <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-check-circle text-red-600 mr-1"></i> Confirm New Password
-                                </label>
-                                <input type="password" id="confirmPassword" required minlength="6" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            </div>
-
-                            <button type="submit" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                                <i class="fas fa-save mr-2"></i> Update Password
-                            </button>
-                        </form>
-                    </div>
+                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                            <i class="fas fa-save mr-2"></i> Update Password
+                        </button>
+                    </form>
                 </div>
 
                 <!-- Emergency Contact Section -->
-                <div id="section-emergency" class="section-hidden bg-white rounded-2xl shadow-xl p-6 md:p-8">
-                    <div class="section-header flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div>
-                            <h3 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center">
-                                    <i class="fas fa-phone-alt text-orange-600"></i>
-                                </div>
-                                Emergency Contact
-                            </h3>
-                            <p class="text-gray-500 mt-1 text-sm">Manage your emergency contact information</p>
-                        </div>
-                        <button onclick="toggleEditEmergency()" id="editEmergencyBtn" class="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white font-medium py-2.5 px-5 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
-                            <i class="fas fa-edit mr-2"></i> Edit Contact
+                <div id="section-emergency" class="section-hidden bg-white rounded-lg shadow-md p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold text-gray-800">Emergency Contact</h3>
+                        <button onclick="toggleEditEmergency()" id="editEmergencyBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition">
+                            <i class="fas fa-edit mr-2"></i> Edit
                         </button>
                     </div>
 
                     <form id="emergencyForm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-user text-red-600 mr-1"></i> Contact Name
-                                </label>
-                                <input type="text" id="emergencyContactName" required class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Name</label>
+                                <input type="text" id="emergencyContactName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-heart text-red-600 mr-1"></i> Relationship
-                                </label>
-                                <select id="emergencyRelationship" required class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" disabled>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Relationship</label>
+                                <select id="emergencyRelationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" disabled>
                                     <option value="">Select relationship</option>
                                     <option value="Spouse">Spouse</option>
                                     <option value="Parent">Parent</option>
@@ -546,32 +292,26 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-phone text-red-600 mr-1"></i> Phone Number
-                                </label>
-                                <input type="tel" id="emergencyPhone" required class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
+                                <input type="tel" id="emergencyPhone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-envelope text-red-600 mr-1"></i> Email Address
-                                </label>
-                                <input type="email" id="emergencyEmail" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
+                                <input type="email" id="emergencyEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div class="md:col-span-2">
-                                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                                    <i class="fas fa-map-marker-alt text-red-600 mr-1"></i> Address
-                                </label>
-                                <textarea id="emergencyAddress" rows="3" class="input-enhanced w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50 resize-none" readonly></textarea>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
+                                <textarea id="emergencyAddress" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly></textarea>
                             </div>
                         </div>
 
-                        <div id="emergencyFormButtons" class="mt-8 flex gap-3 hidden">
-                            <button type="submit" class="bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
+                        <div id="emergencyFormButtons" class="mt-6 flex gap-3 hidden">
+                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition">
                                 <i class="fas fa-save mr-2"></i> Save Changes
                             </button>
-                            <button type="button" onclick="cancelEditEmergency()" class="bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white font-semibold py-3 px-8 rounded-xl transition shadow-lg hover:shadow-xl transform hover:scale-105">
+                            <button type="button" onclick="cancelEditEmergency()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
                                 <i class="fas fa-times mr-2"></i> Cancel
                             </button>
                         </div>
@@ -612,44 +352,19 @@
                 populateProfile();
                 populateEmployment();
                 populateEmergencyContact();
-                calculateProfileCompleteness();
             } catch (error) {
                 console.error('Error loading employee data:', error);
-                showNotification('Failed to load profile data', 'error');
+                alert('Failed to load profile data');
             }
-        }
-
-        // Calculate profile completeness
-        function calculateProfileCompleteness() {
-            const fields = [
-                'Full Name', 'Email', 'Phone Number', 'Date of Birth',
-                'Address', 'City', 'Country',
-                'Emergency Contact Name', 'Emergency Contact Phone'
-            ];
-
-            let filledFields = 0;
-            fields.forEach(field => {
-                if (employeeData[field] && employeeData[field].trim() !== '') {
-                    filledFields++;
-                }
-            });
-
-            const percentage = Math.round((filledFields / fields.length) * 100);
-            document.getElementById('profileCompleteness').textContent = percentage + '%';
-            document.getElementById('profileCompletenessBar').style.width = percentage + '%';
         }
 
         // Populate profile
         function populateProfile() {
             const name = employeeData['Full Name'] || 'User';
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2);
+            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
             document.getElementById('profileInitials').textContent = initials;
             document.getElementById('sidebarName').textContent = name;
             document.getElementById('sidebarRole').textContent = employeeData['Status'] || currentUser.role;
-
-            // Set member since date
-            const joiningDate = employeeData['Joining Date'] ? new Date(employeeData['Joining Date']).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }) : '--';
-            document.getElementById('memberSince').textContent = joiningDate;
 
             document.getElementById('fullName').value = employeeData['Full Name'] || '';
             document.getElementById('email').value = employeeData['Email'] || '';
@@ -686,24 +401,11 @@
             document.querySelectorAll('[id^="section-"]').forEach(section => {
                 section.classList.add('section-hidden');
             });
-            document.querySelectorAll('[id^="tab-"], [id^="mobile-tab-"]').forEach(tab => {
+            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
                 tab.classList.remove('active');
-                tab.classList.add('text-gray-700');
             });
             document.getElementById(`section-${tabName}`).classList.remove('section-hidden');
-
-            // Update both desktop and mobile tabs
-            const desktopTab = document.getElementById(`tab-${tabName}`);
-            const mobileTab = document.getElementById(`mobile-tab-${tabName}`);
-
-            if (desktopTab) {
-                desktopTab.classList.add('active');
-                desktopTab.classList.remove('text-gray-700');
-            }
-            if (mobileTab) {
-                mobileTab.classList.add('active');
-                mobileTab.classList.remove('text-gray-700');
-            }
+            document.getElementById(`tab-${tabName}`).classList.add('active');
         }
 
         // Toggle edit profile
@@ -724,7 +426,7 @@
             });
 
             document.getElementById('profileFormButtons').classList.toggle('hidden');
-            document.getElementById('editProfileBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel Edit' : '<i class="fas fa-edit mr-2"></i> Edit Profile';
+            document.getElementById('editProfileBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel' : '<i class="fas fa-edit mr-2"></i> Edit';
         }
 
         function cancelEditProfile() {
@@ -740,13 +442,6 @@
             inputs.forEach(input => {
                 if (input.tagName === 'SELECT') {
                     input.disabled = !input.disabled;
-                    if (!input.disabled) {
-                        input.classList.remove('bg-gray-50');
-                        input.classList.add('bg-white');
-                    } else {
-                        input.classList.add('bg-gray-50');
-                        input.classList.remove('bg-white');
-                    }
                 } else {
                     if (isReadonly) {
                         input.removeAttribute('readonly');
@@ -761,67 +456,12 @@
             });
 
             document.getElementById('emergencyFormButtons').classList.toggle('hidden');
-            document.getElementById('editEmergencyBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel Edit' : '<i class="fas fa-edit mr-2"></i> Edit Contact';
+            document.getElementById('editEmergencyBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel' : '<i class="fas fa-edit mr-2"></i> Edit';
         }
 
         function cancelEditEmergency() {
             toggleEditEmergency();
             populateEmergencyContact();
-        }
-
-        // Password strength checker
-        function checkPasswordStrength() {
-            const password = document.getElementById('newPassword').value;
-            const strengthBar = document.getElementById('passwordStrengthBar');
-            const strengthText = document.getElementById('passwordStrengthText');
-
-            let strength = 0;
-            if (password.length >= 6) strength += 25;
-            if (password.length >= 10) strength += 25;
-            if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength += 25;
-            if (/[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)) strength += 25;
-
-            strengthBar.style.width = strength + '%';
-
-            if (strength <= 25) {
-                strengthBar.style.background = 'linear-gradient(90deg, #dc2626 0%, #ef4444 100%)';
-                strengthText.textContent = 'Weak password';
-                strengthText.classList.add('text-red-600');
-            } else if (strength <= 50) {
-                strengthBar.style.background = 'linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%)';
-                strengthText.textContent = 'Fair password';
-                strengthText.classList.remove('text-red-600');
-                strengthText.classList.add('text-yellow-600');
-            } else if (strength <= 75) {
-                strengthBar.style.background = 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%)';
-                strengthText.textContent = 'Good password';
-                strengthText.classList.remove('text-yellow-600');
-                strengthText.classList.add('text-blue-600');
-            } else {
-                strengthBar.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
-                strengthText.textContent = 'Strong password';
-                strengthText.classList.remove('text-blue-600');
-                strengthText.classList.add('text-green-600');
-            }
-        }
-
-        // Notification function
-        function showNotification(message, type = 'success') {
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            const notification = document.createElement('div');
-            notification.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-4 rounded-xl shadow-2xl z-50 transform transition-all duration-300`;
-            notification.innerHTML = `
-                <div class="flex items-center gap-3">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} text-xl"></i>
-                    <span class="font-medium">${message}</span>
-                </div>
-            `;
-            document.body.appendChild(notification);
-
-            setTimeout(() => {
-                notification.style.transform = 'translateX(400px)';
-                setTimeout(() => notification.remove(), 300);
-            }, 3000);
         }
 
         // Submit profile form
@@ -838,12 +478,12 @@
                     'Country': document.getElementById('country').value
                 });
 
-                showNotification('Profile updated successfully!', 'success');
+                alert('Profile updated successfully!');
                 toggleEditProfile();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating profile:', error);
-                showNotification('Failed to update profile', 'error');
+                alert('Failed to update profile. Please try again.');
             }
         });
 
@@ -860,12 +500,12 @@
                     'Emergency Contact Address': document.getElementById('emergencyAddress').value
                 });
 
-                showNotification('Emergency contact updated successfully!', 'success');
+                alert('Emergency contact updated successfully!');
                 toggleEditEmergency();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating emergency contact:', error);
-                showNotification('Failed to update emergency contact', 'error');
+                alert('Failed to update emergency contact. Please try again.');
             }
         });
 
@@ -878,17 +518,17 @@
             const confirm = document.getElementById('confirmPassword').value;
 
             if (current !== employeeData['Password']) {
-                showNotification('Current password is incorrect', 'error');
+                alert('Current password is incorrect');
                 return;
             }
 
             if (newPass !== confirm) {
-                showNotification('New passwords do not match', 'error');
+                alert('New passwords do not match');
                 return;
             }
 
             if (newPass.length < 6) {
-                showNotification('Password must be at least 6 characters long', 'error');
+                alert('Password must be at least 6 characters long');
                 return;
             }
 
@@ -897,14 +537,12 @@
                     'Password': newPass
                 });
 
-                showNotification('Password updated successfully!', 'success');
+                alert('Password updated successfully!');
                 document.getElementById('changePasswordForm').reset();
-                document.getElementById('passwordStrengthBar').style.width = '0%';
-                document.getElementById('passwordStrengthText').textContent = '';
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating password:', error);
-                showNotification('Failed to update password', 'error');
+                alert('Failed to update password. Please try again.');
             }
         });
 
