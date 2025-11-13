@@ -427,11 +427,18 @@ async function approveLeave(leaveId) {
         const currentSickBalance = employee.fields['Sick Leave Balance'] || 0;
 
         // Deduct days based on leave type
+        // Map Airtable Leave Type values to balance fields
         let updateData = {};
-        if (leaveType === 'Annual Leave') {
+        if (leaveType === 'Vacation') {
+            // Vacation = Annual Leave
             updateData['Annual Leave Balance'] = Math.max(0, currentAnnualBalance - numberOfDays);
-        } else if (leaveType === 'Sick Leave') {
+            console.log(`Deducting ${numberOfDays} days from Annual Leave. New balance: ${updateData['Annual Leave Balance']}`);
+        } else if (leaveType === 'Sick') {
+            // Sick = Sick Leave
             updateData['Sick Leave Balance'] = Math.max(0, currentSickBalance - numberOfDays);
+            console.log(`Deducting ${numberOfDays} days from Sick Leave. New balance: ${updateData['Sick Leave Balance']}`);
+        } else {
+            console.log(`Leave type "${leaveType}" does not affect leave balance (Study/Other)`);
         }
 
         // Update employee leave balance
