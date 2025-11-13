@@ -490,6 +490,16 @@
         const container = document.getElementById("pendingRequestsContainer");
         const noPendingState = document.getElementById("noPendingState");
 
+        // Null checks for required elements
+        if (!container) {
+          console.error('ERROR: pendingRequestsContainer element not found');
+          return;
+        }
+        if (!noPendingState) {
+          console.error('ERROR: noPendingState element not found');
+          return;
+        }
+
         if (requests.length === 0) {
           noPendingState.classList.remove("hidden");
           container.innerHTML = "";
@@ -549,6 +559,20 @@
         const container = document.getElementById("leaveHistoryContainer");
         const loadingState = document.getElementById("loadingState");
         const emptyState = document.getElementById("emptyState");
+
+        // Null checks for required elements
+        if (!container) {
+          console.error('ERROR: leaveHistoryContainer element not found');
+          return;
+        }
+        if (!loadingState) {
+          console.error('ERROR: loadingState element not found');
+          return;
+        }
+        if (!emptyState) {
+          console.error('ERROR: emptyState element not found');
+          return;
+        }
 
         loadingState.classList.add("hidden");
 
