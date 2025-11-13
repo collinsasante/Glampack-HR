@@ -477,9 +477,24 @@ async function approveLeave(leaveId) {
         const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
 
         // Update employee's annual leave balance
-        await updateEmployee(employeeId, {
-            'Annual Leave Balance': newBalance
+        console.log('Attempting to update employee balance:', {
+            employeeId,
+            currentBalance: currentAnnualBalance,
+            days: numberOfDays,
+            newBalance
         });
+
+        try {
+            const updateResult = await updateEmployee(employeeId, {
+                'Annual Leave Balance': newBalance
+            });
+            console.log('Employee balance updated successfully:', updateResult);
+        } catch (updateError) {
+            console.error('Failed to update employee balance:', updateError);
+            alert(`Leave approved but failed to update balance. Error: ${updateError.message}`);
+            loadLeaveRequests();
+            return;
+        }
 
         alert(`Leave approved!\n\nLeave Type: ${leaveType}\nDays: ${numberOfDays}\n\nAnnual Leave Balance:\n${currentAnnualBalance} → ${newBalance} days remaining`);
 
