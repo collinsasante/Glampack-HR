@@ -472,28 +472,16 @@ async function approveLeave(leaveId) {
             'Admin Comments': comment || 'Approved by admin'
         });
 
-        // Deduct leave balance based on leave type
+        // Deduct from Annual Leave Balance for all leave types
         const currentAnnualBalance = employee.fields['Annual Leave Balance'] || 20;
-        const currentSickBalance = employee.fields['Sick Leave Balance'] || 10;
+        const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
 
-        let updateData = {};
-        if (leaveType === 'Vacation' || leaveType === 'Annual Leave') {
-            const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
-            updateData['Annual Leave Balance'] = newBalance;
-            alert(`Leave approved! Annual leave balance: ${currentAnnualBalance} → ${newBalance} days`);
-        } else if (leaveType === 'Sick' || leaveType === 'Sick Leave') {
-            const newBalance = Math.max(0, currentSickBalance - numberOfDays);
-            updateData['Sick Leave Balance'] = newBalance;
-            alert(`Leave approved! Sick leave balance: ${currentSickBalance} → ${newBalance} days`);
-        } else {
-            // Other leave types (Emergency, Study, etc.) - no balance deduction
-            alert('Leave request approved!');
-        }
+        // Update employee's annual leave balance
+        await updateEmployee(employeeId, {
+            'Annual Leave Balance': newBalance
+        });
 
-        // Update employee balance if needed
-        if (Object.keys(updateData).length > 0) {
-            await updateEmployee(employeeId, updateData);
-        }
+        alert(`Leave approved!\n\nLeave Type: ${leaveType}\nDays: ${numberOfDays}\n\nAnnual Leave Balance:\n${currentAnnualBalance} → ${newBalance} days remaining`);
 
         loadLeaveRequests();
     } catch (error) {
