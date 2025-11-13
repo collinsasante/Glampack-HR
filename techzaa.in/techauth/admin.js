@@ -221,11 +221,28 @@ function closeEmployeeModal() {
 document.getElementById('employeeForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    // Get form elements with null checks
+    const fullNameEl = document.getElementById('empFullName');
+    const emailEl = document.getElementById('empEmail');
+    const roleEl = document.getElementById('empRole');
+    const passwordEl = document.getElementById('empPassword');
+
+    // Validate all required elements exist
+    if (!fullNameEl || !emailEl || !roleEl) {
+        console.error('Missing form elements:', {
+            fullName: !!fullNameEl,
+            email: !!emailEl,
+            role: !!roleEl
+        });
+        alert('Error: Form fields not found. Please refresh the page.');
+        return;
+    }
+
     const employeeId = document.getElementById('employeeId').value;
     const data = {
-        'Full Name': document.getElementById('empFullName').value,
-        'Email': document.getElementById('empEmail').value,
-        'Role': document.getElementById('empRole').value
+        'Full Name': fullNameEl.value,
+        'Email': emailEl.value,
+        'Role': roleEl.value
     };
 
     try {
@@ -235,8 +252,11 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
             alert('Employee updated successfully!');
         } else {
             // Create new employee
-            const password = document.getElementById('empPassword').value;
-            data['Password'] = password;
+            if (!passwordEl) {
+                alert('Error: Password field not found. Please refresh the page.');
+                return;
+            }
+            data['Password'] = passwordEl.value;
             await createEmployee(data);
             alert('Employee added successfully!');
         }
