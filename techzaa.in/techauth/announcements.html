@@ -134,25 +134,19 @@
         <div class="bg-white rounded-lg shadow-md p-4 mb-6">
             <div class="flex flex-wrap items-center gap-4">
                 <div>
-                    <label class="text-sm font-medium text-gray-700 mr-2">Filter by Type:</label>
+                    <label class="text-sm font-medium text-gray-700 mr-2">Filter by Priority:</label>
                 </div>
-                <button onclick="filterByType('All')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-red-600 text-white">
+                <button onclick="filterByType('All')" id="filter-All" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-red-600 text-white">
                     All
                 </button>
-                <button onclick="filterByType('General')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    General
+                <button onclick="filterByType('High')" id="filter-High" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    <i class="fas fa-exclamation-circle mr-1"></i> High Priority
                 </button>
-                <button onclick="filterByType('HR')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    HR
+                <button onclick="filterByType('Medium')" id="filter-Medium" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    <i class="fas fa-info-circle mr-1"></i> Medium Priority
                 </button>
-                <button onclick="filterByType('Urgent')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    Urgent
-                </button>
-                <button onclick="filterByType('Event')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    Event
-                </button>
-                <button onclick="filterByType('Policy')" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    Policy
+                <button onclick="filterByType('Low')" id="filter-Low" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
+                    <i class="fas fa-flag mr-1"></i> Low Priority
                 </button>
                 <div class="ml-auto flex items-center space-x-3">
                     <label class="flex items-center text-sm font-medium text-gray-700">
@@ -206,7 +200,19 @@
         // ========================================
         let allAnnouncements = [];
         let currentFilter = 'All';
-        let readAnnouncements = new Set();
+
+        // Load read announcements from localStorage
+        function loadReadAnnouncements() {
+            const stored = localStorage.getItem(`readAnnouncements_${currentUser.id}`);
+            return stored ? new Set(JSON.parse(stored)) : new Set();
+        }
+
+        // Save read announcements to localStorage
+        function saveReadAnnouncements() {
+            localStorage.setItem(`readAnnouncements_${currentUser.id}`, JSON.stringify([...readAnnouncements]));
+        }
+
+        let readAnnouncements = loadReadAnnouncements();
 
         // ========================================
         // CHECK IF USER IS ADMIN
@@ -319,13 +325,21 @@
         function filterByType(type) {
             currentFilter = type;
 
+            // Save filter preference to localStorage
+            localStorage.setItem(`announcementFilter_${currentUser.id}`, type);
+
             // Update button styles
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.classList.remove('bg-red-600', 'text-white');
                 btn.classList.add('bg-gray-200', 'text-gray-700');
             });
-            event.target.classList.remove('bg-gray-200', 'text-gray-700');
-            event.target.classList.add('bg-red-600', 'text-white');
+
+            // Set active button style
+            const activeBtn = document.getElementById(`filter-${type}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                activeBtn.classList.add('bg-red-600', 'text-white');
+            }
 
             displayAnnouncements();
         }
@@ -341,13 +355,13 @@
             const showUnreadOnly = document.getElementById('showUnreadOnly').checked;
 
             let filtered = allAnnouncements.filter(announcement => {
-                const type = announcement.fields['Type'];
+                const priority = announcement.fields['Priority'] || 'Medium';
                 const isRead = readAnnouncements.has(announcement.id);
 
-                const matchesType = currentFilter === 'All' || type === currentFilter;
+                const matchesPriority = currentFilter === 'All' || priority === currentFilter;
                 const matchesReadStatus = !showUnreadOnly || !isRead;
 
-                return matchesType && matchesReadStatus;
+                return matchesPriority && matchesReadStatus;
             });
 
             const listContainer = document.getElementById('announcementsList');
@@ -361,38 +375,46 @@
 
             emptyState.classList.add('hidden');
 
+            // Sort by date (newest first)
+            filtered.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+
             listContainer.innerHTML = filtered.map(announcement => {
                 const isRead = readAnnouncements.has(announcement.id);
-                const type = announcement.fields['Type'];
-                const title = announcement.fields['Title'];
-                const message = announcement.fields['Message'];
-                const date = announcement.fields['Date'];
+                const priority = announcement.fields['Priority'] || 'Medium';
+                const title = announcement.fields['Title'] || 'Untitled';
+                const message = announcement.fields['Message'] || '';
+                const author = announcement.fields['Posted By'] || 'Admin';
+                const dateObj = new Date(announcement.createdTime);
 
                 // Format date
-                const dateObj = new Date(date);
                 const formattedDate = dateObj.toLocaleDateString('en-US', {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
                 });
 
-                // Type badge colors
-                const typeColors = {
-                    'General': 'bg-blue-100 text-blue-800',
-                    'HR': 'bg-purple-100 text-purple-800',
-                    'Urgent': 'bg-red-100 text-red-800',
-                    'Event': 'bg-green-100 text-green-800',
-                    'Policy': 'bg-yellow-100 text-yellow-800'
+                // Priority badge colors
+                const priorityColors = {
+                    'High': 'bg-red-100 text-red-800',
+                    'Medium': 'bg-yellow-100 text-yellow-800',
+                    'Low': 'bg-blue-100 text-blue-800'
                 };
 
-                const typeColor = typeColors[type] || 'bg-gray-100 text-gray-800';
+                const priorityIcons = {
+                    'High': 'fa-exclamation-circle',
+                    'Medium': 'fa-info-circle',
+                    'Low': 'fa-flag'
+                };
+
+                const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800';
+                const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
 
                 return `
                     <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? 'unread' : ''}" data-id="${announcement.id}">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center space-x-3">
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${typeColor}">
-                                    ${type}
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}">
+                                    <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
                                 </span>
                                 ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ''}
                             </div>
@@ -404,7 +426,7 @@
                         <p class="text-gray-600 mb-4 whitespace-pre-line">${message}</p>
                         <div class="flex justify-between items-center">
                             <div class="text-sm text-gray-500">
-                                <i class="fas fa-user mr-1"></i> Posted by HR
+                                <i class="fas fa-user mr-1"></i> Posted by ${author}
                             </div>
                             ${!isRead ? `
                                 <button onclick="markAsRead('${announcement.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">
@@ -418,12 +440,12 @@
         }
 
         // ========================================
-        // MARK ANNOUNCEMENT AS READ (DISABLED)
+        // MARK ANNOUNCEMENT AS READ
         // ========================================
         async function markAsRead(announcementId) {
-            // Read receipts feature disabled - requires AnnouncementReads table
-            // Just add to local set for UI purposes
+            // Add to read set and persist to localStorage
             readAnnouncements.add(announcementId);
+            saveReadAnnouncements();
             displayAnnouncements();
 
             /* Uncomment if you have AnnouncementReads table in Airtable
@@ -461,6 +483,23 @@
         // INITIALIZE
         // ========================================
         checkIfAdmin();
+
+        // Restore saved filter preference
+        const savedFilter = localStorage.getItem(`announcementFilter_${currentUser.id}`);
+        if (savedFilter) {
+            currentFilter = savedFilter;
+            // Set active button style
+            const activeBtn = document.getElementById(`filter-${savedFilter}`);
+            if (activeBtn) {
+                document.querySelectorAll('.filter-btn').forEach(btn => {
+                    btn.classList.remove('bg-red-600', 'text-white');
+                    btn.classList.add('bg-gray-200', 'text-gray-700');
+                });
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                activeBtn.classList.add('bg-red-600', 'text-white');
+            }
+        }
+
         loadAnnouncements();
     </script>
 </body>
