@@ -389,6 +389,14 @@ async function displayLeaveRequests(requests) {
         const fields = req.fields;
         const employeeName = nameMap[req.id] || 'Unknown';
 
+        // Calculate days from dates if Days field doesn't exist
+        let numberOfDays = fields['Days'] || fields['Number of Days'];
+        if (!numberOfDays && fields['Start Date'] && fields['End Date']) {
+            const start = new Date(fields['Start Date']);
+            const end = new Date(fields['End Date']);
+            numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
         return `
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
@@ -404,10 +412,10 @@ async function displayLeaveRequests(requests) {
                     <div class="text-sm text-gray-900">${fields['End Date'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Number of Days'] || '--'}</div>
+                    <div class="text-sm text-gray-900">${numberOfDays || '--'}</div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Reason'] || '--'}</div>
+                    <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Notes'] || fields['Reason'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
@@ -426,12 +434,67 @@ async function approveLeave(leaveId) {
     const comment = prompt('Add a comment (optional):');
 
     try {
+        // Get the leave request details
+        const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
+        if (!leaveRequest) {
+            alert('Leave request not found');
+            return;
+        }
+
+        // Get employee ID
+        const employeeId = leaveRequest.fields['Employee'] && leaveRequest.fields['Employee'][0];
+        if (!employeeId) {
+            alert('Employee information missing from leave request');
+            return;
+        }
+
+        // Get employee details to get current balance
+        const employee = await getEmployee(employeeId);
+        if (!employee || !employee.fields) {
+            alert('Failed to fetch employee details');
+            return;
+        }
+
+        // Get number of days
+        let numberOfDays = leaveRequest.fields['Days'] || leaveRequest.fields['Number of Days'];
+        if (!numberOfDays && leaveRequest.fields['Start Date'] && leaveRequest.fields['End Date']) {
+            const start = new Date(leaveRequest.fields['Start Date']);
+            const end = new Date(leaveRequest.fields['End Date']);
+            numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        // Get leave type
+        const leaveType = leaveRequest.fields['Leave Type'];
+
+        // Update leave request status
         await updateLeaveRequest(leaveId, {
             'Status': 'Approved',
             'Admin Comments': comment || 'Approved by admin'
         });
 
-        alert('Leave request approved!');
+        // Deduct leave balance based on leave type
+        const currentAnnualBalance = employee.fields['Annual Leave Balance'] || 20;
+        const currentSickBalance = employee.fields['Sick Leave Balance'] || 10;
+
+        let updateData = {};
+        if (leaveType === 'Vacation' || leaveType === 'Annual Leave') {
+            const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
+            updateData['Annual Leave Balance'] = newBalance;
+            alert(`Leave approved! Annual leave balance: ${currentAnnualBalance} → ${newBalance} days`);
+        } else if (leaveType === 'Sick' || leaveType === 'Sick Leave') {
+            const newBalance = Math.max(0, currentSickBalance - numberOfDays);
+            updateData['Sick Leave Balance'] = newBalance;
+            alert(`Leave approved! Sick leave balance: ${currentSickBalance} → ${newBalance} days`);
+        } else {
+            // Other leave types (Emergency, Study, etc.) - no balance deduction
+            alert('Leave request approved!');
+        }
+
+        // Update employee balance if needed
+        if (Object.keys(updateData).length > 0) {
+            await updateEmployee(employeeId, updateData);
+        }
+
         loadLeaveRequests();
     } catch (error) {
         console.error('Error approving leave:', error);
