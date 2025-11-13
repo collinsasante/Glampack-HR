@@ -1470,27 +1470,36 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
+    // Convert month value (YYYY-MM) to month name for Pay Month dropdown
+    const monthValue = document.getElementById('payrollMonth').value;
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    const monthIndex = parseInt(monthValue.split('-')[1]) - 1;
+    const payMonthName = monthNames[monthIndex];
+
     const payrollData = {
         'Employee': [document.getElementById('payrollEmployee').value],
-        'Month': document.getElementById('payrollMonth').value,
+        'Pay Month': payMonthName,  // Changed from 'Month' to 'Pay Month' and converted to month name
         'Basic Salary': basicSalary,
         'Housing Allowance': housingAllowance,
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        'Total Allowances': totalAllowances,
-        'Gross Salary': grossSalary,
+        // 'Total Allowances' is a calculated field - removed
+        // 'Gross Salary' is a calculated field - removed
         'Income Tax': incomeTax,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        'Total Deductions': totalDeductions,
-        'Net Salary': netSalary,
+        // 'Total Deductions' is a calculated field - removed
+        // 'Net Salary' changed to 'Net Pay' but it's calculated - removed
+        'Deductions': totalDeductions,  // Use 'Deductions' field instead
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': 'Processed',
-        'Payment Date': new Date().toISOString().split('T')[0]
+        'Status': 'Paid',  // Changed from 'Processed' to match Airtable options (Paid/Pending)
+        'Payment Date': new Date().toISOString().split('T')[0],
+        'Payment Method': 'Bank Transfer'  // Default payment method
     };
 
     try {
