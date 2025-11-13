@@ -393,21 +393,6 @@
           .getElementById("endDate")
           .addEventListener("change", calculateDays);
 
-        // ========================================
-        // REAL-TIME UPDATES FROM AIRTABLE
-        // ========================================
-        // Auto-refresh data every 30 seconds to get latest updates
-        console.log('🔄 Setting up real-time updates (refresh every 30 seconds)');
-        setInterval(async () => {
-          console.log('🔄 Auto-refreshing data from Airtable...');
-          try {
-            await loadLeaveBalances();
-            await loadLeaveHistory();
-            console.log('✓ Real-time update completed');
-          } catch (error) {
-            console.error('Error during real-time update:', error);
-          }
-        }, 30000); // Refresh every 30 seconds
       }
 
       // ========================================
@@ -433,72 +418,24 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
-          console.log('Loading leave history for user:', currentUser);
-
-          // DEBUG: First, fetch ALL leave requests to see what's in the table
-          console.log('🔍 DEBUG: Fetching ALL leave requests from Airtable...');
-          const allData = await getLeaveRequests(null); // No filter
-          console.log('📊 Total records in Leave Requests table:', allData.records?.length || 0);
-
-          if (allData.records && allData.records.length > 0) {
-            console.log('🔍 Examining all leave request records:');
-            allData.records.forEach((record, index) => {
-              const employeeIds = record.fields['Employee'];
-              const matchesCurrentUser = employeeIds && employeeIds.includes(currentUser.id);
-
-              console.log(`Record ${index + 1}:`, {
-                id: record.id,
-                Employee_IDs: employeeIds,
-                Matches_Collins: matchesCurrentUser ? '✅ YES' : '❌ NO',
-                Expected_ID: currentUser.id,
-                LeaveType: record.fields['Leave Type'],
-                Status: record.fields['Status'],
-                StartDate: record.fields['Start Date'],
-                Notes: record.fields['Notes']?.substring(0, 30)
-              });
-            });
-
-            const matchingRecords = allData.records.filter(r =>
-              r.fields['Employee'] && r.fields['Employee'].includes(currentUser.id)
-            );
-            console.log(`\n📊 Summary: ${matchingRecords.length} out of ${allData.records.length} records belong to Collins`);
-          }
-
-          // Use Worker API to fetch leave requests filtered by employee
+          // Fetch leave requests for this employee
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
-          console.log('Filter formula:', filterFormula);
-
           const data = await getLeaveRequests(filterFormula);
-          console.log('Leave requests data (filtered):', data);
 
-          // Store filtered records
+          // Store records
           allLeaveRequests = data.records || [];
-          console.log('Total leave requests found for this employee:', allLeaveRequests.length);
 
-          // Separate pending and all requests
-          const pendingRequests = allLeaveRequests.filter(
-            (req) => req.fields["Status"] === "Pending"
-          );
-
-          // Update pending count in stats card with null check
-          const pendingCount = pendingRequests.length;
+          // Update pending count
+          const pendingCount = allLeaveRequests.filter(r => r.fields["Status"] === "Pending").length;
           const pendingRequestsEl = document.getElementById("pendingRequests");
-
           if (pendingRequestsEl) {
             pendingRequestsEl.textContent = pendingCount;
           }
 
-          // Render full leave history (includes all statuses: Pending, Approved, Rejected)
+          // Render leave history
           renderLeaveHistory(allLeaveRequests);
-          console.log('Rendered leave history with', allLeaveRequests.length, 'requests');
-
-          console.log('Leave history loaded successfully');
         } catch (error) {
           console.error("Error loading leave history:", error);
-          console.error("Error details:", error.message, error.stack);
-          showError(`Failed to load leave history: ${error.message}`);
-
-          // Show empty state on error
           const loadingStateEl = document.getElementById("loadingState");
           const emptyStateEl = document.getElementById("emptyState");
           if (loadingStateEl) loadingStateEl.classList.add("hidden");
@@ -599,23 +536,12 @@
 
         loadingState.classList.add("hidden");
 
-        console.log('========================================');
-        console.log('RENDERING LEAVE HISTORY');
-        console.log('========================================');
-        console.log('Number of requests to render:', requests.length);
-
         if (requests.length === 0) {
-          console.log('⚠ No leave requests found - showing empty state');
-          console.log('This means either:');
-          console.log('1. Employee has not submitted any leave requests yet');
-          console.log('2. Employee field in Airtable is not linked correctly');
-          console.log('3. Leave Requests table is empty');
           emptyState.classList.remove("hidden");
           container.classList.add("hidden");
           return;
         }
 
-        console.log('✓ Found', requests.length, 'leave request(s) - rendering cards...');
         emptyState.classList.add("hidden");
         container.classList.remove("hidden");
         container.innerHTML = "";
@@ -623,30 +549,13 @@
         requests.forEach((request) => {
           const status = request.fields["Status"] || "Pending";
           const leaveType = request.fields["Leave Type"] || "Unknown";
-
-          // Parse dates safely
           const startDateStr = request.fields["Start Date"];
           const endDateStr = request.fields["End Date"];
-          const startDate = startDateStr
-            ? new Date(startDateStr).toLocaleDateString()
-            : "N/A";
-          const endDate = endDateStr
-            ? new Date(endDateStr).toLocaleDateString()
-            : "N/A";
-
+          const startDate = startDateStr ? new Date(startDateStr).toLocaleDateString() : "N/A";
+          const endDate = endDateStr ? new Date(endDateStr).toLocaleDateString() : "N/A";
           const numberOfDays = request.fields["Days"] || 0;
           const reason = request.fields["Notes"] || "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
-
-          console.log('Rendering leave card:', {
-            id: request.id,
-            leaveType,
-            status,
-            startDate,
-            endDate,
-            numberOfDays,
-            reason: reason.substring(0, 50) + '...'
-          });
 
           let statusClass = "bg-yellow-100 text-yellow-800";
           let statusIcon = "fa-hourglass-half";
