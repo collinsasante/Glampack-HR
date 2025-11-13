@@ -225,9 +225,6 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     const data = {
         'Full Name': document.getElementById('empFullName').value,
         'Email': document.getElementById('empEmail').value,
-        'Department': document.getElementById('empDepartment').value,
-        'Job Title': document.getElementById('empJobTitle').value,
-        'Status': document.getElementById('empStatus').value,
         'Role': document.getElementById('empRole').value
     };
 
