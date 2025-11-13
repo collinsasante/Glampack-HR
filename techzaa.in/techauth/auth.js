@@ -54,6 +54,7 @@ async function login(email, password) {
             id: employee.id,
             name: employee.fields['Full Name'],
             email: employee.fields['Email'],
+            role: employee.fields['Role'] || 'Employee',
             status: employee.fields['Status'],
             loginTime: new Date().toISOString()
         };
