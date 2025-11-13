@@ -118,7 +118,7 @@ function displayEmployees(employees) {
     if (employees.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
                     No employees found
                 </td>
             </tr>
@@ -130,8 +130,15 @@ function displayEmployees(employees) {
         const fields = emp.fields;
         const statusColors = {
             'Permanent': 'bg-green-100 text-green-800',
-            'Contract': 'bg-blue-100 text-blue-800',
-            'Probation': 'bg-yellow-100 text-yellow-800'
+            'Intern': 'bg-blue-100 text-blue-800',
+            'National Service Personnel': 'bg-purple-100 text-purple-800',
+            'Independent Contractor': 'bg-yellow-100 text-yellow-800'
+        };
+
+        const roleColors = {
+            'Employee': 'bg-gray-100 text-gray-800',
+            'Admin': 'bg-red-100 text-red-800',
+            'HR': 'bg-blue-100 text-blue-800'
         };
 
         return `
@@ -143,14 +150,13 @@ function displayEmployees(employees) {
                     <div class="text-sm text-gray-900">${fields['Email'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Department'] || '--'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Job Title'] || '--'}</div>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[fields['Status']] || 'bg-gray-100 text-gray-800'}">
                         ${fields['Status'] || '--'}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${roleColors[fields['Role']] || 'bg-gray-100 text-gray-800'}">
+                        ${fields['Role'] || '--'}
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
@@ -197,6 +203,14 @@ function openAddEmployeeModal() {
     document.getElementById('modalTitle').textContent = 'Add Employee';
     document.getElementById('employeeForm').reset();
     document.getElementById('employeeId').value = '';
+
+    // Show password fields for new employee
+    const passwordFields = document.querySelectorAll('#empPassword, #empConfirmPassword');
+    passwordFields.forEach(field => {
+        field.closest('div').style.display = 'block';
+        field.setAttribute('required', 'required');
+    });
+
     document.getElementById('employeeModal').classList.add('active');
 }
 
@@ -205,12 +219,16 @@ function editEmployee(employee) {
     document.getElementById('employeeId').value = employee.id;
     document.getElementById('empFullName').value = employee.fields['Full Name'] || '';
     document.getElementById('empEmail').value = employee.fields['Email'] || '';
-    document.getElementById('empDepartment').value = employee.fields['Department'] || '';
-    document.getElementById('empJobTitle').value = employee.fields['Job Title'] || '';
-    document.getElementById('empStatus').value = employee.fields['Status'] || 'Permanent';
+    document.getElementById('empStatus').value = employee.fields['Status'] || '';
     document.getElementById('empRole').value = employee.fields['Role'] || 'Employee';
-    document.getElementById('empAnnualLeave').value = employee.fields['Annual Leave Balance'] || 20;
-    document.getElementById('empSickLeave').value = employee.fields['Sick Leave Balance'] || 10;
+
+    // Hide password fields when editing (don't allow changing password from here)
+    const passwordFields = document.querySelectorAll('#empPassword, #empConfirmPassword');
+    passwordFields.forEach(field => {
+        field.closest('div').style.display = 'none';
+        field.removeAttribute('required');
+    });
+
     document.getElementById('employeeModal').classList.add('active');
 }
 
@@ -224,21 +242,48 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     // Get form elements with null checks
     const fullNameEl = document.getElementById('empFullName');
     const emailEl = document.getElementById('empEmail');
+    const statusEl = document.getElementById('empStatus');
     const roleEl = document.getElementById('empRole');
     const passwordEl = document.getElementById('empPassword');
+    const confirmPasswordEl = document.getElementById('empConfirmPassword');
     const employeeIdEl = document.getElementById('employeeId');
 
     // Validate required elements exist
-    if (!fullNameEl || !emailEl || !roleEl || !employeeIdEl) {
+    if (!fullNameEl || !emailEl || !statusEl || !roleEl || !employeeIdEl) {
         console.error('Missing required form elements');
         alert('Error: Form fields not found. Please refresh the page.');
         return;
     }
 
     const employeeId = employeeIdEl.value;
+
+    // For new employees, validate passwords
+    if (!employeeId) {
+        if (!passwordEl || !confirmPasswordEl) {
+            alert('Error: Password fields not found. Please refresh the page.');
+            return;
+        }
+
+        const password = passwordEl.value;
+        const confirmPassword = confirmPasswordEl.value;
+
+        // Validate passwords match
+        if (password !== confirmPassword) {
+            alert('Passwords do not match. Please try again.');
+            return;
+        }
+
+        // Validate password strength (minimum 6 characters)
+        if (password.length < 6) {
+            alert('Password must be at least 6 characters long.');
+            return;
+        }
+    }
+
     const data = {
         'Full Name': fullNameEl.value,
         'Email': emailEl.value,
+        'Status': statusEl.value,
         'Role': roleEl.value,
         'Annual Leave Balance': 20,
         'Sick Leave Balance': 10
@@ -250,14 +295,10 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
             await updateEmployee(employeeId, data);
             alert('Employee updated successfully!');
         } else {
-            // Create new employee - require password
-            if (!passwordEl) {
-                alert('Error: Password field not found. Please refresh the page.');
-                return;
-            }
+            // Create new employee - add password
             data['Password'] = passwordEl.value;
             await createEmployee(data);
-            alert('Employee added successfully!');
+            alert('Employee added successfully! They can now sign in with their email and password.');
         }
 
         closeEmployeeModal();

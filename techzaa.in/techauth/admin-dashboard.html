@@ -143,13 +143,14 @@
                             <tr>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                                 <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="employeesTableBody" class="bg-white divide-y divide-gray-200">
                             <tr>
-                                <td colspan="4" class="px-6 py-12 text-center text-gray-500">
+                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
                                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
                                     <p>Loading employees...</p>
                                 </td>
@@ -392,7 +393,7 @@
             </div>
             <form id="employeeForm" class="p-6 space-y-4">
                 <input type="hidden" id="employeeId">
-                <div class="space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                         <input type="text" id="empFullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
@@ -402,8 +403,14 @@
                         <input type="email" id="empEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-                        <input type="password" id="empPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Min. 6 characters">
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
+                        <select id="empStatus" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
+                            <option value="">Select Status</option>
+                            <option value="Permanent">Permanent</option>
+                            <option value="Intern">Intern</option>
+                            <option value="National Service Personnel">National Service Personnel</option>
+                            <option value="Independent Contractor">Independent Contractor</option>
+                        </select>
                     </div>
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
@@ -412,6 +419,14 @@
                             <option value="Admin">Admin</option>
                             <option value="HR">HR</option>
                         </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
+                        <input type="password" id="empPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Min. 6 characters">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
+                        <input type="password" id="empConfirmPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Min. 6 characters">
                     </div>
                 </div>
                 <div class="flex justify-end space-x-3 pt-4">
