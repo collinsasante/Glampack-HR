@@ -383,12 +383,20 @@ async function displayLeaveRequests(requests) {
 }
 
 async function approveLeave(leaveId) {
+    console.log('========================================');
+    console.log('APPROVE LEAVE PROCESS STARTED');
+    console.log('========================================');
+    console.log('Leave Request ID:', leaveId);
+
     const comment = prompt('Add a comment (optional):');
 
     try {
         // Find the leave request to get employee info
         const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
+        console.log('Step 1: Found leave request:', leaveRequest);
+
         if (!leaveRequest) {
+            console.error('ERROR: Leave request not found in allLeaveRequests array');
             alert('Leave request not found.');
             return;
         }
@@ -397,52 +405,91 @@ async function approveLeave(leaveId) {
         const numberOfDays = leaveRequest.fields['Days'];
         const employeeId = leaveRequest.fields['Employee']?.[0]; // Employee is an array of linked records
 
+        console.log('Step 2: Extracted leave request data:');
+        console.log('  - Leave Type:', leaveType);
+        console.log('  - Number of Days:', numberOfDays);
+        console.log('  - Employee ID:', employeeId);
+        console.log('  - Employee field (raw):', leaveRequest.fields['Employee']);
+
         if (!employeeId || !numberOfDays) {
+            console.error('ERROR: Missing required data');
+            console.error('  - Employee ID exists?', !!employeeId);
+            console.error('  - Number of Days exists?', !!numberOfDays);
             alert('Error: Missing employee or days information.');
             return;
         }
 
         // Update leave request status
+        console.log('Step 3: Updating leave request status to Approved...');
         await updateLeaveRequest(leaveId, {
             'Status': 'Approved',
             'Admin Comments': comment || 'Approved by admin'
         });
+        console.log('✓ Leave request status updated successfully');
 
         // Get employee record to update leave balance
+        console.log('Step 4: Fetching employee record...');
+        console.log('  URL:', `${WORKER_API_URL}/api/employees/${employeeId}`);
+
         const employeeResponse = await fetch(`${WORKER_API_URL}/api/employees/${employeeId}`, {
             headers: {
                 'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`
             }
         });
 
+        console.log('  Response status:', employeeResponse.status, employeeResponse.statusText);
+
         if (!employeeResponse.ok) {
-            console.error('Could not fetch employee for balance update');
+            const errorText = await employeeResponse.text();
+            console.error('ERROR: Could not fetch employee for balance update');
+            console.error('  Status:', employeeResponse.status);
+            console.error('  Response:', errorText);
             alert('Leave approved, but could not update leave balance. Please update manually.');
             loadLeaveRequests();
             return;
         }
 
         const employee = await employeeResponse.json();
+        console.log('✓ Employee record fetched:', employee);
+
         const currentAnnualBalance = employee.fields['Annual Leave Balance'] || 0;
         const currentSickBalance = employee.fields['Sick Leave Balance'] || 0;
 
+        console.log('Step 5: Current leave balances:');
+        console.log('  - Annual Leave Balance:', currentAnnualBalance);
+        console.log('  - Sick Leave Balance:', currentSickBalance);
+
         // Deduct days based on leave type
         // Map Airtable Leave Type values to balance fields
+        console.log('Step 6: Calculating new balance...');
+        console.log('  Checking leave type: "' + leaveType + '"');
+
         let updateData = {};
         if (leaveType === 'Vacation') {
-            // Vacation = Annual Leave
-            updateData['Annual Leave Balance'] = Math.max(0, currentAnnualBalance - numberOfDays);
-            console.log(`Deducting ${numberOfDays} days from Annual Leave. New balance: ${updateData['Annual Leave Balance']}`);
+            const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
+            updateData['Annual Leave Balance'] = newBalance;
+            console.log('  ✓ MATCH: Leave type is Vacation');
+            console.log('  Formula: Math.max(0, ' + currentAnnualBalance + ' - ' + numberOfDays + ')');
+            console.log('  New Annual Leave Balance: ' + newBalance);
         } else if (leaveType === 'Sick') {
-            // Sick = Sick Leave
-            updateData['Sick Leave Balance'] = Math.max(0, currentSickBalance - numberOfDays);
-            console.log(`Deducting ${numberOfDays} days from Sick Leave. New balance: ${updateData['Sick Leave Balance']}`);
+            const newBalance = Math.max(0, currentSickBalance - numberOfDays);
+            updateData['Sick Leave Balance'] = newBalance;
+            console.log('  ✓ MATCH: Leave type is Sick');
+            console.log('  Formula: Math.max(0, ' + currentSickBalance + ' - ' + numberOfDays + ')');
+            console.log('  New Sick Leave Balance: ' + newBalance);
         } else {
-            console.log(`Leave type "${leaveType}" does not affect leave balance (Study/Other)`);
+            console.log('  ⚠ NO MATCH: Leave type "' + leaveType + '" does not affect balance (Study/Other)');
+            console.log('  No balance deduction will occur');
         }
+
+        console.log('  Update data prepared:', updateData);
 
         // Update employee leave balance
         if (Object.keys(updateData).length > 0) {
+            console.log('Step 7: Updating employee balance in Airtable...');
+            console.log('  URL:', `${WORKER_API_URL}/api/employees/${employeeId}`);
+            console.log('  Payload:', JSON.stringify({ fields: updateData }, null, 2));
+
             const updateResponse = await fetch(`${WORKER_API_URL}/api/employees/${employeeId}`, {
                 method: 'PATCH',
                 headers: {
@@ -452,16 +499,36 @@ async function approveLeave(leaveId) {
                 body: JSON.stringify({ fields: updateData })
             });
 
+            console.log('  Response status:', updateResponse.status, updateResponse.statusText);
+
             if (!updateResponse.ok) {
-                console.error('Could not update employee leave balance');
+                const errorText = await updateResponse.text();
+                console.error('ERROR: Could not update employee leave balance');
+                console.error('  Status:', updateResponse.status);
+                console.error('  Response:', errorText);
                 alert('Leave approved, but could not update leave balance. Please update manually.');
+            } else {
+                const updatedEmployee = await updateResponse.json();
+                console.log('✓ Employee balance updated successfully!');
+                console.log('  Updated record:', updatedEmployee);
             }
+        } else {
+            console.log('Step 7: SKIPPED - No balance update needed (updateData is empty)');
         }
+
+        console.log('========================================');
+        console.log('APPROVE LEAVE PROCESS COMPLETED');
+        console.log('========================================');
 
         alert('Leave request approved and balance updated!');
         loadLeaveRequests();
     } catch (error) {
-        console.error('Error approving leave:', error);
+        console.error('========================================');
+        console.error('CRITICAL ERROR IN APPROVE LEAVE PROCESS');
+        console.error('========================================');
+        console.error('Error object:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
         alert('Error approving leave. Please try again.');
     }
 }
