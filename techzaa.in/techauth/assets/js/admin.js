@@ -1520,17 +1520,17 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        'Total Allowances': totalAllowances,  // Send calculated value (Airtable formula can override)
-        'Gross Salary': grossSalary,  // Send calculated value (Airtable formula can override)
+        // 'Total Allowances' - REMOVED (Formula field in Airtable, computed automatically)
+        // 'Gross Salary' - REMOVED (Formula field in Airtable, computed automatically)
         'Income Tax': incomeTax,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        'Total Deductions': totalDeductions,  // Send calculated value (Airtable formula can override)
-        'Deductions': totalDeductions,  // Also populate 'Deductions' field
-        'Net Pay': netSalary,  // Send calculated value (Airtable formula can override)
-        'Net Salary': netSalary,  // Send to both fields in case either exists
+        // 'Total Deductions' - REMOVED (Formula field in Airtable, computed automatically)
+        'Deductions': totalDeductions,  // Use 'Deductions' field (non-formula) for total
+        // 'Net Pay' - REMOVED (Formula field in Airtable, computed automatically)
+        // 'Net Salary' - REMOVED (Formula field in Airtable, computed automatically)
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
         'Status': 'Paid',  // Options: Paid or Pending
