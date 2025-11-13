@@ -562,7 +562,6 @@ function displayAnnouncements(announcements) {
         const title = announcement.fields['Title'] || 'Untitled';
         const message = announcement.fields['Message'] || '';
         const date = new Date(announcement.createdTime).toLocaleDateString();
-        const author = announcement.fields['Posted By'] || 'Admin';
 
         // Priority colors
         const priorityColors = {
@@ -584,7 +583,7 @@ function displayAnnouncements(announcements) {
                         <i class="fas ${priorityIcons[priority]} text-2xl mt-1"></i>
                         <div class="flex-1">
                             <h4 class="font-bold text-lg">${title}</h4>
-                            <p class="text-sm opacity-75 mb-2">Posted by ${author} on ${date}</p>
+                            <p class="text-sm opacity-75 mb-2">Posted on ${date}</p>
                             <p class="whitespace-pre-wrap">${message}</p>
                         </div>
                     </div>
@@ -644,13 +643,11 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
     e.preventDefault();
 
     const announcementId = document.getElementById('announcementId').value;
-    const currentUser = getCurrentUser();
 
     const data = {
         'Title': document.getElementById('annTitle').value,
         'Message': document.getElementById('annMessage').value,
-        'Priority': document.getElementById('annPriority').value,
-        'Posted By': currentUser?.name || 'Admin'
+        'Priority': document.getElementById('annPriority').value
     };
 
     console.log('Submitting announcement data:', data);
