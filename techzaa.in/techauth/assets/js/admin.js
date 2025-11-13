@@ -1494,11 +1494,14 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     };
 
     try {
+        console.log('Payroll data being sent:', payrollData);
+
         if (payrollId) {
             await updatePayroll(payrollId, payrollData);
             alert('Payroll updated successfully!');
         } else {
-            await createPayroll(payrollData);
+            const result = await createPayroll(payrollData);
+            console.log('Payroll creation result:', result);
             alert('Payroll created successfully!');
         }
 
@@ -1506,7 +1509,22 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         loadPayrollRecords();
     } catch (error) {
         console.error('Error saving payroll:', error);
-        alert('Error saving payroll. Please try again.');
+        console.error('Full error object:', JSON.stringify(error));
+
+        // Try to parse the error message to show specific field issues
+        let errorMessage = 'Error saving payroll. Please try again.';
+        if (error.message) {
+            try {
+                const errorObj = JSON.parse(error.message);
+                if (errorObj.error && errorObj.error.message) {
+                    errorMessage = `Error: ${errorObj.error.message}`;
+                }
+            } catch (e) {
+                errorMessage = `Error: ${error.message}`;
+            }
+        }
+
+        alert(errorMessage);
     }
 });
 
