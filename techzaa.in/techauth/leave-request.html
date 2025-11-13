@@ -435,16 +435,36 @@
         try {
           console.log('Loading leave history for user:', currentUser);
 
-          // Use Worker API to fetch leave requests
+          // DEBUG: First, fetch ALL leave requests to see what's in the table
+          console.log('🔍 DEBUG: Fetching ALL leave requests from Airtable...');
+          const allData = await getLeaveRequests(null); // No filter
+          console.log('📊 Total records in Leave Requests table:', allData.records?.length || 0);
+
+          if (allData.records && allData.records.length > 0) {
+            console.log('🔍 Examining all leave request records:');
+            allData.records.forEach((record, index) => {
+              console.log(`Record ${index + 1}:`, {
+                id: record.id,
+                Employee_field: record.fields['Employee'],
+                Employee_type: typeof record.fields['Employee'],
+                Employee_isArray: Array.isArray(record.fields['Employee']),
+                LeaveType: record.fields['Leave Type'],
+                Status: record.fields['Status'],
+                Notes: record.fields['Notes']?.substring(0, 30) + '...'
+              });
+            });
+          }
+
+          // Use Worker API to fetch leave requests filtered by employee
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
           console.log('Filter formula:', filterFormula);
 
           const data = await getLeaveRequests(filterFormula);
-          console.log('Leave requests data:', data);
+          console.log('Leave requests data (filtered):', data);
 
           // Store filtered records
           allLeaveRequests = data.records || [];
-          console.log('Total leave requests found:', allLeaveRequests.length);
+          console.log('Total leave requests found for this employee:', allLeaveRequests.length);
 
           // Separate pending and all requests
           const pendingRequests = allLeaveRequests.filter(
