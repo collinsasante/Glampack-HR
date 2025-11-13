@@ -47,7 +47,8 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
 
         if (!response.ok) {
             const error = await response.json();
-            throw new Error(error.error || `API request failed with status ${response.status}`);
+            console.error('API Error Details:', error);
+            throw new Error(JSON.stringify(error.error || error) || `API request failed with status ${response.status}`);
         }
 
         return response.json();

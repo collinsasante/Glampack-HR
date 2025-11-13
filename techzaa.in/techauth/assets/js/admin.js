@@ -653,6 +653,8 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         'Posted By': currentUser?.name || 'Admin'
     };
 
+    console.log('Submitting announcement data:', data);
+
     try {
         if (announcementId) {
             // Update existing announcement
@@ -660,7 +662,8 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
             alert('Announcement updated successfully!');
         } else {
             // Create new announcement
-            await createAnnouncement(data);
+            const result = await createAnnouncement(data);
+            console.log('Announcement created:', result);
             alert('Announcement posted successfully!');
         }
 
@@ -668,7 +671,8 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         loadAnnouncements();
     } catch (error) {
         console.error('Error saving announcement:', error);
-        alert('Error saving announcement. Please try again.');
+        console.error('Error details:', error.message);
+        alert(`Error saving announcement: ${error.message}`);
     }
 });
 
