@@ -1513,27 +1513,30 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 
     const payrollData = {
         'Employee': [document.getElementById('payrollEmployee').value],
-        'Pay Month': payMonthName,  // Changed from 'Month' to 'Pay Month' and converted to month name
+        'Pay Month': payMonthName,  // Dropdown field for month name (January-December)
+        'Month': monthValue,  // Text field for YYYY-MM format
         'Basic Salary': basicSalary,
         'Housing Allowance': housingAllowance,
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        // 'Total Allowances' is a calculated field - removed
-        // 'Gross Salary' is a calculated field - removed
+        'Total Allowances': totalAllowances,  // Send calculated value (Airtable formula can override)
+        'Gross Salary': grossSalary,  // Send calculated value (Airtable formula can override)
         'Income Tax': incomeTax,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        // 'Total Deductions' is a calculated field - removed
-        // 'Net Salary' changed to 'Net Pay' but it's calculated - removed
-        'Deductions': totalDeductions,  // Use 'Deductions' field instead
+        'Total Deductions': totalDeductions,  // Send calculated value (Airtable formula can override)
+        'Deductions': totalDeductions,  // Also populate 'Deductions' field
+        'Net Pay': netSalary,  // Send calculated value (Airtable formula can override)
+        'Net Salary': netSalary,  // Send to both fields in case either exists
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': 'Paid',  // Changed from 'Processed' to match Airtable options (Paid/Pending)
+        'Status': 'Paid',  // Options: Paid or Pending
         'Payment Date': new Date().toISOString().split('T')[0],
-        'Payment Method': 'Bank Transfer'  // Default payment method
+        'Payment Method': 'Bank Transfer',  // Options: Bank Transfer, Cash, Mobile Money
+        'Bonus': 0  // Default to 0 (can be edited later)
     };
 
     try {
