@@ -221,16 +221,27 @@ function closeEmployeeModal() {
 document.getElementById('employeeForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const employeeId = document.getElementById('employeeId').value;
+    // Get form elements with null checks
+    const fullNameEl = document.getElementById('empFullName');
+    const emailEl = document.getElementById('empEmail');
+    const roleEl = document.getElementById('empRole');
+    const passwordEl = document.getElementById('empPassword');
+    const employeeIdEl = document.getElementById('employeeId');
+
+    // Validate required elements exist
+    if (!fullNameEl || !emailEl || !roleEl || !employeeIdEl) {
+        console.error('Missing required form elements');
+        alert('Error: Form fields not found. Please refresh the page.');
+        return;
+    }
+
+    const employeeId = employeeIdEl.value;
     const data = {
-        'Full Name': document.getElementById('empFullName').value,
-        'Email': document.getElementById('empEmail').value,
-        'Department': document.getElementById('empDepartment').value,
-        'Job Title': document.getElementById('empJobTitle').value,
-        'Status': document.getElementById('empStatus').value,
-        'Role': document.getElementById('empRole').value,
-        'Annual Leave Balance': parseInt(document.getElementById('empAnnualLeave').value),
-        'Sick Leave Balance': parseInt(document.getElementById('empSickLeave').value)
+        'Full Name': fullNameEl.value,
+        'Email': emailEl.value,
+        'Role': roleEl.value,
+        'Annual Leave Balance': 20,
+        'Sick Leave Balance': 10
     };
 
     try {
@@ -239,10 +250,14 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
             await updateEmployee(employeeId, data);
             alert('Employee updated successfully!');
         } else {
-            // Create new employee
-            data['Password'] = 'password123';
+            // Create new employee - require password
+            if (!passwordEl) {
+                alert('Error: Password field not found. Please refresh the page.');
+                return;
+            }
+            data['Password'] = passwordEl.value;
             await createEmployee(data);
-            alert('Employee added successfully! Default password: password123');
+            alert('Employee added successfully!');
         }
 
         closeEmployeeModal();
