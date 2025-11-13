@@ -240,9 +240,10 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
             alert('Employee updated successfully!');
         } else {
             // Create new employee
-            data['Password'] = 'password123';
+            const password = document.getElementById('empPassword').value;
+            data['Password'] = password;
             await createEmployee(data);
-            alert('Employee added successfully! Default password: password123');
+            alert('Employee added successfully!');
         }
 
         closeEmployeeModal();
