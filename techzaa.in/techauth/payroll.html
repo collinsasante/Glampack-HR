@@ -287,9 +287,9 @@
                     const healthInsurance = parseFloat(salary['Health Insurance'] || 0);
                     const otherDeductions = parseFloat(salary['Other Deductions'] || 0);
 
-                    // Get calculated totals from Airtable
+                    // Get calculated totals from Airtable (check both 'Net Salary' and 'Net Pay')
                     const totalDeductions = parseFloat(salary['Total Deductions'] || 0);
-                    const netSalary = parseFloat(salary['Net Salary'] || 0);
+                    const netSalary = parseFloat(salary['Net Pay'] || salary['Net Salary'] || 0);
 
                     // Update UI
                     document.getElementById('grossSalary').textContent = formatCurrency(grossSalary);
@@ -378,7 +378,7 @@
 
                     const grossSalary = parseFloat(fields['Gross Salary'] || 0);
                     const deductions = parseFloat(fields['Total Deductions'] || 0);
-                    const netSalary = parseFloat(fields['Net Salary'] || 0);
+                    const netSalary = parseFloat(fields['Net Pay'] || fields['Net Salary'] || 0);
 
                     // Status is always "Paid" since these are completed payroll records
                     const status = 'Paid';
@@ -569,7 +569,7 @@
             y += 10;
             doc.setFont(undefined, 'bold');
             doc.setFontSize(14);
-            const netSalary = parseFloat(paymentData['Net Salary'] || 0);
+            const netSalary = parseFloat(paymentData['Net Pay'] || paymentData['Net Salary'] || 0);
             doc.text('NET SALARY', 20, y);
             doc.text(formatCurrency(netSalary), 190, y, { align: 'right' });
 
