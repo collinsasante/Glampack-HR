@@ -438,12 +438,18 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
+          console.log('Loading leave history for user:', currentUser);
+
           // Use Worker API to fetch leave requests
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          console.log('Filter formula:', filterFormula);
+
           const data = await getLeaveRequests(filterFormula);
+          console.log('Leave requests data:', data);
 
           // Store filtered records
           allLeaveRequests = data.records || [];
+          console.log('Total leave requests found:', allLeaveRequests.length);
 
           // Separate pending and all requests
           const pendingRequests = allLeaveRequests.filter(
@@ -460,9 +466,16 @@
 
           // Render full leave history
           renderLeaveHistory(allLeaveRequests);
+
+          console.log('Leave history loaded successfully');
         } catch (error) {
           console.error("Error loading leave history:", error);
-          showError("Failed to load leave history");
+          console.error("Error details:", error.message, error.stack);
+          showError(`Failed to load leave history: ${error.message}`);
+
+          // Show empty state on error
+          document.getElementById("loadingState").classList.add("hidden");
+          document.getElementById("emptyState").classList.remove("hidden");
         }
       }
 
