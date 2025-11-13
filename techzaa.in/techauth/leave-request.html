@@ -305,6 +305,28 @@
           </form>
         </div>
 
+        <!-- Pending Requests -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center mb-6">
+            <i class="fas fa-clock text-yellow-600 text-2xl mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-800">Pending Requests</h2>
+            <span id="pendingBadge" class="ml-3 px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+              0
+            </span>
+          </div>
+
+          <!-- Pending Requests List -->
+          <div id="pendingRequestsContainer" class="space-y-4">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- No Pending State -->
+          <div id="noPendingState" class="hidden text-center py-8">
+            <i class="fas fa-check-circle text-green-300 text-5xl mb-4"></i>
+            <p class="text-gray-500">No pending requests</p>
+          </div>
+        </div>
+
         <!-- Leave History -->
         <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
           <div class="flex justify-between items-center mb-6">
@@ -423,18 +445,84 @@
           // Store filtered records
           allLeaveRequests = data.records || [];
 
-          // Update pending count
-          const pendingCount = allLeaveRequests.filter(
+          // Separate pending and all requests
+          const pendingRequests = allLeaveRequests.filter(
             (req) => req.fields["Status"] === "Pending"
-          ).length;
-          document.getElementById("pendingRequests").textContent = pendingCount;
+          );
 
-          // Render leave history
+          // Update pending count in both badges
+          const pendingCount = pendingRequests.length;
+          document.getElementById("pendingRequests").textContent = pendingCount;
+          document.getElementById("pendingBadge").textContent = pendingCount;
+
+          // Render pending requests section
+          renderPendingRequests(pendingRequests);
+
+          // Render full leave history
           renderLeaveHistory(allLeaveRequests);
         } catch (error) {
           console.error("Error loading leave history:", error);
           showError("Failed to load leave history");
         }
+      }
+
+      // ========================================
+      // RENDER PENDING REQUESTS
+      // ========================================
+      function renderPendingRequests(requests) {
+        const container = document.getElementById("pendingRequestsContainer");
+        const noPendingState = document.getElementById("noPendingState");
+
+        if (requests.length === 0) {
+          noPendingState.classList.remove("hidden");
+          container.innerHTML = "";
+          return;
+        }
+
+        noPendingState.classList.add("hidden");
+        container.innerHTML = "";
+
+        requests.forEach((request) => {
+          const leaveType = request.fields["Leave Type"] || "Unknown";
+          const startDateStr = request.fields["Start Date"];
+          const endDateStr = request.fields["End Date"];
+          const startDate = startDateStr
+            ? new Date(startDateStr).toLocaleDateString()
+            : "N/A";
+          const endDate = endDateStr
+            ? new Date(endDateStr).toLocaleDateString()
+            : "N/A";
+          const numberOfDays = request.fields["Number of Days"] || 0;
+          const reason = request.fields["Reason"] || "No reason provided";
+
+          const card = document.createElement("div");
+          card.className =
+            "border-l-4 border-yellow-500 bg-yellow-50 rounded-lg p-4 hover:shadow-md transition";
+          card.innerHTML = `
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex-1">
+                <div class="flex items-center gap-2">
+                  <h3 class="font-semibold text-gray-800">${leaveType}</h3>
+                  <span class="px-3 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                    <i class="fas fa-hourglass-half mr-1"></i>Pending
+                  </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-1">
+                  <i class="fas fa-calendar mr-1"></i>${startDate} - ${endDate}
+                  <span class="font-medium">(${numberOfDays} ${numberOfDays === 1 ? "day" : "days"})</span>
+                </p>
+              </div>
+            </div>
+            <div class="mt-2 p-3 bg-white rounded-lg">
+              <p class="text-xs font-medium text-gray-700 mb-1"><i class="fas fa-sticky-note mr-1"></i>Reason:</p>
+              <p class="text-sm text-gray-600">${reason}</p>
+            </div>
+            <div class="mt-3 text-xs text-gray-500">
+              <i class="fas fa-info-circle mr-1"></i>Waiting for admin approval
+            </div>
+          `;
+          container.appendChild(card);
+        });
       }
 
       // ========================================
@@ -459,8 +547,7 @@
 
         requests.forEach((request) => {
           const status = request.fields["Status"] || "Pending";
-          const leaveType = request.fields["Leave Type"];
-          const requestId = request.fields["Request ID"] || "N/A";
+          const leaveType = request.fields["Leave Type"] || "Unknown";
 
           // Parse dates safely
           const startDateStr = request.fields["Start Date"];
@@ -472,18 +559,9 @@
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
 
-          const days = request.fields["Days"] || 0;
-          const notes = request.fields["Notes"] || "No notes provided";
-          const approvedBy = request.fields["Approved By"] || null;
-
-          // Map leave type to display name
-          const leaveTypeDisplay =
-            {
-              Vacation: "Vacation (Annual Leave)",
-              Sick: "Sick Leave",
-              Study: "Study Leave",
-              Other: "Other (Emergency)",
-            }[leaveType] || leaveType;
+          const numberOfDays = request.fields["Number of Days"] || 0;
+          const reason = request.fields["Reason"] || "No reason provided";
+          const adminComments = request.fields["Admin Comments"] || null;
 
           let statusClass = "bg-yellow-100 text-yellow-800";
           let statusIcon = "fa-hourglass-half";
@@ -502,12 +580,11 @@
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex-1">
                             <div class="flex items-center gap-2">
-                                <h3 class="font-semibold text-gray-800">${leaveTypeDisplay}</h3>
-                                <span class="text-xs text-gray-500">#${requestId}</span>
+                                <h3 class="font-semibold text-gray-800">${leaveType}</h3>
                             </div>
                             <p class="text-sm text-gray-600 mt-1">
                                 <i class="fas fa-calendar mr-1"></i>${startDate} - ${endDate}
-                                <span class="font-medium">(${days} ${days === 1 ? "day" : "days"})</span>
+                                <span class="font-medium">(${numberOfDays} ${numberOfDays === 1 ? "day" : "days"})</span>
                             </p>
                         </div>
                         <span class="px-3 py-1 rounded-full text-xs font-medium ${statusClass} whitespace-nowrap ml-2">
@@ -515,14 +592,15 @@
                         </span>
                     </div>
                     <div class="mt-2 p-3 bg-gray-50 rounded-lg">
-                        <p class="text-xs font-medium text-gray-700 mb-1"><i class="fas fa-sticky-note mr-1"></i>Notes:</p>
-                        <p class="text-sm text-gray-600">${notes}</p>
+                        <p class="text-xs font-medium text-gray-700 mb-1"><i class="fas fa-sticky-note mr-1"></i>Reason:</p>
+                        <p class="text-sm text-gray-600">${reason}</p>
                     </div>
                     ${
-                      approvedBy
+                      adminComments
                         ? `
-                        <div class="mt-2 text-xs text-gray-500">
-                            <i class="fas fa-user-check mr-1"></i>Reviewed by: ${Array.isArray(approvedBy) ? "Admin" : approvedBy}
+                        <div class="mt-2 p-3 bg-blue-50 rounded-lg">
+                            <p class="text-xs font-medium text-blue-700 mb-1"><i class="fas fa-comment mr-1"></i>Admin Comments:</p>
+                            <p class="text-sm text-gray-600">${adminComments}</p>
                         </div>
                     `
                         : ""

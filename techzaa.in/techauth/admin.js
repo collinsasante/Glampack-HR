@@ -386,12 +386,72 @@ async function approveLeave(leaveId) {
     const comment = prompt('Add a comment (optional):');
 
     try {
+        // Find the leave request to get employee info
+        const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
+        if (!leaveRequest) {
+            alert('Leave request not found.');
+            return;
+        }
+
+        const leaveType = leaveRequest.fields['Leave Type'];
+        const numberOfDays = leaveRequest.fields['Number of Days'];
+        const employeeId = leaveRequest.fields['Employee']?.[0]; // Employee is an array of linked records
+
+        if (!employeeId || !numberOfDays) {
+            alert('Error: Missing employee or days information.');
+            return;
+        }
+
+        // Update leave request status
         await updateLeaveRequest(leaveId, {
             'Status': 'Approved',
             'Admin Comments': comment || 'Approved by admin'
         });
 
-        alert('Leave request approved!');
+        // Get employee record to update leave balance
+        const employeeResponse = await fetch(`${WORKER_API_URL}/api/employees/${employeeId}`, {
+            headers: {
+                'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`
+            }
+        });
+
+        if (!employeeResponse.ok) {
+            console.error('Could not fetch employee for balance update');
+            alert('Leave approved, but could not update leave balance. Please update manually.');
+            loadLeaveRequests();
+            return;
+        }
+
+        const employee = await employeeResponse.json();
+        const currentAnnualBalance = employee.fields['Annual Leave Balance'] || 0;
+        const currentSickBalance = employee.fields['Sick Leave Balance'] || 0;
+
+        // Deduct days based on leave type
+        let updateData = {};
+        if (leaveType === 'Annual Leave') {
+            updateData['Annual Leave Balance'] = Math.max(0, currentAnnualBalance - numberOfDays);
+        } else if (leaveType === 'Sick Leave') {
+            updateData['Sick Leave Balance'] = Math.max(0, currentSickBalance - numberOfDays);
+        }
+
+        // Update employee leave balance
+        if (Object.keys(updateData).length > 0) {
+            const updateResponse = await fetch(`${WORKER_API_URL}/api/employees/${employeeId}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`
+                },
+                body: JSON.stringify({ fields: updateData })
+            });
+
+            if (!updateResponse.ok) {
+                console.error('Could not update employee leave balance');
+                alert('Leave approved, but could not update leave balance. Please update manually.');
+            }
+        }
+
+        alert('Leave request approved and balance updated!');
         loadLeaveRequests();
     } catch (error) {
         console.error('Error approving leave:', error);
