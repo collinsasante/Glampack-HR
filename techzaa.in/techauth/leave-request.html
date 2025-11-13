@@ -881,15 +881,22 @@
           }
 
           try {
-            // Use Worker API to create leave request
-            await createLeaveRequest({
+            const leaveData = {
               Employee: [currentUser.id],
               "Leave Type": leaveType,
               "Start Date": startDate,
               "End Date": endDate,
               Notes: notes,
               Status: "Pending",
-            });
+            };
+
+            console.log('Submitting leave request with data:', leaveData);
+            console.log('Current user:', currentUser);
+
+            // Use Worker API to create leave request
+            const result = await createLeaveRequest(leaveData);
+
+            console.log('Leave request created successfully:', result);
 
             showSuccess(
               "Leave request submitted successfully! Awaiting approval."
@@ -900,11 +907,13 @@
             document.getElementById("daysCount").innerHTML = "";
 
             // Reload data
+            console.log('Reloading leave history...');
             await loadLeaveBalances();
             await loadLeaveHistory();
           } catch (error) {
             console.error("Error submitting leave request:", error);
-            showError(`Failed to submit leave request: ${error.message}`);
+            console.error("Error details:", error.message, error.stack);
+            showError(`Failed to submit leave request: ${error.message || 'Please try again.'}`);
           }
         });
 
