@@ -1117,18 +1117,19 @@ async function loadPayrollRecords() {
             filters.push(`FIND('${employeeFilter}', ARRAYJOIN({Employee}))`);
         }
         if (monthFilter) {
-            filters.push(`{Month} = '${monthFilter}'`);
+            // Use 'Pay Month' field instead of 'Month'
+            filters.push(`{Pay Month} = '${monthFilter}'`);
         }
 
         const filterFormula = filters.length > 0 ? `AND(${filters.join(',')})` : null;
         const data = await getPayroll(filterFormula);
         allPayrollRecords = data.records || [];
 
-        // Sort by month descending
+        // Sort by payment date descending (most recent first)
         allPayrollRecords.sort((a, b) => {
-            const monthA = a.fields['Month'] || '';
-            const monthB = b.fields['Month'] || '';
-            return monthB.localeCompare(monthA);
+            const dateA = new Date(a.fields['Payment Date'] || 0);
+            const dateB = new Date(b.fields['Payment Date'] || 0);
+            return dateB - dateA;
         });
 
         displayPayrollRecords();
@@ -1179,15 +1180,48 @@ async function displayPayrollRecords() {
         const fields = record.fields;
         const employeeName = nameMap[record.id];
 
+        // Calculate values if not present (for calculated fields or manual calculation)
+        const basicSalary = parseFloat(fields['Basic Salary'] || 0);
+        const housingAllowance = parseFloat(fields['Housing Allowance'] || 0);
+        const transportAllowance = parseFloat(fields['Transport Allowance'] || 0);
+        const benefits = parseFloat(fields['Benefits'] || 0);
+        const otherAllowances = parseFloat(fields['Other Allowances'] || 0);
+
+        const totalAllowances = fields['Total Allowances']
+            ? parseFloat(fields['Total Allowances'])
+            : (housingAllowance + transportAllowance + benefits + otherAllowances);
+
+        const grossSalary = fields['Gross Salary']
+            ? parseFloat(fields['Gross Salary'])
+            : (basicSalary + totalAllowances);
+
+        const incomeTax = parseFloat(fields['Income Tax'] || 0);
+        const welfare = parseFloat(fields['Welfare'] || 0);
+        const socialSecurity = parseFloat(fields['Social Security'] || 0);
+        const healthInsurance = parseFloat(fields['Health Insurance'] || 0);
+        const otherDeductions = parseFloat(fields['Other Deductions'] || 0);
+        const deductions = parseFloat(fields['Deductions'] || 0);
+
+        const totalDeductions = fields['Total Deductions']
+            ? parseFloat(fields['Total Deductions'])
+            : (deductions || (incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions));
+
+        const netSalary = fields['Net Salary'] || fields['Net Pay']
+            ? parseFloat(fields['Net Salary'] || fields['Net Pay'] || 0)
+            : (grossSalary - totalDeductions);
+
+        // Use 'Pay Month' field instead of 'Month'
+        const monthDisplay = fields['Pay Month'] || fields['Month'] || '--';
+
         return `
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employeeName}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${fields['Month'] || '--'}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Basic Salary'] || 0).toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Total Allowances'] || 0).toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">$${parseFloat(fields['Total Deductions'] || 0).toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">$${parseFloat(fields['Gross Salary'] || 0).toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">$${parseFloat(fields['Net Salary'] || 0).toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${monthDisplay}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${basicSalary.toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${totalAllowances.toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${totalDeductions.toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">GH₵${grossSalary.toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                     <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
                         <i class="fas fa-edit"></i> Edit
