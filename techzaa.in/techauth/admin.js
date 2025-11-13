@@ -1229,6 +1229,46 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 });
 
 // ========================================
+// ANNOUNCEMENTS
+// ========================================
+
+// Handle announcement form submission
+document.getElementById('announcementForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const title = document.getElementById('annTitle').value;
+    const type = document.getElementById('annType').value;
+    const message = document.getElementById('annMessage').value;
+
+    try {
+        const currentUser = getCurrentUser();
+
+        await createAnnouncement({
+            'Title': title,
+            'Type': type,
+            'Message': message,
+            'Created By': [currentUser.id],
+            'Date': new Date().toISOString().split('T')[0]
+        });
+
+        alert('Announcement created successfully!');
+        document.getElementById('announcementForm').reset();
+        closeAnnouncementModal();
+    } catch (error) {
+        console.error('Error creating announcement:', error);
+        alert('Error creating announcement. Please try again.');
+    }
+});
+
+function closeAnnouncementModal() {
+    const modal = document.getElementById('announcementModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.getElementById('announcementForm').reset();
+    }
+}
+
+// ========================================
 // INITIALIZE
 // ========================================
 checkAdminAccess().then(hasAccess => {
