@@ -364,10 +364,10 @@ async function displayLeaveRequests(requests) {
                     <div class="text-sm text-gray-900">${fields['End Date'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Number of Days'] || '--'}</div>
+                    <div class="text-sm text-gray-900">${fields['Days'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4">
-                    <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Reason'] || '--'}</div>
+                    <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Notes'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
                     <button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
@@ -394,7 +394,7 @@ async function approveLeave(leaveId) {
         }
 
         const leaveType = leaveRequest.fields['Leave Type'];
-        const numberOfDays = leaveRequest.fields['Number of Days'];
+        const numberOfDays = leaveRequest.fields['Days'];
         const employeeId = leaveRequest.fields['Employee']?.[0]; // Employee is an array of linked records
 
         if (!employeeId || !numberOfDays) {
@@ -795,7 +795,7 @@ async function generateLeaveReport() {
                 fields['Leave Type'] || '--',
                 fields['Start Date'] || '--',
                 fields['End Date'] || '--',
-                fields['Number of Days'] || '--',
+                fields['Days'] || '--',
                 fields['Status'] || '--'
             ];
         }));

@@ -306,7 +306,7 @@
         </div>
 
         <!-- Pending Requests -->
-        <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+        <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center mb-6">
             <i class="fas fa-clock text-yellow-600 text-2xl mr-3"></i>
             <h2 class="text-xl font-bold text-gray-800">Pending Requests</h2>
@@ -492,8 +492,8 @@
           const endDate = endDateStr
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
-          const numberOfDays = request.fields["Number of Days"] || 0;
-          const reason = request.fields["Reason"] || "No reason provided";
+          const numberOfDays = request.fields["Days"] || 0;
+          const reason = request.fields["Notes"] || "No reason provided";
 
           const card = document.createElement("div");
           card.className =
@@ -559,8 +559,8 @@
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
 
-          const numberOfDays = request.fields["Number of Days"] || 0;
-          const reason = request.fields["Reason"] || "No reason provided";
+          const numberOfDays = request.fields["Days"] || 0;
+          const reason = request.fields["Notes"] || "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
 
           let statusClass = "bg-yellow-100 text-yellow-800";
