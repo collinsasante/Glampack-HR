@@ -570,12 +570,23 @@
 
         loadingState.classList.add("hidden");
 
+        console.log('========================================');
+        console.log('RENDERING LEAVE HISTORY');
+        console.log('========================================');
+        console.log('Number of requests to render:', requests.length);
+
         if (requests.length === 0) {
+          console.log('⚠ No leave requests found - showing empty state');
+          console.log('This means either:');
+          console.log('1. Employee has not submitted any leave requests yet');
+          console.log('2. Employee field in Airtable is not linked correctly');
+          console.log('3. Leave Requests table is empty');
           emptyState.classList.remove("hidden");
           container.classList.add("hidden");
           return;
         }
 
+        console.log('✓ Found', requests.length, 'leave request(s) - rendering cards...');
         emptyState.classList.add("hidden");
         container.classList.remove("hidden");
         container.innerHTML = "";
@@ -594,9 +605,19 @@
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
 
-          const numberOfDays = request.fields["Number of Days"] || 0;
-          const reason = request.fields["Reason"] || "No reason provided";
+          const numberOfDays = request.fields["Days"] || 0;
+          const reason = request.fields["Notes"] || "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
+
+          console.log('Rendering leave card:', {
+            id: request.id,
+            leaveType,
+            status,
+            startDate,
+            endDate,
+            numberOfDays,
+            reason: reason.substring(0, 50) + '...'
+          });
 
           let statusClass = "bg-yellow-100 text-yellow-800";
           let statusIcon = "fa-hourglass-half";
