@@ -306,7 +306,7 @@
         </div>
 
         <!-- Leave History -->
-        <div>
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
           <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-bold text-gray-800">My Leave History</h2>
             <select
@@ -392,6 +392,22 @@
         document
           .getElementById("endDate")
           .addEventListener("change", calculateDays);
+
+        // ========================================
+        // REAL-TIME UPDATES FROM AIRTABLE
+        // ========================================
+        // Auto-refresh data every 30 seconds to get latest updates
+        console.log('🔄 Setting up real-time updates (refresh every 30 seconds)');
+        setInterval(async () => {
+          console.log('🔄 Auto-refreshing data from Airtable...');
+          try {
+            await loadLeaveBalances();
+            await loadLeaveHistory();
+            console.log('✓ Real-time update completed');
+          } catch (error) {
+            console.error('Error during real-time update:', error);
+          }
+        }, 30000); // Refresh every 30 seconds
       }
 
       // ========================================
@@ -417,28 +433,35 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
-          console.log("Loading leave history for user:", currentUser);
+          console.log('Loading leave history for user:', currentUser);
 
           // Use Worker API to fetch leave requests
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
-          console.log("Filter formula:", filterFormula);
+          console.log('Filter formula:', filterFormula);
 
           const data = await getLeaveRequests(filterFormula);
-          console.log("Leave requests data:", data);
+          console.log('Leave requests data:', data);
 
           // Store filtered records
           allLeaveRequests = data.records || [];
-          console.log("Total leave requests found:", allLeaveRequests.length);
+          console.log('Total leave requests found:', allLeaveRequests.length);
 
           // Separate pending and all requests
           const pendingRequests = allLeaveRequests.filter(
             (req) => req.fields["Status"] === "Pending"
           );
 
-          // Update pending count in both badges
+          // Update pending count in both badges with null checks
           const pendingCount = pendingRequests.length;
-          document.getElementById("pendingRequests").textContent = pendingCount;
-          document.getElementById("pendingBadge").textContent = pendingCount;
+          const pendingRequestsEl = document.getElementById("pendingRequests");
+          const pendingBadgeEl = document.getElementById("pendingBadge");
+
+          if (pendingRequestsEl) {
+            pendingRequestsEl.textContent = pendingCount;
+          }
+          if (pendingBadgeEl) {
+            pendingBadgeEl.textContent = pendingCount;
+          }
 
           // Render pending requests section
           renderPendingRequests(pendingRequests);
@@ -446,15 +469,17 @@
           // Render full leave history
           renderLeaveHistory(allLeaveRequests);
 
-          console.log("Leave history loaded successfully");
+          console.log('Leave history loaded successfully');
         } catch (error) {
           console.error("Error loading leave history:", error);
           console.error("Error details:", error.message, error.stack);
           showError(`Failed to load leave history: ${error.message}`);
 
           // Show empty state on error
-          document.getElementById("loadingState").classList.add("hidden");
-          document.getElementById("emptyState").classList.remove("hidden");
+          const loadingStateEl = document.getElementById("loadingState");
+          const emptyStateEl = document.getElementById("emptyState");
+          if (loadingStateEl) loadingStateEl.classList.add("hidden");
+          if (emptyStateEl) emptyStateEl.classList.remove("hidden");
         }
       }
 
@@ -484,8 +509,8 @@
           const endDate = endDateStr
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
-          const numberOfDays = request.fields["Days"] || 0;
-          const reason = request.fields["Notes"] || "No reason provided";
+          const numberOfDays = request.fields["Number of Days"] || 0;
+          const reason = request.fields["Reason"] || "No reason provided";
 
           const card = document.createElement("div");
           card.className =
@@ -551,8 +576,8 @@
             ? new Date(endDateStr).toLocaleDateString()
             : "N/A";
 
-          const numberOfDays = request.fields["Days"] || 0;
-          const reason = request.fields["Notes"] || "No reason provided";
+          const numberOfDays = request.fields["Number of Days"] || 0;
+          const reason = request.fields["Reason"] || "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
 
           let statusClass = "bg-yellow-100 text-yellow-800";
@@ -860,28 +885,15 @@
           }
 
           try {
-            console.log('========================================');
-            console.log('SUBMIT LEAVE REQUEST PROCESS STARTED');
-            console.log('========================================');
-            console.log('Current user:', currentUser);
-
-            const leaveRequestData = {
+            // Use Worker API to create leave request
+            await createLeaveRequest({
               Employee: [currentUser.id],
               "Leave Type": leaveType,
               "Start Date": startDate,
               "End Date": endDate,
               Notes: notes,
               Status: "Pending",
-            };
-
-            console.log('Leave request data to submit:', leaveRequestData);
-            console.log('Submitting to API...');
-
-            // Use Worker API to create leave request
-            const response = await createLeaveRequest(leaveRequestData);
-
-            console.log('✓ Leave request created successfully!');
-            console.log('Response from API:', response);
+            });
 
             showSuccess(
               "Leave request submitted successfully! Awaiting approval."
@@ -891,22 +903,11 @@
             document.getElementById("leaveRequestForm").reset();
             document.getElementById("daysCount").innerHTML = "";
 
-            console.log('Reloading leave balances and history...');
-
             // Reload data
             await loadLeaveBalances();
             await loadLeaveHistory();
-
-            console.log('========================================');
-            console.log('SUBMIT LEAVE REQUEST PROCESS COMPLETED');
-            console.log('========================================');
           } catch (error) {
-            console.error('========================================');
-            console.error('ERROR SUBMITTING LEAVE REQUEST');
-            console.error('========================================');
-            console.error('Error object:', error);
-            console.error('Error message:', error.message);
-            console.error('Error stack:', error.stack);
+            console.error("Error submitting leave request:", error);
             showError(`Failed to submit leave request: ${error.message}`);
           }
         });
