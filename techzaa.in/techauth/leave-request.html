@@ -418,12 +418,22 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
+          console.log('Loading leave history for user:', currentUser.id, currentUser.name);
+
           // Fetch leave requests for this employee
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          console.log('Filter formula:', filterFormula);
+
           const data = await getLeaveRequests(filterFormula);
+          console.log('Leave requests data:', data);
 
           // Store records
           allLeaveRequests = data.records || [];
+          console.log(`Found ${allLeaveRequests.length} leave requests`);
+
+          if (allLeaveRequests.length > 0) {
+            console.log('First leave request:', allLeaveRequests[0]);
+          }
 
           // Update pending count
           const pendingCount = allLeaveRequests.filter(r => r.fields["Status"] === "Pending").length;
@@ -553,8 +563,17 @@
           const endDateStr = request.fields["End Date"];
           const startDate = startDateStr ? new Date(startDateStr).toLocaleDateString() : "N/A";
           const endDate = endDateStr ? new Date(endDateStr).toLocaleDateString() : "N/A";
-          const numberOfDays = request.fields["Days"] || 0;
-          const reason = request.fields["Notes"] || "No reason provided";
+
+          // Calculate days - try multiple field names and calculate from dates if needed
+          let numberOfDays = request.fields["Days"] || request.fields["Number of Days"];
+          if (!numberOfDays && startDateStr && endDateStr) {
+            const start = new Date(startDateStr);
+            const end = new Date(endDateStr);
+            numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+          }
+          numberOfDays = numberOfDays || 0;
+
+          const reason = request.fields["Notes"] || request.fields["Reason"] || "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
 
           let statusClass = "bg-yellow-100 text-yellow-800";
