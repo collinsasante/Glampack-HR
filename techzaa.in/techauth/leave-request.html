@@ -443,16 +443,25 @@
           if (allData.records && allData.records.length > 0) {
             console.log('🔍 Examining all leave request records:');
             allData.records.forEach((record, index) => {
+              const employeeIds = record.fields['Employee'];
+              const matchesCurrentUser = employeeIds && employeeIds.includes(currentUser.id);
+
               console.log(`Record ${index + 1}:`, {
                 id: record.id,
-                Employee_field: record.fields['Employee'],
-                Employee_type: typeof record.fields['Employee'],
-                Employee_isArray: Array.isArray(record.fields['Employee']),
+                Employee_IDs: employeeIds,
+                Matches_Collins: matchesCurrentUser ? '✅ YES' : '❌ NO',
+                Expected_ID: currentUser.id,
                 LeaveType: record.fields['Leave Type'],
                 Status: record.fields['Status'],
-                Notes: record.fields['Notes']?.substring(0, 30) + '...'
+                StartDate: record.fields['Start Date'],
+                Notes: record.fields['Notes']?.substring(0, 30)
               });
             });
+
+            const matchingRecords = allData.records.filter(r =>
+              r.fields['Employee'] && r.fields['Employee'].includes(currentUser.id)
+            );
+            console.log(`\n📊 Summary: ${matchingRecords.length} out of ${allData.records.length} records belong to Collins`);
           }
 
           // Use Worker API to fetch leave requests filtered by employee
