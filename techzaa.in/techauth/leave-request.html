@@ -305,6 +305,28 @@
           </form>
         </div>
 
+        <!-- Pending Requests Section -->
+        <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center mb-6">
+            <i class="fas fa-clock text-yellow-600 text-2xl mr-3"></i>
+            <h2 class="text-xl font-bold text-gray-800">Pending Requests</h2>
+            <span id="pendingBadge" class="ml-3 px-3 py-1 bg-yellow-100 text-yellow-800 text-sm font-medium rounded-full">
+              0
+            </span>
+          </div>
+
+          <!-- Pending Requests List -->
+          <div id="pendingRequestsContainer" class="space-y-4">
+            <!-- Populated by JavaScript -->
+          </div>
+
+          <!-- No Pending State -->
+          <div id="noPendingState" class="hidden text-center py-8">
+            <i class="fas fa-check-circle text-green-300 text-5xl mb-4"></i>
+            <p class="text-gray-500">No pending requests</p>
+          </div>
+        </div>
+
         <!-- Leave History -->
         <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
           <div class="flex justify-between items-center mb-6">
