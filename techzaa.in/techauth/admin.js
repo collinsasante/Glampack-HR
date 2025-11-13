@@ -228,9 +228,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         'Department': document.getElementById('empDepartment').value,
         'Job Title': document.getElementById('empJobTitle').value,
         'Status': document.getElementById('empStatus').value,
-        'Role': document.getElementById('empRole').value,
-        'Annual Leave Balance': parseInt(document.getElementById('empAnnualLeave').value),
-        'Sick Leave Balance': parseInt(document.getElementById('empSickLeave').value)
+        'Role': document.getElementById('empRole').value
     };
 
     try {
