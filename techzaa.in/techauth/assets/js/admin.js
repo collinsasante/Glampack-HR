@@ -512,6 +512,167 @@ async function rejectLeave(leaveId) {
 }
 
 // ========================================
+// ANNOUNCEMENTS MANAGEMENT
+// ========================================
+let allAnnouncements = [];
+
+async function loadAnnouncements() {
+    try {
+        const filter = document.getElementById('announcementFilter').value;
+        const data = await getAnnouncements();
+
+        allAnnouncements = data.records || [];
+
+        // Filter by priority if not "all"
+        let filteredAnnouncements = allAnnouncements;
+        if (filter !== 'all') {
+            filteredAnnouncements = allAnnouncements.filter(ann => ann.fields['Priority'] === filter);
+        }
+
+        displayAnnouncements(filteredAnnouncements);
+    } catch (error) {
+        console.error('Error loading announcements:', error);
+        document.getElementById('announcementsContainer').innerHTML = `
+            <div class="text-center text-red-600 p-4">
+                Error loading announcements. Please try again.
+            </div>
+        `;
+    }
+}
+
+function displayAnnouncements(announcements) {
+    const container = document.getElementById('announcementsContainer');
+
+    if (!announcements || announcements.length === 0) {
+        container.innerHTML = `
+            <div class="text-center py-12 text-gray-500">
+                <i class="fas fa-bullhorn text-6xl mb-4 opacity-50"></i>
+                <p class="text-lg">No announcements yet</p>
+                <p class="text-sm">Click "New Announcement" to create one</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort by date (newest first)
+    announcements.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+
+    container.innerHTML = announcements.map(announcement => {
+        const priority = announcement.fields['Priority'] || 'Medium';
+        const title = announcement.fields['Title'] || 'Untitled';
+        const message = announcement.fields['Message'] || '';
+        const date = new Date(announcement.createdTime).toLocaleDateString();
+        const author = announcement.fields['Posted By'] || 'Admin';
+
+        // Priority colors
+        const priorityColors = {
+            'High': 'bg-red-100 text-red-800 border-red-300',
+            'Medium': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+            'Low': 'bg-blue-100 text-blue-800 border-blue-300'
+        };
+
+        const priorityIcons = {
+            'High': 'fa-exclamation-circle',
+            'Medium': 'fa-info-circle',
+            'Low': 'fa-flag'
+        };
+
+        return `
+            <div class="border ${priorityColors[priority]} rounded-lg p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <div class="flex items-start gap-3 flex-1">
+                        <i class="fas ${priorityIcons[priority]} text-2xl mt-1"></i>
+                        <div class="flex-1">
+                            <h4 class="font-bold text-lg">${title}</h4>
+                            <p class="text-sm opacity-75 mb-2">Posted by ${author} on ${date}</p>
+                            <p class="whitespace-pre-wrap">${message}</p>
+                        </div>
+                    </div>
+                    <div class="flex gap-2 ml-4">
+                        <button onclick="editAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button onclick="deleteAnnouncement('${announcement.id}')" class="text-red-600 hover:text-red-800" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openAddAnnouncementModal() {
+    document.getElementById('announcementModalTitle').textContent = 'New Announcement';
+    document.getElementById('announcementForm').reset();
+    document.getElementById('announcementId').value = '';
+    document.getElementById('announcementModal').style.display = 'flex';
+}
+
+function closeAnnouncementModal() {
+    document.getElementById('announcementModal').style.display = 'none';
+    document.getElementById('announcementForm').reset();
+}
+
+async function editAnnouncement(announcementId) {
+    const announcement = allAnnouncements.find(a => a.id === announcementId);
+    if (!announcement) return;
+
+    document.getElementById('announcementModalTitle').textContent = 'Edit Announcement';
+    document.getElementById('announcementId').value = announcementId;
+    document.getElementById('annTitle').value = announcement.fields['Title'] || '';
+    document.getElementById('annMessage').value = announcement.fields['Message'] || '';
+    document.getElementById('annPriority').value = announcement.fields['Priority'] || 'Medium';
+    document.getElementById('announcementModal').style.display = 'flex';
+}
+
+async function deleteAnnouncement(announcementId) {
+    if (!confirm('Are you sure you want to delete this announcement?')) return;
+
+    try {
+        await deleteAnnouncementRecord(announcementId);
+        alert('Announcement deleted successfully!');
+        loadAnnouncements();
+    } catch (error) {
+        console.error('Error deleting announcement:', error);
+        alert('Error deleting announcement. Please try again.');
+    }
+}
+
+// Handle announcement form submission
+document.getElementById('announcementForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    const announcementId = document.getElementById('announcementId').value;
+    const currentUser = getCurrentUser();
+
+    const data = {
+        'Title': document.getElementById('annTitle').value,
+        'Message': document.getElementById('annMessage').value,
+        'Priority': document.getElementById('annPriority').value,
+        'Posted By': currentUser?.name || 'Admin'
+    };
+
+    try {
+        if (announcementId) {
+            // Update existing announcement
+            await updateAnnouncement(announcementId, data);
+            alert('Announcement updated successfully!');
+        } else {
+            // Create new announcement
+            await createAnnouncement(data);
+            alert('Announcement posted successfully!');
+        }
+
+        closeAnnouncementModal();
+        loadAnnouncements();
+    } catch (error) {
+        console.error('Error saving announcement:', error);
+        alert('Error saving announcement. Please try again.');
+    }
+});
+
+// ========================================
 // ATTENDANCE RECORDS
 // ========================================
 async function loadAttendanceRecords() {

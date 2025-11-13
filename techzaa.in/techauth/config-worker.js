@@ -210,6 +210,25 @@ async function createAnnouncement(fields) {
     return workerRequest(API_CONFIG.endpoints.announcements, 'POST', { fields });
 }
 
+/**
+ * Update an announcement
+ * @param {string} recordId - Airtable record ID
+ * @param {object} fields - Updated announcement data
+ * @returns {Promise<object>} Updated announcement record
+ */
+async function updateAnnouncement(recordId, fields) {
+    return workerRequest(`${API_CONFIG.endpoints.announcements}/${recordId}`, 'PATCH', { fields });
+}
+
+/**
+ * Delete an announcement
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Deleted announcement record
+ */
+async function deleteAnnouncementRecord(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.announcements}/${recordId}`, 'DELETE');
+}
+
 // ========================================
 // PAYROLL API
 // ========================================
