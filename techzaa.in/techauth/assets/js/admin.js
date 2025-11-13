@@ -644,13 +644,24 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
     e.preventDefault();
 
     const announcementId = document.getElementById('announcementId').value;
-    const currentUser = getCurrentUser();
+
+    // Get current user from session
+    let authorName = 'Admin';
+    try {
+        const currentUser = getCurrentUser();
+        console.log('Current user:', currentUser);
+        if (currentUser && currentUser.name) {
+            authorName = currentUser.name;
+        }
+    } catch (error) {
+        console.error('Error getting current user:', error);
+    }
 
     const data = {
         'Title': document.getElementById('annTitle').value,
         'Message': document.getElementById('annMessage').value,
         'Priority': document.getElementById('annPriority').value,
-        'Posted By': currentUser?.name || 'Admin'
+        'Posted By': authorName
     };
 
     console.log('Submitting announcement data:', data);
