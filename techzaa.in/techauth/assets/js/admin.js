@@ -1540,14 +1540,11 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     };
 
     try {
-        console.log('Payroll data being sent:', payrollData);
-
         if (payrollId) {
             await updatePayroll(payrollId, payrollData);
             alert('Payroll updated successfully!');
         } else {
-            const result = await createPayroll(payrollData);
-            console.log('Payroll creation result:', result);
+            await createPayroll(payrollData);
             alert('Payroll created successfully!');
         }
 
@@ -1555,7 +1552,6 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         loadPayrollRecords();
     } catch (error) {
         console.error('Error saving payroll:', error);
-        console.error('Full error object:', JSON.stringify(error));
 
         // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
