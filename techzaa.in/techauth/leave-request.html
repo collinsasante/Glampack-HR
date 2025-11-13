@@ -420,16 +420,27 @@
         try {
           console.log('Loading leave history for user:', currentUser.id, currentUser.name);
 
+          // TEMPORARY DEBUG: Fetch ALL leave requests to see what's there
+          console.log('Fetching ALL leave requests first to debug...');
+          const allData = await getLeaveRequests(null);
+          console.log('ALL leave requests:', allData);
+
           // Fetch leave requests for this employee
+          // For linked records, the Employee field is an array of record IDs
           const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
           console.log('Filter formula:', filterFormula);
 
           const data = await getLeaveRequests(filterFormula);
-          console.log('Leave requests data:', data);
+          console.log('Filtered leave requests data:', data);
 
-          // Store records
-          allLeaveRequests = data.records || [];
-          console.log(`Found ${allLeaveRequests.length} leave requests`);
+          // Store records - for now, filter client-side as a fallback
+          allLeaveRequests = (allData.records || []).filter(record => {
+            const employees = record.fields.Employee || [];
+            const matches = employees.includes(currentUser.id);
+            console.log('Record:', record.id, 'Employee field:', employees, 'Matches?', matches);
+            return matches;
+          });
+          console.log(`Found ${allLeaveRequests.length} leave requests after client-side filtering`);
 
           if (allLeaveRequests.length > 0) {
             console.log('First leave request:', allLeaveRequests[0]);
