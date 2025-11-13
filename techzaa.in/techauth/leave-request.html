@@ -420,31 +420,17 @@
         try {
           console.log('Loading leave history for user:', currentUser.id, currentUser.name);
 
-          // TEMPORARY DEBUG: Fetch ALL leave requests to see what's there
-          console.log('Fetching ALL leave requests first to debug...');
-          const allData = await getLeaveRequests(null);
-          console.log('ALL leave requests:', allData);
+          // Fetch all leave requests and filter client-side
+          // Client-side filtering is more reliable than Airtable's filter formulas for linked records
+          const data = await getLeaveRequests(null);
+          console.log('Fetched all leave requests:', data.records?.length || 0);
 
-          // Fetch leave requests for this employee
-          // For linked records, the Employee field is an array of record IDs
-          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
-          console.log('Filter formula:', filterFormula);
-
-          const data = await getLeaveRequests(filterFormula);
-          console.log('Filtered leave requests data:', data);
-
-          // Store records - for now, filter client-side as a fallback
-          allLeaveRequests = (allData.records || []).filter(record => {
+          // Filter for this employee's leave requests
+          allLeaveRequests = (data.records || []).filter(record => {
             const employees = record.fields.Employee || [];
-            const matches = employees.includes(currentUser.id);
-            console.log('Record:', record.id, 'Employee field:', employees, 'Matches?', matches);
-            return matches;
+            return employees.includes(currentUser.id);
           });
-          console.log(`Found ${allLeaveRequests.length} leave requests after client-side filtering`);
-
-          if (allLeaveRequests.length > 0) {
-            console.log('First leave request:', allLeaveRequests[0]);
-          }
+          console.log(`Found ${allLeaveRequests.length} leave requests for this employee`);
 
           // Update pending count
           const pendingCount = allLeaveRequests.filter(r => r.fields["Status"] === "Pending").length;
@@ -907,12 +893,7 @@
             // Use Worker API to create leave request
             const result = await createLeaveRequest(leaveData);
 
-            console.log('Leave request created successfully:', result);
-            console.log('Created record ID:', result.id);
-            console.log('Created record fields:', result.fields);
-            console.log('Employee field value:', result.fields?.Employee);
-            console.log('Employee field type:', typeof result.fields?.Employee);
-            console.log('Employee field is array?', Array.isArray(result.fields?.Employee));
+            console.log('Leave request created successfully:', result.id);
 
             showSuccess(
               "Leave request submitted successfully! Awaiting approval."
@@ -922,12 +903,7 @@
             document.getElementById("leaveRequestForm").reset();
             document.getElementById("daysCount").innerHTML = "";
 
-            // Add a small delay to allow Airtable to index the new record
-            console.log('Waiting 2 seconds before reloading to allow Airtable to index...');
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-            // Reload data
-            console.log('Reloading leave history...');
+            // Reload data immediately (no delay needed with client-side filtering)
             await loadLeaveBalances();
             await loadLeaveHistory();
           } catch (error) {

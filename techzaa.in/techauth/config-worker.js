@@ -167,11 +167,7 @@ async function getLeaveRequests(filterFormula = null) {
     const queryParams = filterFormula
         ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
         : '';
-    console.log('[getLeaveRequests] Filter formula:', filterFormula);
-    console.log('[getLeaveRequests] Encoded query params:', queryParams);
-    const result = await workerRequest(API_CONFIG.endpoints.leaveRequests, 'GET', null, queryParams);
-    console.log('[getLeaveRequests] Result:', result);
-    return result;
+    return workerRequest(API_CONFIG.endpoints.leaveRequests, 'GET', null, queryParams);
 }
 
 /**
