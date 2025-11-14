@@ -570,14 +570,28 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
             try {
-                await updateEmployee(currentUser.id, {
-                    'Full Name': document.getElementById('fullName').value.trim(),
-                    'Phone Number': document.getElementById('phoneNumber').value.trim(),
-                    'Date of Birth': document.getElementById('dateOfBirth').value,
-                    'Address': document.getElementById('address').value.trim(),
-                    'City': document.getElementById('city').value.trim(),
-                    'Country': document.getElementById('country').value.trim()
-                });
+                // Build update object with only non-empty fields
+                const updateData = {
+                    'Full Name': document.getElementById('fullName').value.trim()
+                };
+
+                // Only add optional fields if they have values
+                const phoneNumber = document.getElementById('phoneNumber').value.trim();
+                if (phoneNumber) updateData['Phone Number'] = phoneNumber;
+
+                const dateOfBirth = document.getElementById('dateOfBirth').value;
+                if (dateOfBirth) updateData['Date of Birth'] = dateOfBirth;
+
+                const address = document.getElementById('address').value.trim();
+                if (address) updateData['Address'] = address;
+
+                const city = document.getElementById('city').value.trim();
+                if (city) updateData['City'] = city;
+
+                const country = document.getElementById('country').value.trim();
+                if (country) updateData['Country'] = country;
+
+                await updateEmployee(currentUser.id, updateData);
 
                 // Update session if name changed
                 const newName = document.getElementById('fullName').value.trim();
@@ -592,7 +606,17 @@
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating profile:', error);
-                showNotification('Failed to update profile. Please try again.', 'error');
+                // More detailed error message
+                let errorMsg = 'Failed to update profile. ';
+                try {
+                    const errorObj = JSON.parse(error.message);
+                    if (errorObj.message) {
+                        errorMsg += errorObj.message;
+                    }
+                } catch (e) {
+                    errorMsg += 'Please try again.';
+                }
+                showNotification(errorMsg, 'error');
             } finally {
                 isSubmitting = false;
                 saveBtn.disabled = false;
@@ -632,20 +656,38 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
             try {
-                await updateEmployee(currentUser.id, {
+                // Build update object with emergency contact fields
+                const updateData = {
                     'Emergency Contact Name': document.getElementById('emergencyContactName').value.trim(),
                     'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
-                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value.trim(),
-                    'Emergency Contact Email': document.getElementById('emergencyEmail').value.trim(),
-                    'Emergency Contact Address': document.getElementById('emergencyAddress').value.trim()
-                });
+                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value.trim()
+                };
+
+                // Only add optional fields if they have values
+                const emergencyEmail = document.getElementById('emergencyEmail').value.trim();
+                if (emergencyEmail) updateData['Emergency Contact Email'] = emergencyEmail;
+
+                const emergencyAddress = document.getElementById('emergencyAddress').value.trim();
+                if (emergencyAddress) updateData['Emergency Contact Address'] = emergencyAddress;
+
+                await updateEmployee(currentUser.id, updateData);
 
                 showNotification('Emergency contact updated successfully!', 'success');
                 toggleEditEmergency();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating emergency contact:', error);
-                showNotification('Failed to update emergency contact. Please try again.', 'error');
+                // More detailed error message
+                let errorMsg = 'Failed to update emergency contact. ';
+                try {
+                    const errorObj = JSON.parse(error.message);
+                    if (errorObj.message) {
+                        errorMsg += errorObj.message;
+                    }
+                } catch (e) {
+                    errorMsg += 'Please try again.';
+                }
+                showNotification(errorMsg, 'error');
             } finally {
                 isSubmitting = false;
                 saveBtn.disabled = false;
