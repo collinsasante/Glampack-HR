@@ -135,18 +135,19 @@
                     <form id="profileForm">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
                                 <input type="text" id="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
                                 <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" readonly>
+                                <p class="text-xs text-gray-500 mt-1">Email cannot be changed</p>
                             </div>
 
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                <input type="tel" id="phoneNumber" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <input type="tel" id="phoneNumber" pattern="[0-9+\-\s()]+" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
@@ -171,7 +172,7 @@
                         </div>
 
                         <div id="profileFormButtons" class="mt-6 flex gap-3 hidden">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                            <button type="submit" id="saveProfileBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                                 <i class="fas fa-save mr-2"></i> Save Changes
                             </button>
                             <button type="button" onclick="cancelEditProfile()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
@@ -240,23 +241,36 @@
                 <div id="section-security" class="section-hidden bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-2xl font-bold text-gray-800 mb-6">Security Settings</h3>
 
+                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+                        <div class="flex items-start">
+                            <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+                            <div class="text-sm text-yellow-700">
+                                <p class="font-semibold mb-1">Password Requirements:</p>
+                                <ul class="list-disc list-inside space-y-1">
+                                    <li>Minimum 6 characters</li>
+                                    <li>Use a combination of letters and numbers for better security</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
                     <form id="changePasswordForm" class="space-y-4 max-w-lg">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Password</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Password *</label>
                             <input type="password" id="currentPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password *</label>
                             <input type="password" id="newPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password *</label>
                             <input type="password" id="confirmPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
                         </div>
 
-                        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                        <button type="submit" id="changePasswordBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                             <i class="fas fa-save mr-2"></i> Update Password
                         </button>
                     </form>
@@ -274,12 +288,12 @@
                     <form id="emergencyForm">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Name</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Name *</label>
                                 <input type="text" id="emergencyContactName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Relationship</label>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Relationship *</label>
                                 <select id="emergencyRelationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" disabled>
                                     <option value="">Select relationship</option>
                                     <option value="Spouse">Spouse</option>
@@ -292,8 +306,8 @@
                             </div>
 
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                <input type="tel" id="emergencyPhone" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
+                                <input type="tel" id="emergencyPhone" required pattern="[0-9+\-\s()]+" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
                             </div>
 
                             <div>
@@ -308,7 +322,7 @@
                         </div>
 
                         <div id="emergencyFormButtons" class="mt-6 flex gap-3 hidden">
-                            <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition">
+                            <button type="submit" id="saveEmergencyBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
                                 <i class="fas fa-save mr-2"></i> Save Changes
                             </button>
                             <button type="button" onclick="cancelEditEmergency()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
@@ -328,6 +342,7 @@
 
         const currentUser = getCurrentUser();
         let employeeData = null;
+        let isSubmitting = false;
 
         // Redirect to correct dashboard based on role
         function goToDashboard() {
@@ -335,6 +350,55 @@
                 window.location.href = 'admin-dashboard.html';
             } else {
                 window.location.href = 'dashboard.html';
+            }
+        }
+
+        // Show notification
+        function showNotification(message, type = 'success') {
+            // Remove existing notifications
+            const existing = document.querySelectorAll('.notification');
+            existing.forEach(n => n.remove());
+
+            const notification = document.createElement('div');
+            notification.className = `notification fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
+                type === 'success' ? 'bg-green-600' : 'bg-red-600'
+            }`;
+            notification.innerHTML = `
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} text-xl"></i>
+                    <span class="font-medium">${message}</span>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.style.transform = 'translateX(400px)';
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 4000);
+        }
+
+        // Show loading overlay
+        function showLoadingOverlay(show) {
+            let overlay = document.getElementById('loadingOverlay');
+
+            if (show) {
+                if (!overlay) {
+                    overlay = document.createElement('div');
+                    overlay.id = 'loadingOverlay';
+                    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    overlay.innerHTML = `
+                        <div class="bg-white rounded-lg p-8 flex flex-col items-center">
+                            <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
+                            <p class="text-gray-700 font-medium">Processing...</p>
+                        </div>
+                    `;
+                    document.body.appendChild(overlay);
+                }
+            } else {
+                if (overlay) {
+                    overlay.remove();
+                }
             }
         }
 
@@ -354,14 +418,19 @@
                 populateEmergencyContact();
             } catch (error) {
                 console.error('Error loading employee data:', error);
-                alert('Failed to load profile data');
+                showNotification('Failed to load profile data. Please refresh the page.', 'error');
             }
         }
 
         // Populate profile
         function populateProfile() {
             const name = employeeData['Full Name'] || 'User';
-            const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+            // Better initials handling - take first letter of first and last name
+            const names = name.trim().split(/\s+/);
+            let initials = names[0][0].toUpperCase();
+            if (names.length > 1) {
+                initials += names[names.length - 1][0].toUpperCase();
+            }
             document.getElementById('profileInitials').textContent = initials;
             document.getElementById('sidebarName').textContent = name;
             document.getElementById('sidebarRole').textContent = employeeData['Status'] || currentUser.role;
@@ -442,6 +511,13 @@
             inputs.forEach(input => {
                 if (input.tagName === 'SELECT') {
                     input.disabled = !input.disabled;
+                    if (!input.disabled) {
+                        input.classList.remove('bg-gray-50');
+                        input.classList.add('bg-white');
+                    } else {
+                        input.classList.add('bg-gray-50');
+                        input.classList.remove('bg-white');
+                    }
                 } else {
                     if (isReadonly) {
                         input.removeAttribute('readonly');
@@ -464,48 +540,116 @@
             populateEmergencyContact();
         }
 
+        // Validate form data
+        function validateProfileForm() {
+            const fullName = document.getElementById('fullName').value.trim();
+            if (fullName.length < 2) {
+                showNotification('Please enter a valid full name', 'error');
+                return false;
+            }
+
+            const phoneNumber = document.getElementById('phoneNumber').value.trim();
+            if (phoneNumber && !/^[0-9+\-\s()]+$/.test(phoneNumber)) {
+                showNotification('Please enter a valid phone number', 'error');
+                return false;
+            }
+
+            return true;
+        }
+
         // Submit profile form
         document.getElementById('profileForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            if (isSubmitting) return;
+            if (!validateProfileForm()) return;
+
+            const saveBtn = document.getElementById('saveProfileBtn');
+            isSubmitting = true;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
             try {
                 await updateEmployee(currentUser.id, {
-                    'Full Name': document.getElementById('fullName').value,
-                    'Phone Number': document.getElementById('phoneNumber').value,
+                    'Full Name': document.getElementById('fullName').value.trim(),
+                    'Phone Number': document.getElementById('phoneNumber').value.trim(),
                     'Date of Birth': document.getElementById('dateOfBirth').value,
-                    'Address': document.getElementById('address').value,
-                    'City': document.getElementById('city').value,
-                    'Country': document.getElementById('country').value
+                    'Address': document.getElementById('address').value.trim(),
+                    'City': document.getElementById('city').value.trim(),
+                    'Country': document.getElementById('country').value.trim()
                 });
 
-                alert('Profile updated successfully!');
+                // Update session if name changed
+                const newName = document.getElementById('fullName').value.trim();
+                if (newName !== currentUser.name) {
+                    currentUser.name = newName;
+                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    document.getElementById('userInfo').textContent = `Welcome, ${newName}`;
+                }
+
+                showNotification('Profile updated successfully!', 'success');
                 toggleEditProfile();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating profile:', error);
-                alert('Failed to update profile. Please try again.');
+                showNotification('Failed to update profile. Please try again.', 'error');
+            } finally {
+                isSubmitting = false;
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
             }
         });
+
+        // Validate emergency contact
+        function validateEmergencyForm() {
+            const name = document.getElementById('emergencyContactName').value.trim();
+            const phone = document.getElementById('emergencyPhone').value.trim();
+            const relationship = document.getElementById('emergencyRelationship').value;
+
+            if (!name || !phone || !relationship) {
+                showNotification('Please fill in all required emergency contact fields', 'error');
+                return false;
+            }
+
+            if (!/^[0-9+\-\s()]+$/.test(phone)) {
+                showNotification('Please enter a valid phone number', 'error');
+                return false;
+            }
+
+            return true;
+        }
 
         // Submit emergency form
         document.getElementById('emergencyForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            if (isSubmitting) return;
+            if (!validateEmergencyForm()) return;
+
+            const saveBtn = document.getElementById('saveEmergencyBtn');
+            isSubmitting = true;
+            saveBtn.disabled = true;
+            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
             try {
                 await updateEmployee(currentUser.id, {
-                    'Emergency Contact Name': document.getElementById('emergencyContactName').value,
+                    'Emergency Contact Name': document.getElementById('emergencyContactName').value.trim(),
                     'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
-                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value,
-                    'Emergency Contact Email': document.getElementById('emergencyEmail').value,
-                    'Emergency Contact Address': document.getElementById('emergencyAddress').value
+                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value.trim(),
+                    'Emergency Contact Email': document.getElementById('emergencyEmail').value.trim(),
+                    'Emergency Contact Address': document.getElementById('emergencyAddress').value.trim()
                 });
 
-                alert('Emergency contact updated successfully!');
+                showNotification('Emergency contact updated successfully!', 'success');
                 toggleEditEmergency();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating emergency contact:', error);
-                alert('Failed to update emergency contact. Please try again.');
+                showNotification('Failed to update emergency contact. Please try again.', 'error');
+            } finally {
+                isSubmitting = false;
+                saveBtn.disabled = false;
+                saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
             }
         });
 
@@ -513,36 +657,53 @@
         document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            if (isSubmitting) return;
+
             const current = document.getElementById('currentPassword').value;
             const newPass = document.getElementById('newPassword').value;
             const confirm = document.getElementById('confirmPassword').value;
 
+            // Validation
             if (current !== employeeData['Password']) {
-                alert('Current password is incorrect');
+                showNotification('Current password is incorrect', 'error');
                 return;
             }
 
             if (newPass !== confirm) {
-                alert('New passwords do not match');
+                showNotification('New passwords do not match', 'error');
                 return;
             }
 
             if (newPass.length < 6) {
-                alert('Password must be at least 6 characters long');
+                showNotification('Password must be at least 6 characters long', 'error');
                 return;
             }
+
+            if (newPass === current) {
+                showNotification('New password must be different from current password', 'error');
+                return;
+            }
+
+            const changeBtn = document.getElementById('changePasswordBtn');
+            isSubmitting = true;
+            changeBtn.disabled = true;
+            changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
 
             try {
                 await updateEmployee(currentUser.id, {
                     'Password': newPass
                 });
 
-                alert('Password updated successfully!');
+                showNotification('Password updated successfully!', 'success');
                 document.getElementById('changePasswordForm').reset();
                 await loadEmployeeData();
             } catch (error) {
                 console.error('Error updating password:', error);
-                alert('Failed to update password. Please try again.');
+                showNotification('Failed to update password. Please try again.', 'error');
+            } finally {
+                isSubmitting = false;
+                changeBtn.disabled = false;
+                changeBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Update Password';
             }
         });
 
