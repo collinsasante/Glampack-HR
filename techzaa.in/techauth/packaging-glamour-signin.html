@@ -277,8 +277,8 @@
                     .addEventListener("submit", async function (e) {
                       e.preventDefault();
 
-                      const email = document.getElementById("email").value;
-                      const password = document.getElementById("pwd").value;
+                      const email = document.getElementById("email").value.trim();
+                      const password = document.getElementById("pwd").value.trim();
                       const selectedRole = document.querySelector(
                         'input[name="role"]:checked'
                       ).value;

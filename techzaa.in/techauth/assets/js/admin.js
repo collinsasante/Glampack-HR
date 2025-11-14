@@ -1,4 +1,24 @@
 // ========================================
+// MOBILE MENU TOGGLE
+// ========================================
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuButton = document.getElementById('mobileMenuButton');
+    const icon = menuButton.querySelector('i');
+
+    mobileMenu.classList.toggle('open');
+
+    // Toggle icon between bars and times
+    if (mobileMenu.classList.contains('open')) {
+        icon.classList.remove('fa-bars');
+        icon.classList.add('fa-times');
+    } else {
+        icon.classList.remove('fa-times');
+        icon.classList.add('fa-bars');
+    }
+}
+
+// ========================================
 // AUTHENTICATION CHECK
 // ========================================
 if (!requireAuth()) {
@@ -32,9 +52,14 @@ async function checkAdminAccess() {
 
 // Display user info
 function updateUserInfo() {
+    const userInfoText = `Welcome, ${currentUser.name} (Admin)`;
     const userInfoElement = document.getElementById('userInfo');
+    const userInfoMobileElement = document.getElementById('userInfoMobile');
     if (userInfoElement && currentUser) {
-        userInfoElement.textContent = `Welcome, ${currentUser.name} (Admin)`;
+        userInfoElement.textContent = userInfoText;
+    }
+    if (userInfoMobileElement && currentUser) {
+        userInfoMobileElement.textContent = userInfoText;
     }
 }
 updateUserInfo();

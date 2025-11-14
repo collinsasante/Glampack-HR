@@ -31,24 +31,25 @@
         font-family: "Montserrat", sans-serif;
       }
 
+      /* Mobile Menu Styles */
+      #mobileMenu {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease-in-out;
+      }
+
+      #mobileMenu.open {
+        max-height: 500px;
+      }
+
       /* Mobile Responsive Styles */
       @media (max-width: 768px) {
-        nav .flex {
-          flex-direction: column;
-          gap: 1rem;
+        #desktopMenu {
+          display: none;
         }
 
-        nav .flex.items-center.space-x-4 {
-          flex-direction: column;
-          align-items: flex-start;
-          width: 100%;
-        }
-
-        nav .flex.items-center.space-x-4:last-child {
-          flex-direction: row;
-          flex-wrap: wrap;
-          justify-content: center;
-          gap: 0.5rem;
+        #mobileMenuButton {
+          display: block;
         }
 
         nav a,
@@ -105,9 +106,11 @@
         <div class="flex justify-between items-center py-4">
           <div class="flex items-center space-x-4">
             <h1 class="text-2xl font-bold text-red-600">HR System</h1>
-            <span class="text-gray-600" id="userInfo"></span>
+            <span class="text-gray-600 hidden md:inline" id="userInfo"></span>
           </div>
-          <div class="flex items-center space-x-4">
+
+          <!-- Desktop Menu -->
+          <div id="desktopMenu" class="hidden md:flex items-center space-x-4">
             <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-chart-line mr-1"></i> Dashboard
             </a>
@@ -134,6 +137,39 @@
             </a>
             <button onclick="logout()" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuButton" class="md:hidden text-gray-600 hover:text-red-600 text-2xl" onclick="toggleMobileMenu()">
+            <i class="fas fa-bars"></i>
+          </button>
+        </div>
+
+        <!-- Mobile Menu -->
+        <div id="mobileMenu" class="md:hidden">
+          <div class="flex flex-col space-y-2 pb-4">
+            <span class="text-gray-600 text-sm border-b pb-2" id="userInfoMobile"></span>
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600 py-2">
+              <i class="fas fa-chart-line mr-2"></i> Dashboard
+            </a>
+            <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600 py-2">
+              <i class="fas fa-clock mr-2"></i> Attendance
+            </a>
+            <a href="leave-request.html" class="text-red-600 font-semibold py-2">
+              <i class="fas fa-calendar-alt mr-2"></i> Leave
+            </a>
+            <a href="profile.html" class="text-gray-600 hover:text-red-600 py-2">
+              <i class="fas fa-user mr-2"></i> Profile
+            </a>
+            <a href="announcements.html" class="text-gray-600 hover:text-red-600 py-2">
+              <i class="fas fa-bullhorn mr-2"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600 py-2">
+              <i class="fas fa-money-bill-wave mr-2"></i> Payroll
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600 py-2 text-left">
+              <i class="fas fa-sign-out-alt mr-2"></i> Logout
             </button>
           </div>
         </div>
@@ -343,6 +379,26 @@
 
     <script>
       // ========================================
+      // MOBILE MENU TOGGLE
+      // ========================================
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        const menuButton = document.getElementById('mobileMenuButton');
+        const icon = menuButton.querySelector('i');
+
+        mobileMenu.classList.toggle('open');
+
+        // Toggle icon between bars and times
+        if (mobileMenu.classList.contains('open')) {
+          icon.classList.remove('fa-bars');
+          icon.classList.add('fa-times');
+        } else {
+          icon.classList.remove('fa-times');
+          icon.classList.add('fa-bars');
+        }
+      }
+
+      // ========================================
       // AUTHENTICATION CHECK
       // ========================================
       if (!requireAuth()) {
@@ -367,9 +423,10 @@
       // INITIALIZE PAGE
       // ========================================
       async function initializePage() {
-        // Display user info
-        document.getElementById("userInfo").textContent =
-          `Welcome, ${currentUser.name}`;
+        // Display user info for both desktop and mobile
+        const userInfoText = `Welcome, ${currentUser.name}`;
+        document.getElementById("userInfo").textContent = userInfoText;
+        document.getElementById("userInfoMobile").textContent = userInfoText;
 
         // Set minimum date to today
         const today = new Date().toISOString().split("T")[0];

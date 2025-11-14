@@ -35,8 +35,12 @@ async function login(email, password) {
             return false;
         }
 
+        // Trim both passwords for comparison to handle any whitespace issues
+        const trimmedPassword = password.trim();
+        const trimmedStoredPassword = storedPassword ? storedPassword.trim() : '';
+
         // Check if password matches
-        if (storedPassword && storedPassword !== password) {
+        if (storedPassword && trimmedStoredPassword !== trimmedPassword) {
             showError('Invalid email or password');
             showLoading(false);
             return false;

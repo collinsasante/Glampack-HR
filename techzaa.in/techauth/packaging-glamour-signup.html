@@ -334,13 +334,13 @@
                       e.preventDefault();
 
                       const fullName =
-                        document.getElementById("fullName").value;
-                      const email = document.getElementById("email").value;
+                        document.getElementById("fullName").value.trim();
+                      const email = document.getElementById("email").value.trim();
                       const status = document.getElementById("status").value;
                       const password =
-                        document.getElementById("password").value;
+                        document.getElementById("password").value.trim();
                       const confirmPassword =
-                        document.getElementById("confirmPassword").value;
+                        document.getElementById("confirmPassword").value.trim();
                       const selectedRole = document.querySelector(
                         'input[name="role"]:checked'
                       ).value;
