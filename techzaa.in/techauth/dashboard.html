@@ -232,11 +232,8 @@
             <div class="bg-white rounded-lg shadow-md p-6">
                 <h3 class="text-xl font-bold text-gray-800 mb-6">Quick Actions</h3>
                 <div class="space-y-3">
-                    <button onclick="quickCheckIn()" id="quickCheckInBtn" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
-                        <i class="fas fa-sign-in-alt mr-2"></i> Check In
-                    </button>
-                    <button onclick="quickCheckOut()" id="quickCheckOutBtn" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center hidden">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Check Out
+                    <button onclick="window.location.href='attendance-tracker.html'" class="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
+                        <i class="fas fa-clock mr-2"></i> Attendance
                     </button>
                     <button onclick="window.location.href='leave-request.html'" class="w-full bg-red-600 hover:bg-red-700 text-white font-medium py-3 px-4 rounded-lg transition flex items-center justify-center">
                         <i class="fas fa-calendar-plus mr-2"></i> Request Leave
@@ -280,6 +277,28 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Birthday Announcement Modal -->
+    <div id="birthdayModal" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-lg shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+            <div class="bg-gradient-to-r from-pink-500 to-purple-600 p-6 text-white relative">
+                <button onclick="closeBirthdayModal()" class="absolute top-4 right-4 text-white hover:text-gray-200">
+                    <i class="fas fa-times text-2xl"></i>
+                </button>
+                <div class="text-center">
+                    <i class="fas fa-birthday-cake text-6xl mb-4"></i>
+                    <h2 class="text-3xl font-bold">🎉 Birthday Celebration! 🎉</h2>
+                    <p class="mt-2">Someone special is celebrating today!</p>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <div id="birthdayList" class="space-y-4">
+                    <!-- Birthday cards will be inserted here -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -340,6 +359,178 @@
                 loadAnnouncements(),
                 loadRecentActivity()
             ]);
+
+            // Check for birthdays after loading data
+            await checkBirthdays();
+        }
+
+        // ========================================
+        // BIRTHDAY MODAL FUNCTIONS
+        // ========================================
+        function closeBirthdayModal() {
+            document.getElementById('birthdayModal').classList.add('hidden');
+        }
+
+        async function checkBirthdays() {
+            try {
+                // Get all employees
+                const data = await getEmployees();
+                const today = new Date();
+                const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+                const todayDay = String(today.getDate()).padStart(2, '0');
+
+                // Find employees with birthdays today
+                const birthdayPeople = [];
+                if (data.records) {
+                    for (const record of data.records) {
+                        const dateOfBirth = record.fields['Date of Birth'];
+                        if (dateOfBirth) {
+                            const birthDate = new Date(dateOfBirth);
+                            const birthMonth = String(birthDate.getMonth() + 1).padStart(2, '0');
+                            const birthDay = String(birthDate.getDate()).padStart(2, '0');
+
+                            if (birthMonth === todayMonth && birthDay === todayDay) {
+                                birthdayPeople.push({
+                                    id: record.id,
+                                    name: record.fields['Full Name'],
+                                    role: record.fields['Role'] || 'Employee',
+                                    status: record.fields['Status'] || ''
+                                });
+                            }
+                        }
+                    }
+                }
+
+                // Show birthday modal if there are birthdays
+                if (birthdayPeople.length > 0) {
+                    showBirthdayModal(birthdayPeople);
+                }
+            } catch (error) {
+                console.error('Error checking birthdays:', error);
+            }
+        }
+
+        function showBirthdayModal(birthdayPeople) {
+            const birthdayList = document.getElementById('birthdayList');
+            birthdayList.innerHTML = '';
+
+            birthdayPeople.forEach(person => {
+                const initials = person.name.split(' ').map(n => n[0]).join('').toUpperCase();
+                const birthdayCard = `
+                    <div class="bg-gradient-to-r from-pink-100 to-purple-100 rounded-lg p-6 shadow-md">
+                        <div class="flex items-start gap-4">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-r from-pink-500 to-purple-600 flex items-center justify-center text-white text-xl font-bold flex-shrink-0">
+                                ${initials}
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="text-2xl font-bold text-gray-800">${person.name}</h3>
+                                <p class="text-gray-600">${person.role}${person.status ? ' • ' + person.status : ''}</p>
+                                <p class="text-gray-700 mt-2">🎂 Wishing you a wonderful birthday filled with joy and happiness!</p>
+
+                                <!-- Comments Section -->
+                                <div class="mt-4">
+                                    <h4 class="font-semibold text-gray-700 mb-2">Birthday Wishes:</h4>
+                                    <div id="comments-${person.id}" class="space-y-2 mb-3 max-h-40 overflow-y-auto">
+                                        <!-- Comments will be loaded here -->
+                                    </div>
+                                    <div class="flex gap-2">
+                                        <input
+                                            type="text"
+                                            id="comment-input-${person.id}"
+                                            placeholder="Write a birthday wish..."
+                                            class="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-transparent"
+                                            onkeypress="if(event.key === 'Enter') postBirthdayComment('${person.id}')"
+                                        />
+                                        <button
+                                            onclick="postBirthdayComment('${person.id}')"
+                                            class="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-4 py-2 rounded-lg transition"
+                                        >
+                                            <i class="fas fa-paper-plane"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                birthdayList.innerHTML += birthdayCard;
+
+                // Load existing comments for this person
+                loadBirthdayComments(person.id);
+            });
+
+            document.getElementById('birthdayModal').classList.remove('hidden');
+        }
+
+        async function loadBirthdayComments(employeeId) {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const commentsKey = `birthday_comments_${employeeId}_${today}`;
+
+                // Load comments from localStorage
+                const storedComments = localStorage.getItem(commentsKey);
+                const comments = storedComments ? JSON.parse(storedComments) : [];
+
+                const commentsContainer = document.getElementById(`comments-${employeeId}`);
+                if (comments.length === 0) {
+                    commentsContainer.innerHTML = '<p class="text-gray-500 text-sm italic">No wishes yet. Be the first to wish!</p>';
+                } else {
+                    commentsContainer.innerHTML = comments.map(comment => `
+                        <div class="bg-white p-3 rounded-lg shadow-sm">
+                            <div class="flex items-start gap-2">
+                                <div class="w-8 h-8 rounded-full bg-gradient-to-r from-red-500 to-pink-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                    ${comment.authorInitials}
+                                </div>
+                                <div class="flex-1">
+                                    <p class="font-semibold text-sm text-gray-800">${comment.authorName}</p>
+                                    <p class="text-gray-700 text-sm">${comment.text}</p>
+                                    <p class="text-xs text-gray-500 mt-1">${comment.timestamp}</p>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Error loading birthday comments:', error);
+            }
+        }
+
+        async function postBirthdayComment(employeeId) {
+            const input = document.getElementById(`comment-input-${employeeId}`);
+            const commentText = input.value.trim();
+
+            if (!commentText) {
+                return;
+            }
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const commentsKey = `birthday_comments_${employeeId}_${today}`;
+
+                // Load existing comments
+                const storedComments = localStorage.getItem(commentsKey);
+                const comments = storedComments ? JSON.parse(storedComments) : [];
+
+                // Add new comment
+                const newComment = {
+                    authorName: currentUser.name,
+                    authorInitials: currentUser.name.split(' ').map(n => n[0]).join('').toUpperCase(),
+                    text: commentText,
+                    timestamp: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+                };
+
+                comments.push(newComment);
+
+                // Save to localStorage
+                localStorage.setItem(commentsKey, JSON.stringify(comments));
+
+                // Clear input and reload comments
+                input.value = '';
+                await loadBirthdayComments(employeeId);
+            } catch (error) {
+                console.error('Error posting birthday comment:', error);
+                alert('Failed to post comment. Please try again.');
+            }
         }
 
         // ========================================
