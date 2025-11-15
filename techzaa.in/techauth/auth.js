@@ -152,6 +152,65 @@ async function signup(fullName, email, status, password, role = 'Employee') {
 }
 
 // ========================================
+// PASSWORD RESET REQUEST FUNCTION
+// ========================================
+async function requestPasswordReset(email) {
+    try {
+        showLoading(true);
+
+        // Check if employee exists using Worker API
+        const filterFormula = `{Email} = '${email}'`;
+        const data = await getEmployees(filterFormula);
+
+        // Check if employee exists
+        if (!data.records || data.records.length === 0) {
+            showError('No account found with this email address');
+            showLoading(false);
+            return false;
+        }
+
+        const employee = data.records[0];
+
+        // Generate a password reset token (valid for 1 hour)
+        const resetToken = generateResetToken();
+        const resetExpiry = new Date(Date.now() + 3600000).toISOString(); // 1 hour from now
+
+        // Store reset token in Airtable
+        await updateEmployee(employee.id, {
+            'Reset Token': resetToken,
+            'Reset Token Expiry': resetExpiry
+        });
+
+        // In a real implementation, this would send an email via backend
+        // For now, we'll create a reset link that can be copied
+        const resetLink = `${window.location.origin}${window.location.pathname.replace('packaging-glamour-forgot-password.html', 'packaging-glamour-reset-password.html')}?token=${resetToken}&email=${encodeURIComponent(email)}`;
+
+        showLoading(false);
+
+        // Show success message with the reset link
+        showResetLinkSuccess(resetLink, email);
+
+        return true;
+
+    } catch (error) {
+        console.error('Password reset request error:', error);
+        showError('Failed to process password reset request. Please try again.');
+        showLoading(false);
+        return false;
+    }
+}
+
+// ========================================
+// GENERATE RESET TOKEN
+// ========================================
+function generateResetToken() {
+    // Generate a secure random token
+    const array = new Uint8Array(32);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('');
+}
+
+// ========================================
 // LOGOUT FUNCTION
 // ========================================
 function logout() {
@@ -260,4 +319,51 @@ function showSuccess(message) {
     setTimeout(() => {
         successDiv.remove();
     }, 3000);
+}
+
+// ========================================
+// SHOW RESET LINK SUCCESS MESSAGE
+// ========================================
+function showResetLinkSuccess(resetLink, email) {
+    // Remove existing messages
+    const existingMsg = document.getElementById('reset-link-message');
+    if (existingMsg) {
+        existingMsg.remove();
+    }
+
+    const messageDiv = document.createElement('div');
+    messageDiv.id = 'reset-link-message';
+    messageDiv.className = 'bg-blue-50 border border-blue-400 text-blue-900 px-4 py-4 rounded-lg mb-4';
+    messageDiv.innerHTML = `
+        <div class="space-y-3">
+            <div class="flex items-start">
+                <i class="fas fa-info-circle mr-2 mt-1"></i>
+                <div class="flex-1">
+                    <p class="font-semibold mb-1">Password reset link generated!</p>
+                    <p class="text-sm mb-2">In a production environment, this link would be sent to <strong>${email}</strong>. For demo purposes, you can copy the link below:</p>
+                    <div class="bg-white border border-blue-300 rounded p-2 text-xs break-all font-mono">${resetLink}</div>
+                    <button onclick="copyResetLink('${resetLink}')" class="mt-2 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-sm transition-colors">
+                        <i class="fas fa-copy mr-1"></i> Copy Link
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    const form = document.querySelector('.space-y-5');
+    if (form) {
+        form.parentNode.insertBefore(messageDiv, form);
+    }
+}
+
+// ========================================
+// COPY RESET LINK TO CLIPBOARD
+// ========================================
+function copyResetLink(link) {
+    navigator.clipboard.writeText(link).then(() => {
+        showSuccess('Reset link copied to clipboard!');
+    }).catch(err => {
+        console.error('Failed to copy:', err);
+        showError('Failed to copy link. Please copy manually.');
+    });
 }
