@@ -133,54 +133,17 @@
   <body class="flex items-center justify-center min-h-screen p-4">
     <!-- Main Container -->
     <div class="w-full max-w-md fade-in">
-      <!-- Logo -->
-      <div class="text-center mb-8 logo-animation">
-        <img
-          src="assets/images/logo_red.png"
-          alt="Packaging Glamour HR"
-          class="h-16 mx-auto mb-4 drop-shadow-lg"
-        />
-        <h2 class="text-white text-2xl font-bold tracking-tight">Create Account</h2>
-        <p class="text-white/80 text-sm mt-2">Join Packaging Glamour HR System</p>
-      </div>
-
       <!-- Sign Up Card -->
       <div class="glass-card rounded-2xl p-8 shadow-2xl">
-        <!-- Role Selector -->
-        <div class="flex gap-3 mb-6">
-          <div class="role-selector flex-1">
-            <input
-              type="radio"
-              id="roleEmployee"
-              name="role"
-              value="Employee"
-              checked
-              class="hidden"
-            />
-            <label
-              for="roleEmployee"
-              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
-            >
-              <i class="fas fa-user"></i>
-              <span>Employee</span>
-            </label>
-          </div>
-          <div class="role-selector flex-1">
-            <input
-              type="radio"
-              id="roleAdmin"
-              name="role"
-              value="Admin"
-              class="hidden"
-            />
-            <label
-              for="roleAdmin"
-              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
-            >
-              <i class="fas fa-user-shield"></i>
-              <span>Admin</span>
-            </label>
-          </div>
+        <!-- Logo and Header -->
+        <div class="text-center mb-8">
+          <img
+            src="assets/images/logo_red.png"
+            alt="Packaging Glamour HR"
+            class="h-16 mx-auto mb-4"
+          />
+          <h2 class="text-gray-800 text-2xl font-bold tracking-tight">Create Account</h2>
+          <p class="text-gray-600 text-sm mt-2">Join Packaging Glamour HR System</p>
         </div>
 
         <!-- Sign Up Form -->
@@ -348,13 +311,6 @@
           </p>
         </div>
       </div>
-
-      <!-- Footer -->
-      <div class="mt-6 text-center">
-        <p class="text-white/60 text-xs">
-          &copy; 2024 Packaging Glamour. All rights reserved.
-        </p>
-      </div>
     </div>
 
     <script>
@@ -429,9 +385,8 @@
             document.getElementById("password").value.trim();
           const confirmPassword =
             document.getElementById("confirmPassword").value.trim();
-          const selectedRole = document.querySelector(
-            'input[name="role"]:checked'
-          ).value;
+          // Default role is Employee (admin accounts must be created by existing admins)
+          const selectedRole = 'Employee';
 
           // Validate passwords match
           if (password !== confirmPassword) {
@@ -452,7 +407,7 @@
             email,
             status,
             password,
-            selectedRole // Pass role to signup function
+            selectedRole
           );
 
           if (success) {
@@ -460,12 +415,8 @@
               "Account created successfully! Redirecting..."
             );
             setTimeout(() => {
-              // Redirect based on role
-              if (selectedRole === "Admin") {
-                window.location.href = "admin-dashboard.html";
-              } else {
-                window.location.href = "dashboard.html";
-              }
+              // New signups always go to employee dashboard
+              window.location.href = "dashboard.html";
             }, 1500);
           }
         });
