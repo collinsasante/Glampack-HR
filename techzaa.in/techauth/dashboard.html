@@ -297,6 +297,22 @@
                 <div id="birthdayList" class="space-y-4">
                     <!-- Birthday cards will be inserted here -->
                 </div>
+
+                <!-- Action Buttons -->
+                <div class="flex gap-3 justify-end mt-6 pt-4 border-t border-gray-200">
+                    <button
+                        onclick="closeBirthdayModal()"
+                        class="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition font-medium"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                        onclick="closeBirthdayModal()"
+                        class="px-6 py-2 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white rounded-lg transition font-medium shadow-md"
+                    >
+                        Done
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -373,11 +389,21 @@
 
         async function checkBirthdays() {
             try {
+                // Check if modal has already been shown today
+                const today = new Date().toISOString().split('T')[0];
+                const modalShownKey = `birthday_modal_shown_${today}`;
+                const hasBeenShown = localStorage.getItem(modalShownKey);
+
+                // If already shown today, don't show again
+                if (hasBeenShown) {
+                    return;
+                }
+
                 // Get all employees
                 const data = await getEmployees();
-                const today = new Date();
-                const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
-                const todayDay = String(today.getDate()).padStart(2, '0');
+                const todayDate = new Date();
+                const todayMonth = String(todayDate.getMonth() + 1).padStart(2, '0');
+                const todayDay = String(todayDate.getDate()).padStart(2, '0');
 
                 // Find employees with birthdays today
                 const birthdayPeople = [];
@@ -404,9 +430,36 @@
                 // Show birthday modal if there are birthdays
                 if (birthdayPeople.length > 0) {
                     showBirthdayModal(birthdayPeople);
+                    // Mark modal as shown for today
+                    localStorage.setItem(modalShownKey, 'true');
+
+                    // Clean up old flags from previous days (keep only last 7 days)
+                    cleanupOldBirthdayFlags();
                 }
             } catch (error) {
                 console.error('Error checking birthdays:', error);
+            }
+        }
+
+        function cleanupOldBirthdayFlags() {
+            try {
+                const today = new Date();
+                const keys = Object.keys(localStorage);
+
+                keys.forEach(key => {
+                    if (key.startsWith('birthday_modal_shown_')) {
+                        const dateStr = key.replace('birthday_modal_shown_', '');
+                        const flagDate = new Date(dateStr);
+                        const daysDiff = Math.floor((today - flagDate) / (1000 * 60 * 60 * 24));
+
+                        // Remove flags older than 7 days
+                        if (daysDiff > 7) {
+                            localStorage.removeItem(key);
+                        }
+                    }
+                });
+            } catch (error) {
+                console.error('Error cleaning up birthday flags:', error);
             }
         }
 
@@ -425,7 +478,7 @@
                             <div class="flex-1">
                                 <h3 class="text-2xl font-bold text-gray-800">${person.name}</h3>
                                 <p class="text-gray-600">${person.role}${person.status ? ' • ' + person.status : ''}</p>
-                                <p class="text-gray-700 mt-2">🎂 Wishing you a wonderful birthday filled with joy and happiness!</p>
+                                <p class="text-gray-700 mt-2">🎂 Wishing <strong>${person.name}</strong> a wonderful birthday filled with joy and happiness!</p>
 
                                 <!-- Comments Section -->
                                 <div class="mt-4">
