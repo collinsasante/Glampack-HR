@@ -154,7 +154,7 @@
         </div>
 
         <!-- Quick Stats Cards -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6 mb-8">
             <!-- Today's Status -->
             <div class="bg-white rounded-lg shadow-md p-6 stat-card">
                 <div class="flex items-center justify-between">
@@ -175,7 +175,7 @@
                     <div>
                         <p class="text-gray-500 text-sm font-medium">Hours This Month</p>
                         <h3 class="text-2xl font-bold text-blue-600 mt-2" id="monthlyHours">0</h3>
-                        <p class="text-xs text-gray-500 mt-1">of 160 hours</p>
+                        <p class="text-xs text-gray-500 mt-1">of 216 hours</p>
                     </div>
                     <div class="bg-blue-100 rounded-full p-4">
                         <i class="fas fa-clock text-blue-600 text-2xl"></i>
@@ -207,6 +207,20 @@
                     </div>
                     <div class="bg-yellow-100 rounded-full p-4">
                         <i class="fas fa-hourglass-half text-yellow-600 text-2xl"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Medical Entitlement -->
+            <div class="bg-white rounded-lg shadow-md p-6 stat-card">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-medium">Medical Entitlement</p>
+                        <h3 class="text-2xl font-bold text-teal-600 mt-2" id="medicalBalance">--</h3>
+                        <p class="text-xs text-gray-500 mt-1">GH₵ available</p>
+                    </div>
+                    <div class="bg-teal-100 rounded-full p-4">
+                        <i class="fas fa-briefcase-medical text-teal-600 text-2xl"></i>
                     </div>
                 </div>
             </div>
@@ -332,6 +346,7 @@
                 loadTodayStatus(),
                 loadMonthlyHours(),
                 loadLeaveBalance(),
+                loadMedicalEntitlement(),
                 loadPendingRequests(),
                 loadAttendanceData(),
                 loadAnnouncements(),
@@ -414,6 +429,21 @@
             } catch (error) {
                 console.error('Error loading leave balance:', error);
                 document.getElementById('leaveBalance').textContent = '--';
+            }
+        }
+
+        // ========================================
+        // LOAD MEDICAL ENTITLEMENT
+        // ========================================
+        async function loadMedicalEntitlement() {
+            try {
+                // Use Worker API
+                const data = await getEmployee(currentUser.id);
+                const medicalBalance = data.fields['Medical Entitlement'] !== undefined ? data.fields['Medical Entitlement'] : 0;
+                document.getElementById('medicalBalance').textContent = medicalBalance.toFixed(2);
+            } catch (error) {
+                console.error('Error loading medical entitlement:', error);
+                document.getElementById('medicalBalance').textContent = '--';
             }
         }
 

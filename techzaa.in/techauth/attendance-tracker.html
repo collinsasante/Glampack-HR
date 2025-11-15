@@ -210,7 +210,7 @@
                                 <div>
                                     <p class="text-sm text-gray-600">Late Arrivals</p>
                                     <p id="lateDays" class="text-2xl font-bold text-yellow-600">0</p>
-                                    <p class="text-xs text-gray-500 mt-1">After 9:00 AM</p>
+                                    <p class="text-xs text-gray-500 mt-1">After 8:30 AM</p>
                                 </div>
                                 <i class="fas fa-clock text-3xl text-yellow-600 opacity-80"></i>
                             </div>
@@ -677,6 +677,29 @@
             const datetime = getCurrentDateTime();
 
             try {
+                // Check if already checked in today FIRST
+                const existingRecord = await findTodayRecord();
+
+                if (existingRecord && existingRecord.fields['Check In']) {
+                    showMessage('You have already checked in today!', 'error');
+                    return;
+                }
+
+                // Check if late (after 8:30 AM)
+                const now = new Date();
+                const checkInHour = now.getHours();
+                const checkInMinute = now.getMinutes();
+                const isLate = checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
+
+                let lateReason = null;
+                if (isLate) {
+                    lateReason = prompt('You are checking in after 8:30 AM. Please provide a reason for late arrival:');
+                    if (!lateReason || lateReason.trim() === '') {
+                        showMessage('Late arrival reason is required to check in after 8:30 AM', 'error');
+                        return;
+                    }
+                }
+
                 showMessage('Getting your location...', 'info');
 
                 // Try to get user's location, but continue even if it fails
@@ -688,18 +711,15 @@
                     // Continue without location
                 }
 
-                // Check if already checked in today
-                const existingRecord = await findTodayRecord();
-
-                if (existingRecord && existingRecord.fields['Check In']) {
-                    showMessage('You have already checked in today!', 'error');
-                    return;
-                }
-
                 const fields = {
                     'Check In': datetime,
                     'Check In Location': locationString
                 };
+
+                // Add late reason if applicable
+                if (lateReason) {
+                    fields['Late Reason'] = lateReason.trim();
+                }
 
                 if (existingRecord) {
                     // Update existing record
@@ -1020,10 +1040,10 @@
                         totalMinutes += (h * 60 + m);
                         daysWithHours++;
 
-                        // Check if late (after 9:00 AM)
+                        // Check if late (after 8:30 AM)
                         const checkInHour = parseInt(checkIn.split(':')[0]);
                         const checkInMinute = parseInt(checkIn.split(':')[1]);
-                        if (checkInHour > 9 || (checkInHour === 9 && checkInMinute > 0)) {
+                        if (checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30)) {
                             status = 'Late';
                             statusClass = 'bg-orange-100 text-orange-800';
                             lateCount++;
@@ -1115,19 +1135,8 @@
         // CALCULATE WORKING DAYS IN MONTH
         // ========================================
         function getWorkingDaysInMonth(year, month) {
-            const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
-            let workingDays = 0;
-
-            for (let day = firstDay; day <= lastDay; day.setDate(day.getDate() + 1)) {
-                const dayOfWeek = day.getDay();
-                // Count Monday (1) to Friday (5) as working days
-                if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-                    workingDays++;
-                }
-            }
-
-            return workingDays;
+            // Fixed to 24 working days per month as per company policy
+            return 24;
         }
 
         // ========================================

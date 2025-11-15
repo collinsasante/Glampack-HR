@@ -8,12 +8,22 @@
     "watch": "./tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch",
     "dev": "./tailwindcss -i ./src/input.css -o ./assets/css/tailwind.css --watch"
   },
-  "keywords": ["hr", "management", "attendance", "leave", "airtable", "tailwind"],
+  "keywords": [
+    "hr",
+    "management",
+    "attendance",
+    "leave",
+    "airtable",
+    "tailwind"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "autoprefixer": "^10.4.21",
     "postcss": "^8.5.6",
     "tailwindcss": "^4.1.17"
+  },
+  "dependencies": {
+    "firebase": "^12.6.0"
   }
 }
