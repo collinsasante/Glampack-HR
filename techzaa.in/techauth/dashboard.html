@@ -484,7 +484,8 @@
         // RENDER ATTENDANCE CHART
         // ========================================
         function renderAttendanceChart(records) {
-            const ctx = document.getElementById('attendanceChart').getContext('2d');
+            const ctx = document.getElementById('attendanceChart');
+            if (!ctx) return;
 
             // Process data - group by week
             const weeklyData = {};
@@ -496,7 +497,15 @@
                 if (!weeklyData[weekLabel]) {
                     weeklyData[weekLabel] = 0;
                 }
-                weeklyData[weekLabel] += parseFloat(record.fields['Hours Worked']) || 0;
+
+                // Calculate hours from Check In and Check Out times
+                const checkIn = record.fields['Check In'];
+                const checkOut = record.fields['Check Out'];
+
+                if (checkIn && checkOut) {
+                    const hours = calculateHoursFromTimes(checkIn, checkOut);
+                    weeklyData[weekLabel] += hours;
+                }
             });
 
             // Get last 8 weeks
@@ -507,7 +516,7 @@
                 attendanceChart.destroy();
             }
 
-            attendanceChart = new Chart(ctx, {
+            attendanceChart = new Chart(ctx.getContext('2d'), {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -547,6 +556,19 @@
                     }
                 }
             });
+        }
+
+        // Calculate hours from datetime strings
+        function calculateHoursFromTimes(checkIn, checkOut) {
+            try {
+                const start = new Date(checkIn);
+                const end = new Date(checkOut);
+                const diff = end - start;
+                const hours = diff / (1000 * 60 * 60);
+                return hours > 0 ? hours : 0;
+            } catch (error) {
+                return 0;
+            }
         }
 
         function getWeekStart(date) {
@@ -638,15 +660,22 @@
 
                 recentAttendance.forEach(record => {
                     const date = record.fields['Date'];
-                    const checkIn = record.fields['Check-in Time'];
-                    const checkOut = record.fields['Check-out Time'];
-                    activities.push({
-                        type: 'attendance',
-                        date: date,
-                        icon: 'fa-clock',
-                        color: 'text-green-600',
-                        text: checkOut ? `Checked in at ${checkIn}, out at ${checkOut}` : `Checked in at ${checkIn}`
-                    });
+                    const checkIn = record.fields['Check In'];
+                    const checkOut = record.fields['Check Out'];
+
+                    if (checkIn) {
+                        // Extract time from datetime
+                        const checkInTime = new Date(checkIn).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                        const checkOutTime = checkOut ? new Date(checkOut).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) : null;
+
+                        activities.push({
+                            type: 'attendance',
+                            date: date,
+                            icon: 'fa-clock',
+                            color: 'text-green-600',
+                            text: checkOutTime ? `Checked in at ${checkInTime}, out at ${checkOutTime}` : `Checked in at ${checkInTime}`
+                        });
+                    }
                 });
 
                 // Get recent leave requests using Worker API
