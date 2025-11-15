@@ -1,14 +1,13 @@
 <html lang="en">
-  <!-- Mirrored from techzaa.in/packaging-glamour-hr/signin-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 01 Nov 2025 16:44:54 GMT -->
   <head>
     <meta charset="utf-8" />
-    <title>Packaging Glamour HR</title>
+    <title>Sign In - Packaging Glamour HR</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta
-      content="Packaging Glamour HR - Authentication Pages Tailwind CSS 3 HTML Template, It’s fully responsive and built Tailwind v3"
+      content="Packaging Glamour HR - Modern Authentication System"
       name="description"
     />
-    <meta content="Techzaa" name="author" />
+    <meta content="Packaging Glamour" name="author" />
 
     <!-- favicon -->
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
@@ -22,317 +21,289 @@
       referrerpolicy="no-referrer"
     />
 
-    <!-- Style css -->
-    <link href="assets/css/style.min.css" rel="stylesheet" type="text/css" />
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Configuration Script - Load FIRST -->
     <script src="config-worker.js?v=2"></script>
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
-    <!-- Mobile Responsive Styles -->
     <style>
-      @media (max-width: 768px) {
-        /* Make section min-height instead of h-screen for better mobile scrolling */
-        section {
-          min-height: 100vh !important;
-          height: auto !important;
-          padding: 2rem 0;
-        }
+      * {
+        font-family: 'Inter', sans-serif;
+      }
 
-        /* Adjust container padding */
-        .container {
-          padding-left: 1rem !important;
-          padding-right: 1rem !important;
-        }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+      }
 
-        /* Force single column layout on mobile */
-        .grid.xl\:grid-cols-5,
-        .grid.lg\:grid-cols-3,
-        .grid.md\:grid-cols-2 {
-          grid-template-columns: 1fr !important;
-        }
+      .glass-card {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      }
 
-        /* Hide or minimize the side panel on mobile */
-        .xl\:col-span-2,
-        .lg\:col-span-1 {
-          display: none;
-        }
+      .input-field {
+        transition: all 0.3s ease;
+        border: 2px solid #e5e7eb;
+      }
 
-        /* Full width for form section */
-        .xl\:col-span-3,
-        .lg\:col-span-2 {
-          grid-column: span 1 !important;
-        }
+      .input-field:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+        outline: none;
+      }
 
-        /* Reduce padding on mobile */
-        .lg\:m-10 {
-          margin: 1.5rem !important;
-        }
+      .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        transition: all 0.3s ease;
+      }
 
-        .m-5 {
-          margin: 1rem !important;
-        }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+      }
 
-        /* Smaller headings */
-        .text-3xl\/tight {
-          font-size: 1.5rem !important;
-          line-height: 1.3 !important;
-        }
+      .btn-primary:active {
+        transform: translateY(0);
+      }
 
-        /* Adjust social icons */
-        .flex.items-center.justify-center.gap-2 {
-          gap: 0.5rem !important;
-        }
+      .role-selector {
+        transition: all 0.3s ease;
+      }
 
-        .h-10.w-10 {
-          height: 2rem !important;
-          width: 2rem !important;
-        }
+      .role-selector input:checked + label {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+      }
 
-        /* Input fields */
-        input,
-        button {
-          font-size: 0.875rem !important;
-        }
+      .fade-in {
+        animation: fadeIn 0.6s ease-in;
+      }
 
-        /* Buttons */
-        button.bg-red-600 {
-          padding: 0.75rem 2rem !important;
-          font-size: 0.875rem !important;
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
         }
-
-        /* Remember me checkbox */
-        .flex.items-center.gap-2 {
-          font-size: 0.875rem;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
 
-      @media (max-width: 480px) {
-        /* Extra small devices */
-        .container {
-          padding: 0.5rem !important;
-        }
-
-        .m-5 {
-          margin: 0.75rem !important;
-        }
-
-        .text-3xl\/tight {
-          font-size: 1.25rem !important;
-        }
-
-        /* Stack remember me and forgot password vertically */
-        .flex.items-center.justify-between {
-          flex-direction: column;
-          align-items: flex-start !important;
-          gap: 0.5rem;
-        }
+      .logo-animation {
+        animation: float 3s ease-in-out infinite;
       }
 
-      /* Show mobile-friendly nav on small screens */
-      @media (max-width: 768px) {
-        /* Add a simple header for mobile */
-        .mobile-header {
-          display: block;
-          text-align: center;
-          padding: 1rem;
-          background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-          color: white;
-          font-weight: 600;
-          margin-bottom: 1rem;
-          border-radius: 0.5rem;
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0px);
         }
-      }
-
-      @media (min-width: 769px) {
-        .mobile-header {
-          display: none;
+        50% {
+          transform: translateY(-10px);
         }
       }
     </style>
   </head>
-  <body>
-    <section
-      class="h-screen flex items-center justify-center bg-no-repeat inset-0 bg-cover bg-center"
-      style="background-image: url('assets/images/bg-2.png');"
-    >
-      <div class="container 2xl:px-80 xl:px-52">
-        <div
-          class="bg-white rounded-lg overflow-hidden"
-          style="box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px"
-        >
-          <div class="grid xl:grid-cols-5 lg:grid-cols-3 md:grid-cols-2 gap-6">
-            <div class="xl:col-span-2 lg:col-span-1">
-              <div
-                class="gap-10 h-full w-full p-7 space-y-6 lg:space-y-0 flex flex-col justify-center items-center shadow-xl bg-red-600"
-              >
-                <!-- Centered Logo -->
-                <div class="flex justify-center items-center flex-1">
-                  <img
-                    src="assets/images/logo_red.png"
-                    alt="Packaging Glamour HR"
-                    class="h-24 w-auto brightness-0 invert"
-                  />
-                </div>
+  <body class="flex items-center justify-center min-h-screen p-4">
+    <!-- Main Container -->
+    <div class="w-full max-w-md fade-in">
+      <!-- Logo -->
+      <div class="text-center mb-8 logo-animation">
+        <img
+          src="assets/images/logo_red.png"
+          alt="Packaging Glamour HR"
+          class="h-16 mx-auto mb-4 drop-shadow-lg"
+        />
+        <h2 class="text-white text-2xl font-bold tracking-tight">Welcome Back</h2>
+        <p class="text-white/80 text-sm mt-2">Sign in to continue to your account</p>
+      </div>
 
-                <!-- Sign Up Button -->
-                <div class="mb-8">
-                  <a
-                    href="packaging-glamour-signup.html"
-                    class="bg-white text-red-600 font-semibold text-sm rounded-full transition-all duration-300 hover:bg-gray-100 hover:scale-105 focus:bg-gray-100 focus:ring-4 focus:ring-white/30 px-14 py-3 inline-block shadow-lg hover:shadow-xl"
-                    >Sign Up</a
-                  >
-                </div>
-              </div>
-            </div>
-
-            <div class="xl:col-span-3 lg:col-span-2 lg:m-10 m-5">
-              <div class="text-center">
-                <div>
-                  <h1 class="text-3xl/tight text-black mb-3">Sign In</h1>
-
-                 
-                  
-                <form id="loginForm" class="space-y-5 mt-10">
-                  <!-- Role Selector -->
-                  <div class="flex items-center justify-center gap-4 mb-4">
-                    <label class="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="role"
-                        value="Employee"
-                        checked
-                        class="mr-2 text-red-600 focus:ring-red-500"
-                      />
-                      <span class="text-sm font-medium text-black">
-                        <i class="fas fa-user mr-1"></i> Employee
-                      </span>
-                    </label>
-                    <label class="flex items-center cursor-pointer">
-                      <input
-                        type="radio"
-                        name="role"
-                        value="Admin"
-                        class="mr-2 text-red-600 focus:ring-red-500"
-                      />
-                      <span class="text-sm font-medium text-black">
-                        <i class="fas fa-user-shield mr-1"></i> Admin
-                      </span>
-                    </label>
-                  </div>
-
-                  <div class="relative">
-                    <input
-                      class="text-black border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
-                      type="email"
-                      id="email"
-                      name="email" 
-                      placeholder="Email"
-                      required
-                    />
-                    <div
-                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
-                    >
-                      <i class="fa-solid fa-envelope"></i>
-                    </div>
-                  </div>
-
-                  <div class="relative">
-                    <input
-                      class="text-black border-gray-300 focus:ring-0 focus:border-gray-400 text-sm rounded-lg py-2.5 px-4 w-full ps-11"
-                      type="password"
-                      id="pwd"
-                      name="pwd"
-                      placeholder="Password"
-                      required
-                    />
-                    <div
-                      class="absolute text-red-600 inset-y-0 start-0 flex items-center pointer-events-none z-20 ps-4"
-                    >
-                      <i class="fa-solid fa-lock"></i>
-                    </div>
-                  </div>
-
-                  <a
-                    href="packaging-glamour-forgot-password.html"
-                    class="text-black font-medium underline block"
-                    >Forget Your Password?</a
-                  >
-
-                  <div class="mt-8">
-                    <button
-                      type="submit"
-                      class="bg-red-600 text-black font-semibold text-sm rounded-full transition-all duration-300 hover:bg-red-700 hover:scale-105 focus:bg-red-700 focus:ring-4 focus:ring-red-500/30 px-14 py-3 shadow-lg hover:shadow-xl"
-                    >
-                      Sign In
-                    </button>
-                  </div>
-                </form>
-
-                <script>
-                  // Handle login form submission
-                  document
-                    .getElementById("loginForm")
-                    .addEventListener("submit", async function (e) {
-                      e.preventDefault();
-
-                      const email = document.getElementById("email").value.trim();
-                      const password = document.getElementById("pwd").value.trim();
-                      const selectedRole = document.querySelector(
-                        'input[name="role"]:checked'
-                      ).value;
-
-                      const success = await login(email, password);
-
-                      if (success) {
-                        // Get the logged-in user's actual role from Airtable
-                        const currentUser = getCurrentUser();
-
-                        // Verify role matches selection
-                        if (currentUser.role !== selectedRole) {
-                          showError(
-                            `Invalid credentials. This account is registered as ${currentUser.role}, not ${selectedRole}.`
-                          );
-                          logout(); // Log them out
-                          return;
-                        }
-
-                        showSuccess("Login successful! Redirecting...");
-                        setTimeout(() => {
-                          // Redirect based on role
-                          if (currentUser.role === "Admin") {
-                            window.location.href = "admin-dashboard.html";
-                          } else {
-                            window.location.href = "dashboard.html";
-                          }
-                        }, 1000);
-                      }
-                    });
-
-                  // Check if already logged in
-                  if (isLoggedIn()) {
-                    const currentUser = getCurrentUser();
-                    if (currentUser.role === "Admin") {
-                      window.location.href = "admin-dashboard.html";
-                    } else {
-                      window.location.href = "dashboard.html";
-                    }
-                  }
-
-                  // Pre-fill email if available
-                  const lastUser = localStorage.getItem("lastUser");
-                  if (lastUser) {
-                    document.getElementById("email").value = lastUser;
-                  }
-                </script>
-              </div>
-            </div>
+      <!-- Sign In Card -->
+      <div class="glass-card rounded-2xl p-8 shadow-2xl">
+        <!-- Role Selector -->
+        <div class="flex gap-3 mb-6">
+          <div class="role-selector flex-1">
+            <input
+              type="radio"
+              id="roleEmployee"
+              name="role"
+              value="Employee"
+              checked
+              class="hidden"
+            />
+            <label
+              for="roleEmployee"
+              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
+            >
+              <i class="fas fa-user"></i>
+              <span>Employee</span>
+            </label>
+          </div>
+          <div class="role-selector flex-1">
+            <input
+              type="radio"
+              id="roleAdmin"
+              name="role"
+              value="Admin"
+              class="hidden"
+            />
+            <label
+              for="roleAdmin"
+              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
+            >
+              <i class="fas fa-user-shield"></i>
+              <span>Admin</span>
+            </label>
           </div>
         </div>
-      </div>
-    </section>
-  </body>
 
-  <!-- Mirrored from techzaa.in/packaging-glamour-hr/signin-2.html by HTTrack Website Copier/3.x [XR&CO'2014], Sat, 01 Nov 2025 16:44:54 GMT -->
+        <!-- Sign In Form -->
+        <form id="loginForm" class="space-y-5">
+          <!-- Email Field -->
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-2">
+              Email Address
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-envelope text-gray-400"></i>
+              </div>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                class="input-field w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-900 placeholder-gray-400"
+              />
+            </div>
+          </div>
+
+          <!-- Password Field -->
+          <div>
+            <label for="pwd" class="block text-sm font-medium text-gray-700 mb-2">
+              Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-lock text-gray-400"></i>
+              </div>
+              <input
+                type="password"
+                id="pwd"
+                name="pwd"
+                placeholder="Enter your password"
+                required
+                class="input-field w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-900 placeholder-gray-400"
+              />
+            </div>
+          </div>
+
+          <!-- Forgot Password Link -->
+          <div class="text-right">
+            <a
+              href="packaging-glamour-forgot-password.html"
+              class="text-sm font-medium text-purple-600 hover:text-purple-700 transition-colors"
+            >
+              Forgot password?
+            </a>
+          </div>
+
+          <!-- Sign In Button -->
+          <button
+            type="submit"
+            class="btn-primary w-full py-3.5 text-white font-semibold rounded-xl shadow-lg"
+          >
+            Sign In
+          </button>
+        </form>
+
+        <!-- Divider -->
+        <div class="mt-8 text-center">
+          <p class="text-sm text-gray-600">
+            Don't have an account?
+            <a
+              href="packaging-glamour-signup.html"
+              class="font-semibold text-purple-600 hover:text-purple-700 transition-colors ml-1"
+            >
+              Sign up
+            </a>
+          </p>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="mt-6 text-center">
+        <p class="text-white/60 text-xs">
+          &copy; 2024 Packaging Glamour. All rights reserved.
+        </p>
+      </div>
+    </div>
+
+    <script>
+      // Handle login form submission
+      document
+        .getElementById("loginForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          const email = document.getElementById("email").value.trim();
+          const password = document.getElementById("pwd").value.trim();
+          const selectedRole = document.querySelector(
+            'input[name="role"]:checked'
+          ).value;
+
+          const success = await login(email, password);
+
+          if (success) {
+            // Get the logged-in user's actual role from Airtable
+            const currentUser = getCurrentUser();
+
+            // Verify role matches selection
+            if (currentUser.role !== selectedRole) {
+              showError(
+                `Invalid credentials. This account is registered as ${currentUser.role}, not ${selectedRole}.`
+              );
+              logout(); // Log them out
+              return;
+            }
+
+            showSuccess("Login successful! Redirecting...");
+            setTimeout(() => {
+              // Redirect based on role
+              if (currentUser.role === "Admin") {
+                window.location.href = "admin-dashboard.html";
+              } else {
+                window.location.href = "dashboard.html";
+              }
+            }, 1000);
+          }
+        });
+
+      // Check if already logged in
+      if (isLoggedIn()) {
+        const currentUser = getCurrentUser();
+        if (currentUser.role === "Admin") {
+          window.location.href = "admin-dashboard.html";
+        } else {
+          window.location.href = "dashboard.html";
+        }
+      }
+
+      // Pre-fill email if available
+      const lastUser = localStorage.getItem("lastUser");
+      if (lastUser) {
+        document.getElementById("email").value = lastUser;
+      }
+    </script>
+  </body>
 </html>
