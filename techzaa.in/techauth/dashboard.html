@@ -799,6 +799,27 @@
             renderAttendanceChart(filteredRecords);
         }
 
+        // Listen for check-in/check-out events from other tabs/pages
+        window.addEventListener('storage', function(e) {
+            if (e.key && e.key.startsWith('attendance_session_')) {
+                // Attendance record updated, refresh dashboard
+                loadTodayStatus();
+                loadAttendanceData();
+            }
+        });
+
+        // Also listen for focus event (when user navigates back to dashboard)
+        let lastFocusTime = Date.now();
+        window.addEventListener('focus', function() {
+            const now = Date.now();
+            // Only reload if it's been more than 2 seconds since last focus
+            if (now - lastFocusTime > 2000) {
+                loadTodayStatus();
+                loadAttendanceData();
+            }
+            lastFocusTime = now;
+        });
+
         // Initialize dashboard on load
         initializeDashboard();
     </script>
