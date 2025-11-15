@@ -40,8 +40,24 @@
       }
 
       body {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-image: url('assets/images/bg-2.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
         min-height: 100vh;
+        position: relative;
+      }
+
+      body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.85) 0%, rgba(118, 75, 162, 0.85) 100%);
+        z-index: -1;
       }
 
       .glass-card {
@@ -129,43 +145,6 @@
 
       <!-- Sign In Card -->
       <div class="glass-card rounded-2xl p-8 shadow-2xl">
-        <!-- Role Selector -->
-        <div class="flex gap-3 mb-6">
-          <div class="role-selector flex-1">
-            <input
-              type="radio"
-              id="roleEmployee"
-              name="role"
-              value="Employee"
-              checked
-              class="hidden"
-            />
-            <label
-              for="roleEmployee"
-              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
-            >
-              <i class="fas fa-user"></i>
-              <span>Employee</span>
-            </label>
-          </div>
-          <div class="role-selector flex-1">
-            <input
-              type="radio"
-              id="roleAdmin"
-              name="role"
-              value="Admin"
-              class="hidden"
-            />
-            <label
-              for="roleAdmin"
-              class="flex items-center justify-center gap-2 py-3 px-4 rounded-xl cursor-pointer bg-gray-100 text-gray-700 font-medium text-sm border-2 border-transparent hover:border-purple-200 transition-all"
-            >
-              <i class="fas fa-user-shield"></i>
-              <span>Admin</span>
-            </label>
-          </div>
-        </div>
-
         <!-- Sign In Form -->
         <form id="loginForm" class="space-y-5">
           <!-- Email Field -->
@@ -203,8 +182,15 @@
                 name="pwd"
                 placeholder="Enter your password"
                 required
-                class="input-field w-full pl-12 pr-4 py-3.5 rounded-xl text-gray-900 placeholder-gray-400"
+                class="input-field w-full pl-12 pr-12 py-3.5 rounded-xl text-gray-900 placeholder-gray-400"
               />
+              <button
+                type="button"
+                onclick="togglePasswordVisibility('pwd', 'togglePwdIcon')"
+                class="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <i id="togglePwdIcon" class="fas fa-eye"></i>
+              </button>
             </div>
           </div>
 
@@ -250,6 +236,22 @@
     </div>
 
     <script>
+      // Toggle password visibility
+      function togglePasswordVisibility(inputId, iconId) {
+        const input = document.getElementById(inputId);
+        const icon = document.getElementById(iconId);
+
+        if (input.type === 'password') {
+          input.type = 'text';
+          icon.classList.remove('fa-eye');
+          icon.classList.add('fa-eye-slash');
+        } else {
+          input.type = 'password';
+          icon.classList.remove('fa-eye-slash');
+          icon.classList.add('fa-eye');
+        }
+      }
+
       // Handle login form submission
       document
         .getElementById("loginForm")
@@ -258,9 +260,6 @@
 
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("pwd").value.trim();
-          const selectedRole = document.querySelector(
-            'input[name="role"]:checked'
-          ).value;
 
           const success = await login(email, password);
 
@@ -268,18 +267,9 @@
             // Get the logged-in user's actual role from Airtable
             const currentUser = getCurrentUser();
 
-            // Verify role matches selection
-            if (currentUser.role !== selectedRole) {
-              showError(
-                `Invalid credentials. This account is registered as ${currentUser.role}, not ${selectedRole}.`
-              );
-              logout(); // Log them out
-              return;
-            }
-
             showSuccess("Login successful! Redirecting...");
             setTimeout(() => {
-              // Redirect based on role
+              // Redirect based on role from Airtable
               if (currentUser.role === "Admin") {
                 window.location.href = "admin-dashboard.html";
               } else {

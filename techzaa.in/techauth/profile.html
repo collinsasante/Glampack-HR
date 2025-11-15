@@ -305,8 +305,10 @@
                             <div class="text-sm text-yellow-700">
                                 <p class="font-semibold mb-1">Password Requirements:</p>
                                 <ul class="list-disc list-inside space-y-1">
-                                    <li>Minimum 6 characters</li>
-                                    <li>Use a combination of letters and numbers for better security</li>
+                                    <li>Minimum 8 characters</li>
+                                    <li>At least one uppercase letter</li>
+                                    <li>At least one number</li>
+                                    <li>At least one special character (!@#$%^&*)</li>
                                 </ul>
                             </div>
                         </div>
@@ -786,8 +788,9 @@
             const newPass = document.getElementById('newPassword').value.trim();
             const confirm = document.getElementById('confirmPassword').value.trim();
 
-            // Validation
-            if (current !== employeeData['Password']) {
+            // Hash the current password and compare with stored hash
+            const currentPasswordHash = await hashPassword(current);
+            if (currentPasswordHash !== employeeData['Password']) {
                 showNotification('Current password is incorrect', 'error');
                 return;
             }
@@ -797,8 +800,18 @@
                 return;
             }
 
-            if (newPass.length < 6) {
-                showNotification('Password must be at least 6 characters long', 'error');
+            if (newPass.length < 8) {
+                showNotification('Password must be at least 8 characters long', 'error');
+                return;
+            }
+
+            // Strong password validation
+            const hasUppercase = /[A-Z]/.test(newPass);
+            const hasNumber = /[0-9]/.test(newPass);
+            const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPass);
+
+            if (!hasUppercase || !hasNumber || !hasSymbol) {
+                showNotification('Password must contain at least one uppercase letter, number, and special character', 'error');
                 return;
             }
 
@@ -813,8 +826,11 @@
             changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
 
             try {
+                // Hash the new password before storing
+                const newPasswordHash = await hashPassword(newPass);
+
                 await updateEmployee(currentUser.id, {
-                    'Password': newPass
+                    'Password': newPasswordHash
                 });
 
                 showNotification('Password updated successfully!', 'success');

@@ -5,6 +5,19 @@
 // Make sure to include <script src="config.js"></script> before this file
 
 // ========================================
+// PASSWORD HASHING UTILITY
+// ========================================
+async function hashPassword(password) {
+    // Simple SHA-256 hashing using Web Crypto API
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
+// ========================================
 // LOGIN FUNCTION
 // ========================================
 async function login(email, password) {
@@ -26,7 +39,7 @@ async function login(email, password) {
         const employee = data.records[0];
 
         // Check if employee has a password set
-        const storedPassword = employee.fields['Password'];
+        const storedPasswordHash = employee.fields['Password'];
 
         // Validate password
         if (!password || password.trim() === '') {
@@ -35,20 +48,18 @@ async function login(email, password) {
             return false;
         }
 
-        // Trim both passwords for comparison to handle any whitespace issues
-        const trimmedPassword = password.trim();
-        const trimmedStoredPassword = storedPassword ? storedPassword.trim() : '';
-
-        // Check if password matches
-        if (storedPassword && trimmedStoredPassword !== trimmedPassword) {
-            showError('Invalid email or password');
+        // If no password is set in Airtable, show error
+        if (!storedPasswordHash) {
+            showError('Account not set up. Please sign up first.');
             showLoading(false);
             return false;
         }
 
-        // If no password is set in Airtable, show error
-        if (!storedPassword) {
-            showError('Account not set up. Please sign up first.');
+        // Hash the entered password and compare with stored hash
+        const enteredPasswordHash = await hashPassword(password.trim());
+
+        if (storedPasswordHash !== enteredPasswordHash) {
+            showError('Invalid email or password');
             showLoading(false);
             return false;
         }
@@ -100,11 +111,14 @@ async function signup(fullName, email, status, password, role = 'Employee') {
         // Generate unique Employee ID
         const empId = 'EMP' + Math.random().toString(36).substr(2, 6).toUpperCase();
 
-        // Create new employee record with password and role using Worker API
+        // Hash the password before storing
+        const passwordHash = await hashPassword(password);
+
+        // Create new employee record with hashed password and role using Worker API
         const createData = await createEmployee({
             'Full Name': fullName,
             'Email': email,
-            'Password': password,
+            'Password': passwordHash,
             'Role': role,
             'Annual Leave Balance': 20,  // Default leave balance for new employees
             'Status': status
