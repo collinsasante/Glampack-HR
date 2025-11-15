@@ -12,7 +12,8 @@ const API_CONFIG = {
         attendance: '/api/attendance',
         leaveRequests: '/api/leave-requests',
         announcements: '/api/announcements',
-        payroll: '/api/payroll'
+        payroll: '/api/payroll',
+        medicalClaims: '/api/medical-claims'
     }
 };
 
@@ -266,6 +267,41 @@ async function updatePayroll(recordId, fields) {
 }
 
 // ========================================
+// MEDICAL CLAIMS API
+// ========================================
+
+/**
+ * Get medical claims
+ * @param {string} filterFormula - Airtable filter formula (optional)
+ * @returns {Promise<object>} Medical claim records
+ */
+async function getMedicalClaims(filterFormula = null) {
+    const queryParams = filterFormula
+        ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
+        : '';
+    return workerRequest(API_CONFIG.endpoints.medicalClaims, 'GET', null, queryParams);
+}
+
+/**
+ * Create a medical claim
+ * @param {object} fields - Medical claim data
+ * @returns {Promise<object>} Created medical claim record
+ */
+async function createMedicalClaim(fields) {
+    return workerRequest(API_CONFIG.endpoints.medicalClaims, 'POST', { fields });
+}
+
+/**
+ * Update a medical claim (e.g., approve/reject)
+ * @param {string} recordId - Airtable record ID
+ * @param {object} fields - Updated medical claim data
+ * @returns {Promise<object>} Updated medical claim record
+ */
+async function updateMedicalClaim(recordId, fields) {
+    return workerRequest(`${API_CONFIG.endpoints.medicalClaims}/${recordId}`, 'PATCH', { fields });
+}
+
+// ========================================
 // IP LOOKUP API
 // ========================================
 
@@ -303,7 +339,8 @@ const AIRTABLE_CONFIG = {
         attendance: 'Attendance',
         leaveRequests: 'Leave Requests',
         announcements: 'Announcements',
-        payroll: 'Payroll'
+        payroll: 'Payroll',
+        medicalClaims: 'Medical Claims'
     }
 };
 

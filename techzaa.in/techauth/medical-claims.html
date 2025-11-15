@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Medical Claims - Packaging Glamour HR</title>
+    <link rel="shortcut icon" href="assets/images/favicon.ico" />
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Configuration Script -->
+    <script src="config-worker.js?v=2"></script>
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
+                    <span class="text-xl font-bold text-gray-800">Medical Claims</span>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div id="desktopMenu" class="flex items-center space-x-4">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-chart-line mr-1"></i> Dashboard
+                    </a>
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-clock mr-1"></i> Attendance
+                    </a>
+                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="medical-claims.html" class="text-red-600 font-semibold">
+                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+                    </a>
+                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-user mr-1"></i> Profile
+                    </a>
+                    <button onclick="handleSignOut()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+        <!-- Medical Allowance Balance Card -->
+        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+            <div class="flex items-center justify-between">
+                <div>
+                    <h3 class="text-gray-600 text-sm font-medium">Annual Medical Allowance</h3>
+                    <p id="medicalBalance" class="text-3xl font-bold text-green-600 mt-1">GH₵1,000.00</p>
+                    <p class="text-sm text-gray-500 mt-1">Remaining balance for <span id="currentYear"></span></p>
+                </div>
+                <div class="bg-green-100 p-4 rounded-full">
+                    <i class="fas fa-heartbeat text-green-600 text-3xl"></i>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <!-- Submit New Claim Form -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-plus-circle text-red-600 mr-2"></i>Submit New Claim
+                </h2>
+
+                <form id="medicalClaimForm" class="space-y-4">
+                    <!-- Date of Visit -->
+                    <div>
+                        <label for="visitDate" class="block text-sm font-medium text-gray-700 mb-2">
+                            Date of Visit <span class="text-red-600">*</span>
+                        </label>
+                        <input type="date" id="visitDate" required
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+
+                    <!-- Hospital/Clinic Name -->
+                    <div>
+                        <label for="hospitalName" class="block text-sm font-medium text-gray-700 mb-2">
+                            Hospital/Clinic Name <span class="text-red-600">*</span>
+                        </label>
+                        <input type="text" id="hospitalName" required placeholder="e.g., Ridge Hospital"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+
+                    <!-- Amount Spent -->
+                    <div>
+                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
+                            Amount Spent (GH₵) <span class="text-red-600">*</span>
+                        </label>
+                        <input type="number" id="amount" required min="0" step="0.01" placeholder="0.00"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
+                            Description of Treatment <span class="text-red-600">*</span>
+                        </label>
+                        <textarea id="description" required rows="4" placeholder="Describe the medical treatment received..."
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
+                    </div>
+
+                    <!-- Receipt Upload -->
+                    <div>
+                        <label for="receipt" class="block text-sm font-medium text-gray-700 mb-2">
+                            Upload Receipt/Proof <span class="text-red-600">*</span>
+                        </label>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors">
+                            <input type="file" id="receipt" required accept="image/*,.pdf" class="hidden">
+                            <label for="receipt" class="cursor-pointer">
+                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
+                                <p class="text-sm text-gray-600">Click to upload receipt</p>
+                                <p class="text-xs text-gray-500 mt-1">PDF or Image files (Max 5MB)</p>
+                            </label>
+                            <div id="fileInfo" class="mt-3 hidden">
+                                <p class="text-sm text-green-600"><i class="fas fa-check-circle mr-1"></i><span id="fileName"></span></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Submit Button -->
+                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors">
+                        <i class="fas fa-paper-plane mr-2"></i>Submit Claim
+                    </button>
+                </form>
+            </div>
+
+            <!-- Claims History -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-6">
+                    <i class="fas fa-history text-red-600 mr-2"></i>My Claims History
+                </h2>
+
+                <div id="claimsHistory" class="space-y-4">
+                    <!-- Claims will be loaded here -->
+                    <div class="text-center py-8 text-gray-400">
+                        <i class="fas fa-inbox text-5xl mb-3"></i>
+                        <p>No claims submitted yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentEmployee = null;
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', async function() {
+            // Check authentication
+            currentEmployee = checkAuth();
+            if (!currentEmployee) {
+                window.location.href = 'packaging-glamour-signin.html';
+                return;
+            }
+
+            // Set current year
+            document.getElementById('currentYear').textContent = new Date().getFullYear();
+
+            // Load medical balance and claims
+            await loadMedicalBalance();
+            await loadClaimsHistory();
+
+            // File upload preview
+            document.getElementById('receipt').addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    if (file.size > 5 * 1024 * 1024) {
+                        showMessage('File size must be less than 5MB', 'error');
+                        e.target.value = '';
+                        return;
+                    }
+                    document.getElementById('fileName').textContent = file.name;
+                    document.getElementById('fileInfo').classList.remove('hidden');
+                }
+            });
+
+            // Set max date to today
+            document.getElementById('visitDate').max = new Date().toISOString().split('T')[0];
+        });
+
+        // Load medical balance
+        async function loadMedicalBalance() {
+            try {
+                const filterFormula = `AND({Email} = '${currentEmployee.email}', YEAR({Date}) = ${new Date().getFullYear()})`;
+                const data = await getMedicalClaims(filterFormula);
+
+                const approvedClaims = data.records?.filter(r => r.fields.Status === 'Approved') || [];
+                const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields.Amount || 0), 0);
+                const remaining = 1000 - totalSpent;
+
+                document.getElementById('medicalBalance').textContent = `GH₵${remaining.toFixed(2)}`;
+
+                if (remaining < 100) {
+                    document.getElementById('medicalBalance').classList.remove('text-green-600');
+                    document.getElementById('medicalBalance').classList.add('text-red-600');
+                }
+            } catch (error) {
+                console.error('Error loading medical balance:', error);
+            }
+        }
+
+        // Load claims history
+        async function loadClaimsHistory() {
+            try {
+                const filterFormula = `{Email} = '${currentEmployee.email}'`;
+                const data = await getMedicalClaims(filterFormula);
+                const claims = data.records || [];
+
+                const historyDiv = document.getElementById('claimsHistory');
+
+                if (claims.length === 0) {
+                    historyDiv.innerHTML = `
+                        <div class="text-center py-8 text-gray-400">
+                            <i class="fas fa-inbox text-5xl mb-3"></i>
+                            <p>No claims submitted yet</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                historyDiv.innerHTML = claims.map(claim => {
+                    const fields = claim.fields;
+                    const statusColors = {
+                        'Pending': 'bg-yellow-100 text-yellow-800',
+                        'Approved': 'bg-green-100 text-green-800',
+                        'Rejected': 'bg-red-100 text-red-800'
+                    };
+
+                    return `
+                        <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                            <div class="flex items-start justify-between mb-2">
+                                <div>
+                                    <h3 class="font-semibold text-gray-800">${fields['Hospital Name'] || 'N/A'}</h3>
+                                    <p class="text-sm text-gray-600">${new Date(fields.Date).toLocaleDateString()}</p>
+                                </div>
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[fields.Status] || 'bg-gray-100 text-gray-800'}">
+                                    ${fields.Status || 'Pending'}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-700 mb-2">${fields.Description || 'No description'}</p>
+                            <div class="flex items-center justify-between text-sm">
+                                <span class="font-semibold text-red-600">GH₵${(fields.Amount || 0).toFixed(2)}</span>
+                                ${fields.Receipt ? `<a href="${fields.Receipt[0].url}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt mr-1"></i>View Receipt</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Error loading claims:', error);
+                showMessage('Failed to load claims history', 'error');
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('medicalClaimForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const submitBtn = e.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+
+            try {
+                const visitDate = document.getElementById('visitDate').value;
+                const hospitalName = document.getElementById('hospitalName').value;
+                const amount = parseFloat(document.getElementById('amount').value);
+                const description = document.getElementById('description').value;
+                const receiptFile = document.getElementById('receipt').files[0];
+
+                if (!receiptFile) {
+                    throw new Error('Please upload a receipt');
+                }
+
+                // Convert file to base64
+                const base64Receipt = await fileToBase64(receiptFile);
+
+                // Create claim record
+                const claimFields = {
+                    'Email': currentEmployee.email,
+                    'Employee Name': currentEmployee.fullName,
+                    'Date': visitDate,
+                    'Hospital Name': hospitalName,
+                    'Amount': amount,
+                    'Description': description,
+                    'Status': 'Pending',
+                    'Submitted Date': new Date().toISOString(),
+                    'Receipt': [{
+                        url: base64Receipt,
+                        filename: receiptFile.name
+                    }]
+                };
+
+                await createMedicalClaim(claimFields);
+
+                showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
+
+                // Reset form
+                e.target.reset();
+                document.getElementById('fileInfo').classList.add('hidden');
+
+                // Reload claims and balance
+                await loadMedicalBalance();
+                await loadClaimsHistory();
+
+            } catch (error) {
+                console.error('Error submitting claim:', error);
+                showMessage(error.message || 'Failed to submit claim. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Claim';
+            }
+        });
+
+        // Convert file to base64
+        function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Show message
+        function showMessage(message, type) {
+            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
+            const div = document.createElement('div');
+            div.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in`;
+            div.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle mr-2"></i>${message}`;
+            document.body.appendChild(div);
+            setTimeout(() => div.remove(), 5000);
+        }
+    </script>
+</body>
+</html>
