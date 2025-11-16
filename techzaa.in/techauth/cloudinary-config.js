@@ -24,13 +24,13 @@ async function getCloudinaryConfig() {
 }
 
 /**
- * Upload a file to Cloudinary
+ * Upload a file to Cloudinary via Worker proxy
  * @param {File} file - The file to upload (image or PDF)
  * @param {Function} onProgress - Optional callback for upload progress
  * @returns {Promise<object>} Upload result with URL and public_id
  */
 async function uploadToCloudinary(file, onProgress = null) {
-  // Fetch config from backend first
+  // Fetch config from backend first (to ensure folder is set correctly)
   const config = await getCloudinaryConfig();
 
   // Validate file
@@ -55,14 +55,11 @@ async function uploadToCloudinary(file, onProgress = null) {
   // Create form data
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", config.uploadPreset);
   formData.append("folder", config.folder);
-
-  // Add tags for organization
   formData.append("tags", "medical-receipt,hr-system");
 
-  // Build upload URL
-  const uploadUrl = `${config.apiUrl}/${config.cloudName}/auto/upload`;
+  // Upload via Worker proxy (no direct Cloudinary access due to CSP)
+  const uploadUrl = `${API_CONFIG.workerUrl}/api/cloudinary/upload`;
 
   try {
     // Create XMLHttpRequest for progress tracking
@@ -84,17 +81,24 @@ async function uploadToCloudinary(file, onProgress = null) {
         if (xhr.status === 200) {
           const response = JSON.parse(xhr.responseText);
           resolve({
-            url: response.secure_url,
-            publicId: response.public_id,
+            url: response.url,
+            publicId: response.publicId,
             format: response.format,
-            resourceType: response.resource_type,
+            resourceType: response.resourceType,
             bytes: response.bytes,
             width: response.width,
             height: response.height,
-            created: response.created_at,
+            created: response.created,
           });
         } else {
-          reject(new Error(`Upload failed with status ${xhr.status}`));
+          let errorMsg = `Upload failed with status ${xhr.status}`;
+          try {
+            const errorData = JSON.parse(xhr.responseText);
+            if (errorData.message) errorMsg = errorData.message;
+          } catch (e) {
+            // Use default message
+          }
+          reject(new Error(errorMsg));
         }
       });
 
@@ -111,7 +115,7 @@ async function uploadToCloudinary(file, onProgress = null) {
         reject(new Error("Upload cancelled"));
       });
 
-      // Send request
+      // Send request to Worker proxy
       xhr.open("POST", uploadUrl);
       xhr.send(formData);
     });

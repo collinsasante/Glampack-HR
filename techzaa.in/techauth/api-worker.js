@@ -53,6 +53,8 @@ export default {
         return handleEmergencyContacts(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path === '/api/cloudinary/config') {
         return handleCloudinaryConfig(env, corsHeaders);
+      } else if (path === '/api/cloudinary/upload') {
+        return handleCloudinaryUpload(request, env, corsHeaders);
       } else {
         return new Response(
           JSON.stringify({ error: 'Not found' }),
@@ -572,4 +574,80 @@ function handleCloudinaryConfig(env, corsHeaders) {
       status: 200
     }
   );
+}
+
+// Cloudinary Upload handler - proxy upload to Cloudinary API
+async function handleCloudinaryUpload(request, env, corsHeaders) {
+  if (request.method !== 'POST') {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+
+  try {
+    const cloudName = env.CLOUDINARY_CLOUD_NAME || 'dow5ohgj9';
+    const uploadPreset = env.CLOUDINARY_UPLOAD_PRESET || 'glampack_hr_uploads';
+
+    // Get the form data from the request
+    const formData = await request.formData();
+    
+    // Add upload preset to form data if not already present
+    if (!formData.has('upload_preset')) {
+      formData.append('upload_preset', uploadPreset);
+    }
+
+    // Proxy the upload to Cloudinary
+    const cloudinaryUrl = `https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`;
+    
+    const response = await fetch(cloudinaryUrl, {
+      method: 'POST',
+      body: formData
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Upload failed', 
+          details: data 
+        }),
+        { 
+          status: response.status, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        }
+      );
+    }
+
+    // Return successful upload response
+    return new Response(
+      JSON.stringify({
+        url: data.secure_url,
+        publicId: data.public_id,
+        format: data.format,
+        resourceType: data.resource_type,
+        bytes: data.bytes,
+        width: data.width,
+        height: data.height,
+        created: data.created_at
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+
+  } catch (error) {
+    return new Response(
+      JSON.stringify({ 
+        error: 'Upload failed', 
+        message: error.message 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
 }
