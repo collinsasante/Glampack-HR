@@ -596,12 +596,17 @@
       // ========================================
       async function loadPendingRequests() {
         try {
-          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', {Status} = 'Pending')`;
+          // Fetch all leave requests and filter client-side (more reliable for linked records)
+          const data = await getLeaveRequests(null);
 
-          // Use Worker API
-          const data = await getLeaveRequests(filterFormula);
-          document.getElementById("pendingRequests").textContent =
-            data.records.length;
+          // Filter for this employee's pending requests
+          const pendingRequests = (data.records || []).filter((record) => {
+            const employees = record.fields.Employee || [];
+            const isPending = record.fields.Status === 'Pending';
+            return employees.includes(currentUser.id) && isPending;
+          });
+
+          document.getElementById("pendingRequests").textContent = pendingRequests.length;
         } catch (error) {
           console.error("Error loading pending requests:", error);
           document.getElementById("pendingRequests").textContent = "0";
@@ -848,12 +853,15 @@
             }
           });
 
-          // Get recent leave requests using Worker API
-          const leaveFilterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
-          const leaveData = await getLeaveRequests(leaveFilterFormula);
+          // Get recent leave requests using Worker API (fetch all and filter client-side)
+          const leaveData = await getLeaveRequests(null);
 
-          // Sort by createdTime descending and take first 3
-          const recentLeave = leaveData.records
+          // Filter for this employee's leave requests, sort by createdTime descending and take first 3
+          const recentLeave = (leaveData.records || [])
+            .filter((record) => {
+              const employees = record.fields.Employee || [];
+              return employees.includes(currentUser.id);
+            })
             .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
             .slice(0, 3);
 
