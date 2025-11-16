@@ -481,7 +481,7 @@
       async function loadTodayStatus() {
         try {
           const today = new Date().toISOString().split("T")[0];
-          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', {Date} = '${today}')`;
+          const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
 
           // Use Worker API
           const data = await getAttendance(filterFormula);
@@ -535,7 +535,7 @@
             .toISOString()
             .split("T")[0];
 
-          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
+          const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
 
           // Use Worker API
           const data = await getAttendance(filterFormula);
@@ -613,7 +613,7 @@
       // ========================================
       async function loadAttendanceData() {
         try {
-          const filterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
+          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
 
           // Use Worker API (Note: sort and maxRecords not supported in filter, will filter client-side)
           const data = await getAttendance(filterFormula);
@@ -808,7 +808,7 @@
           const activities = [];
 
           // Get recent attendance using Worker API
-          const filterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
+          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
           const attendanceData = await getAttendance(filterFormula);
 
           // Sort by date descending and take first 5

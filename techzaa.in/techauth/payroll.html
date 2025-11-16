@@ -410,8 +410,6 @@
               formatCurrency(healthInsurance);
             document.getElementById("otherDeductions").textContent =
               formatCurrency(welfare + otherDeductions);
-          } else {
-            console.log("No payroll records found for this employee");
           }
         } catch (error) {
           console.error("Error loading salary info:", error);

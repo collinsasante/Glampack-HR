@@ -877,11 +877,6 @@
               { key: "Country", elementId: "country" },
             ];
 
-            console.log(
-              "Current employee data fields:",
-              Object.keys(employeeData)
-            );
-
             // Only add fields that exist in the original employee data (Airtable schema)
             optionalFields.forEach((field) => {
               // Check if this field exists in employeeData (i.e., exists in Airtable)
@@ -890,15 +885,12 @@
                   .getElementById(field.elementId)
                   .value.trim();
                 updateData[field.key] = value; // Send even if empty to allow clearing fields
-                console.log(`Adding field ${field.key}:`, value);
               } else {
                 console.warn(
                   `Field ${field.key} not found in Airtable - skipping`
                 );
               }
             });
-
-            console.log("Updating employee with data:", updateData);
             await updateEmployee(currentUser.id, updateData);
 
             // Update session if name changed
@@ -999,8 +991,6 @@
               .getElementById("emergencyAddress")
               .value.trim();
             if (emergencyAddress) emergencyData["Address"] = emergencyAddress;
-
-            console.log("Saving emergency contact with data:", emergencyData);
 
             // Create or update emergency contact in separate table
             if (emergencyContactRecord) {
