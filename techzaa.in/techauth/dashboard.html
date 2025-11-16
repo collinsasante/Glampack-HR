@@ -480,7 +480,7 @@
       async function loadTodayStatus() {
         try {
           const today = new Date().toISOString().split("T")[0];
-          const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Date} = '${today}')`;
+          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', {Date} = '${today}')`;
 
           // Use Worker API
           const data = await getAttendance(filterFormula);
@@ -534,7 +534,7 @@
             .toISOString()
             .split("T")[0];
 
-          const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
+          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', IS_AFTER({Date}, '${firstDay}'), IS_BEFORE({Date}, '${lastDay}'))`;
 
           // Use Worker API
           const data = await getAttendance(filterFormula);
@@ -595,7 +595,7 @@
       // ========================================
       async function loadPendingRequests() {
         try {
-          const filterFormula = `AND(FIND('${currentUser.id}', ARRAYJOIN({Employee})), {Status} = 'Pending')`;
+          const filterFormula = `AND({Full Name (from Employee)} = '${currentUser.name}', {Status} = 'Pending')`;
 
           // Use Worker API
           const data = await getLeaveRequests(filterFormula);
@@ -612,7 +612,7 @@
       // ========================================
       async function loadAttendanceData() {
         try {
-          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          const filterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
 
           // Use Worker API (Note: sort and maxRecords not supported in filter, will filter client-side)
           const data = await getAttendance(filterFormula);
@@ -807,7 +807,7 @@
           const activities = [];
 
           // Get recent attendance using Worker API
-          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          const filterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
           const attendanceData = await getAttendance(filterFormula);
 
           // Sort by date descending and take first 5
@@ -848,7 +848,7 @@
           });
 
           // Get recent leave requests using Worker API
-          const leaveFilterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          const leaveFilterFormula = `{Full Name (from Employee)} = '${currentUser.name}'`;
           const leaveData = await getLeaveRequests(leaveFilterFormula);
 
           // Sort by createdTime descending and take first 3
