@@ -30,7 +30,6 @@
       body {
         font-family: "Montserrat", sans-serif;
       }
-
     </style>
   </head>
   <body class="bg-gray-100">
@@ -40,8 +39,7 @@
         <div class="flex items-center justify-between">
           <!-- Logo -->
           <div class="flex items-center space-x-3">
-            <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
-            <span class="text-xl font-bold text-gray-800">Leave Request</span>
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
           </div>
 
           <!-- Navigation Menu -->
@@ -49,25 +47,39 @@
             <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-chart-line mr-1"></i> Dashboard
             </a>
-            <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+            <a
+              href="attendance-tracker.html"
+              class="text-gray-600 hover:text-red-600"
+            >
               <i class="fas fa-clock mr-1"></i> Attendance
             </a>
             <a href="leave-request.html" class="text-red-600 font-semibold">
               <i class="fas fa-calendar-alt mr-1"></i> Leave
             </a>
-            <a href="medical-claims.html" class="text-gray-600 hover:text-red-600">
+            <a
+              href="medical-claims.html"
+              class="text-gray-600 hover:text-red-600"
+            >
               <i class="fas fa-notes-medical mr-1"></i> Medical Claims
             </a>
             <a href="profile.html" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-user mr-1"></i> Profile
             </a>
-            <a href="announcements.html" class="text-gray-600 hover:text-red-600">
+            <a
+              href="announcements.html"
+              class="text-gray-600 hover:text-red-600"
+            >
               <i class="fas fa-bullhorn mr-1"></i> Announcements
             </a>
             <a href="payroll.html" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-money-bill-wave mr-1"></i> Payroll
             </a>
-            <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
+            <a
+              href="admin-dashboard.html"
+              id="adminLink"
+              class="text-gray-600 hover:text-red-600"
+              style="display: none"
+            >
               <i class="fas fa-user-shield mr-1"></i> Admin
             </a>
             <button onclick="logout()" class="text-gray-600 hover:text-red-600">
@@ -320,7 +332,6 @@
         document
           .getElementById("endDate")
           .addEventListener("change", calculateDays);
-
       }
 
       // ========================================
@@ -346,22 +357,30 @@
       // ========================================
       async function loadLeaveHistory() {
         try {
-          console.log('Loading leave history for user:', currentUser.id, currentUser.name);
+          console.log(
+            "Loading leave history for user:",
+            currentUser.id,
+            currentUser.name
+          );
 
           // Fetch all leave requests and filter client-side
           // Client-side filtering is more reliable than Airtable's filter formulas for linked records
           const data = await getLeaveRequests(null);
-          console.log('Fetched all leave requests:', data.records?.length || 0);
+          console.log("Fetched all leave requests:", data.records?.length || 0);
 
           // Filter for this employee's leave requests
-          allLeaveRequests = (data.records || []).filter(record => {
+          allLeaveRequests = (data.records || []).filter((record) => {
             const employees = record.fields.Employee || [];
             return employees.includes(currentUser.id);
           });
-          console.log(`Found ${allLeaveRequests.length} leave requests for this employee`);
+          console.log(
+            `Found ${allLeaveRequests.length} leave requests for this employee`
+          );
 
           // Update pending count
-          const pendingCount = allLeaveRequests.filter(r => r.fields["Status"] === "Pending").length;
+          const pendingCount = allLeaveRequests.filter(
+            (r) => r.fields["Status"] === "Pending"
+          ).length;
           const pendingRequestsEl = document.getElementById("pendingRequests");
           if (pendingRequestsEl) {
             pendingRequestsEl.textContent = pendingCount;
@@ -387,11 +406,11 @@
 
         // Null checks for required elements
         if (!container) {
-          console.error('ERROR: pendingRequestsContainer element not found');
+          console.error("ERROR: pendingRequestsContainer element not found");
           return;
         }
         if (!noPendingState) {
-          console.error('ERROR: noPendingState element not found');
+          console.error("ERROR: noPendingState element not found");
           return;
         }
 
@@ -457,15 +476,15 @@
 
         // Null checks for required elements
         if (!container) {
-          console.error('ERROR: leaveHistoryContainer element not found');
+          console.error("ERROR: leaveHistoryContainer element not found");
           return;
         }
         if (!loadingState) {
-          console.error('ERROR: loadingState element not found');
+          console.error("ERROR: loadingState element not found");
           return;
         }
         if (!emptyState) {
-          console.error('ERROR: emptyState element not found');
+          console.error("ERROR: emptyState element not found");
           return;
         }
 
@@ -486,11 +505,16 @@
           const leaveType = request.fields["Leave Type"] || "Unknown";
           const startDateStr = request.fields["Start Date"];
           const endDateStr = request.fields["End Date"];
-          const startDate = startDateStr ? new Date(startDateStr).toLocaleDateString() : "N/A";
-          const endDate = endDateStr ? new Date(endDateStr).toLocaleDateString() : "N/A";
+          const startDate = startDateStr
+            ? new Date(startDateStr).toLocaleDateString()
+            : "N/A";
+          const endDate = endDateStr
+            ? new Date(endDateStr).toLocaleDateString()
+            : "N/A";
 
           // Calculate days - try multiple field names and calculate from dates if needed
-          let numberOfDays = request.fields["Days"] || request.fields["Number of Days"];
+          let numberOfDays =
+            request.fields["Days"] || request.fields["Number of Days"];
           if (!numberOfDays && startDateStr && endDateStr) {
             const start = new Date(startDateStr);
             const end = new Date(endDateStr);
@@ -498,7 +522,10 @@
           }
           numberOfDays = numberOfDays || 0;
 
-          const reason = request.fields["Notes"] || request.fields["Reason"] || "No reason provided";
+          const reason =
+            request.fields["Notes"] ||
+            request.fields["Reason"] ||
+            "No reason provided";
           const adminComments = request.fields["Admin Comments"] || null;
 
           let statusClass = "bg-yellow-100 text-yellow-800";
@@ -815,13 +842,13 @@
               Status: "Pending",
             };
 
-            console.log('Submitting leave request with data:', leaveData);
-            console.log('Current user:', currentUser);
+            console.log("Submitting leave request with data:", leaveData);
+            console.log("Current user:", currentUser);
 
             // Use Worker API to create leave request
             const result = await createLeaveRequest(leaveData);
 
-            console.log('Leave request created successfully:', result.id);
+            console.log("Leave request created successfully:", result.id);
 
             showSuccess(
               "Leave request submitted successfully! Awaiting approval."
@@ -837,7 +864,9 @@
           } catch (error) {
             console.error("Error submitting leave request:", error);
             console.error("Error details:", error.message, error.stack);
-            showError(`Failed to submit leave request: ${error.message || 'Please try again.'}`);
+            showError(
+              `Failed to submit leave request: ${error.message || "Please try again."}`
+            );
           }
         });
 

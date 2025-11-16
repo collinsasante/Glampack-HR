@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Medical Claims - Packaging Glamour HR</title>
     <link rel="shortcut icon" href="assets/images/favicon.ico" />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -25,180 +31,257 @@
     <script src="auth.js"></script>
 
     <style>
-        * {
-            font-family: 'Inter', sans-serif;
-        }
+      * {
+        font-family: "Inter", sans-serif;
+      }
 
-        body {
-            background-color: #f9fafb;
-            min-height: 100vh;
-        }
+      body {
+        background-color: #f9fafb;
+        min-height: 100vh;
+      }
     </style>
-</head>
-<body class="bg-gray-50">
+  </head>
+  <body class="bg-gray-50">
     <!-- Navigation Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
-                    <span class="text-xl font-bold text-gray-800">Medical Claims</span>
-                </div>
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3">
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+          </div>
 
-                <!-- Navigation Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-chart-line mr-1"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-clock mr-1"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-calendar-alt mr-1"></i> Leave
-                    </a>
-                    <a href="medical-claims.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-                    </a>
-                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-user mr-1"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-bullhorn mr-1"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
-                    </a>
-                    <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
-                        <i class="fas fa-user-shield mr-1"></i> Admin
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-            </div>
+          <!-- Navigation Menu -->
+          <div class="flex items-center space-x-4">
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="attendance-tracker.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-clock mr-1"></i> Attendance
+            </a>
+            <a
+              href="leave-request.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i> Leave
+            </a>
+            <a href="medical-claims.html" class="text-red-600 font-semibold">
+              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+            </a>
+            <a href="profile.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-user mr-1"></i> Profile
+            </a>
+            <a
+              href="announcements.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-bullhorn mr-1"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+            </a>
+            <a
+              href="admin-dashboard.html"
+              id="adminLink"
+              class="text-gray-600 hover:text-red-600"
+              style="display: none"
+            >
+              <i class="fas fa-user-shield mr-1"></i> Admin
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
-        <!-- Medical Allowance Balance Card -->
-        <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="text-gray-600 text-sm font-medium">Annual Medical Allowance</h3>
-                    <p id="medicalBalance" class="text-3xl font-bold text-green-600 mt-1">GH₵1,000.00</p>
-                    <p class="text-sm text-gray-500 mt-1">Remaining balance for <span id="currentYear"></span></p>
-                </div>
-                <div class="bg-green-100 p-4 rounded-full">
-                    <i class="fas fa-heartbeat text-green-600 text-3xl"></i>
-                </div>
+      <!-- Medical Allowance Balance Card -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="text-gray-600 text-sm font-medium">
+              Annual Medical Allowance
+            </h3>
+            <p
+              id="medicalBalance"
+              class="text-3xl font-bold text-green-600 mt-1"
+            >
+              GH₵1,000.00
+            </p>
+            <p class="text-sm text-gray-500 mt-1">
+              Remaining balance for <span id="currentYear"></span>
+            </p>
+          </div>
+          <div class="bg-green-100 p-4 rounded-full">
+            <i class="fas fa-heartbeat text-green-600 text-3xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <!-- Submit New Claim Form -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <i class="fas fa-plus-circle text-red-600 mr-2"></i>Submit New Claim
+          </h2>
+
+          <form id="medicalClaimForm" class="space-y-4">
+            <!-- Date of Visit -->
+            <div>
+              <label
+                for="visitDate"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Date of Visit <span class="text-red-600">*</span>
+              </label>
+              <input
+                type="date"
+                id="visitDate"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
             </div>
+
+            <!-- Hospital/Clinic Name -->
+            <div>
+              <label
+                for="hospitalName"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Hospital/Clinic Name <span class="text-red-600">*</span>
+              </label>
+              <input
+                type="text"
+                id="hospitalName"
+                required
+                placeholder="e.g., Ridge Hospital"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+
+            <!-- Amount Spent -->
+            <div>
+              <label
+                for="amount"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Amount Spent (GH₵) <span class="text-red-600">*</span>
+              </label>
+              <input
+                type="number"
+                id="amount"
+                required
+                min="0"
+                step="0.01"
+                placeholder="0.00"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              />
+            </div>
+
+            <!-- Description -->
+            <div>
+              <label
+                for="description"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Description of Treatment <span class="text-red-600">*</span>
+              </label>
+              <textarea
+                id="description"
+                required
+                rows="4"
+                placeholder="Describe the medical treatment received..."
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"
+              ></textarea>
+            </div>
+
+            <!-- Receipt Upload - Multiple Files -->
+            <div>
+              <label
+                for="receipt"
+                class="block text-sm font-medium text-gray-700 mb-2"
+              >
+                Upload Receipts/Proof <span class="text-red-600">*</span>
+              </label>
+              <div
+                class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors"
+              >
+                <input
+                  type="file"
+                  id="receipt"
+                  accept="image/*,.pdf"
+                  class="hidden"
+                  multiple
+                />
+                <label for="receipt" class="cursor-pointer">
+                  <i
+                    class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"
+                  ></i>
+                  <p class="text-sm text-gray-600">
+                    Click to upload receipts (multiple files allowed)
+                  </p>
+                  <p class="text-xs text-gray-500 mt-1">
+                    PDF or Image files (Max 5MB each)
+                  </p>
+                </label>
+              </div>
+              <!-- Selected Files List -->
+              <div id="filesList" class="mt-3 space-y-2">
+                <!-- Files will be listed here with delete buttons -->
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button
+              type="submit"
+              class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors"
+            >
+              <i class="fas fa-paper-plane mr-2"></i>Submit Claim
+            </button>
+          </form>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <!-- Submit New Claim Form -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-plus-circle text-red-600 mr-2"></i>Submit New Claim
-                </h2>
+        <!-- Claims History -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <h2 class="text-2xl font-bold text-gray-800 mb-6">
+            <i class="fas fa-history text-red-600 mr-2"></i>My Claims History
+          </h2>
 
-                <form id="medicalClaimForm" class="space-y-4">
-                    <!-- Date of Visit -->
-                    <div>
-                        <label for="visitDate" class="block text-sm font-medium text-gray-700 mb-2">
-                            Date of Visit <span class="text-red-600">*</span>
-                        </label>
-                        <input type="date" id="visitDate" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    </div>
-
-                    <!-- Hospital/Clinic Name -->
-                    <div>
-                        <label for="hospitalName" class="block text-sm font-medium text-gray-700 mb-2">
-                            Hospital/Clinic Name <span class="text-red-600">*</span>
-                        </label>
-                        <input type="text" id="hospitalName" required placeholder="e.g., Ridge Hospital"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    </div>
-
-                    <!-- Amount Spent -->
-                    <div>
-                        <label for="amount" class="block text-sm font-medium text-gray-700 mb-2">
-                            Amount Spent (GH₵) <span class="text-red-600">*</span>
-                        </label>
-                        <input type="number" id="amount" required min="0" step="0.01" placeholder="0.00"
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500">
-                    </div>
-
-                    <!-- Description -->
-                    <div>
-                        <label for="description" class="block text-sm font-medium text-gray-700 mb-2">
-                            Description of Treatment <span class="text-red-600">*</span>
-                        </label>
-                        <textarea id="description" required rows="4" placeholder="Describe the medical treatment received..."
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
-                    </div>
-
-                    <!-- Receipt Upload - Multiple Files -->
-                    <div>
-                        <label for="receipt" class="block text-sm font-medium text-gray-700 mb-2">
-                            Upload Receipts/Proof <span class="text-red-600">*</span>
-                        </label>
-                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors">
-                            <input type="file" id="receipt" accept="image/*,.pdf" class="hidden" multiple>
-                            <label for="receipt" class="cursor-pointer">
-                                <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-600">Click to upload receipts (multiple files allowed)</p>
-                                <p class="text-xs text-gray-500 mt-1">PDF or Image files (Max 5MB each)</p>
-                            </label>
-                        </div>
-                        <!-- Selected Files List -->
-                        <div id="filesList" class="mt-3 space-y-2">
-                            <!-- Files will be listed here with delete buttons -->
-                        </div>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <button type="submit" class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 rounded-lg transition-colors">
-                        <i class="fas fa-paper-plane mr-2"></i>Submit Claim
-                    </button>
-                </form>
+          <div id="claimsHistory" class="space-y-4">
+            <!-- Claims will be loaded here -->
+            <div class="text-center py-8 text-gray-400">
+              <i class="fas fa-inbox text-5xl mb-3"></i>
+              <p>No claims submitted yet</p>
             </div>
-
-            <!-- Claims History -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">
-                    <i class="fas fa-history text-red-600 mr-2"></i>My Claims History
-                </h2>
-
-                <div id="claimsHistory" class="space-y-4">
-                    <!-- Claims will be loaded here -->
-                    <div class="text-center py-8 text-gray-400">
-                        <i class="fas fa-inbox text-5xl mb-3"></i>
-                        <p>No claims submitted yet</p>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+      </div>
     </div>
 
     <script>
-        let currentEmployee = null;
-        let selectedFiles = []; // Global variable for selected files
+      let currentEmployee = null;
+      let selectedFiles = []; // Global variable for selected files
 
-        // Global function to display selected files
-        function displaySelectedFiles() {
-            const filesList = document.getElementById('filesList');
-            if (selectedFiles.length === 0) {
-                filesList.innerHTML = '';
-                return;
-            }
+      // Global function to display selected files
+      function displaySelectedFiles() {
+        const filesList = document.getElementById("filesList");
+        if (selectedFiles.length === 0) {
+          filesList.innerHTML = "";
+          return;
+        }
 
-            filesList.innerHTML = selectedFiles.map((file, index) => `
+        filesList.innerHTML = selectedFiles
+          .map(
+            (file, index) => `
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
                     <div class="flex items-center space-x-3">
-                        <i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf text-red-500' : 'fa-file-image text-blue-500'}"></i>
+                        <i class="fas ${file.type.includes("pdf") ? "fa-file-pdf text-red-500" : "fa-file-image text-blue-500"}"></i>
                         <div>
                             <p class="text-sm font-medium text-gray-800">${file.name}</p>
                             <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
@@ -208,240 +291,282 @@
                         <i class="fas fa-times-circle"></i>
                     </button>
                 </div>
-            `).join('');
+            `
+          )
+          .join("");
+      }
+
+      // Global function to remove a file
+      window.removeFile = function (index) {
+        selectedFiles.splice(index, 1);
+        displaySelectedFiles();
+      };
+
+      // Initialize page
+      document.addEventListener("DOMContentLoaded", async function () {
+        // Check authentication
+        if (!requireAuth()) {
+          window.location.href = "packaging-glamour-signin.html";
+          return;
         }
 
-        // Global function to remove a file
-        window.removeFile = function(index) {
-            selectedFiles.splice(index, 1);
+        currentEmployee = getCurrentUser();
+        if (!currentEmployee) {
+          window.location.href = "packaging-glamour-signin.html";
+          return;
+        }
+
+        // Set current year
+        document.getElementById("currentYear").textContent =
+          new Date().getFullYear();
+
+        // Load medical balance and claims
+        await loadMedicalBalance();
+        await loadClaimsHistory();
+
+        // Multiple file upload handling
+
+        document
+          .getElementById("receipt")
+          .addEventListener("change", function (e) {
+            const newFiles = Array.from(e.target.files);
+
+            // Validate each file
+            for (let file of newFiles) {
+              if (file.size > 5 * 1024 * 1024) {
+                showMessage(
+                  `${file.name} is too large. Max size is 5MB`,
+                  "error"
+                );
+                continue;
+              }
+              // Check if file already selected
+              if (
+                !selectedFiles.find(
+                  (f) => f.name === file.name && f.size === file.size
+                )
+              ) {
+                selectedFiles.push(file);
+              }
+            }
+
             displaySelectedFiles();
-        };
+            e.target.value = ""; // Reset input to allow re-selecting same file
+          });
 
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', async function() {
-            // Check authentication
-            if (!requireAuth()) {
-                window.location.href = 'packaging-glamour-signin.html';
-                return;
-            }
+        // Set max date to today
+        document.getElementById("visitDate").max = new Date()
+          .toISOString()
+          .split("T")[0];
+      });
 
-            currentEmployee = getCurrentUser();
-            if (!currentEmployee) {
-                window.location.href = 'packaging-glamour-signin.html';
-                return;
-            }
+      // Load medical balance
+      async function loadMedicalBalance() {
+        try {
+          const filterFormula = `AND({Full Name (from Employee)} = '${currentEmployee.name}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
+          const data = await getMedicalClaims(filterFormula);
 
-            // Set current year
-            document.getElementById('currentYear').textContent = new Date().getFullYear();
+          const approvedClaims =
+            data.records?.filter((r) => r.fields.Status === "Approved") || [];
+          const totalSpent = approvedClaims.reduce(
+            (sum, claim) => sum + (claim.fields["Amount Spent (GH₵)"] || 0),
+            0
+          );
+          const remaining = 1000 - totalSpent;
 
-            // Load medical balance and claims
-            await loadMedicalBalance();
-            await loadClaimsHistory();
+          document.getElementById("medicalBalance").textContent =
+            `GH₵${remaining.toFixed(2)}`;
 
-            // Multiple file upload handling
-
-            document.getElementById('receipt').addEventListener('change', function(e) {
-                const newFiles = Array.from(e.target.files);
-
-                // Validate each file
-                for (let file of newFiles) {
-                    if (file.size > 5 * 1024 * 1024) {
-                        showMessage(`${file.name} is too large. Max size is 5MB`, 'error');
-                        continue;
-                    }
-                    // Check if file already selected
-                    if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
-                        selectedFiles.push(file);
-                    }
-                }
-
-                displaySelectedFiles();
-                e.target.value = ''; // Reset input to allow re-selecting same file
-            });
-
-            // Set max date to today
-            document.getElementById('visitDate').max = new Date().toISOString().split('T')[0];
-        });
-
-        // Load medical balance
-        async function loadMedicalBalance() {
-            try {
-                const filterFormula = `AND({Full Name (from Employee)} = '${currentEmployee.name}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
-                const data = await getMedicalClaims(filterFormula);
-
-                const approvedClaims = data.records?.filter(r => r.fields.Status === 'Approved') || [];
-                const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields['Amount Spent (GH₵)'] || 0), 0);
-                const remaining = 1000 - totalSpent;
-
-                document.getElementById('medicalBalance').textContent = `GH₵${remaining.toFixed(2)}`;
-
-                if (remaining < 100) {
-                    document.getElementById('medicalBalance').classList.remove('text-green-600');
-                    document.getElementById('medicalBalance').classList.add('text-red-600');
-                }
-            } catch (error) {
-                console.error('Error loading medical balance:', error);
-            }
+          if (remaining < 100) {
+            document
+              .getElementById("medicalBalance")
+              .classList.remove("text-green-600");
+            document
+              .getElementById("medicalBalance")
+              .classList.add("text-red-600");
+          }
+        } catch (error) {
+          console.error("Error loading medical balance:", error);
         }
+      }
 
-        // Load claims history
-        async function loadClaimsHistory() {
-            try {
-                // Use name lookup filter (most reliable for linked record arrays)
-                const filterFormula = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
-                const data = await getMedicalClaims(filterFormula);
-                const claims = data.records || [];
+      // Load claims history
+      async function loadClaimsHistory() {
+        try {
+          // Use name lookup filter (most reliable for linked record arrays)
+          const filterFormula = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
+          const data = await getMedicalClaims(filterFormula);
+          const claims = data.records || [];
 
-                const historyDiv = document.getElementById('claimsHistory');
+          const historyDiv = document.getElementById("claimsHistory");
 
-                if (claims.length === 0) {
-                    historyDiv.innerHTML = `
+          if (claims.length === 0) {
+            historyDiv.innerHTML = `
                         <div class="text-center py-8 text-gray-400">
                             <i class="fas fa-inbox text-5xl mb-3"></i>
                             <p>No claims submitted yet</p>
                         </div>
                     `;
-                    return;
-                }
+            return;
+          }
 
-                historyDiv.innerHTML = claims.map(claim => {
-                    const fields = claim.fields;
-                    const statusColors = {
-                        'Pending': 'bg-yellow-100 text-yellow-800',
-                        'Approved': 'bg-green-100 text-green-800',
-                        'Rejected': 'bg-red-100 text-red-800'
-                    };
+          historyDiv.innerHTML = claims
+            .map((claim) => {
+              const fields = claim.fields;
+              const statusColors = {
+                Pending: "bg-yellow-100 text-yellow-800",
+                Approved: "bg-green-100 text-green-800",
+                Rejected: "bg-red-100 text-red-800",
+              };
 
-                    // Handle multiple receipts
-                    const receipts = fields['Upload Receipt/Proof'] || [];
-                    const receiptsHTML = receipts.length > 0
-                        ? receipts.map((receipt, idx) => `
+              // Handle multiple receipts
+              const receipts = fields["Upload Receipt/Proof"] || [];
+              const receiptsHTML =
+                receipts.length > 0
+                  ? receipts
+                      .map(
+                        (receipt, idx) => `
                             <a href="${receipt.url}" target="_blank" class="text-blue-600 hover:underline text-xs">
                                 <i class="fas fa-file-alt mr-1"></i>Receipt ${idx + 1}
                             </a>
-                          `).join(' ')
-                        : '';
+                          `
+                      )
+                      .join(" ")
+                  : "";
 
-                    return `
+              return `
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-start justify-between mb-2">
                                 <div>
-                                    <h3 class="font-semibold text-gray-800">${fields['Hospital/Clinic Name'] || 'N/A'}</h3>
-                                    <p class="text-sm text-gray-600">${new Date(fields['Date of visit']).toLocaleDateString()}</p>
+                                    <h3 class="font-semibold text-gray-800">${fields["Hospital/Clinic Name"] || "N/A"}</h3>
+                                    <p class="text-sm text-gray-600">${new Date(fields["Date of visit"]).toLocaleDateString()}</p>
                                 </div>
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[fields.Status] || 'bg-gray-100 text-gray-800'}">
-                                    ${fields.Status || 'Pending'}
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[fields.Status] || "bg-gray-100 text-gray-800"}">
+                                    ${fields.Status || "Pending"}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-700 mb-2">${fields['Description of Treatment'] || 'No description'}</p>
+                            <p class="text-sm text-gray-700 mb-2">${fields["Description of Treatment"] || "No description"}</p>
                             <div class="flex items-center justify-between text-sm">
-                                <span class="font-semibold text-red-600">GH₵${(fields['Amount Spent (GH₵)'] || 0).toFixed(2)}</span>
+                                <span class="font-semibold text-red-600">GH₵${(fields["Amount Spent (GH₵)"] || 0).toFixed(2)}</span>
                                 <div class="flex gap-2">
                                     ${receiptsHTML}
                                 </div>
                             </div>
                         </div>
                     `;
-                }).join('');
-
-            } catch (error) {
-                console.error('Error loading claims:', error);
-                showMessage('Failed to load claims history', 'error');
-            }
+            })
+            .join("");
+        } catch (error) {
+          console.error("Error loading claims:", error);
+          showMessage("Failed to load claims history", "error");
         }
+      }
 
-        // Handle form submission
-        document.getElementById('medicalClaimForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
+      // Handle form submission
+      document
+        .getElementById("medicalClaimForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-            const submitBtn = e.target.querySelector('button[type="submit"]');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
+          const submitBtn = e.target.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
 
-            try {
-                const visitDate = document.getElementById('visitDate').value;
-                const hospitalName = document.getElementById('hospitalName').value;
-                const amount = parseFloat(document.getElementById('amount').value);
-                const description = document.getElementById('description').value;
+          try {
+            const visitDate = document.getElementById("visitDate").value;
+            const hospitalName = document.getElementById("hospitalName").value;
+            const amount = parseFloat(document.getElementById("amount").value);
+            const description = document.getElementById("description").value;
 
-                if (selectedFiles.length === 0) {
-                    throw new Error('Please upload at least one receipt');
-                }
-
-                // Upload all files to Cloudinary
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipts...';
-                const uploadedFiles = [];
-
-                for (let i = 0; i < selectedFiles.length; i++) {
-                    const file = selectedFiles[i];
-                    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length}...`;
-
-                    const uploadResult = await uploadToCloudinary(file, (progress) => {
-                        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length} (${Math.round(progress)}%)`;
-                    });
-
-                    uploadedFiles.push({
-                        url: uploadResult.url,
-                        filename: file.name
-                    });
-                }
-
-                // Update button text to show saving
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving claim...';
-
-                // Create claim record matching Airtable structure with all Cloudinary URLs
-                const claimFields = {
-                    'Date of visit': visitDate,
-                    'Employee': [currentEmployee.id],
-                    'Hospital/Clinic Name': hospitalName,
-                    'Description of Treatment': description,
-                    'Amount Spent (GH₵)': amount,
-                    'Upload Receipt/Proof': uploadedFiles,
-                    'Status': 'Pending'
-                };
-
-                await createMedicalClaim(claimFields);
-
-                showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
-
-                // Reset form and selected files
-                e.target.reset();
-                selectedFiles = [];
-                displaySelectedFiles();
-
-                // Reload claims and balance
-                await loadMedicalBalance();
-                await loadClaimsHistory();
-
-            } catch (error) {
-                console.error('Error submitting claim:', error);
-                showMessage(error.message || 'Failed to submit claim. Please try again.', 'error');
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i>Submit Claim';
+            if (selectedFiles.length === 0) {
+              throw new Error("Please upload at least one receipt");
             }
+
+            // Upload all files to Cloudinary
+            submitBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipts...';
+            const uploadedFiles = [];
+
+            for (let i = 0; i < selectedFiles.length; i++) {
+              const file = selectedFiles[i];
+              submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length}...`;
+
+              const uploadResult = await uploadToCloudinary(
+                file,
+                (progress) => {
+                  submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length} (${Math.round(progress)}%)`;
+                }
+              );
+
+              uploadedFiles.push({
+                url: uploadResult.url,
+                filename: file.name,
+              });
+            }
+
+            // Update button text to show saving
+            submitBtn.innerHTML =
+              '<i class="fas fa-spinner fa-spin mr-2"></i>Saving claim...';
+
+            // Create claim record matching Airtable structure with all Cloudinary URLs
+            const claimFields = {
+              "Date of visit": visitDate,
+              Employee: [currentEmployee.id],
+              "Hospital/Clinic Name": hospitalName,
+              "Description of Treatment": description,
+              "Amount Spent (GH₵)": amount,
+              "Upload Receipt/Proof": uploadedFiles,
+              Status: "Pending",
+            };
+
+            await createMedicalClaim(claimFields);
+
+            showMessage(
+              "Medical claim submitted successfully! Awaiting admin approval.",
+              "success"
+            );
+
+            // Reset form and selected files
+            e.target.reset();
+            selectedFiles = [];
+            displaySelectedFiles();
+
+            // Reload claims and balance
+            await loadMedicalBalance();
+            await loadClaimsHistory();
+          } catch (error) {
+            console.error("Error submitting claim:", error);
+            showMessage(
+              error.message || "Failed to submit claim. Please try again.",
+              "error"
+            );
+          } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML =
+              '<i class="fas fa-paper-plane mr-2"></i>Submit Claim';
+          }
         });
 
-        // Convert file to base64
-        function fileToBase64(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(file);
-            });
-        }
+      // Convert file to base64
+      function fileToBase64(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+          reader.readAsDataURL(file);
+        });
+      }
 
-        // Show message
-        function showMessage(message, type) {
-            const bgColor = type === 'success' ? 'bg-green-500' : 'bg-red-500';
-            const div = document.createElement('div');
-            div.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in`;
-            div.innerHTML = `<i class="fas fa-${type === 'success' ? 'check' : 'exclamation'}-circle mr-2"></i>${message}`;
-            document.body.appendChild(div);
-            setTimeout(() => div.remove(), 5000);
-        }
-
+      // Show message
+      function showMessage(message, type) {
+        const bgColor = type === "success" ? "bg-green-500" : "bg-red-500";
+        const div = document.createElement("div");
+        div.className = `fixed top-4 right-4 ${bgColor} text-white px-6 py-3 rounded-lg shadow-lg z-50 animate-fade-in`;
+        div.innerHTML = `<i class="fas fa-${type === "success" ? "check" : "exclamation"}-circle mr-2"></i>${message}`;
+        document.body.appendChild(div);
+        setTimeout(() => div.remove(), 5000);
+      }
     </script>
-</body>
+  </body>
 </html>

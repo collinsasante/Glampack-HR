@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packaging Glamour HR - Profile</title>
 
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Authentication Script -->
     <script src="auth.js"></script>
@@ -21,805 +27,1112 @@
     <script src="config-worker.js"></script>
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
-        .section-hidden {
-            display: none;
-        }
-        .tab-button.active {
-            color: #dc2626;
-            border-bottom: 3px solid #dc2626;
-            background-color: transparent;
-        }
-        .tab-button {
-            transition: all 0.3s ease;
-            border-bottom: 3px solid transparent;
-        }
-        .tab-button:hover:not(.active) {
-            background-color: #fee2e2;
-        }
-
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+      .section-hidden {
+        display: none;
+      }
+      .tab-button.active {
+        color: #dc2626;
+        border-bottom: 3px solid #dc2626;
+        background-color: transparent;
+      }
+      .tab-button {
+        transition: all 0.3s ease;
+        border-bottom: 3px solid transparent;
+      }
+      .tab-button:hover:not(.active) {
+        background-color: #fee2e2;
+      }
     </style>
-</head>
-<body class="bg-gray-100">
-
+  </head>
+  <body class="bg-gray-100">
     <!-- Navigation Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
-                    <span class="text-xl font-bold text-gray-800">Profile</span>
-                </div>
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3">
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+          </div>
 
-                <!-- Navigation Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="#" onclick="goToDashboard()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-chart-line mr-1"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-clock mr-1"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-calendar-alt mr-1"></i> Leave
-                    </a>
-                    <a href="medical-claims.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-                    </a>
-                    <a href="profile.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-user mr-1"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-bullhorn mr-1"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
-                    </a>
-                    <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
-                        <i class="fas fa-user-shield mr-1"></i> Admin
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-            </div>
+          <!-- Navigation Menu -->
+          <div class="flex items-center space-x-4">
+            <a
+              href="#"
+              onclick="goToDashboard()"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="attendance-tracker.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-clock mr-1"></i> Attendance
+            </a>
+            <a
+              href="leave-request.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i> Leave
+            </a>
+            <a
+              href="medical-claims.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+            </a>
+            <a href="profile.html" class="text-red-600 font-semibold">
+              <i class="fas fa-user mr-1"></i> Profile
+            </a>
+            <a
+              href="announcements.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-bullhorn mr-1"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+            </a>
+            <a
+              href="admin-dashboard.html"
+              id="adminLink"
+              class="text-gray-600 hover:text-red-600"
+              style="display: none"
+            >
+              <i class="fas fa-user-shield mr-1"></i> Admin
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="mb-6">
-            <h2 class="text-3xl font-bold text-gray-800">My Profile</h2>
-            <p class="text-gray-600 mt-1">Manage your personal information and settings</p>
-        </div>
+      <!-- Header -->
+      <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">My Profile</h2>
+        <p class="text-gray-600 mt-1">
+          Manage your personal information and settings
+        </p>
+      </div>
 
-        <!-- Profile Card -->
-        <div class="bg-red-600 rounded-lg shadow-lg p-6 text-white mb-6">
-            <div class="flex items-center gap-6">
-                <div class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0">
-                    <span class="text-white text-2xl font-bold" id="profileInitials">U</span>
-                </div>
-                <div>
-                    <h3 class="text-2xl font-bold" id="sidebarName">Loading...</h3>
-                    <p class="text-red-100" id="sidebarRole">Loading...</p>
-                </div>
+      <!-- Profile Card -->
+      <div class="bg-red-600 rounded-lg shadow-lg p-6 text-white mb-6">
+        <div class="flex items-center gap-6">
+          <div
+            class="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center flex-shrink-0"
+          >
+            <span class="text-white text-2xl font-bold" id="profileInitials"
+              >U</span
+            >
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold" id="sidebarName">Loading...</h3>
+            <p class="text-red-100" id="sidebarRole">Loading...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="bg-white rounded-lg shadow-md mb-6 overflow-x-auto">
+        <div class="flex border-b">
+          <button
+            onclick="showTab('profile')"
+            id="tab-profile"
+            class="tab-button active px-6 py-3 font-medium flex items-center gap-2 transition whitespace-nowrap"
+          >
+            <i class="fas fa-user"></i>
+            <span>Personal Info</span>
+          </button>
+          <button
+            onclick="showTab('employment')"
+            id="tab-employment"
+            class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-briefcase"></i>
+            <span>Employment</span>
+          </button>
+          <button
+            onclick="showTab('security')"
+            id="tab-security"
+            class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-lock"></i>
+            <span>Security</span>
+          </button>
+          <button
+            onclick="showTab('emergency')"
+            id="tab-emergency"
+            class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-phone"></i>
+            <span>Emergency Contact</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Content Area -->
+      <div>
+        <!-- Profile Section -->
+        <div id="section-profile" class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-800">
+              Personal Information
+            </h3>
+            <button
+              onclick="toggleEditProfile()"
+              id="editProfileBtn"
+              class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
+            >
+              <i class="fas fa-edit mr-2"></i> Edit
+            </button>
+          </div>
+
+          <form id="profileForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Full Name *</label
+                >
+                <input
+                  type="text"
+                  id="fullName"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Email Address</label
+                >
+                <input
+                  type="email"
+                  id="email"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
+                  readonly
+                />
+                <p class="text-xs text-gray-500 mt-1">
+                  Email cannot be changed
+                </p>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Phone Number</label
+                >
+                <input
+                  type="tel"
+                  id="phoneNumber"
+                  pattern="[0-9+\-\s()]+"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Date of Birth</label
+                >
+                <input
+                  type="date"
+                  id="dateOfBirth"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >City</label
+                >
+                <input
+                  type="text"
+                  id="city"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Country</label
+                >
+                <input
+                  type="text"
+                  id="country"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Address</label
+                >
+                <textarea
+                  id="address"
+                  rows="3"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                ></textarea>
+              </div>
             </div>
-        </div>
 
-        <!-- Navigation Tabs -->
-        <div class="bg-white rounded-lg shadow-md mb-6 overflow-x-auto">
-            <div class="flex border-b">
-                <button onclick="showTab('profile')" id="tab-profile" class="tab-button active px-6 py-3 font-medium flex items-center gap-2 transition whitespace-nowrap">
-                    <i class="fas fa-user"></i>
-                    <span>Personal Info</span>
-                </button>
-                <button onclick="showTab('employment')" id="tab-employment" class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap">
-                    <i class="fas fa-briefcase"></i>
-                    <span>Employment</span>
-                </button>
-                <button onclick="showTab('security')" id="tab-security" class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap">
-                    <i class="fas fa-lock"></i>
-                    <span>Security</span>
-                </button>
-                <button onclick="showTab('emergency')" id="tab-emergency" class="tab-button px-6 py-3 font-medium flex items-center gap-2 text-gray-700 transition hover:bg-gray-50 whitespace-nowrap">
-                    <i class="fas fa-phone"></i>
-                    <span>Emergency Contact</span>
-                </button>
+            <div id="profileFormButtons" class="mt-6 flex gap-3 hidden">
+              <button
+                type="submit"
+                id="saveProfileBtn"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <i class="fas fa-save mr-2"></i> Save Changes
+              </button>
+              <button
+                type="button"
+                onclick="cancelEditProfile()"
+                class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition"
+              >
+                <i class="fas fa-times mr-2"></i> Cancel
+              </button>
             </div>
+          </form>
         </div>
 
-        <!-- Main Content Area -->
-        <div>
+        <!-- Employment Section -->
+        <div
+          id="section-employment"
+          class="section-hidden bg-white rounded-lg shadow-md p-6"
+        >
+          <h3 class="text-2xl font-bold text-gray-800 mb-6">
+            Employment Details
+          </h3>
 
-                <!-- Profile Section -->
-                <div id="section-profile" class="bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">Personal Information</h3>
-                        <button onclick="toggleEditProfile()" id="editProfileBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                            <i class="fas fa-edit mr-2"></i> Edit
-                        </button>
-                    </div>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Employee ID</p>
+              <p class="text-xl font-bold text-gray-900" id="employeeId">--</p>
+            </div>
 
-                    <form id="profileForm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                                <input type="text" id="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Job Title</p>
+              <p class="text-xl font-bold text-gray-900" id="empJobTitle">--</p>
+            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
-                                <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed" readonly>
-                                <p class="text-xs text-gray-500 mt-1">Email cannot be changed</p>
-                            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Department</p>
+              <p class="text-xl font-bold text-gray-900" id="department">--</p>
+            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number</label>
-                                <input type="tel" id="phoneNumber" pattern="[0-9+\-\s()]+" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Employment Type</p>
+              <p class="text-xl font-bold text-gray-900" id="employmentType">
+                --
+              </p>
+            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Date of Birth</label>
-                                <input type="date" id="dateOfBirth" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Joining Date</p>
+              <p class="text-xl font-bold text-gray-900" id="joiningDate">--</p>
+            </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">City</label>
-                                <input type="text" id="city" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+              <p class="text-sm text-gray-600 mb-1">Monthly Salary</p>
+              <p class="text-xl font-bold text-gray-900" id="salary">--</p>
+            </div>
+          </div>
 
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Country</label>
-                                <input type="text" id="country" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
+          <!-- Leave Balances -->
+          <div class="mt-6 bg-red-50 p-6 rounded-lg border border-red-200">
+            <h4 class="text-xl font-bold text-gray-800 mb-4">Leave Balances</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <p class="text-sm text-gray-600 mb-2">Annual Leave</p>
+                <p class="text-3xl font-bold text-red-600" id="annualLeave">
+                  0
+                </p>
+                <p class="text-xs text-gray-500 mt-1">days remaining</p>
+              </div>
 
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                                <textarea id="address" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly></textarea>
-                            </div>
-                        </div>
-
-                        <div id="profileFormButtons" class="mt-6 flex gap-3 hidden">
-                            <button type="submit" id="saveProfileBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-save mr-2"></i> Save Changes
-                            </button>
-                            <button type="button" onclick="cancelEditProfile()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
-                                <i class="fas fa-times mr-2"></i> Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- Employment Section -->
-                <div id="section-employment" class="section-hidden bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Employment Details</h3>
-
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Employee ID</p>
-                            <p class="text-xl font-bold text-gray-900" id="employeeId">--</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Job Title</p>
-                            <p class="text-xl font-bold text-gray-900" id="empJobTitle">--</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Department</p>
-                            <p class="text-xl font-bold text-gray-900" id="department">--</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Employment Type</p>
-                            <p class="text-xl font-bold text-gray-900" id="employmentType">--</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Joining Date</p>
-                            <p class="text-xl font-bold text-gray-900" id="joiningDate">--</p>
-                        </div>
-
-                        <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="text-sm text-gray-600 mb-1">Monthly Salary</p>
-                            <p class="text-xl font-bold text-gray-900" id="salary">--</p>
-                        </div>
-                    </div>
-
-                    <!-- Leave Balances -->
-                    <div class="mt-6 bg-red-50 p-6 rounded-lg border border-red-200">
-                        <h4 class="text-xl font-bold text-gray-800 mb-4">Leave Balances</h4>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <p class="text-sm text-gray-600 mb-2">Annual Leave</p>
-                                <p class="text-3xl font-bold text-red-600" id="annualLeave">0</p>
-                                <p class="text-xs text-gray-500 mt-1">days remaining</p>
-                            </div>
-
-                            <div class="bg-white p-4 rounded-lg shadow-sm">
-                                <p class="text-sm text-gray-600 mb-2">Sick Leave</p>
-                                <p class="text-3xl font-bold text-green-600" id="sickLeave">0</p>
-                                <p class="text-xs text-gray-500 mt-1">days remaining</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Security Section -->
-                <div id="section-security" class="section-hidden bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Security Settings</h3>
-
-                    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
-                        <div class="flex items-start">
-                            <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
-                            <div class="text-sm text-yellow-700">
-                                <p class="font-semibold mb-1">Password Requirements:</p>
-                                <ul class="list-disc list-inside space-y-1">
-                                    <li>Minimum 8 characters</li>
-                                    <li>At least one uppercase letter</li>
-                                    <li>At least one number</li>
-                                    <li>At least one special character (!@#$%^&*)</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-
-                    <form id="changePasswordForm" class="space-y-4 max-w-lg">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Current Password *</label>
-                            <input type="password" id="currentPassword" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">New Password *</label>
-                            <input type="password" id="newPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Confirm New Password *</label>
-                            <input type="password" id="confirmPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-
-                        <button type="submit" id="changePasswordBtn" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                            <i class="fas fa-save mr-2"></i> Update Password
-                        </button>
-                    </form>
-                </div>
-
-                <!-- Emergency Contact Section -->
-                <div id="section-emergency" class="section-hidden bg-white rounded-lg shadow-md p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold text-gray-800">Emergency Contact</h3>
-                        <button onclick="toggleEditEmergency()" id="editEmergencyBtn" class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                            <i class="fas fa-edit mr-2"></i> Edit
-                        </button>
-                    </div>
-
-                    <form id="emergencyForm">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Name *</label>
-                                <input type="text" id="emergencyContactName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Relationship *</label>
-                                <select id="emergencyRelationship" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" disabled>
-                                    <option value="">Select relationship</option>
-                                    <option value="Spouse">Spouse</option>
-                                    <option value="Parent">Parent</option>
-                                    <option value="Sibling">Sibling</option>
-                                    <option value="Child">Child</option>
-                                    <option value="Friend">Friend</option>
-                                    <option value="Other">Other</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Phone Number *</label>
-                                <input type="tel" id="emergencyPhone" required pattern="[0-9+\-\s()]+" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
-                                <input type="email" id="emergencyEmail" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly>
-                            </div>
-
-                            <div class="md:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-2">Address</label>
-                                <textarea id="emergencyAddress" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50" readonly></textarea>
-                            </div>
-                        </div>
-
-                        <div id="emergencyFormButtons" class="mt-6 flex gap-3 hidden">
-                            <button type="submit" id="saveEmergencyBtn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-                                <i class="fas fa-save mr-2"></i> Save Changes
-                            </button>
-                            <button type="button" onclick="cancelEditEmergency()" class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition">
-                                <i class="fas fa-times mr-2"></i> Cancel
-                            </button>
-                        </div>
-                    </form>
-                </div>
-
+              <div class="bg-white p-4 rounded-lg shadow-sm">
+                <p class="text-sm text-gray-600 mb-2">Sick Leave</p>
+                <p class="text-3xl font-bold text-green-600" id="sickLeave">
+                  0
+                </p>
+                <p class="text-xs text-gray-500 mt-1">days remaining</p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Security Section -->
+        <div
+          id="section-security"
+          class="section-hidden bg-white rounded-lg shadow-md p-6"
+        >
+          <h3 class="text-2xl font-bold text-gray-800 mb-6">
+            Security Settings
+          </h3>
+
+          <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex items-start">
+              <i class="fas fa-info-circle text-yellow-600 mt-1 mr-3"></i>
+              <div class="text-sm text-yellow-700">
+                <p class="font-semibold mb-1">Password Requirements:</p>
+                <ul class="list-disc list-inside space-y-1">
+                  <li>Minimum 8 characters</li>
+                  <li>At least one uppercase letter</li>
+                  <li>At least one number</li>
+                  <li>At least one special character (!@#$%^&*)</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <form id="changePasswordForm" class="space-y-4 max-w-lg">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Current Password *</label
+              >
+              <input
+                type="password"
+                id="currentPassword"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >New Password *</label
+              >
+              <input
+                type="password"
+                id="newPassword"
+                required
+                minlength="6"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Confirm New Password *</label
+              >
+              <input
+                type="password"
+                id="confirmPassword"
+                required
+                minlength="6"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+
+            <button
+              type="submit"
+              id="changePasswordBtn"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <i class="fas fa-save mr-2"></i> Update Password
+            </button>
+          </form>
+        </div>
+
+        <!-- Emergency Contact Section -->
+        <div
+          id="section-emergency"
+          class="section-hidden bg-white rounded-lg shadow-md p-6"
+        >
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-bold text-gray-800">Emergency Contact</h3>
+            <button
+              onclick="toggleEditEmergency()"
+              id="editEmergencyBtn"
+              class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
+            >
+              <i class="fas fa-edit mr-2"></i> Edit
+            </button>
+          </div>
+
+          <form id="emergencyForm">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Contact Name *</label
+                >
+                <input
+                  type="text"
+                  id="emergencyContactName"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Relationship *</label
+                >
+                <select
+                  id="emergencyRelationship"
+                  required
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  disabled
+                >
+                  <option value="">Select relationship</option>
+                  <option value="Spouse">Spouse</option>
+                  <option value="Parent">Parent</option>
+                  <option value="Sibling">Sibling</option>
+                  <option value="Child">Child</option>
+                  <option value="Friend">Friend</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Phone Number *</label
+                >
+                <input
+                  type="tel"
+                  id="emergencyPhone"
+                  required
+                  pattern="[0-9+\-\s()]+"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Email</label
+                >
+                <input
+                  type="email"
+                  id="emergencyEmail"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                />
+              </div>
+
+              <div class="md:col-span-2">
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Address</label
+                >
+                <textarea
+                  id="emergencyAddress"
+                  rows="3"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
+                  readonly
+                ></textarea>
+              </div>
+            </div>
+
+            <div id="emergencyFormButtons" class="mt-6 flex gap-3 hidden">
+              <button
+                type="submit"
+                id="saveEmergencyBtn"
+                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <i class="fas fa-save mr-2"></i> Save Changes
+              </button>
+              <button
+                type="button"
+                onclick="cancelEditEmergency()"
+                class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition"
+              >
+                <i class="fas fa-times mr-2"></i> Cancel
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script>
-        // Authentication check
-        if (!requireAuth()) {}
+      // Authentication check
+      if (!requireAuth()) {
+      }
 
-        const currentUser = getCurrentUser();
-        let employeeData = null;
-        let emergencyContactRecord = null; // Store the emergency contact record
-        let isSubmitting = false;
+      const currentUser = getCurrentUser();
+      let employeeData = null;
+      let emergencyContactRecord = null; // Store the emergency contact record
+      let isSubmitting = false;
 
-        // Redirect to correct dashboard based on role
-        function goToDashboard() {
-            if (currentUser.role === 'Admin') {
-                window.location.href = 'admin-dashboard.html';
-            } else {
-                window.location.href = 'dashboard.html';
-            }
+      // Redirect to correct dashboard based on role
+      function goToDashboard() {
+        if (currentUser.role === "Admin") {
+          window.location.href = "admin-dashboard.html";
+        } else {
+          window.location.href = "dashboard.html";
         }
+      }
 
-        // Show notification
-        function showNotification(message, type = 'success') {
-            // Remove existing notifications
-            const existing = document.querySelectorAll('.notification');
-            existing.forEach(n => n.remove());
+      // Show notification
+      function showNotification(message, type = "success") {
+        // Remove existing notifications
+        const existing = document.querySelectorAll(".notification");
+        existing.forEach((n) => n.remove());
 
-            const notification = document.createElement('div');
-            notification.className = `notification fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
-                type === 'success' ? 'bg-green-600' : 'bg-red-600'
-            }`;
-            notification.innerHTML = `
+        const notification = document.createElement("div");
+        notification.className = `notification fixed top-4 right-4 px-6 py-4 rounded-lg shadow-lg text-white z-50 transform transition-all duration-300 ${
+          type === "success" ? "bg-green-600" : "bg-red-600"
+        }`;
+        notification.innerHTML = `
                 <div class="flex items-center gap-3">
-                    <i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'} text-xl"></i>
+                    <i class="fas fa-${type === "success" ? "check-circle" : "exclamation-circle"} text-xl"></i>
                     <span class="font-medium">${message}</span>
                 </div>
             `;
-            document.body.appendChild(notification);
+        document.body.appendChild(notification);
 
-            setTimeout(() => {
-                notification.style.transform = 'translateX(400px)';
-                notification.style.opacity = '0';
-                setTimeout(() => notification.remove(), 300);
-            }, 4000);
-        }
+        setTimeout(() => {
+          notification.style.transform = "translateX(400px)";
+          notification.style.opacity = "0";
+          setTimeout(() => notification.remove(), 300);
+        }, 4000);
+      }
 
-        // Show loading overlay
-        function showLoadingOverlay(show) {
-            let overlay = document.getElementById('loadingOverlay');
+      // Show loading overlay
+      function showLoadingOverlay(show) {
+        let overlay = document.getElementById("loadingOverlay");
 
-            if (show) {
-                if (!overlay) {
-                    overlay = document.createElement('div');
-                    overlay.id = 'loadingOverlay';
-                    overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-                    overlay.innerHTML = `
+        if (show) {
+          if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "loadingOverlay";
+            overlay.className =
+              "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
+            overlay.innerHTML = `
                         <div class="bg-white rounded-lg p-8 flex flex-col items-center">
                             <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
                             <p class="text-gray-700 font-medium">Processing...</p>
                         </div>
                     `;
-                    document.body.appendChild(overlay);
-                }
+            document.body.appendChild(overlay);
+          }
+        } else {
+          if (overlay) {
+            overlay.remove();
+          }
+        }
+      }
+
+      // Initialize page
+      async function initializePage() {
+        const userInfoText = `Welcome, ${currentUser.name}`;
+        document.getElementById("userInfo").textContent = userInfoText;
+        await loadEmployeeData();
+      }
+
+      // Load employee data
+      async function loadEmployeeData() {
+        try {
+          const data = await getEmployee(currentUser.id);
+          employeeData = data.fields;
+          populateProfile();
+          populateEmployment();
+          await loadEmergencyContact(); // Load from separate table
+        } catch (error) {
+          console.error("Error loading employee data:", error);
+          showNotification(
+            "Failed to load profile data. Please refresh the page.",
+            "error"
+          );
+        }
+      }
+
+      // Populate profile
+      function populateProfile() {
+        const name = employeeData["Full Name"] || "User";
+        // Better initials handling - take first letter of first and last name
+        const names = name.trim().split(/\s+/);
+        let initials = names[0][0].toUpperCase();
+        if (names.length > 1) {
+          initials += names[names.length - 1][0].toUpperCase();
+        }
+        document.getElementById("profileInitials").textContent = initials;
+        document.getElementById("sidebarName").textContent = name;
+        document.getElementById("sidebarRole").textContent =
+          employeeData["Status"] || currentUser.role;
+
+        document.getElementById("fullName").value =
+          employeeData["Full Name"] || "";
+        document.getElementById("email").value = employeeData["Email"] || "";
+        document.getElementById("phoneNumber").value =
+          employeeData["Phone Number"] || "";
+        document.getElementById("dateOfBirth").value =
+          employeeData["Date of Birth"] || "";
+        document.getElementById("address").value =
+          employeeData["Address"] || "";
+        document.getElementById("city").value = employeeData["City"] || "";
+        document.getElementById("country").value =
+          employeeData["Country"] || "";
+      }
+
+      // Populate employment
+      function populateEmployment() {
+        document.getElementById("employeeId").textContent =
+          employeeData["Employee ID"] || "--";
+        document.getElementById("empJobTitle").textContent =
+          employeeData["Job Title"] || "--";
+        document.getElementById("department").textContent =
+          employeeData["Department"] || "--";
+        document.getElementById("employmentType").textContent =
+          employeeData["Status"] || "--";
+        document.getElementById("joiningDate").textContent = employeeData[
+          "Joining Date"
+        ]
+          ? new Date(employeeData["Joining Date"]).toLocaleDateString()
+          : "--";
+        document.getElementById("salary").textContent = employeeData["Salary"]
+          ? `GH₵${parseFloat(employeeData["Salary"]).toLocaleString()}`
+          : "--";
+        document.getElementById("annualLeave").textContent =
+          employeeData["Annual Leave Balance"] !== undefined
+            ? employeeData["Annual Leave Balance"]
+            : 20;
+        document.getElementById("sickLeave").textContent =
+          employeeData["Sick Leave Balance"] || 0;
+      }
+
+      // Load and populate emergency contact from separate table
+      async function loadEmergencyContact() {
+        try {
+          // Search for emergency contact linked to this employee by name
+          const filterFormula = `{Emergency Contact Name} = '${currentUser.name}'`;
+          const data = await getEmergencyContacts(filterFormula);
+
+          if (data.records && data.records.length > 0) {
+            emergencyContactRecord = data.records[0];
+            const fields = emergencyContactRecord.fields;
+
+            document.getElementById("emergencyContactName").value =
+              fields["Emergency Contact Name"] || "";
+            document.getElementById("emergencyRelationship").value =
+              fields["Relationship"] || "";
+            document.getElementById("emergencyPhone").value =
+              fields["Phone Number"] || "";
+            document.getElementById("emergencyEmail").value =
+              fields["Email"] || "";
+            document.getElementById("emergencyAddress").value =
+              fields["Address"] || "";
+          } else {
+            // No emergency contact found - clear fields
+            emergencyContactRecord = null;
+            document.getElementById("emergencyContactName").value = "";
+            document.getElementById("emergencyRelationship").value = "";
+            document.getElementById("emergencyPhone").value = "";
+            document.getElementById("emergencyEmail").value = "";
+            document.getElementById("emergencyAddress").value = "";
+          }
+        } catch (error) {
+          console.error("Error loading emergency contact:", error);
+        }
+      }
+
+      // Tab switching
+      function showTab(tabName) {
+        document.querySelectorAll('[id^="section-"]').forEach((section) => {
+          section.classList.add("section-hidden");
+        });
+        document.querySelectorAll('[id^="tab-"]').forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document
+          .getElementById(`section-${tabName}`)
+          .classList.remove("section-hidden");
+        document.getElementById(`tab-${tabName}`).classList.add("active");
+      }
+
+      // Toggle edit profile
+      function toggleEditProfile() {
+        const inputs = document.querySelectorAll(
+          "#profileForm input:not(#email), #profileForm textarea"
+        );
+        const isReadonly = inputs[0].hasAttribute("readonly");
+
+        inputs.forEach((input) => {
+          if (isReadonly) {
+            input.removeAttribute("readonly");
+            input.classList.remove("bg-gray-50");
+            input.classList.add("bg-white");
+          } else {
+            input.setAttribute("readonly", true);
+            input.classList.add("bg-gray-50");
+            input.classList.remove("bg-white");
+          }
+        });
+
+        document
+          .getElementById("profileFormButtons")
+          .classList.toggle("hidden");
+        document.getElementById("editProfileBtn").innerHTML = isReadonly
+          ? '<i class="fas fa-times mr-2"></i> Cancel'
+          : '<i class="fas fa-edit mr-2"></i> Edit';
+      }
+
+      function cancelEditProfile() {
+        toggleEditProfile();
+        populateProfile();
+      }
+
+      // Toggle edit emergency
+      function toggleEditEmergency() {
+        const inputs = document.querySelectorAll(
+          "#emergencyForm input, #emergencyForm textarea, #emergencyForm select"
+        );
+        const isReadonly = inputs[0].hasAttribute("readonly");
+
+        inputs.forEach((input) => {
+          if (input.tagName === "SELECT") {
+            input.disabled = !input.disabled;
+            if (!input.disabled) {
+              input.classList.remove("bg-gray-50");
+              input.classList.add("bg-white");
             } else {
-                if (overlay) {
-                    overlay.remove();
-                }
+              input.classList.add("bg-gray-50");
+              input.classList.remove("bg-white");
             }
-        }
-
-        // Initialize page
-        async function initializePage() {
-            const userInfoText = `Welcome, ${currentUser.name}`;
-            document.getElementById('userInfo').textContent = userInfoText;
-            await loadEmployeeData();
-        }
-
-        // Load employee data
-        async function loadEmployeeData() {
-            try {
-                const data = await getEmployee(currentUser.id);
-                employeeData = data.fields;
-                populateProfile();
-                populateEmployment();
-                await loadEmergencyContact(); // Load from separate table
-            } catch (error) {
-                console.error('Error loading employee data:', error);
-                showNotification('Failed to load profile data. Please refresh the page.', 'error');
+          } else {
+            if (isReadonly) {
+              input.removeAttribute("readonly");
+              input.classList.remove("bg-gray-50");
+              input.classList.add("bg-white");
+            } else {
+              input.setAttribute("readonly", true);
+              input.classList.add("bg-gray-50");
+              input.classList.remove("bg-white");
             }
+          }
+        });
+
+        document
+          .getElementById("emergencyFormButtons")
+          .classList.toggle("hidden");
+        document.getElementById("editEmergencyBtn").innerHTML = isReadonly
+          ? '<i class="fas fa-times mr-2"></i> Cancel'
+          : '<i class="fas fa-edit mr-2"></i> Edit';
+      }
+
+      function cancelEditEmergency() {
+        toggleEditEmergency();
+        populateEmergencyContact();
+      }
+
+      // Validate form data
+      function validateProfileForm() {
+        const fullName = document.getElementById("fullName").value.trim();
+        if (fullName.length < 2) {
+          showNotification("Please enter a valid full name", "error");
+          return false;
         }
 
-        // Populate profile
-        function populateProfile() {
-            const name = employeeData['Full Name'] || 'User';
-            // Better initials handling - take first letter of first and last name
-            const names = name.trim().split(/\s+/);
-            let initials = names[0][0].toUpperCase();
-            if (names.length > 1) {
-                initials += names[names.length - 1][0].toUpperCase();
-            }
-            document.getElementById('profileInitials').textContent = initials;
-            document.getElementById('sidebarName').textContent = name;
-            document.getElementById('sidebarRole').textContent = employeeData['Status'] || currentUser.role;
-
-            document.getElementById('fullName').value = employeeData['Full Name'] || '';
-            document.getElementById('email').value = employeeData['Email'] || '';
-            document.getElementById('phoneNumber').value = employeeData['Phone Number'] || '';
-            document.getElementById('dateOfBirth').value = employeeData['Date of Birth'] || '';
-            document.getElementById('address').value = employeeData['Address'] || '';
-            document.getElementById('city').value = employeeData['City'] || '';
-            document.getElementById('country').value = employeeData['Country'] || '';
+        const phoneNumber = document.getElementById("phoneNumber").value.trim();
+        if (phoneNumber && !/^[0-9+\-\s()]+$/.test(phoneNumber)) {
+          showNotification("Please enter a valid phone number", "error");
+          return false;
         }
 
-        // Populate employment
-        function populateEmployment() {
-            document.getElementById('employeeId').textContent = employeeData['Employee ID'] || '--';
-            document.getElementById('empJobTitle').textContent = employeeData['Job Title'] || '--';
-            document.getElementById('department').textContent = employeeData['Department'] || '--';
-            document.getElementById('employmentType').textContent = employeeData['Status'] || '--';
-            document.getElementById('joiningDate').textContent = employeeData['Joining Date'] ? new Date(employeeData['Joining Date']).toLocaleDateString() : '--';
-            document.getElementById('salary').textContent = employeeData['Salary'] ? `GH₵${parseFloat(employeeData['Salary']).toLocaleString()}` : '--';
-            document.getElementById('annualLeave').textContent = employeeData['Annual Leave Balance'] !== undefined ? employeeData['Annual Leave Balance'] : 20;
-            document.getElementById('sickLeave').textContent = employeeData['Sick Leave Balance'] || 0;
-        }
+        return true;
+      }
 
-        // Load and populate emergency contact from separate table
-        async function loadEmergencyContact() {
-            try {
-                // Search for emergency contact linked to this employee by name
-                const filterFormula = `{Emergency Contact Name} = '${currentUser.name}'`;
-                const data = await getEmergencyContacts(filterFormula);
+      // Submit profile form
+      document
+        .getElementById("profileForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-                if (data.records && data.records.length > 0) {
-                    emergencyContactRecord = data.records[0];
-                    const fields = emergencyContactRecord.fields;
+          if (isSubmitting) return;
+          if (!validateProfileForm()) return;
 
-                    document.getElementById('emergencyContactName').value = fields['Emergency Contact Name'] || '';
-                    document.getElementById('emergencyRelationship').value = fields['Relationship'] || '';
-                    document.getElementById('emergencyPhone').value = fields['Phone Number'] || '';
-                    document.getElementById('emergencyEmail').value = fields['Email'] || '';
-                    document.getElementById('emergencyAddress').value = fields['Address'] || '';
-                } else {
-                    // No emergency contact found - clear fields
-                    emergencyContactRecord = null;
-                    document.getElementById('emergencyContactName').value = '';
-                    document.getElementById('emergencyRelationship').value = '';
-                    document.getElementById('emergencyPhone').value = '';
-                    document.getElementById('emergencyEmail').value = '';
-                    document.getElementById('emergencyAddress').value = '';
-                }
-            } catch (error) {
-                console.error('Error loading emergency contact:', error);
-            }
-        }
+          const saveBtn = document.getElementById("saveProfileBtn");
+          isSubmitting = true;
+          saveBtn.disabled = true;
+          saveBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
-        // Tab switching
-        function showTab(tabName) {
-            document.querySelectorAll('[id^="section-"]').forEach(section => {
-                section.classList.add('section-hidden');
-            });
-            document.querySelectorAll('[id^="tab-"]').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            document.getElementById(`section-${tabName}`).classList.remove('section-hidden');
-            document.getElementById(`tab-${tabName}`).classList.add('active');
-        }
+          try {
+            // Build update object with only non-empty fields
+            const updateData = {
+              "Full Name": document.getElementById("fullName").value.trim(),
+            };
 
-        // Toggle edit profile
-        function toggleEditProfile() {
-            const inputs = document.querySelectorAll('#profileForm input:not(#email), #profileForm textarea');
-            const isReadonly = inputs[0].hasAttribute('readonly');
+            // List of optional fields to check - only add if they exist in employeeData (meaning they exist in Airtable)
+            const optionalFields = [
+              { key: "Phone Number", elementId: "phoneNumber" },
+              { key: "Date of Birth", elementId: "dateOfBirth" },
+              { key: "Address", elementId: "address" },
+              { key: "City", elementId: "city" },
+              { key: "Country", elementId: "country" },
+            ];
 
-            inputs.forEach(input => {
-                if (isReadonly) {
-                    input.removeAttribute('readonly');
-                    input.classList.remove('bg-gray-50');
-                    input.classList.add('bg-white');
-                } else {
-                    input.setAttribute('readonly', true);
-                    input.classList.add('bg-gray-50');
-                    input.classList.remove('bg-white');
-                }
+            console.log(
+              "Current employee data fields:",
+              Object.keys(employeeData)
+            );
+
+            // Only add fields that exist in the original employee data (Airtable schema)
+            optionalFields.forEach((field) => {
+              // Check if this field exists in employeeData (i.e., exists in Airtable)
+              if (field.key in employeeData) {
+                const value = document
+                  .getElementById(field.elementId)
+                  .value.trim();
+                updateData[field.key] = value; // Send even if empty to allow clearing fields
+                console.log(`Adding field ${field.key}:`, value);
+              } else {
+                console.warn(
+                  `Field ${field.key} not found in Airtable - skipping`
+                );
+              }
             });
 
-            document.getElementById('profileFormButtons').classList.toggle('hidden');
-            document.getElementById('editProfileBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel' : '<i class="fas fa-edit mr-2"></i> Edit';
-        }
+            console.log("Updating employee with data:", updateData);
+            await updateEmployee(currentUser.id, updateData);
 
-        function cancelEditProfile() {
+            // Update session if name changed
+            const newName = document.getElementById("fullName").value.trim();
+            if (newName !== currentUser.name) {
+              currentUser.name = newName;
+              sessionStorage.setItem(
+                "currentUser",
+                JSON.stringify(currentUser)
+              );
+              document.getElementById("userInfo").textContent =
+                `Welcome, ${newName}`;
+            }
+
+            showNotification("Profile updated successfully!", "success");
             toggleEditProfile();
-            populateProfile();
+            await loadEmployeeData();
+          } catch (error) {
+            console.error("Error updating profile:", error);
+            // More detailed error message
+            let errorMsg = "Failed to update profile. ";
+            try {
+              const errorObj = JSON.parse(error.message);
+              if (errorObj.message) {
+                errorMsg += errorObj.message;
+              }
+            } catch (e) {
+              errorMsg += "Please try again.";
+            }
+            showNotification(errorMsg, "error");
+          } finally {
+            isSubmitting = false;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+          }
+        });
+
+      // Validate emergency contact
+      function validateEmergencyForm() {
+        const name = document
+          .getElementById("emergencyContactName")
+          .value.trim();
+        const phone = document.getElementById("emergencyPhone").value.trim();
+        const relationship = document.getElementById(
+          "emergencyRelationship"
+        ).value;
+
+        if (!name || !phone || !relationship) {
+          showNotification(
+            "Please fill in all required emergency contact fields",
+            "error"
+          );
+          return false;
         }
 
-        // Toggle edit emergency
-        function toggleEditEmergency() {
-            const inputs = document.querySelectorAll('#emergencyForm input, #emergencyForm textarea, #emergencyForm select');
-            const isReadonly = inputs[0].hasAttribute('readonly');
+        if (!/^[0-9+\-\s()]+$/.test(phone)) {
+          showNotification("Please enter a valid phone number", "error");
+          return false;
+        }
 
-            inputs.forEach(input => {
-                if (input.tagName === 'SELECT') {
-                    input.disabled = !input.disabled;
-                    if (!input.disabled) {
-                        input.classList.remove('bg-gray-50');
-                        input.classList.add('bg-white');
-                    } else {
-                        input.classList.add('bg-gray-50');
-                        input.classList.remove('bg-white');
-                    }
-                } else {
-                    if (isReadonly) {
-                        input.removeAttribute('readonly');
-                        input.classList.remove('bg-gray-50');
-                        input.classList.add('bg-white');
-                    } else {
-                        input.setAttribute('readonly', true);
-                        input.classList.add('bg-gray-50');
-                        input.classList.remove('bg-white');
-                    }
-                }
+        return true;
+      }
+
+      // Submit emergency form
+      document
+        .getElementById("emergencyForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          if (isSubmitting) return;
+          if (!validateEmergencyForm()) return;
+
+          const saveBtn = document.getElementById("saveEmergencyBtn");
+          isSubmitting = true;
+          saveBtn.disabled = true;
+          saveBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
+          try {
+            // Build emergency contact data with correct field names
+            const emergencyData = {
+              "Emergency Contact Name": document
+                .getElementById("emergencyContactName")
+                .value.trim(),
+              Relationship: document.getElementById("emergencyRelationship")
+                .value,
+              "Phone Number": document
+                .getElementById("emergencyPhone")
+                .value.trim(),
+              Employee: [currentUser.id], // Link to current employee
+            };
+
+            // Only add optional fields if they have values
+            const emergencyEmail = document
+              .getElementById("emergencyEmail")
+              .value.trim();
+            if (emergencyEmail) emergencyData["Email"] = emergencyEmail;
+
+            const emergencyAddress = document
+              .getElementById("emergencyAddress")
+              .value.trim();
+            if (emergencyAddress) emergencyData["Address"] = emergencyAddress;
+
+            console.log("Saving emergency contact with data:", emergencyData);
+
+            // Create or update emergency contact in separate table
+            if (emergencyContactRecord) {
+              // Update existing record (don't update the Employee link when updating)
+              const updateData = { ...emergencyData };
+              delete updateData["Employee"]; // Can't update linked field
+              await updateEmergencyContact(
+                emergencyContactRecord.id,
+                updateData
+              );
+            } else {
+              // Create new record with Employee link
+              await createEmergencyContact(emergencyData);
+            }
+
+            showNotification(
+              "Emergency contact updated successfully!",
+              "success"
+            );
+            toggleEditEmergency();
+            await loadEmergencyContact();
+          } catch (error) {
+            console.error("Error updating emergency contact:", error);
+            // More detailed error message
+            let errorMsg = "Failed to update emergency contact. ";
+            try {
+              const errorObj = JSON.parse(error.message);
+              if (errorObj.message) {
+                errorMsg += errorObj.message;
+              }
+            } catch (e) {
+              errorMsg += "Please try again.";
+            }
+            showNotification(errorMsg, "error");
+          } finally {
+            isSubmitting = false;
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
+          }
+        });
+
+      // Change password
+      document
+        .getElementById("changePasswordForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+
+          if (isSubmitting) return;
+
+          const current = document
+            .getElementById("currentPassword")
+            .value.trim();
+          const newPass = document.getElementById("newPassword").value.trim();
+          const confirm = document
+            .getElementById("confirmPassword")
+            .value.trim();
+
+          // Hash the current password and compare with stored hash
+          const currentPasswordHash = await hashPassword(current);
+          if (currentPasswordHash !== employeeData["Password"]) {
+            showNotification("Current password is incorrect", "error");
+            return;
+          }
+
+          if (newPass !== confirm) {
+            showNotification("New passwords do not match", "error");
+            return;
+          }
+
+          if (newPass.length < 8) {
+            showNotification(
+              "Password must be at least 8 characters long",
+              "error"
+            );
+            return;
+          }
+
+          // Strong password validation
+          const hasUppercase = /[A-Z]/.test(newPass);
+          const hasNumber = /[0-9]/.test(newPass);
+          const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
+            newPass
+          );
+
+          if (!hasUppercase || !hasNumber || !hasSymbol) {
+            showNotification(
+              "Password must contain at least one uppercase letter, number, and special character",
+              "error"
+            );
+            return;
+          }
+
+          if (newPass === current) {
+            showNotification(
+              "New password must be different from current password",
+              "error"
+            );
+            return;
+          }
+
+          const changeBtn = document.getElementById("changePasswordBtn");
+          isSubmitting = true;
+          changeBtn.disabled = true;
+          changeBtn.innerHTML =
+            '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
+
+          try {
+            // Hash the new password before storing
+            const newPasswordHash = await hashPassword(newPass);
+
+            await updateEmployee(currentUser.id, {
+              Password: newPasswordHash,
             });
 
-            document.getElementById('emergencyFormButtons').classList.toggle('hidden');
-            document.getElementById('editEmergencyBtn').innerHTML = isReadonly ? '<i class="fas fa-times mr-2"></i> Cancel' : '<i class="fas fa-edit mr-2"></i> Edit';
-        }
-
-        function cancelEditEmergency() {
-            toggleEditEmergency();
-            populateEmergencyContact();
-        }
-
-        // Validate form data
-        function validateProfileForm() {
-            const fullName = document.getElementById('fullName').value.trim();
-            if (fullName.length < 2) {
-                showNotification('Please enter a valid full name', 'error');
-                return false;
-            }
-
-            const phoneNumber = document.getElementById('phoneNumber').value.trim();
-            if (phoneNumber && !/^[0-9+\-\s()]+$/.test(phoneNumber)) {
-                showNotification('Please enter a valid phone number', 'error');
-                return false;
-            }
-
-            return true;
-        }
-
-        // Submit profile form
-        document.getElementById('profileForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (isSubmitting) return;
-            if (!validateProfileForm()) return;
-
-            const saveBtn = document.getElementById('saveProfileBtn');
-            isSubmitting = true;
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-
-            try {
-                // Build update object with only non-empty fields
-                const updateData = {
-                    'Full Name': document.getElementById('fullName').value.trim()
-                };
-
-                // List of optional fields to check - only add if they exist in employeeData (meaning they exist in Airtable)
-                const optionalFields = [
-                    { key: 'Phone Number', elementId: 'phoneNumber' },
-                    { key: 'Date of Birth', elementId: 'dateOfBirth' },
-                    { key: 'Address', elementId: 'address' },
-                    { key: 'City', elementId: 'city' },
-                    { key: 'Country', elementId: 'country' }
-                ];
-
-                console.log('Current employee data fields:', Object.keys(employeeData));
-
-                // Only add fields that exist in the original employee data (Airtable schema)
-                optionalFields.forEach(field => {
-                    // Check if this field exists in employeeData (i.e., exists in Airtable)
-                    if (field.key in employeeData) {
-                        const value = document.getElementById(field.elementId).value.trim();
-                        updateData[field.key] = value; // Send even if empty to allow clearing fields
-                        console.log(`Adding field ${field.key}:`, value);
-                    } else {
-                        console.warn(`Field ${field.key} not found in Airtable - skipping`);
-                    }
-                });
-
-                console.log('Updating employee with data:', updateData);
-                await updateEmployee(currentUser.id, updateData);
-
-                // Update session if name changed
-                const newName = document.getElementById('fullName').value.trim();
-                if (newName !== currentUser.name) {
-                    currentUser.name = newName;
-                    sessionStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    document.getElementById('userInfo').textContent = `Welcome, ${newName}`;
-                }
-
-                showNotification('Profile updated successfully!', 'success');
-                toggleEditProfile();
-                await loadEmployeeData();
-            } catch (error) {
-                console.error('Error updating profile:', error);
-                // More detailed error message
-                let errorMsg = 'Failed to update profile. ';
-                try {
-                    const errorObj = JSON.parse(error.message);
-                    if (errorObj.message) {
-                        errorMsg += errorObj.message;
-                    }
-                } catch (e) {
-                    errorMsg += 'Please try again.';
-                }
-                showNotification(errorMsg, 'error');
-            } finally {
-                isSubmitting = false;
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
-            }
+            showNotification("Password updated successfully!", "success");
+            document.getElementById("changePasswordForm").reset();
+            await loadEmployeeData();
+          } catch (error) {
+            console.error("Error updating password:", error);
+            showNotification(
+              "Failed to update password. Please try again.",
+              "error"
+            );
+          } finally {
+            isSubmitting = false;
+            changeBtn.disabled = false;
+            changeBtn.innerHTML =
+              '<i class="fas fa-save mr-2"></i> Update Password';
+          }
         });
 
-        // Validate emergency contact
-        function validateEmergencyForm() {
-            const name = document.getElementById('emergencyContactName').value.trim();
-            const phone = document.getElementById('emergencyPhone').value.trim();
-            const relationship = document.getElementById('emergencyRelationship').value;
-
-            if (!name || !phone || !relationship) {
-                showNotification('Please fill in all required emergency contact fields', 'error');
-                return false;
-            }
-
-            if (!/^[0-9+\-\s()]+$/.test(phone)) {
-                showNotification('Please enter a valid phone number', 'error');
-                return false;
-            }
-
-            return true;
-        }
-
-        // Submit emergency form
-        document.getElementById('emergencyForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (isSubmitting) return;
-            if (!validateEmergencyForm()) return;
-
-            const saveBtn = document.getElementById('saveEmergencyBtn');
-            isSubmitting = true;
-            saveBtn.disabled = true;
-            saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
-
-            try {
-                // Build emergency contact data with correct field names
-                const emergencyData = {
-                    'Emergency Contact Name': document.getElementById('emergencyContactName').value.trim(),
-                    'Relationship': document.getElementById('emergencyRelationship').value,
-                    'Phone Number': document.getElementById('emergencyPhone').value.trim(),
-                    'Employee': [currentUser.id] // Link to current employee
-                };
-
-                // Only add optional fields if they have values
-                const emergencyEmail = document.getElementById('emergencyEmail').value.trim();
-                if (emergencyEmail) emergencyData['Email'] = emergencyEmail;
-
-                const emergencyAddress = document.getElementById('emergencyAddress').value.trim();
-                if (emergencyAddress) emergencyData['Address'] = emergencyAddress;
-
-                console.log('Saving emergency contact with data:', emergencyData);
-
-                // Create or update emergency contact in separate table
-                if (emergencyContactRecord) {
-                    // Update existing record (don't update the Employee link when updating)
-                    const updateData = { ...emergencyData };
-                    delete updateData['Employee']; // Can't update linked field
-                    await updateEmergencyContact(emergencyContactRecord.id, updateData);
-                } else {
-                    // Create new record with Employee link
-                    await createEmergencyContact(emergencyData);
-                }
-
-                showNotification('Emergency contact updated successfully!', 'success');
-                toggleEditEmergency();
-                await loadEmergencyContact();
-            } catch (error) {
-                console.error('Error updating emergency contact:', error);
-                // More detailed error message
-                let errorMsg = 'Failed to update emergency contact. ';
-                try {
-                    const errorObj = JSON.parse(error.message);
-                    if (errorObj.message) {
-                        errorMsg += errorObj.message;
-                    }
-                } catch (e) {
-                    errorMsg += 'Please try again.';
-                }
-                showNotification(errorMsg, 'error');
-            } finally {
-                isSubmitting = false;
-                saveBtn.disabled = false;
-                saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
-            }
-        });
-
-        // Change password
-        document.getElementById('changePasswordForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            if (isSubmitting) return;
-
-            const current = document.getElementById('currentPassword').value.trim();
-            const newPass = document.getElementById('newPassword').value.trim();
-            const confirm = document.getElementById('confirmPassword').value.trim();
-
-            // Hash the current password and compare with stored hash
-            const currentPasswordHash = await hashPassword(current);
-            if (currentPasswordHash !== employeeData['Password']) {
-                showNotification('Current password is incorrect', 'error');
-                return;
-            }
-
-            if (newPass !== confirm) {
-                showNotification('New passwords do not match', 'error');
-                return;
-            }
-
-            if (newPass.length < 8) {
-                showNotification('Password must be at least 8 characters long', 'error');
-                return;
-            }
-
-            // Strong password validation
-            const hasUppercase = /[A-Z]/.test(newPass);
-            const hasNumber = /[0-9]/.test(newPass);
-            const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPass);
-
-            if (!hasUppercase || !hasNumber || !hasSymbol) {
-                showNotification('Password must contain at least one uppercase letter, number, and special character', 'error');
-                return;
-            }
-
-            if (newPass === current) {
-                showNotification('New password must be different from current password', 'error');
-                return;
-            }
-
-            const changeBtn = document.getElementById('changePasswordBtn');
-            isSubmitting = true;
-            changeBtn.disabled = true;
-            changeBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
-
-            try {
-                // Hash the new password before storing
-                const newPasswordHash = await hashPassword(newPass);
-
-                await updateEmployee(currentUser.id, {
-                    'Password': newPasswordHash
-                });
-
-                showNotification('Password updated successfully!', 'success');
-                document.getElementById('changePasswordForm').reset();
-                await loadEmployeeData();
-            } catch (error) {
-                console.error('Error updating password:', error);
-                showNotification('Failed to update password. Please try again.', 'error');
-            } finally {
-                isSubmitting = false;
-                changeBtn.disabled = false;
-                changeBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Update Password';
-            }
-        });
-
-        // Initialize
-        initializePage();
+      // Initialize
+      initializePage();
     </script>
-</body>
+  </body>
 </html>

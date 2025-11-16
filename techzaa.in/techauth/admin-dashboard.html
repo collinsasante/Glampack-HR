@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packaging Glamour HR</title>
 
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Configuration Script - Load FIRST -->
     <script src="config-worker.js?v=2"></script>
@@ -20,714 +26,1309 @@
     <script src="auth.js"></script>
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 50;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.5);
-        }
-        .modal.active {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .tab-active {
-            border-bottom: 3px solid #dc2626;
-            color: #dc2626;
-        }
-
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 50;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.5);
+      }
+      .modal.active {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .tab-active {
+        border-bottom: 3px solid #dc2626;
+        color: #dc2626;
+      }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-
+  </head>
+  <body class="bg-gray-100 min-h-screen">
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold text-red-600">HR System</h1>
-                    <span class="text-gray-600" id="userInfo"></span>
-                </div>
+      <div class="flex items-center space-x-3">
+        <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+      </div>
+      
 
-                <!-- Admin Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="admin-dashboard.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
-                    </a>
-                    <a href="admin-medical-claims.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-            </div>
+          <!-- Admin Menu -->
+          <div class="flex items-center space-x-4">
+            <a href="admin-dashboard.html" class="text-red-600 font-semibold">
+              <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
+            </a>
+            <a
+              href="admin-medical-claims.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
         </div>
+      </div>
     </nav>
 
     <div class="container mx-auto px-4 py-8">
-        <!-- Header -->
-        <div class="mb-6">
-            <h2 class="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
-            <p class="text-gray-600 mt-1">Manage employees, attendance, and system settings</p>
-        </div>
+      <!-- Header -->
+      <div class="mb-6">
+        <h2 class="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
+        <p class="text-gray-600 mt-1">
+          Manage employees, attendance, and system settings
+        </p>
+      </div>
 
-        <!-- Tabs -->
-        <div class="bg-white rounded-lg shadow-lg mb-6">
-            <div class="flex border-b">
-                <button onclick="switchTab('employees')" id="tab-employees" class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active">
-                    <i class="fas fa-users mr-2"></i> Employee Management
-                </button>
-                <button onclick="switchTab('leave')" id="tab-leave" class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-calendar-check mr-2"></i> Leave Approvals
-                </button>
-                <button onclick="switchTab('attendance')" id="tab-attendance" class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-clock mr-2"></i> Attendance Records
-                </button>
-                <button onclick="switchTab('announcements')" id="tab-announcements" class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-bullhorn mr-2"></i> Announcements
-                </button>
-                <button onclick="switchTab('payroll')" id="tab-payroll" class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50">
-                    <i class="fas fa-money-check-alt mr-2"></i> Payroll Management
-                </button>
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow-lg mb-6">
+        <div class="flex border-b">
+          <button
+            onclick="switchTab('employees')"
+            id="tab-employees"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active"
+          >
+            <i class="fas fa-users mr-2"></i> Employee Management
+          </button>
+          <button
+            onclick="switchTab('leave')"
+            id="tab-leave"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <i class="fas fa-calendar-check mr-2"></i> Leave Approvals
+          </button>
+          <button
+            onclick="switchTab('attendance')"
+            id="tab-attendance"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <i class="fas fa-clock mr-2"></i> Attendance Records
+          </button>
+          <button
+            onclick="switchTab('announcements')"
+            id="tab-announcements"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <i class="fas fa-bullhorn mr-2"></i> Announcements
+          </button>
+          <button
+            onclick="switchTab('payroll')"
+            id="tab-payroll"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <i class="fas fa-money-check-alt mr-2"></i> Payroll Management
+          </button>
+        </div>
+      </div>
+
+      <!-- Employee Management Tab -->
+      <div id="content-employees" class="tab-content">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">All Employees</h3>
+            <button
+              onclick="openAddEmployeeModal()"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+            >
+              <i class="fas fa-plus mr-2"></i> Add Employee
+            </button>
+          </div>
+
+          <!-- Search and Filter -->
+          <div class="mb-4 flex gap-4">
+            <input
+              type="text"
+              id="employeeSearch"
+              onkeyup="filterEmployees()"
+              placeholder="Search by name or email..."
+              class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            <select
+              id="departmentFilter"
+              onchange="filterEmployees()"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="">All Departments</option>
+              <option value="Engineering">Engineering</option>
+              <option value="HR">HR</option>
+              <option value="Sales">Sales</option>
+              <option value="Marketing">Marketing</option>
+              <option value="Finance">Finance</option>
+            </select>
+          </div>
+
+          <!-- Employees Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Name
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Email
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Role
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="employeesTableBody"
+                class="bg-white divide-y divide-gray-200"
+              >
+                <tr>
+                  <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading employees...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Leave Approvals Tab -->
+      <div id="content-leave" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-6">
+            Pending Leave Requests
+          </h3>
+
+          <!-- Leave Requests Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Employee
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Leave Type
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Start Date
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    End Date
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Days
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Reason
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="leaveRequestsBody"
+                class="bg-white divide-y divide-gray-200"
+              >
+                <tr>
+                  <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading leave requests...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Attendance Records Tab -->
+      <div id="content-attendance" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Attendance Records</h3>
+            <button
+              onclick="exportAttendanceReport()"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+            >
+              <i class="fas fa-download mr-2"></i> Export Report
+            </button>
+          </div>
+
+          <!-- Statistics Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600">Present Today</p>
+                  <p
+                    id="statPresentToday"
+                    class="text-2xl font-bold text-green-600"
+                  >
+                    0
+                  </p>
+                </div>
+                <i class="fas fa-user-check text-3xl text-green-600"></i>
+              </div>
             </div>
-        </div>
-
-        <!-- Employee Management Tab -->
-        <div id="content-employees" class="tab-content">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">All Employees</h3>
-                    <button onclick="openAddEmployeeModal()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i> Add Employee
-                    </button>
+            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600">Late Today</p>
+                  <p
+                    id="statLateToday"
+                    class="text-2xl font-bold text-yellow-600"
+                  >
+                    0
+                  </p>
                 </div>
-
-                <!-- Search and Filter -->
-                <div class="mb-4 flex gap-4">
-                    <input type="text" id="employeeSearch" onkeyup="filterEmployees()" placeholder="Search by name or email..." class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    <select id="departmentFilter" onchange="filterEmployees()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        <option value="">All Departments</option>
-                        <option value="Engineering">Engineering</option>
-                        <option value="HR">HR</option>
-                        <option value="Sales">Sales</option>
-                        <option value="Marketing">Marketing</option>
-                        <option value="Finance">Finance</option>
-                    </select>
-                </div>
-
-                <!-- Employees Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="employeesTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                                    <p>Loading employees...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <i class="fas fa-clock text-3xl text-yellow-600"></i>
+              </div>
             </div>
-        </div>
-
-        <!-- Leave Approvals Tab -->
-        <div id="content-leave" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-6">Pending Leave Requests</h3>
-
-                <!-- Leave Requests Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Leave Type</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Start Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">End Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reason</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="leaveRequestsBody" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                                    <p>Loading leave requests...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600">Avg Hours</p>
+                  <p id="statAvgHours" class="text-2xl font-bold text-blue-600">
+                    0h
+                  </p>
                 </div>
+                <i class="fas fa-hourglass-half text-3xl text-blue-600"></i>
+              </div>
             </div>
-        </div>
-
-        <!-- Attendance Records Tab -->
-        <div id="content-attendance" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Attendance Records</h3>
-                    <button onclick="exportAttendanceReport()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                        <i class="fas fa-download mr-2"></i> Export Report
-                    </button>
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600">Attendance Rate</p>
+                  <p
+                    id="statAttendanceRate"
+                    class="text-2xl font-bold text-purple-600"
+                  >
+                    0%
+                  </p>
                 </div>
-
-                <!-- Statistics Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div class="bg-green-50 p-4 rounded-lg border border-green-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Present Today</p>
-                                <p id="statPresentToday" class="text-2xl font-bold text-green-600">0</p>
-                            </div>
-                            <i class="fas fa-user-check text-3xl text-green-600"></i>
-                        </div>
-                    </div>
-                    <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Late Today</p>
-                                <p id="statLateToday" class="text-2xl font-bold text-yellow-600">0</p>
-                            </div>
-                            <i class="fas fa-clock text-3xl text-yellow-600"></i>
-                        </div>
-                    </div>
-                    <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Avg Hours</p>
-                                <p id="statAvgHours" class="text-2xl font-bold text-blue-600">0h</p>
-                            </div>
-                            <i class="fas fa-hourglass-half text-3xl text-blue-600"></i>
-                        </div>
-                    </div>
-                    <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <p class="text-sm text-gray-600">Attendance Rate</p>
-                                <p id="statAttendanceRate" class="text-2xl font-bold text-purple-600">0%</p>
-                            </div>
-                            <i class="fas fa-chart-line text-3xl text-purple-600"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Date Filter -->
-                <div class="mb-4 flex gap-4 flex-wrap">
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">Date Range</label>
-                        <select id="attendanceDateRange" onchange="loadAttendanceRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month" selected>This Month</option>
-                            <option value="custom">Custom Date</option>
-                        </select>
-                    </div>
-                    <div id="customDateContainer" class="hidden">
-                        <label class="block text-xs text-gray-600 mb-1">Select Date</label>
-                        <input type="date" id="attendanceDate" onchange="loadAttendanceRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">Employee</label>
-                        <select id="attendanceEmployeeFilter" onchange="loadAttendanceRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="">All Employees</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">Status</label>
-                        <select id="attendanceStatusFilter" onchange="loadAttendanceRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="">All Status</option>
-                            <option value="present">Present</option>
-                            <option value="late">Late</option>
-                            <option value="incomplete">Incomplete</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Attendance Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check In</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check Out</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hours</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
-                            </tr>
-                        </thead>
-                        <tbody id="attendanceRecordsBody" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                                    <p>Loading attendance records...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <i class="fas fa-chart-line text-3xl text-purple-600"></i>
+              </div>
             </div>
-        </div>
+          </div>
 
-        <!-- Announcements Tab -->
-        <div id="content-announcements" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Manage Announcements</h3>
-                    <button onclick="openAddAnnouncementModal()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i> New Announcement
-                    </button>
-                </div>
-
-                <!-- Filter -->
-                <div class="mb-4">
-                    <select id="announcementFilter" onchange="loadAnnouncements()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        <option value="all">All Announcements</option>
-                        <option value="High">High Priority</option>
-                        <option value="Medium">Medium Priority</option>
-                        <option value="Low">Low Priority</option>
-                    </select>
-                </div>
-
-                <!-- Announcements List -->
-                <div id="announcementsContainer" class="space-y-4">
-                    <!-- Will be populated by JavaScript -->
-                </div>
+          <!-- Date Filter -->
+          <div class="mb-4 flex gap-4 flex-wrap">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">Date Range</label>
+              <select
+                id="attendanceDateRange"
+                onchange="loadAttendanceRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="today">Today</option>
+                <option value="week">This Week</option>
+                <option value="month" selected>This Month</option>
+                <option value="custom">Custom Date</option>
+              </select>
             </div>
-        </div>
-
-        <!-- Payroll Management Tab -->
-        <div id="content-payroll" class="tab-content hidden">
-            <div class="bg-white rounded-lg shadow-lg p-6">
-                <div class="flex justify-between items-center mb-6">
-                    <h3 class="text-xl font-bold text-gray-800">Payroll Records</h3>
-                    <button onclick="openAddPayrollModal()" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i> Create Payroll
-                    </button>
-                </div>
-
-                <!-- Filters -->
-                <div class="mb-4 flex gap-4 flex-wrap">
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">Employee</label>
-                        <select id="payrollEmployeeFilter" onchange="loadPayrollRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="">All Employees</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-xs text-gray-600 mb-1">Month</label>
-                        <input type="month" id="payrollMonthFilter" onchange="loadPayrollRecords()" class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <!-- Payroll Table -->
-                <div class="overflow-x-auto">
-                    <table class="min-w-full">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employee</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Month</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Basic Salary</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Allowances</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Deductions</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Net Salary</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="payrollTableBody" class="bg-white divide-y divide-gray-200">
-                            <tr>
-                                <td colspan="7" class="px-6 py-12 text-center text-gray-500">
-                                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
-                                    <p>Loading payroll records...</p>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+            <div id="customDateContainer" class="hidden">
+              <label class="block text-xs text-gray-600 mb-1"
+                >Select Date</label
+              >
+              <input
+                type="date"
+                id="attendanceDate"
+                onchange="loadAttendanceRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
             </div>
-        </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">Employee</label>
+              <select
+                id="attendanceEmployeeFilter"
+                onchange="loadAttendanceRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">All Employees</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">Status</label>
+              <select
+                id="attendanceStatusFilter"
+                onchange="loadAttendanceRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">All Status</option>
+                <option value="present">Present</option>
+                <option value="late">Late</option>
+                <option value="incomplete">Incomplete</option>
+              </select>
+            </div>
+          </div>
 
+          <!-- Attendance Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Employee
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Date
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Check In
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Check Out
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Hours
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Status
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Location
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="attendanceRecordsBody"
+                class="bg-white divide-y divide-gray-200"
+              >
+                <tr>
+                  <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading attendance records...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Announcements Tab -->
+      <div id="content-announcements" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">
+              Manage Announcements
+            </h3>
+            <button
+              onclick="openAddAnnouncementModal()"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+            >
+              <i class="fas fa-plus mr-2"></i> New Announcement
+            </button>
+          </div>
+
+          <!-- Filter -->
+          <div class="mb-4">
+            <select
+              id="announcementFilter"
+              onchange="loadAnnouncements()"
+              class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="all">All Announcements</option>
+              <option value="High">High Priority</option>
+              <option value="Medium">Medium Priority</option>
+              <option value="Low">Low Priority</option>
+            </select>
+          </div>
+
+          <!-- Announcements List -->
+          <div id="announcementsContainer" class="space-y-4">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Payroll Management Tab -->
+      <div id="content-payroll" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-bold text-gray-800">Payroll Records</h3>
+            <button
+              onclick="openAddPayrollModal()"
+              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+            >
+              <i class="fas fa-plus mr-2"></i> Create Payroll
+            </button>
+          </div>
+
+          <!-- Filters -->
+          <div class="mb-4 flex gap-4 flex-wrap">
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">Employee</label>
+              <select
+                id="payrollEmployeeFilter"
+                onchange="loadPayrollRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">All Employees</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-600 mb-1">Month</label>
+              <input
+                type="month"
+                id="payrollMonthFilter"
+                onchange="loadPayrollRecords()"
+                class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <!-- Payroll Table -->
+          <div class="overflow-x-auto">
+            <table class="min-w-full">
+              <thead class="bg-gray-50">
+                <tr>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Employee
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Month
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Basic Salary
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Total Allowances
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Total Deductions
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Net Salary
+                  </th>
+                  <th
+                    class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  >
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody
+                id="payrollTableBody"
+                class="bg-white divide-y divide-gray-200"
+              >
+                <tr>
+                  <td colspan="7" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                    <p>Loading payroll records...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Add/Edit Employee Modal -->
     <div id="employeeModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">Add Employee</h3>
-                <button onclick="closeEmployeeModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="employeeForm" class="p-6 space-y-4">
-                <input type="hidden" id="employeeId">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Full Name *</label>
-                        <input type="text" id="empFullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Email *</label>
-                        <input type="email" id="empEmail" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Status *</label>
-                        <select id="empStatus" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="">Select Status</option>
-                            <option value="Permanent">Permanent</option>
-                            <option value="Intern">Intern</option>
-                            <option value="National Service Personnel">National Service Personnel</option>
-                            <option value="Independent Contractor">Independent Contractor</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Role *</label>
-                        <select id="empRole" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="Employee">Employee</option>
-                            <option value="Admin">Admin</option>
-                            <option value="HR">HR</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Password *</label>
-                        <input type="password" id="empPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Min. 6 characters">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Confirm Password *</label>
-                        <input type="password" id="empConfirmPassword" required minlength="6" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent" placeholder="Min. 6 characters">
-                    </div>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeEmployeeModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        Save Employee
-                    </button>
-                </div>
-            </form>
+      <div
+        class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-2xl font-bold text-gray-800" id="modalTitle">
+            Add Employee
+          </h3>
+          <button
+            onclick="closeEmployeeModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="employeeForm" class="p-6 space-y-4">
+          <input type="hidden" id="employeeId" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Full Name *</label
+              >
+              <input
+                type="text"
+                id="empFullName"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Email *</label
+              >
+              <input
+                type="email"
+                id="empEmail"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Status *</label
+              >
+              <select
+                id="empStatus"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">Select Status</option>
+                <option value="Permanent">Permanent</option>
+                <option value="Intern">Intern</option>
+                <option value="National Service Personnel">
+                  National Service Personnel
+                </option>
+                <option value="Independent Contractor">
+                  Independent Contractor
+                </option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Role *</label
+              >
+              <select
+                id="empRole"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="Employee">Employee</option>
+                <option value="Admin">Admin</option>
+                <option value="HR">HR</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Password *</label
+              >
+              <input
+                type="password"
+                id="empPassword"
+                required
+                minlength="6"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Min. 6 characters"
+              />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Confirm Password *</label
+              >
+              <input
+                type="password"
+                id="empConfirmPassword"
+                required
+                minlength="6"
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Min. 6 characters"
+              />
+            </div>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closeEmployeeModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              Save Employee
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Edit Attendance Modal -->
     <div id="attendanceModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-2xl font-bold text-gray-800">Edit Attendance</h3>
-                <button onclick="closeAttendanceModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="attendanceForm" class="p-6 space-y-4">
-                <input type="hidden" id="attendanceId">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Employee</label>
-                    <input type="text" id="attEmployee" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Date</label>
-                    <input type="date" id="attDate" readonly class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Check In Time</label>
-                    <input type="time" id="attCheckIn" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Check Out Time</label>
-                    <input type="time" id="attCheckOut" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeAttendanceModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        Update
-                    </button>
-                </div>
-            </form>
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-2xl font-bold text-gray-800">Edit Attendance</h3>
+          <button
+            onclick="closeAttendanceModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="attendanceForm" class="p-6 space-y-4">
+          <input type="hidden" id="attendanceId" />
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Employee</label
+            >
+            <input
+              type="text"
+              id="attEmployee"
+              readonly
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Date</label
+            >
+            <input
+              type="date"
+              id="attDate"
+              readonly
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-100"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Check In Time</label
+            >
+            <input
+              type="time"
+              id="attCheckIn"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Check Out Time</label
+            >
+            <input
+              type="time"
+              id="attCheckOut"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closeAttendanceModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              Update
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Add Announcement Modal -->
     <div id="announcementModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-2xl font-bold text-gray-800" id="announcementModalTitle">New Announcement</h3>
-                <button onclick="closeAnnouncementModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="announcementForm" class="p-6 space-y-4">
-                <input type="hidden" id="announcementId">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Title *</label>
-                    <input type="text" id="annTitle" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Message *</label>
-                    <textarea id="annMessage" rows="5" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"></textarea>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Priority *</label>
-                    <select id="annPriority" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        <option value="Low">Low</option>
-                        <option value="Medium" selected>Medium</option>
-                        <option value="High">High</option>
-                    </select>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeAnnouncementModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        <i class="fas fa-paper-plane mr-2"></i> Post Announcement
-                    </button>
-                </div>
-            </form>
+      <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4">
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3
+            class="text-2xl font-bold text-gray-800"
+            id="announcementModalTitle"
+          >
+            New Announcement
+          </h3>
+          <button
+            onclick="closeAnnouncementModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="announcementForm" class="p-6 space-y-4">
+          <input type="hidden" id="announcementId" />
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Title *</label
+            >
+            <input
+              type="text"
+              id="annTitle"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Message *</label
+            >
+            <textarea
+              id="annMessage"
+              rows="5"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            ></textarea>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Priority *</label
+            >
+            <select
+              id="annPriority"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="Low">Low</option>
+              <option value="Medium" selected>Medium</option>
+              <option value="High">High</option>
+            </select>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closeAnnouncementModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              <i class="fas fa-paper-plane mr-2"></i> Post Announcement
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Add/Edit Payroll Modal -->
     <div id="payrollModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-2xl font-bold text-gray-800" id="payrollModalTitle">Create Payroll</h3>
-                <button onclick="closePayrollModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="payrollForm" class="p-6 space-y-6">
-                <input type="hidden" id="payrollId">
-
-                <!-- Basic Information -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Employee *</label>
-                        <select id="payrollEmployee" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                            <option value="">Select Employee</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Month *</label>
-                        <input type="month" id="payrollMonth" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    </div>
-                </div>
-
-                <!-- Basic Salary -->
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Basic Salary *</label>
-                    <input type="number" id="basicSalary" step="0.01" min="0" required onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-
-                <!-- Allowances Section -->
-                <div class="border-t pt-4">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-plus-circle text-green-600 mr-2"></i> Allowances
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Housing Allowance</label>
-                            <input type="number" id="housingAllowance" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Transport Allowance</label>
-                            <input type="number" id="transportAllowance" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Benefits</label>
-                            <input type="number" id="benefits" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Other Allowances</label>
-                            <input type="number" id="otherAllowances" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                    </div>
-
-                    <!-- Custom Allowances -->
-                    <div class="mt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Custom Allowances</label>
-                            <button type="button" onclick="addCustomAllowance()" class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition duration-200">
-                                <i class="fas fa-plus mr-1"></i> Add Custom
-                            </button>
-                        </div>
-                        <div id="customAllowancesList" class="space-y-2"></div>
-                    </div>
-
-                    <div class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200">
-                        <p class="text-sm text-gray-700">Total Allowances: <span id="totalAllowancesDisplay" class="font-bold text-green-700">GH₵0.00</span></p>
-                    </div>
-                </div>
-
-                <!-- Deductions Section -->
-                <div class="border-t pt-4">
-                    <h4 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
-                        <i class="fas fa-minus-circle text-red-600 mr-2"></i> Deductions
-                    </h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Income Tax</label>
-                            <input type="number" id="incomeTax" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Welfare</label>
-                            <input type="number" id="welfare" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Social Security</label>
-                            <input type="number" id="socialSecurity" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Health Insurance</label>
-                            <input type="number" id="healthInsurance" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Other Deductions</label>
-                            <input type="number" id="otherDeductions" step="0.01" min="0" value="0" onchange="calculateNetSalary()" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        </div>
-                    </div>
-
-                    <!-- Custom Deductions -->
-                    <div class="mt-4">
-                        <div class="flex justify-between items-center mb-2">
-                            <label class="block text-sm font-medium text-gray-700">Custom Deductions</label>
-                            <button type="button" onclick="addCustomDeduction()" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition duration-200">
-                                <i class="fas fa-plus mr-1"></i> Add Custom
-                            </button>
-                        </div>
-                        <div id="customDeductionsList" class="space-y-2"></div>
-                        <div class="mt-2 text-xs text-gray-600 italic">
-                            <i class="fas fa-info-circle mr-1"></i> You can add recurring deductions (e.g., salary advances) that auto-deduct over multiple months
-                        </div>
-                    </div>
-
-                    <div class="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
-                        <p class="text-sm text-gray-700">Total Deductions: <span id="totalDeductionsDisplay" class="font-bold text-red-700">GH₵0.00</span></p>
-                    </div>
-                </div>
-
-                <!-- Net Salary Summary -->
-                <div class="border-t pt-4">
-                    <div class="p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg border border-red-200">
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">Gross Salary</p>
-                                <p id="grossSalaryDisplay" class="text-xl font-bold text-gray-800">GH₵0.00</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">Total Deductions</p>
-                                <p id="totalDeductionsSummary" class="text-xl font-bold text-red-600">GH₵0.00</p>
-                            </div>
-                            <div>
-                                <p class="text-xs text-gray-600 mb-1">Net Salary</p>
-                                <p id="netSalaryDisplay" class="text-2xl font-bold text-green-600">GH₵0.00</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closePayrollModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        <i class="fas fa-save mr-2"></i> Save Payroll
-                    </button>
-                </div>
-            </form>
+      <div
+        class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-2xl font-bold text-gray-800" id="payrollModalTitle">
+            Create Payroll
+          </h3>
+          <button
+            onclick="closePayrollModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="payrollForm" class="p-6 space-y-6">
+          <input type="hidden" id="payrollId" />
+
+          <!-- Basic Information -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Employee *</label
+              >
+              <select
+                id="payrollEmployee"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">Select Employee</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Month *</label
+              >
+              <input
+                type="month"
+                id="payrollMonth"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+
+          <!-- Basic Salary -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Basic Salary *</label
+            >
+            <input
+              type="number"
+              id="basicSalary"
+              step="0.01"
+              min="0"
+              required
+              onchange="calculateNetSalary()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+
+          <!-- Allowances Section -->
+          <div class="border-t pt-4">
+            <h4
+              class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
+            >
+              <i class="fas fa-plus-circle text-green-600 mr-2"></i> Allowances
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Housing Allowance</label
+                >
+                <input
+                  type="number"
+                  id="housingAllowance"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Transport Allowance</label
+                >
+                <input
+                  type="number"
+                  id="transportAllowance"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Benefits</label
+                >
+                <input
+                  type="number"
+                  id="benefits"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Other Allowances</label
+                >
+                <input
+                  type="number"
+                  id="otherAllowances"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <!-- Custom Allowances -->
+            <div class="mt-4">
+              <div class="flex justify-between items-center mb-2">
+                <label class="block text-sm font-medium text-gray-700"
+                  >Custom Allowances</label
+                >
+                <button
+                  type="button"
+                  onclick="addCustomAllowance()"
+                  class="px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition duration-200"
+                >
+                  <i class="fas fa-plus mr-1"></i> Add Custom
+                </button>
+              </div>
+              <div id="customAllowancesList" class="space-y-2"></div>
+            </div>
+
+            <div
+              class="mt-3 p-3 bg-green-50 rounded-lg border border-green-200"
+            >
+              <p class="text-sm text-gray-700">
+                Total Allowances:
+                <span
+                  id="totalAllowancesDisplay"
+                  class="font-bold text-green-700"
+                  >GH₵0.00</span
+                >
+              </p>
+            </div>
+          </div>
+
+          <!-- Deductions Section -->
+          <div class="border-t pt-4">
+            <h4
+              class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
+            >
+              <i class="fas fa-minus-circle text-red-600 mr-2"></i> Deductions
+            </h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Income Tax</label
+                >
+                <input
+                  type="number"
+                  id="incomeTax"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Welfare</label
+                >
+                <input
+                  type="number"
+                  id="welfare"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Social Security</label
+                >
+                <input
+                  type="number"
+                  id="socialSecurity"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Health Insurance</label
+                >
+                <input
+                  type="number"
+                  id="healthInsurance"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Other Deductions</label
+                >
+                <input
+                  type="number"
+                  id="otherDeductions"
+                  step="0.01"
+                  min="0"
+                  value="0"
+                  onchange="calculateNetSalary()"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                />
+              </div>
+            </div>
+
+            <!-- Custom Deductions -->
+            <div class="mt-4">
+              <div class="flex justify-between items-center mb-2">
+                <label class="block text-sm font-medium text-gray-700"
+                  >Custom Deductions</label
+                >
+                <button
+                  type="button"
+                  onclick="addCustomDeduction()"
+                  class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-lg transition duration-200"
+                >
+                  <i class="fas fa-plus mr-1"></i> Add Custom
+                </button>
+              </div>
+              <div id="customDeductionsList" class="space-y-2"></div>
+              <div class="mt-2 text-xs text-gray-600 italic">
+                <i class="fas fa-info-circle mr-1"></i> You can add recurring
+                deductions (e.g., salary advances) that auto-deduct over
+                multiple months
+              </div>
+            </div>
+
+            <div class="mt-3 p-3 bg-red-50 rounded-lg border border-red-200">
+              <p class="text-sm text-gray-700">
+                Total Deductions:
+                <span id="totalDeductionsDisplay" class="font-bold text-red-700"
+                  >GH₵0.00</span
+                >
+              </p>
+            </div>
+          </div>
+
+          <!-- Net Salary Summary -->
+          <div class="border-t pt-4">
+            <div
+              class="p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg border border-red-200"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+                <div>
+                  <p class="text-xs text-gray-600 mb-1">Gross Salary</p>
+                  <p
+                    id="grossSalaryDisplay"
+                    class="text-xl font-bold text-gray-800"
+                  >
+                    GH₵0.00
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-600 mb-1">Total Deductions</p>
+                  <p
+                    id="totalDeductionsSummary"
+                    class="text-xl font-bold text-red-600"
+                  >
+                    GH₵0.00
+                  </p>
+                </div>
+                <div>
+                  <p class="text-xs text-gray-600 mb-1">Net Salary</p>
+                  <p
+                    id="netSalaryDisplay"
+                    class="text-2xl font-bold text-green-600"
+                  >
+                    GH₵0.00
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closePayrollModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              <i class="fas fa-save mr-2"></i> Save Payroll
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Custom Allowance Modal -->
     <div id="customAllowanceModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800">Add Custom Allowance</h3>
-                <button onclick="closeCustomAllowanceModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="customAllowanceForm" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Allowance Name *</label>
-                    <input type="text" id="allowanceName" required placeholder="e.g., Performance Bonus, Travel Allowance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
-                    <input type="number" id="allowanceAmount" step="0.01" min="0" required placeholder="0.00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent">
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeCustomAllowanceModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i> Add Allowance
-                    </button>
-                </div>
-            </form>
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-xl font-bold text-gray-800">Add Custom Allowance</h3>
+          <button
+            onclick="closeCustomAllowanceModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="customAllowanceForm" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Allowance Name *</label
+            >
+            <input
+              type="text"
+              id="allowanceName"
+              required
+              placeholder="e.g., Performance Bonus, Travel Allowance"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Amount *</label
+            >
+            <input
+              type="number"
+              id="allowanceAmount"
+              step="0.01"
+              min="0"
+              required
+              placeholder="0.00"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            />
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closeCustomAllowanceModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200"
+            >
+              <i class="fas fa-plus mr-2"></i> Add Allowance
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- Custom Deduction Modal -->
     <div id="customDeductionModal" class="modal">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="flex justify-between items-center p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800">Add Custom Deduction</h3>
-                <button onclick="closeCustomDeductionModal()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
-            </div>
-            <form id="customDeductionForm" class="p-6 space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Deduction Name *</label>
-                    <input type="text" id="deductionName" required placeholder="e.g., Loan Repayment, Uniform, Salary Advance" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Amount *</label>
-                    <input type="number" id="deductionAmount" step="0.01" min="0" required placeholder="0.00" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                </div>
-                <div class="border-t pt-4">
-                    <label class="flex items-center space-x-2 cursor-pointer">
-                        <input type="checkbox" id="isRecurring" class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
-                        <span class="text-sm font-medium text-gray-700">This is a recurring deduction</span>
-                    </label>
-                    <p class="text-xs text-gray-500 mt-1 ml-7">For salary advances that need to be deducted over multiple months</p>
-                </div>
-                <div id="recurringMonthsContainer" class="hidden">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Number of Months *</label>
-                    <input type="number" id="recurringMonths" min="1" max="24" placeholder="e.g., 3, 6, 12" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                    <p class="text-xs text-gray-500 mt-1">This deduction will be automatically applied for this many months</p>
-                </div>
-                <div class="flex justify-end space-x-3 pt-4">
-                    <button type="button" onclick="closeCustomDeductionModal()" class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit" class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        <i class="fas fa-plus mr-2"></i> Add Deduction
-                    </button>
-                </div>
-            </form>
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-xl font-bold text-gray-800">Add Custom Deduction</h3>
+          <button
+            onclick="closeCustomDeductionModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
         </div>
+        <form id="customDeductionForm" class="p-6 space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Deduction Name *</label
+            >
+            <input
+              type="text"
+              id="deductionName"
+              required
+              placeholder="e.g., Loan Repayment, Uniform, Salary Advance"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Amount *</label
+            >
+            <input
+              type="number"
+              id="deductionAmount"
+              step="0.01"
+              min="0"
+              required
+              placeholder="0.00"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+          </div>
+          <div class="border-t pt-4">
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <input
+                type="checkbox"
+                id="isRecurring"
+                class="w-5 h-5 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              />
+              <span class="text-sm font-medium text-gray-700"
+                >This is a recurring deduction</span
+              >
+            </label>
+            <p class="text-xs text-gray-500 mt-1 ml-7">
+              For salary advances that need to be deducted over multiple months
+            </p>
+          </div>
+          <div id="recurringMonthsContainer" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Number of Months *</label
+            >
+            <input
+              type="number"
+              id="recurringMonths"
+              min="1"
+              max="24"
+              placeholder="e.g., 3, 6, 12"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            <p class="text-xs text-gray-500 mt-1">
+              This deduction will be automatically applied for this many months
+            </p>
+          </div>
+          <div class="flex justify-end space-x-3 pt-4">
+            <button
+              type="button"
+              onclick="closeCustomDeductionModal()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              <i class="fas fa-plus mr-2"></i> Add Deduction
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- jsPDF for PDF generation -->
@@ -735,5 +1336,5 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script src="assets/js/admin.js"></script>
-</body>
+  </body>
 </html>

@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packaging Glamour HR</title>
 
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Worker API Configuration -->
     <script src="config-worker.js?v=2"></script>
@@ -21,306 +27,403 @@
     <script src="auth.js"></script>
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
-        .announcement-card {
-            transition: all 0.2s ease;
-        }
-        .announcement-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-        .unread {
-            border-left: 4px solid #dc2626;
-        }
-
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
+      .announcement-card {
+        transition: all 0.2s ease;
+      }
+      .announcement-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      }
+      .unread {
+        border-left: 4px solid #dc2626;
+      }
     </style>
-</head>
-<body class="bg-gray-100 min-h-screen">
-
+  </head>
+  <body class="bg-gray-100 min-h-screen">
     <!-- Navigation Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
-                    <span class="text-xl font-bold text-gray-800">Announcements</span>
-                </div>
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3">
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+          </div>
 
-                <!-- Navigation Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-chart-line mr-1"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-clock mr-1"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-calendar-alt mr-1"></i> Leave
-                    </a>
-                    <a href="medical-claims.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-                    </a>
-                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-user mr-1"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-bullhorn mr-1"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
-                    </a>
-                    <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
-                        <i class="fas fa-user-shield mr-1"></i> Admin
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-            </div>
+          <!-- Navigation Menu -->
+          <div class="flex items-center space-x-4">
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="attendance-tracker.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-clock mr-1"></i> Attendance
+            </a>
+            <a
+              href="leave-request.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i> Leave
+            </a>
+            <a
+              href="medical-claims.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+            </a>
+            <a href="profile.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-user mr-1"></i> Profile
+            </a>
+            <a href="announcements.html" class="text-red-600 font-semibold">
+              <i class="fas fa-bullhorn mr-1"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+            </a>
+            <a
+              href="admin-dashboard.html"
+              id="adminLink"
+              class="text-gray-600 hover:text-red-600"
+              style="display: none"
+            >
+              <i class="fas fa-user-shield mr-1"></i> Admin
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
         </div>
+      </div>
     </header>
 
     <div class="container mx-auto px-4 py-8">
-        <!-- Header Section -->
-        <div class="flex justify-between items-center mb-6">
-            <div>
-                <h2 class="text-3xl font-bold text-gray-800">Company Announcements</h2>
-                <p class="text-gray-600 mt-1">Stay updated with the latest news and information</p>
-            </div>
-            <button id="createAnnouncementBtn" onclick="toggleCreateForm()" class="hidden bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200">
-                <i class="fas fa-plus mr-2"></i> Create Announcement
+      <!-- Header Section -->
+      <div class="flex justify-between items-center mb-6">
+        <div>
+          <h2 class="text-3xl font-bold text-gray-800">
+            Company Announcements
+          </h2>
+          <p class="text-gray-600 mt-1">
+            Stay updated with the latest news and information
+          </p>
+        </div>
+        <button
+          id="createAnnouncementBtn"
+          onclick="toggleCreateForm()"
+          class="hidden bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+        >
+          <i class="fas fa-plus mr-2"></i> Create Announcement
+        </button>
+      </div>
+
+      <!-- Create Announcement Form (Hidden by default) -->
+      <div
+        id="createForm"
+        class="hidden bg-white rounded-lg shadow-lg p-6 mb-6"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-xl font-bold text-gray-800">
+            Create New Announcement
+          </h3>
+          <button
+            onclick="toggleCreateForm()"
+            class="text-gray-500 hover:text-gray-700"
+          >
+            <i class="fas fa-times text-xl"></i>
+          </button>
+        </div>
+        <form id="announcementForm" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Title</label
+            >
+            <input
+              type="text"
+              id="announcementTitle"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Enter announcement title"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Type</label
+            >
+            <select
+              id="announcementType"
+              required
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            >
+              <option value="General">General</option>
+              <option value="HR">HR</option>
+              <option value="Urgent">Urgent</option>
+              <option value="Event">Event</option>
+              <option value="Policy">Policy</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Message</label
+            >
+            <textarea
+              id="announcementMessage"
+              required
+              rows="5"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              placeholder="Enter announcement details..."
+            ></textarea>
+          </div>
+          <div class="flex justify-end space-x-3">
+            <button
+              type="button"
+              onclick="toggleCreateForm()"
+              class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200"
+            >
+              Cancel
             </button>
-        </div>
+            <button
+              type="submit"
+              class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200"
+            >
+              <i class="fas fa-paper-plane mr-2"></i> Publish
+            </button>
+          </div>
+        </form>
+      </div>
 
-        <!-- Create Announcement Form (Hidden by default) -->
-        <div id="createForm" class="hidden bg-white rounded-lg shadow-lg p-6 mb-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-xl font-bold text-gray-800">Create New Announcement</h3>
-                <button onclick="toggleCreateForm()" class="text-gray-500 hover:text-gray-700">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <form id="announcementForm" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Title</label>
-                    <input type="text" id="announcementTitle" required
-                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                           placeholder="Enter announcement title">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Type</label>
-                    <select id="announcementType" required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent">
-                        <option value="General">General</option>
-                        <option value="HR">HR</option>
-                        <option value="Urgent">Urgent</option>
-                        <option value="Event">Event</option>
-                        <option value="Policy">Policy</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">Message</label>
-                    <textarea id="announcementMessage" required rows="5"
-                              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                              placeholder="Enter announcement details..."></textarea>
-                </div>
-                <div class="flex justify-end space-x-3">
-                    <button type="button" onclick="toggleCreateForm()"
-                            class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition duration-200">
-                        Cancel
-                    </button>
-                    <button type="submit"
-                            class="px-6 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200">
-                        <i class="fas fa-paper-plane mr-2"></i> Publish
-                    </button>
-                </div>
-            </form>
+      <!-- Filter Section -->
+      <div class="bg-white rounded-lg shadow-md p-4 mb-6">
+        <div class="flex flex-wrap items-center gap-4">
+          <div>
+            <label class="text-sm font-medium text-gray-700 mr-2"
+              >Filter by Priority:</label
+            >
+          </div>
+          <button
+            onclick="filterByType('All')"
+            id="filter-All"
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-red-600 text-white"
+          >
+            All
+          </button>
+          <button
+            onclick="filterByType('High')"
+            id="filter-High"
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
+          >
+            <i class="fas fa-exclamation-circle mr-1"></i> High Priority
+          </button>
+          <button
+            onclick="filterByType('Medium')"
+            id="filter-Medium"
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
+          >
+            <i class="fas fa-info-circle mr-1"></i> Medium Priority
+          </button>
+          <button
+            onclick="filterByType('Low')"
+            id="filter-Low"
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
+          >
+            <i class="fas fa-flag mr-1"></i> Low Priority
+          </button>
+          <div class="ml-auto flex items-center space-x-3">
+            <label class="flex items-center text-sm font-medium text-gray-700">
+              <input
+                type="checkbox"
+                id="showUnreadOnly"
+                onchange="filterAnnouncements()"
+                class="mr-2"
+              />
+              Unread Only
+            </label>
+          </div>
         </div>
+      </div>
 
-        <!-- Filter Section -->
-        <div class="bg-white rounded-lg shadow-md p-4 mb-6">
-            <div class="flex flex-wrap items-center gap-4">
-                <div>
-                    <label class="text-sm font-medium text-gray-700 mr-2">Filter by Priority:</label>
-                </div>
-                <button onclick="filterByType('All')" id="filter-All" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-red-600 text-white">
-                    All
-                </button>
-                <button onclick="filterByType('High')" id="filter-High" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    <i class="fas fa-exclamation-circle mr-1"></i> High Priority
-                </button>
-                <button onclick="filterByType('Medium')" id="filter-Medium" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    <i class="fas fa-info-circle mr-1"></i> Medium Priority
-                </button>
-                <button onclick="filterByType('Low')" id="filter-Low" class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300">
-                    <i class="fas fa-flag mr-1"></i> Low Priority
-                </button>
-                <div class="ml-auto flex items-center space-x-3">
-                    <label class="flex items-center text-sm font-medium text-gray-700">
-                        <input type="checkbox" id="showUnreadOnly" onchange="filterAnnouncements()" class="mr-2">
-                        Unread Only
-                    </label>
-                </div>
-            </div>
+      <!-- Announcements List -->
+      <div id="announcementsList" class="space-y-4">
+        <!-- Loading state -->
+        <div class="text-center py-12">
+          <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
+          <p class="text-gray-600 mt-4">Loading announcements...</p>
         </div>
+      </div>
 
-        <!-- Announcements List -->
-        <div id="announcementsList" class="space-y-4">
-            <!-- Loading state -->
-            <div class="text-center py-12">
-                <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
-                <p class="text-gray-600 mt-4">Loading announcements...</p>
-            </div>
-        </div>
+      <!-- Empty State -->
+      <div
+        id="emptyState"
+        class="hidden bg-white rounded-lg shadow-md p-12 text-center"
+      >
+        <i class="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
+        <h3 class="text-xl font-semibold text-gray-700 mb-2">
+          No Announcements Yet
+        </h3>
+        <p class="text-gray-500">Check back later for updates and news</p>
+      </div>
 
-        <!-- Empty State -->
-        <div id="emptyState" class="hidden bg-white rounded-lg shadow-md p-12 text-center">
-            <i class="fas fa-bullhorn text-6xl text-gray-300 mb-4"></i>
-            <h3 class="text-xl font-semibold text-gray-700 mb-2">No Announcements Yet</h3>
-            <p class="text-gray-500">Check back later for updates and news</p>
+      <!-- Announcement Detail Modal -->
+      <div
+        id="announcementModal"
+        class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50"
+      >
+        <div
+          class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+        >
+          <div class="p-6 border-b flex justify-between items-start">
+            <h3 id="modalTitle" class="text-2xl font-bold text-gray-800"></h3>
+            <button
+              onclick="closeAnnouncementModal()"
+              class="text-gray-400 hover:text-gray-600"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
+          <div class="p-6">
+            <div id="modalPriority" class="mb-4"></div>
+            <div id="modalMeta" class="text-sm text-gray-500 mb-4"></div>
+            <div
+              id="modalMessage"
+              class="text-gray-700 whitespace-pre-line"
+            ></div>
+          </div>
         </div>
-
-        <!-- Announcement Detail Modal -->
-        <div id="announcementModal" class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50">
-            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-                <div class="p-6 border-b flex justify-between items-start">
-                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-800"></h3>
-                    <button onclick="closeAnnouncementModal()" class="text-gray-400 hover:text-gray-600">
-                        <i class="fas fa-times text-xl"></i>
-                    </button>
-                </div>
-                <div class="p-6">
-                    <div id="modalPriority" class="mb-4"></div>
-                    <div id="modalMeta" class="text-sm text-gray-500 mb-4"></div>
-                    <div id="modalMessage" class="text-gray-700 whitespace-pre-line"></div>
-                </div>
-            </div>
-        </div>
+      </div>
     </div>
 
     <script>
-        // ========================================
-        // AUTHENTICATION CHECK
-        // ========================================
-        if (!requireAuth()) {
-            // Will redirect automatically
+      // ========================================
+      // AUTHENTICATION CHECK
+      // ========================================
+      if (!requireAuth()) {
+        // Will redirect automatically
+      }
+
+      const currentUser = getCurrentUser();
+
+      // Display user info
+      function updateUserInfo() {
+        const userInfoText = `Welcome, ${currentUser.name}`;
+        const userInfoElement = document.getElementById("userInfo");
+        if (userInfoElement && currentUser) {
+          userInfoElement.textContent = userInfoText;
         }
+      }
+      updateUserInfo();
 
-        const currentUser = getCurrentUser();
+      // AIRTABLE_CONFIG is already declared in auth.js
 
-        // Display user info
-        function updateUserInfo() {
-            const userInfoText = `Welcome, ${currentUser.name}`;
-            const userInfoElement = document.getElementById('userInfo');
-            if (userInfoElement && currentUser) {
-                userInfoElement.textContent = userInfoText;
+      // ========================================
+      // GLOBAL STATE
+      // ========================================
+      let allAnnouncements = [];
+      let currentFilter = "All";
+
+      // Load read announcements from localStorage
+      function loadReadAnnouncements() {
+        const stored = localStorage.getItem(
+          `readAnnouncements_${currentUser.id}`
+        );
+        return stored ? new Set(JSON.parse(stored)) : new Set();
+      }
+
+      // Save read announcements to localStorage
+      function saveReadAnnouncements() {
+        localStorage.setItem(
+          `readAnnouncements_${currentUser.id}`,
+          JSON.stringify([...readAnnouncements])
+        );
+      }
+
+      let readAnnouncements = loadReadAnnouncements();
+
+      // ========================================
+      // CHECK IF USER IS ADMIN
+      // ========================================
+      async function checkIfAdmin() {
+        try {
+          // Check if current user has admin role using Worker API
+          const employee = await getEmployee(currentUser.id);
+
+          if (employee && employee.fields) {
+            const role = employee.fields["Role"] || "";
+            if (role === "Admin" || role === "HR") {
+              document
+                .getElementById("createAnnouncementBtn")
+                .classList.remove("hidden");
             }
+          }
+        } catch (error) {
+          console.error("Error checking admin status:", error);
         }
-        updateUserInfo();
+      }
 
-        // AIRTABLE_CONFIG is already declared in auth.js
-
-        // ========================================
-        // GLOBAL STATE
-        // ========================================
-        let allAnnouncements = [];
-        let currentFilter = 'All';
-
-        // Load read announcements from localStorage
-        function loadReadAnnouncements() {
-            const stored = localStorage.getItem(`readAnnouncements_${currentUser.id}`);
-            return stored ? new Set(JSON.parse(stored)) : new Set();
+      // ========================================
+      // TOGGLE CREATE FORM
+      // ========================================
+      function toggleCreateForm() {
+        const form = document.getElementById("createForm");
+        form.classList.toggle("hidden");
+        if (!form.classList.contains("hidden")) {
+          document.getElementById("announcementTitle").focus();
         }
+      }
 
-        // Save read announcements to localStorage
-        function saveReadAnnouncements() {
-            localStorage.setItem(`readAnnouncements_${currentUser.id}`, JSON.stringify([...readAnnouncements]));
-        }
+      // ========================================
+      // CREATE ANNOUNCEMENT
+      // ========================================
+      document
+        .getElementById("announcementForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
 
-        let readAnnouncements = loadReadAnnouncements();
+          const title = document.getElementById("announcementTitle").value;
+          const type = document.getElementById("announcementType").value;
+          const message = document.getElementById("announcementMessage").value;
 
-        // ========================================
-        // CHECK IF USER IS ADMIN
-        // ========================================
-        async function checkIfAdmin() {
-            try {
-                // Check if current user has admin role using Worker API
-                const employee = await getEmployee(currentUser.id);
+          try {
+            // Create announcement using Worker API
+            await createAnnouncement({
+              Title: title,
+              Type: type,
+              Message: message,
+              "Created By": [currentUser.id],
+              Date: new Date().toISOString().split("T")[0],
+            });
 
-                if (employee && employee.fields) {
-                    const role = employee.fields['Role'] || '';
-                    if (role === 'Admin' || role === 'HR') {
-                        document.getElementById('createAnnouncementBtn').classList.remove('hidden');
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking admin status:', error);
-            }
-        }
-
-        // ========================================
-        // TOGGLE CREATE FORM
-        // ========================================
-        function toggleCreateForm() {
-            const form = document.getElementById('createForm');
-            form.classList.toggle('hidden');
-            if (!form.classList.contains('hidden')) {
-                document.getElementById('announcementTitle').focus();
-            }
-        }
-
-        // ========================================
-        // CREATE ANNOUNCEMENT
-        // ========================================
-        document.getElementById('announcementForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-
-            const title = document.getElementById('announcementTitle').value;
-            const type = document.getElementById('announcementType').value;
-            const message = document.getElementById('announcementMessage').value;
-
-            try {
-                // Create announcement using Worker API
-                await createAnnouncement({
-                    'Title': title,
-                    'Type': type,
-                    'Message': message,
-                    'Created By': [currentUser.id],
-                    'Date': new Date().toISOString().split('T')[0]
-                });
-
-                alert('Announcement published successfully!');
-                document.getElementById('announcementForm').reset();
-                toggleCreateForm();
-                loadAnnouncements();
-            } catch (error) {
-                console.error('Error creating announcement:', error);
-                alert('Error creating announcement. Please try again.');
-            }
+            alert("Announcement published successfully!");
+            document.getElementById("announcementForm").reset();
+            toggleCreateForm();
+            loadAnnouncements();
+          } catch (error) {
+            console.error("Error creating announcement:", error);
+            alert("Error creating announcement. Please try again.");
+          }
         });
 
-        // ========================================
-        // LOAD ANNOUNCEMENTS
-        // ========================================
-        async function loadAnnouncements() {
-            try {
-                // Load announcements using Worker API
-                const announcementsData = await getAnnouncements();
-                allAnnouncements = announcementsData.records || [];
+      // ========================================
+      // LOAD ANNOUNCEMENTS
+      // ========================================
+      async function loadAnnouncements() {
+        try {
+          // Load announcements using Worker API
+          const announcementsData = await getAnnouncements();
+          allAnnouncements = announcementsData.records || [];
 
-                // Sort by Date descending (client-side)
-                allAnnouncements.sort((a, b) => {
-                    const dateA = new Date(a.fields['Date'] || 0);
-                    const dateB = new Date(b.fields['Date'] || 0);
-                    return dateB - dateA;
-                });
+          // Sort by Date descending (client-side)
+          allAnnouncements.sort((a, b) => {
+            const dateA = new Date(a.fields["Date"] || 0);
+            const dateB = new Date(b.fields["Date"] || 0);
+            return dateB - dateA;
+          });
 
-                // Read receipts feature disabled - requires AnnouncementReads table in Airtable
-                // Uncomment below if you want to track which announcements users have read
-                /*
+          // Read receipts feature disabled - requires AnnouncementReads table in Airtable
+          // Uncomment below if you want to track which announcements users have read
+          /*
                 const readsUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads?filterByFormula={Employee}='${currentUser.id}'`;
                 const readsResponse = await fetch(readsUrl, {
                     method: 'GET',
@@ -336,115 +439,121 @@
                 }
                 */
 
-                displayAnnouncements();
-            } catch (error) {
-                console.error('Error loading announcements:', error);
-                document.getElementById('announcementsList').innerHTML = `
+          displayAnnouncements();
+        } catch (error) {
+          console.error("Error loading announcements:", error);
+          document.getElementById("announcementsList").innerHTML = `
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         <p>Error loading announcements. Please refresh the page.</p>
                     </div>
                 `;
-            }
+        }
+      }
+
+      // ========================================
+      // FILTER ANNOUNCEMENTS
+      // ========================================
+      function filterByType(type) {
+        currentFilter = type;
+
+        // Save filter preference to localStorage
+        localStorage.setItem(`announcementFilter_${currentUser.id}`, type);
+
+        // Update button styles
+        document.querySelectorAll(".filter-btn").forEach((btn) => {
+          btn.classList.remove("bg-red-600", "text-white");
+          btn.classList.add("bg-gray-200", "text-gray-700");
+        });
+
+        // Set active button style
+        const activeBtn = document.getElementById(`filter-${type}`);
+        if (activeBtn) {
+          activeBtn.classList.remove("bg-gray-200", "text-gray-700");
+          activeBtn.classList.add("bg-red-600", "text-white");
         }
 
-        // ========================================
-        // FILTER ANNOUNCEMENTS
-        // ========================================
-        function filterByType(type) {
-            currentFilter = type;
+        displayAnnouncements();
+      }
 
-            // Save filter preference to localStorage
-            localStorage.setItem(`announcementFilter_${currentUser.id}`, type);
+      function filterAnnouncements() {
+        displayAnnouncements();
+      }
 
-            // Update button styles
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-red-600', 'text-white');
-                btn.classList.add('bg-gray-200', 'text-gray-700');
+      // ========================================
+      // DISPLAY ANNOUNCEMENTS
+      // ========================================
+      function displayAnnouncements() {
+        const showUnreadOnly =
+          document.getElementById("showUnreadOnly").checked;
+
+        let filtered = allAnnouncements.filter((announcement) => {
+          const priority = announcement.fields["Priority"] || "Medium";
+          const isRead = readAnnouncements.has(announcement.id);
+
+          const matchesPriority =
+            currentFilter === "All" || priority === currentFilter;
+          const matchesReadStatus = !showUnreadOnly || !isRead;
+
+          return matchesPriority && matchesReadStatus;
+        });
+
+        const listContainer = document.getElementById("announcementsList");
+        const emptyState = document.getElementById("emptyState");
+
+        if (filtered.length === 0) {
+          listContainer.innerHTML = "";
+          emptyState.classList.remove("hidden");
+          return;
+        }
+
+        emptyState.classList.add("hidden");
+
+        // Sort by date (newest first)
+        filtered.sort(
+          (a, b) => new Date(b.createdTime) - new Date(a.createdTime)
+        );
+
+        listContainer.innerHTML = filtered
+          .map((announcement) => {
+            const isRead = readAnnouncements.has(announcement.id);
+            const priority = announcement.fields["Priority"] || "Medium";
+            const title = announcement.fields["Title"] || "Untitled";
+            const message = announcement.fields["Message"] || "";
+            const author = announcement.fields["Posted By"] || "Admin";
+            const dateObj = new Date(announcement.createdTime);
+
+            // Format date
+            const formattedDate = dateObj.toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             });
 
-            // Set active button style
-            const activeBtn = document.getElementById(`filter-${type}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
-                activeBtn.classList.add('bg-red-600', 'text-white');
-            }
+            // Priority badge colors
+            const priorityColors = {
+              High: "bg-red-100 text-red-800",
+              Medium: "bg-yellow-100 text-yellow-800",
+              Low: "bg-blue-100 text-blue-800",
+            };
 
-            displayAnnouncements();
-        }
+            const priorityIcons = {
+              High: "fa-exclamation-circle",
+              Medium: "fa-info-circle",
+              Low: "fa-flag",
+            };
 
-        function filterAnnouncements() {
-            displayAnnouncements();
-        }
+            const priorityColor =
+              priorityColors[priority] || "bg-gray-100 text-gray-800";
+            const priorityIcon = priorityIcons[priority] || "fa-info-circle";
 
-        // ========================================
-        // DISPLAY ANNOUNCEMENTS
-        // ========================================
-        function displayAnnouncements() {
-            const showUnreadOnly = document.getElementById('showUnreadOnly').checked;
-
-            let filtered = allAnnouncements.filter(announcement => {
-                const priority = announcement.fields['Priority'] || 'Medium';
-                const isRead = readAnnouncements.has(announcement.id);
-
-                const matchesPriority = currentFilter === 'All' || priority === currentFilter;
-                const matchesReadStatus = !showUnreadOnly || !isRead;
-
-                return matchesPriority && matchesReadStatus;
-            });
-
-            const listContainer = document.getElementById('announcementsList');
-            const emptyState = document.getElementById('emptyState');
-
-            if (filtered.length === 0) {
-                listContainer.innerHTML = '';
-                emptyState.classList.remove('hidden');
-                return;
-            }
-
-            emptyState.classList.add('hidden');
-
-            // Sort by date (newest first)
-            filtered.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
-
-            listContainer.innerHTML = filtered.map(announcement => {
-                const isRead = readAnnouncements.has(announcement.id);
-                const priority = announcement.fields['Priority'] || 'Medium';
-                const title = announcement.fields['Title'] || 'Untitled';
-                const message = announcement.fields['Message'] || '';
-                const author = announcement.fields['Posted By'] || 'Admin';
-                const dateObj = new Date(announcement.createdTime);
-
-                // Format date
-                const formattedDate = dateObj.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                });
-
-                // Priority badge colors
-                const priorityColors = {
-                    'High': 'bg-red-100 text-red-800',
-                    'Medium': 'bg-yellow-100 text-yellow-800',
-                    'Low': 'bg-blue-100 text-blue-800'
-                };
-
-                const priorityIcons = {
-                    'High': 'fa-exclamation-circle',
-                    'Medium': 'fa-info-circle',
-                    'Low': 'fa-flag'
-                };
-
-                const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800';
-                const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
-
-                return `
-                    <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? 'unread' : ''} cursor-pointer hover:shadow-lg transition-shadow" data-id="${announcement.id}" onclick="showAnnouncementDetail('${announcement.id}')">
+            return `
+                    <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? "unread" : ""} cursor-pointer hover:shadow-lg transition-shadow" data-id="${announcement.id}" onclick="showAnnouncementDetail('${announcement.id}')">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center space-x-3">
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}">
                                     <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
                                 </span>
-                                ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ''}
+                                ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ""}
                             </div>
                             <div class="text-sm text-gray-500">
                                 <i class="fas fa-calendar mr-1"></i> ${formattedDate}
@@ -456,27 +565,32 @@
                             <div class="text-sm text-gray-500">
                                 <i class="fas fa-user mr-1"></i> Posted by ${author}
                             </div>
-                            ${!isRead ? `
+                            ${
+                              !isRead
+                                ? `
                                 <button onclick="markAsRead('${announcement.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">
                                     <i class="fas fa-check mr-1"></i> Mark as Read
                                 </button>
-                            ` : '<span class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i> Read</span>'}
+                            `
+                                : '<span class="text-green-600 text-sm"><i class="fas fa-check-circle mr-1"></i> Read</span>'
+                            }
                         </div>
                     </div>
                 `;
-            }).join('');
-        }
+          })
+          .join("");
+      }
 
-        // ========================================
-        // MARK ANNOUNCEMENT AS READ
-        // ========================================
-        async function markAsRead(announcementId) {
-            // Add to read set and persist to localStorage
-            readAnnouncements.add(announcementId);
-            saveReadAnnouncements();
-            displayAnnouncements();
+      // ========================================
+      // MARK ANNOUNCEMENT AS READ
+      // ========================================
+      async function markAsRead(announcementId) {
+        // Add to read set and persist to localStorage
+        readAnnouncements.add(announcementId);
+        saveReadAnnouncements();
+        displayAnnouncements();
 
-            /* Uncomment if you have AnnouncementReads table in Airtable
+        /* Uncomment if you have AnnouncementReads table in Airtable
             try {
                 const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads`;
                 const response = await fetch(url, {
@@ -505,92 +619,97 @@
                 alert('Error marking as read. Please try again.');
             }
             */
-        }
+      }
 
-        // ========================================
-        // SHOW ANNOUNCEMENT DETAIL MODAL
-        // ========================================
-        // Show announcement detail modal
-        function showAnnouncementDetail(announcementId) {
-            const announcement = allAnnouncements.find(a => a.id === announcementId);
-            if (!announcement) return;
+      // ========================================
+      // SHOW ANNOUNCEMENT DETAIL MODAL
+      // ========================================
+      // Show announcement detail modal
+      function showAnnouncementDetail(announcementId) {
+        const announcement = allAnnouncements.find(
+          (a) => a.id === announcementId
+        );
+        if (!announcement) return;
 
-            const priority = announcement.fields['Priority'] || 'Medium';
-            const title = announcement.fields['Title'] || 'Untitled';
-            const message = announcement.fields['Message'] || '';
-            const author = announcement.fields['Posted By'] || 'Admin';
-            const dateObj = new Date(announcement.createdTime);
-            const formattedDate = dateObj.toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+        const priority = announcement.fields["Priority"] || "Medium";
+        const title = announcement.fields["Title"] || "Untitled";
+        const message = announcement.fields["Message"] || "";
+        const author = announcement.fields["Posted By"] || "Admin";
+        const dateObj = new Date(announcement.createdTime);
+        const formattedDate = dateObj.toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
 
-            const priorityColors = {
-                'High': 'bg-red-100 text-red-800',
-                'Medium': 'bg-yellow-100 text-yellow-800',
-                'Low': 'bg-blue-100 text-blue-800'
-            };
+        const priorityColors = {
+          High: "bg-red-100 text-red-800",
+          Medium: "bg-yellow-100 text-yellow-800",
+          Low: "bg-blue-100 text-blue-800",
+        };
 
-            const priorityIcons = {
-                'High': 'fa-exclamation-circle',
-                'Medium': 'fa-info-circle',
-                'Low': 'fa-flag'
-            };
+        const priorityIcons = {
+          High: "fa-exclamation-circle",
+          Medium: "fa-info-circle",
+          Low: "fa-flag",
+        };
 
-            const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800';
-            const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
+        const priorityColor =
+          priorityColors[priority] || "bg-gray-100 text-gray-800";
+        const priorityIcon = priorityIcons[priority] || "fa-info-circle";
 
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalPriority').innerHTML = `
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalPriority").innerHTML = `
                 <span class="px-3 py-1 rounded-full text-sm font-semibold ${priorityColor}">
                     <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
                 </span>
             `;
-            document.getElementById('modalMeta').innerHTML = `
+        document.getElementById("modalMeta").innerHTML = `
                 <i class="fas fa-user mr-2"></i> Posted by ${author} &nbsp;&nbsp;
                 <i class="fas fa-calendar mr-2"></i> ${formattedDate}
             `;
-            document.getElementById('modalMessage').textContent = message;
+        document.getElementById("modalMessage").textContent = message;
 
-            // Mark as read when viewing
-            markAsRead(announcementId);
+        // Mark as read when viewing
+        markAsRead(announcementId);
 
-            // Show modal
-            document.getElementById('announcementModal').classList.remove('hidden');
-            document.getElementById('announcementModal').classList.add('flex');
+        // Show modal
+        document.getElementById("announcementModal").classList.remove("hidden");
+        document.getElementById("announcementModal").classList.add("flex");
+      }
+
+      // Close announcement modal
+      function closeAnnouncementModal() {
+        document.getElementById("announcementModal").classList.add("hidden");
+        document.getElementById("announcementModal").classList.remove("flex");
+      }
+
+      // ========================================
+      // INITIALIZE
+      // ========================================
+      checkIfAdmin();
+
+      // Restore saved filter preference
+      const savedFilter = localStorage.getItem(
+        `announcementFilter_${currentUser.id}`
+      );
+      if (savedFilter) {
+        currentFilter = savedFilter;
+        // Set active button style
+        const activeBtn = document.getElementById(`filter-${savedFilter}`);
+        if (activeBtn) {
+          document.querySelectorAll(".filter-btn").forEach((btn) => {
+            btn.classList.remove("bg-red-600", "text-white");
+            btn.classList.add("bg-gray-200", "text-gray-700");
+          });
+          activeBtn.classList.remove("bg-gray-200", "text-gray-700");
+          activeBtn.classList.add("bg-red-600", "text-white");
         }
+      }
 
-        // Close announcement modal
-        function closeAnnouncementModal() {
-            document.getElementById('announcementModal').classList.add('hidden');
-            document.getElementById('announcementModal').classList.remove('flex');
-        }
-
-        // ========================================
-        // INITIALIZE
-        // ========================================
-        checkIfAdmin();
-
-        // Restore saved filter preference
-        const savedFilter = localStorage.getItem(`announcementFilter_${currentUser.id}`);
-        if (savedFilter) {
-            currentFilter = savedFilter;
-            // Set active button style
-            const activeBtn = document.getElementById(`filter-${savedFilter}`);
-            if (activeBtn) {
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.remove('bg-red-600', 'text-white');
-                    btn.classList.add('bg-gray-200', 'text-gray-700');
-                });
-                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
-                activeBtn.classList.add('bg-red-600', 'text-white');
-            }
-        }
-
-        loadAnnouncements();
+      loadAnnouncements();
     </script>
-</body>
+  </body>
 </html>

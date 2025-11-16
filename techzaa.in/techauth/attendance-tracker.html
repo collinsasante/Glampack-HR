@@ -1,18 +1,24 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Packaging Glamour HR</title>
 
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
 
     <!-- Worker API Configuration -->
     <script src="config-worker.js?v=2"></script>
@@ -21,1053 +27,1229 @@
     <script src="auth.js"></script>
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif;
-        }
+      body {
+        font-family: "Montserrat", sans-serif;
+      }
     </style>
-</head>
-<body class="bg-gray-100">
+  </head>
+  <body class="bg-gray-100">
     <!-- Navigation Header -->
     <header class="bg-white shadow-md sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4">
-            <div class="flex items-center justify-between">
-                <!-- Logo -->
-                <div class="flex items-center space-x-3">
-                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
-                    <span class="text-xl font-bold text-gray-800">Attendance Tracker</span>
-                </div>
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex items-center justify-between">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3">
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+          </div>
 
-                <!-- Navigation Menu -->
-                <div class="flex items-center space-x-4">
-                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-chart-line mr-1"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-clock mr-1"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-calendar-alt mr-1"></i> Leave
-                    </a>
-                    <a href="medical-claims.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-                    </a>
-                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-user mr-1"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-bullhorn mr-1"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
-                    </a>
-                    <a href="admin-dashboard.html" id="adminLink" class="text-gray-600 hover:text-red-600" style="display: none;">
-                        <i class="fas fa-user-shield mr-1"></i> Admin
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-            </div>
+          <!-- Navigation Menu -->
+          <div class="flex items-center space-x-4">
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-chart-line mr-1"></i> Dashboard
+            </a>
+            <a
+              href="attendance-tracker.html"
+              class="text-red-600 font-semibold"
+            >
+              <i class="fas fa-clock mr-1"></i> Attendance
+            </a>
+            <a
+              href="leave-request.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-calendar-alt mr-1"></i> Leave
+            </a>
+            <a
+              href="medical-claims.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+            </a>
+            <a href="profile.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-user mr-1"></i> Profile
+            </a>
+            <a
+              href="announcements.html"
+              class="text-gray-600 hover:text-red-600"
+            >
+              <i class="fas fa-bullhorn mr-1"></i> Announcements
+            </a>
+            <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+            </a>
+            <a
+              href="admin-dashboard.html"
+              id="adminLink"
+              class="text-gray-600 hover:text-red-600"
+              style="display: none"
+            >
+              <i class="fas fa-user-shield mr-1"></i> Admin
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Late Reason Modal -->
-    <div id="lateReasonModal" class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div class="p-6 border-b">
-                <h3 class="text-xl font-bold text-gray-800">Late Arrival</h3>
-                <p class="text-sm text-gray-600 mt-1">You are checking in after 8:30 AM. Please provide a reason.</p>
-            </div>
-            <div class="p-6">
-                <form id="lateReasonForm">
-                    <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 mb-2">Reason for Late Arrival *</label>
-                        <textarea
-                            id="lateReasonInput"
-                            rows="4"
-                            required
-                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                            placeholder="Please explain why you are late..."
-                        ></textarea>
-                    </div>
-                    <div class="flex justify-end space-x-3">
-                        <button type="button" onclick="closeLateReasonModal()" class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50">
-                            Cancel
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg">
-                            Submit & Check In
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <div
+      id="lateReasonModal"
+      class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50"
+    >
+      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+        <div class="p-6 border-b">
+          <h3 class="text-xl font-bold text-gray-800">Late Arrival</h3>
+          <p class="text-sm text-gray-600 mt-1">
+            You are checking in after 8:30 AM. Please provide a reason.
+          </p>
         </div>
+        <div class="p-6">
+          <form id="lateReasonForm">
+            <div class="mb-4">
+              <label class="block text-sm font-medium text-gray-700 mb-2"
+                >Reason for Late Arrival *</label
+              >
+              <textarea
+                id="lateReasonInput"
+                rows="4"
+                required
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                placeholder="Please explain why you are late..."
+              ></textarea>
+            </div>
+            <div class="flex justify-end space-x-3">
+              <button
+                type="button"
+                onclick="closeLateReasonModal()"
+                class="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg"
+              >
+                Submit & Check In
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <div class="container mx-auto px-4 py-8">
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <!-- Left Column - Check In/Out -->
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <!-- Header -->
-                    <div class="bg-red-600 text-white p-6 text-center">
-                        <i class="fas fa-clock text-5xl mb-3"></i>
-                        <h2 class="text-2xl font-bold">Attendance</h2>
-                        <p class="text-red-100 text-sm mt-2" id="currentDateTime"></p>
-                    </div>
-
-                    <!-- Today's Status -->
-                    <div id="todayStatus" class="p-6 border-b">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Today's Status</h3>
-                        <div id="statusInfo" class="space-y-2 text-sm">
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Check In:</span>
-                                <span id="todayCheckIn" class="font-semibold">Not yet</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Check Out:</span>
-                                <span id="todayCheckOut" class="font-semibold">Not yet</span>
-                            </div>
-                            <div class="flex justify-between">
-                                <span class="text-gray-600">Hours:</span>
-                                <span id="todayHours" class="font-semibold">0h 0m</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Content -->
-                    <div class="p-6">
-                        <!-- Status Message -->
-                        <div id="statusMessage" class="hidden mb-6 p-4 rounded-lg text-center font-medium"></div>
-
-                        <!-- Check In Button -->
-                        <button onclick="checkIn()"
-                                id="checkInBtn"
-                                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg mb-4 transition duration-200 shadow-lg">
-                            <i class="fas fa-sign-in-alt mr-2"></i>
-                            Check In
-                        </button>
-
-                        <!-- Check Out Button -->
-                        <button onclick="checkOut()"
-                                id="checkOutBtn"
-                                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-6 rounded-lg transition duration-200 shadow-lg">
-                            <i class="fas fa-sign-out-alt mr-2"></i>
-                            Check Out
-                        </button>
-
-                        <!-- Instructions -->
-                        <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-                            <p class="text-xs text-gray-600 text-center">
-                                <i class="fas fa-map-marker-alt mr-1 text-red-600"></i>
-                                Location will be recorded with your attendance
-                            </p>
-                        </div>
-                    </div>
-                </div>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <!-- Left Column - Check In/Out -->
+        <div class="lg:col-span-1">
+          <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <!-- Header -->
+            <div class="bg-red-600 text-white p-6 text-center">
+              <i class="fas fa-clock text-5xl mb-3"></i>
+              <h2 class="text-2xl font-bold">Attendance</h2>
+              <p class="text-red-100 text-sm mt-2" id="currentDateTime"></p>
             </div>
 
-            <!-- Right Column - Attendance History -->
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-lg shadow-lg p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-2xl font-bold text-gray-800">Attendance History</h2>
-                        <div class="flex space-x-2">
-                            <select id="monthFilter" class="border border-gray-300 rounded-lg px-4 py-2 text-sm">
-                                <option value="current">This Month</option>
-                                <option value="last">Last Month</option>
-                                <option value="all">All Time</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Attendance Stats -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                        <div class="bg-green-50 p-4 rounded-lg border border-green-200 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">Present Days</p>
-                                    <p id="presentDays" class="text-2xl font-bold text-green-600">0</p>
-                                    <p class="text-xs text-gray-500 mt-1">On time arrivals</p>
-                                </div>
-                                <i class="fas fa-check-circle text-3xl text-green-600 opacity-80"></i>
-                            </div>
-                        </div>
-                        <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">Late Arrivals</p>
-                                    <p id="lateDays" class="text-2xl font-bold text-yellow-600">0</p>
-                                    <p class="text-xs text-gray-500 mt-1">After 8:30 AM</p>
-                                </div>
-                                <i class="fas fa-clock text-3xl text-yellow-600 opacity-80"></i>
-                            </div>
-                        </div>
-                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">Avg Hours/Day</p>
-                                    <p id="avgHours" class="text-2xl font-bold text-blue-600">0h</p>
-                                    <p class="text-xs text-gray-500 mt-1">Daily average</p>
-                                </div>
-                                <i class="fas fa-hourglass-half text-3xl text-blue-600 opacity-80"></i>
-                            </div>
-                        </div>
-                        <div class="bg-purple-50 p-4 rounded-lg border border-purple-200 shadow-sm">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-600">Total Hours</p>
-                                    <p id="totalHours" class="text-2xl font-bold text-purple-600">0h</p>
-                                    <p class="text-xs text-gray-500 mt-1" id="totalDaysLabel">This period</p>
-                                </div>
-                                <i class="fas fa-business-time text-3xl text-purple-600 opacity-80"></i>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Attendance Rate Progress Bar -->
-                    <div class="mb-6 p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg border border-red-200">
-                        <div class="flex justify-between items-center mb-2">
-                            <span class="text-sm font-semibold text-gray-700">Attendance Rate</span>
-                            <span class="text-sm font-bold text-red-700" id="attendanceRateText">0%</span>
-                        </div>
-                        <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                            <div id="attendanceRateBar" class="bg-gradient-to-r from-red-500 to-blue-600 h-3 rounded-full transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                        <p class="text-xs text-gray-600 mt-2">
-                            <i class="fas fa-info-circle mr-1"></i>
-                            Based on <span id="workingDays">0</span> working days this month
-                        </p>
-                    </div>
-
-                    <!-- Loading Spinner -->
-                    <div id="loadingHistory" class="text-center py-12 hidden">
-                        <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
-                        <p class="text-gray-600 mt-4">Loading attendance history...</p>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div id="emptyHistory" class="text-center py-12 hidden">
-                        <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
-                        <p class="text-gray-500 text-lg">No attendance records found</p>
-                    </div>
-
-                    <!-- Attendance Table -->
-                    <div id="attendanceTable" class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Date</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Check In</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Check Out</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Hours</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Status</th>
-                                    <th class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase">Location</th>
-                                </tr>
-                            </thead>
-                            <tbody id="attendanceTableBody" class="divide-y divide-gray-200">
-                                <!-- Will be populated by JavaScript -->
-                            </tbody>
-                        </table>
-                    </div>
+            <!-- Today's Status -->
+            <div id="todayStatus" class="p-6 border-b">
+              <h3 class="text-lg font-semibold text-gray-800 mb-4">
+                Today's Status
+              </h3>
+              <div id="statusInfo" class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Check In:</span>
+                  <span id="todayCheckIn" class="font-semibold">Not yet</span>
                 </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Check Out:</span>
+                  <span id="todayCheckOut" class="font-semibold">Not yet</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-gray-600">Hours:</span>
+                  <span id="todayHours" class="font-semibold">0h 0m</span>
+                </div>
+              </div>
             </div>
+
+            <!-- Content -->
+            <div class="p-6">
+              <!-- Status Message -->
+              <div
+                id="statusMessage"
+                class="hidden mb-6 p-4 rounded-lg text-center font-medium"
+              ></div>
+
+              <!-- Check In Button -->
+              <button
+                onclick="checkIn()"
+                id="checkInBtn"
+                class="w-full bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-6 rounded-lg mb-4 transition duration-200 shadow-lg"
+              >
+                <i class="fas fa-sign-in-alt mr-2"></i>
+                Check In
+              </button>
+
+              <!-- Check Out Button -->
+              <button
+                onclick="checkOut()"
+                id="checkOutBtn"
+                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-4 px-6 rounded-lg transition duration-200 shadow-lg"
+              >
+                <i class="fas fa-sign-out-alt mr-2"></i>
+                Check Out
+              </button>
+
+              <!-- Instructions -->
+              <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+                <p class="text-xs text-gray-600 text-center">
+                  <i class="fas fa-map-marker-alt mr-1 text-red-600"></i>
+                  Location will be recorded with your attendance
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
+
+        <!-- Right Column - Attendance History -->
+        <div class="lg:col-span-2">
+          <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+              <h2 class="text-2xl font-bold text-gray-800">
+                Attendance History
+              </h2>
+              <div class="flex space-x-2">
+                <select
+                  id="monthFilter"
+                  class="border border-gray-300 rounded-lg px-4 py-2 text-sm"
+                >
+                  <option value="current">This Month</option>
+                  <option value="last">Last Month</option>
+                  <option value="all">All Time</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Attendance Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+              <div
+                class="bg-green-50 p-4 rounded-lg border border-green-200 shadow-sm"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">Present Days</p>
+                    <p
+                      id="presentDays"
+                      class="text-2xl font-bold text-green-600"
+                    >
+                      0
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">On time arrivals</p>
+                  </div>
+                  <i
+                    class="fas fa-check-circle text-3xl text-green-600 opacity-80"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 shadow-sm"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">Late Arrivals</p>
+                    <p id="lateDays" class="text-2xl font-bold text-yellow-600">
+                      0
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">After 8:30 AM</p>
+                  </div>
+                  <i
+                    class="fas fa-clock text-3xl text-yellow-600 opacity-80"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="bg-blue-50 p-4 rounded-lg border border-blue-200 shadow-sm"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">Avg Hours/Day</p>
+                    <p id="avgHours" class="text-2xl font-bold text-blue-600">
+                      0h
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1">Daily average</p>
+                  </div>
+                  <i
+                    class="fas fa-hourglass-half text-3xl text-blue-600 opacity-80"
+                  ></i>
+                </div>
+              </div>
+              <div
+                class="bg-purple-50 p-4 rounded-lg border border-purple-200 shadow-sm"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-gray-600">Total Hours</p>
+                    <p
+                      id="totalHours"
+                      class="text-2xl font-bold text-purple-600"
+                    >
+                      0h
+                    </p>
+                    <p class="text-xs text-gray-500 mt-1" id="totalDaysLabel">
+                      This period
+                    </p>
+                  </div>
+                  <i
+                    class="fas fa-business-time text-3xl text-purple-600 opacity-80"
+                  ></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Attendance Rate Progress Bar -->
+            <div
+              class="mb-6 p-4 bg-gradient-to-r from-red-50 to-blue-50 rounded-lg border border-red-200"
+            >
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-sm font-semibold text-gray-700"
+                  >Attendance Rate</span
+                >
+                <span
+                  class="text-sm font-bold text-red-700"
+                  id="attendanceRateText"
+                  >0%</span
+                >
+              </div>
+              <div class="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                <div
+                  id="attendanceRateBar"
+                  class="bg-gradient-to-r from-red-500 to-blue-600 h-3 rounded-full transition-all duration-500"
+                  style="width: 0%"
+                ></div>
+              </div>
+              <p class="text-xs text-gray-600 mt-2">
+                <i class="fas fa-info-circle mr-1"></i>
+                Based on <span id="workingDays">0</span> working days this month
+              </p>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loadingHistory" class="text-center py-12 hidden">
+              <i class="fas fa-spinner fa-spin text-4xl text-red-600"></i>
+              <p class="text-gray-600 mt-4">Loading attendance history...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyHistory" class="text-center py-12 hidden">
+              <i class="fas fa-calendar-times text-6xl text-gray-300 mb-4"></i>
+              <p class="text-gray-500 text-lg">No attendance records found</p>
+            </div>
+
+            <!-- Attendance Table -->
+            <div id="attendanceTable" class="overflow-x-auto">
+              <table class="w-full">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Date
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Check In
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Check Out
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Hours
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Status
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Location
+                    </th>
+                  </tr>
+                </thead>
+                <tbody
+                  id="attendanceTableBody"
+                  class="divide-y divide-gray-200"
+                >
+                  <!-- Will be populated by JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
-        // ========================================
-        // AUTHENTICATION CHECK
-        // ========================================
-        // Redirect to login if not authenticated
-        if (!requireAuth()) {
-            // Will redirect automatically
+      // ========================================
+      // AUTHENTICATION CHECK
+      // ========================================
+      // Redirect to login if not authenticated
+      if (!requireAuth()) {
+        // Will redirect automatically
+      }
+
+      // Get logged-in user
+      const currentUser = getCurrentUser();
+      const EMPLOYEE_ID = currentUser.id;
+
+      // Store today's record ID with localStorage persistence
+      // This ensures check-in state persists across tabs, navigation, and logout
+      const STORAGE_KEY = `attendance_session_${EMPLOYEE_ID}_${getTodayDate()}`;
+
+      function getTodayRecordId() {
+        return localStorage.getItem(STORAGE_KEY);
+      }
+
+      function setTodayRecordId(recordId) {
+        if (recordId) {
+          localStorage.setItem(STORAGE_KEY, recordId);
         }
+      }
 
-        // Get logged-in user
-        const currentUser = getCurrentUser();
-        const EMPLOYEE_ID = currentUser.id;
+      function clearTodayRecordId() {
+        localStorage.removeItem(STORAGE_KEY);
+      }
 
-        // Store today's record ID with localStorage persistence
-        // This ensures check-in state persists across tabs, navigation, and logout
-        const STORAGE_KEY = `attendance_session_${EMPLOYEE_ID}_${getTodayDate()}`;
+      // Initialize with stored value if exists
+      let todayRecordId = getTodayRecordId();
 
-        function getTodayRecordId() {
-            return localStorage.getItem(STORAGE_KEY);
-        }
+      // ========================================
+      // AIRTABLE CONFIGURATION FOR ATTENDANCE
+      // ========================================
+      const ATTENDANCE_CONFIG = {
+        apiKey: "YOUR_AIRTABLE_API_KEY",
+        baseId: "YOUR_AIRTABLE_BASE_ID",
+        tableName: "Attendance",
+      };
 
-        function setTodayRecordId(recordId) {
-            if (recordId) {
-                localStorage.setItem(STORAGE_KEY, recordId);
-            }
-        }
-
-        function clearTodayRecordId() {
-            localStorage.removeItem(STORAGE_KEY);
-        }
-
-        // Initialize with stored value if exists
-        let todayRecordId = getTodayRecordId();
-
-        // ========================================
-        // AIRTABLE CONFIGURATION FOR ATTENDANCE
-        // ========================================
-        const ATTENDANCE_CONFIG = {
-            apiKey: 'YOUR_AIRTABLE_API_KEY',
-            baseId: 'YOUR_AIRTABLE_BASE_ID',
-            tableName: 'Attendance'
+      // ========================================
+      // UPDATE DATE AND TIME
+      // ========================================
+      function updateDateTime() {
+        const now = new Date();
+        const options = {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
         };
+        document.getElementById("currentDateTime").textContent =
+          now.toLocaleDateString("en-US", options);
+      }
 
-        // ========================================
-        // UPDATE DATE AND TIME
-        // ========================================
-        function updateDateTime() {
-            const now = new Date();
-            const options = {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            };
-            document.getElementById('currentDateTime').textContent = now.toLocaleDateString('en-US', options);
+      // Display user info
+      function updateUserInfo() {
+        const userInfoText = `Welcome, ${currentUser.name}`;
+        const navUserInfoElement = document.getElementById("navUserInfo");
+        if (navUserInfoElement && currentUser) {
+          navUserInfoElement.textContent = userInfoText;
         }
+      }
 
-        // Display user info
-        function updateUserInfo() {
-            const userInfoText = `Welcome, ${currentUser.name}`;
-            const navUserInfoElement = document.getElementById('navUserInfo');
-            if (navUserInfoElement && currentUser) {
-                navUserInfoElement.textContent = userInfoText;
+      // Initialize and update every second
+      updateUserInfo();
+      updateDateTime();
+      setInterval(updateDateTime, 1000);
+
+      // Load today's status and history, and set todayRecordId if record exists
+      async function initializePage() {
+        const todayRecord = await findTodayRecord();
+        if (todayRecord) {
+          todayRecordId = todayRecord.id;
+          setTodayRecordId(todayRecord.id);
+        }
+        loadTodayStatus();
+        loadAttendanceHistory();
+
+        // Clean up old localStorage entries (older than today)
+        cleanupOldSessions();
+      }
+
+      initializePage();
+
+      // Clean up localStorage entries from previous days
+      function cleanupOldSessions() {
+        const today = getTodayDate();
+        const keysToRemove = [];
+
+        for (let i = 0; i < localStorage.length; i++) {
+          const key = localStorage.key(i);
+          if (key && key.startsWith(`attendance_session_${EMPLOYEE_ID}_`)) {
+            const dateFromKey = key.split("_").pop();
+            if (dateFromKey !== today) {
+              keysToRemove.push(key);
             }
+          }
         }
 
-        // Initialize and update every second
-        updateUserInfo();
-        updateDateTime();
-        setInterval(updateDateTime, 1000);
+        keysToRemove.forEach((key) => localStorage.removeItem(key));
+      }
 
-        // Load today's status and history, and set todayRecordId if record exists
-        async function initializePage() {
-            const todayRecord = await findTodayRecord();
-            if (todayRecord) {
-                todayRecordId = todayRecord.id;
-                setTodayRecordId(todayRecord.id);
+      // ========================================
+      // SHOW STATUS MESSAGE
+      // ========================================
+      function showMessage(message, type) {
+        const statusDiv = document.getElementById("statusMessage");
+        statusDiv.textContent = message;
+        statusDiv.className = `mb-6 p-4 rounded-lg text-center font-medium`;
+
+        if (type === "success") {
+          statusDiv.classList.add("bg-green-100", "text-green-800");
+        } else if (type === "error") {
+          statusDiv.classList.add("bg-red-100", "text-red-800");
+        } else {
+          statusDiv.classList.add("bg-yellow-100", "text-yellow-800");
+        }
+
+        statusDiv.classList.remove("hidden");
+
+        // Auto-hide after 5 seconds
+        setTimeout(() => {
+          statusDiv.classList.add("hidden");
+        }, 5000);
+      }
+
+      // ========================================
+      // GET CURRENT TIME IN HH:MM:SS FORMAT
+      // ========================================
+      function getCurrentTime() {
+        const now = new Date();
+        return now.toTimeString().split(" ")[0];
+      }
+
+      // ========================================
+      // GET CURRENT DATETIME IN ISO FORMAT
+      // ========================================
+      function getCurrentDateTime() {
+        const now = new Date();
+        return now.toISOString();
+      }
+
+      // ========================================
+      // GET TODAY'S DATE IN YYYY-MM-DD FORMAT
+      // ========================================
+      function getTodayDate() {
+        const now = new Date();
+        return now.toISOString().split("T")[0];
+      }
+
+      // ========================================
+      // LOCATION TRACKING SYSTEM
+      // ========================================
+      // This system uses BOTH GPS and IP-based geolocation in parallel:
+      // 1. GPS: High accuracy (5-50m) via device hardware
+      // 2. IP: Lower accuracy (~5km) via IP address lookup
+      //
+      // Both methods race against each other, and whichever returns first
+      // is used. This ensures fast response time while maintaining accuracy
+      // when possible. If GPS fails or is slow, IP provides a reliable fallback.
+      // ========================================
+
+      // ========================================
+      // GET USER LOCATION VIA GPS
+      // ========================================
+      function getGPSLocation() {
+        return new Promise((resolve, reject) => {
+          if (!navigator.geolocation) {
+            reject(new Error("Geolocation is not supported by your browser"));
+            return;
+          }
+
+          const startTime = Date.now();
+
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const elapsed = Date.now() - startTime;
+              const location = {
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                accuracy: position.coords.accuracy,
+                timestamp: new Date().toISOString(),
+                method: "GPS",
+                responseTime: elapsed,
+              };
+              resolve(location);
+            },
+            (error) => {
+              reject(new Error(`GPS error: ${error.message}`));
+            },
+            {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 0,
             }
-            loadTodayStatus();
-            loadAttendanceHistory();
+          );
+        });
+      }
 
-            // Clean up old localStorage entries (older than today)
-            cleanupOldSessions();
+      // ========================================
+      // GET USER LOCATION VIA IP (using Worker proxy)
+      // ========================================
+      async function getIPBasedLocation() {
+        const startTime = Date.now();
+
+        try {
+          // Using Worker proxy for IP lookup (avoids CORS issues and CSP restrictions)
+          // getIPLocation() is defined in config-worker.js
+          const data = await getIPLocation();
+          const elapsed = Date.now() - startTime;
+
+          // IP-based location is less accurate (city-level, typically 5-50km radius)
+          const location = {
+            latitude: data.latitude,
+            longitude: data.longitude,
+            accuracy: 5000, // Approximate city-level accuracy in meters
+            timestamp: new Date().toISOString(),
+            method: "IP",
+            responseTime: elapsed,
+            city: data.city,
+            region: data.region,
+            country: data.country_name,
+            ip: data.ip,
+          };
+
+          return location;
+        } catch (error) {
+          throw new Error(`IP location error: ${error.message}`);
         }
+      }
 
-        initializePage();
+      // ========================================
+      // GET USER LOCATION (RACE GPS vs IP)
+      // ========================================
+      async function getUserLocation() {
+        try {
+          // Race both methods - whichever returns first wins
+          const location = await Promise.race([
+            getGPSLocation(),
+            getIPBasedLocation(),
+          ]);
 
-        // Clean up localStorage entries from previous days
-        function cleanupOldSessions() {
-            const today = getTodayDate();
-            const keysToRemove = [];
+          return location;
+        } catch (error) {
+          // If race fails, try IP as ultimate fallback
+          try {
+            const ipLocation = await getIPBasedLocation();
+            return ipLocation;
+          } catch (ipError) {
+            throw new Error(
+              "Unable to determine location. Please check permissions and network."
+            );
+          }
+        }
+      }
 
-            for (let i = 0; i < localStorage.length; i++) {
-                const key = localStorage.key(i);
-                if (key && key.startsWith(`attendance_session_${EMPLOYEE_ID}_`)) {
-                    const dateFromKey = key.split('_').pop();
-                    if (dateFromKey !== today) {
-                        keysToRemove.push(key);
-                    }
-                }
+      // ========================================
+      // GET LOCATION NAME FROM COORDINATES
+      // ========================================
+      async function getLocationName(latitude, longitude) {
+        try {
+          // Using OpenStreetMap's Nominatim API with highest zoom for precise location
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=19&addressdetails=1`,
+            {
+              headers: {
+                "User-Agent": "AttendanceTracker/1.0",
+              },
             }
+          );
 
-            keysToRemove.forEach(key => localStorage.removeItem(key));
+          if (!response.ok) {
+            throw new Error("Failed to get location name");
+          }
+
+          const data = await response.json();
+          const address = data.address || {};
+          const parts = [];
+
+          // Build precise address starting with most specific details
+
+          // Building/POI name
+          if (address.building) parts.push(address.building);
+          else if (address.shop) parts.push(address.shop);
+          else if (address.amenity) parts.push(address.amenity);
+          else if (address.office) parts.push(address.office);
+
+          // House number and street
+          if (address.house_number && address.road) {
+            parts.push(`${address.house_number} ${address.road}`);
+          } else if (address.road) {
+            parts.push(address.road);
+          } else if (address.pedestrian) {
+            parts.push(address.pedestrian);
+          }
+
+          // Neighbourhood/Quarter/Suburb
+          if (address.quarter) parts.push(address.quarter);
+          else if (address.neighbourhood) parts.push(address.neighbourhood);
+          else if (address.suburb) parts.push(address.suburb);
+
+          // City/Town/Village
+          if (address.city) parts.push(address.city);
+          else if (address.town) parts.push(address.town);
+          else if (address.village) parts.push(address.village);
+          else if (address.municipality) parts.push(address.municipality);
+
+          // Region/State
+          if (address.region) parts.push(address.region);
+          else if (address.state) parts.push(address.state);
+          else if (address.province) parts.push(address.province);
+
+          // Country
+          if (address.country) parts.push(address.country);
+
+          // Build final address string
+          let locationName = parts.join(", ");
+
+          // If we couldn't build a good address, try display_name (often more detailed)
+          if (parts.length < 3 && data.display_name) {
+            locationName = data.display_name;
+          }
+
+          return (
+            locationName ||
+            `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`
+          );
+        } catch (error) {
+          console.error("Error getting location name:", error);
+          // Fallback to coordinates if reverse geocoding fails
+          return `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
+        }
+      }
+
+      // ========================================
+      // FORMAT LOCATION FOR STORAGE
+      // ========================================
+      async function formatLocation(location) {
+        // If IP-based location, use the city/region data from the API
+        if (location.method === "IP") {
+          const ipLocation = `${location.city}, ${location.region}, ${location.country}`;
+          return `${ipLocation} [IP: ${location.ip}] (±${(location.accuracy / 1000).toFixed(0)}km)`;
         }
 
-        // ========================================
-        // SHOW STATUS MESSAGE
-        // ========================================
-        function showMessage(message, type) {
-            const statusDiv = document.getElementById('statusMessage');
-            statusDiv.textContent = message;
-            statusDiv.className = `mb-6 p-4 rounded-lg text-center font-medium`;
-
-            if (type === 'success') {
-                statusDiv.classList.add('bg-green-100', 'text-green-800');
-            } else if (type === 'error') {
-                statusDiv.classList.add('bg-red-100', 'text-red-800');
-            } else {
-                statusDiv.classList.add('bg-yellow-100', 'text-yellow-800');
-            }
-
-            statusDiv.classList.remove('hidden');
-
-            // Auto-hide after 5 seconds
-            setTimeout(() => {
-                statusDiv.classList.add('hidden');
-            }, 5000);
+        // For GPS, use reverse geocoding
+        if (location.method === "GPS") {
+          const locationName = await getLocationName(
+            location.latitude,
+            location.longitude
+          );
+          return `${locationName} [GPS] (±${location.accuracy.toFixed(0)}m)`;
         }
 
-        // ========================================
-        // GET CURRENT TIME IN HH:MM:SS FORMAT
-        // ========================================
-        function getCurrentTime() {
-            const now = new Date();
-            return now.toTimeString().split(' ')[0];
+        // Fallback
+        return `Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)} (±${location.accuracy.toFixed(0)}m)`;
+      }
+
+      // ========================================
+      // LATE REASON MODAL FUNCTIONS
+      // ========================================
+      function openLateReasonModal() {
+        document.getElementById("lateReasonModal").classList.remove("hidden");
+        document.getElementById("lateReasonModal").classList.add("flex");
+        document.getElementById("lateReasonInput").value = "";
+      }
+
+      function closeLateReasonModal() {
+        document.getElementById("lateReasonModal").classList.add("hidden");
+        document.getElementById("lateReasonModal").classList.remove("flex");
+      }
+
+      // ========================================
+      // CHECK IN FUNCTION
+      // ========================================
+      async function checkIn() {
+        // Check if already checked in today FIRST
+        const existingRecord = await findTodayRecord();
+
+        if (existingRecord && existingRecord.fields["Check In"]) {
+          // If already checked out, don't allow checking in again
+          if (existingRecord.fields["Check Out"]) {
+            showMessage(
+              "You have already completed your attendance for today (checked in and out). Please wait until tomorrow.",
+              "error"
+            );
+            return;
+          }
+          showMessage("You have already checked in today!", "error");
+          return;
         }
 
-        // ========================================
-        // GET CURRENT DATETIME IN ISO FORMAT
-        // ========================================
-        function getCurrentDateTime() {
-            const now = new Date();
-            return now.toISOString();
+        // Check if late (after 8:30 AM)
+        const now = new Date();
+        const checkInHour = now.getHours();
+        const checkInMinute = now.getMinutes();
+        const isLate =
+          checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
+
+        if (isLate) {
+          // Show modal for late reason
+          openLateReasonModal();
+        } else {
+          // Proceed with normal check-in
+          await performCheckIn(null);
         }
+      }
 
-        // ========================================
-        // GET TODAY'S DATE IN YYYY-MM-DD FORMAT
-        // ========================================
-        function getTodayDate() {
-            const now = new Date();
-            return now.toISOString().split('T')[0];
-        }
-
-        // ========================================
-        // LOCATION TRACKING SYSTEM
-        // ========================================
-        // This system uses BOTH GPS and IP-based geolocation in parallel:
-        // 1. GPS: High accuracy (5-50m) via device hardware
-        // 2. IP: Lower accuracy (~5km) via IP address lookup
-        //
-        // Both methods race against each other, and whichever returns first
-        // is used. This ensures fast response time while maintaining accuracy
-        // when possible. If GPS fails or is slow, IP provides a reliable fallback.
-        // ========================================
-
-        // ========================================
-        // GET USER LOCATION VIA GPS
-        // ========================================
-        function getGPSLocation() {
-            return new Promise((resolve, reject) => {
-                if (!navigator.geolocation) {
-                    reject(new Error('Geolocation is not supported by your browser'));
-                    return;
-                }
-
-                const startTime = Date.now();
-
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const elapsed = Date.now() - startTime;
-                        const location = {
-                            latitude: position.coords.latitude,
-                            longitude: position.coords.longitude,
-                            accuracy: position.coords.accuracy,
-                            timestamp: new Date().toISOString(),
-                            method: 'GPS',
-                            responseTime: elapsed
-                        };
-                        resolve(location);
-                    },
-                    (error) => {
-                        reject(new Error(`GPS error: ${error.message}`));
-                    },
-                    {
-                        enableHighAccuracy: true,
-                        timeout: 10000,
-                        maximumAge: 0
-                    }
-                );
-            });
-        }
-
-        // ========================================
-        // GET USER LOCATION VIA IP (using Worker proxy)
-        // ========================================
-        async function getIPBasedLocation() {
-            const startTime = Date.now();
-
-            try {
-                // Using Worker proxy for IP lookup (avoids CORS issues and CSP restrictions)
-                // getIPLocation() is defined in config-worker.js
-                const data = await getIPLocation();
-                const elapsed = Date.now() - startTime;
-
-                // IP-based location is less accurate (city-level, typically 5-50km radius)
-                const location = {
-                    latitude: data.latitude,
-                    longitude: data.longitude,
-                    accuracy: 5000, // Approximate city-level accuracy in meters
-                    timestamp: new Date().toISOString(),
-                    method: 'IP',
-                    responseTime: elapsed,
-                    city: data.city,
-                    region: data.region,
-                    country: data.country_name,
-                    ip: data.ip
-                };
-
-                return location;
-            } catch (error) {
-                throw new Error(`IP location error: ${error.message}`);
-            }
-        }
-
-        // ========================================
-        // GET USER LOCATION (RACE GPS vs IP)
-        // ========================================
-        async function getUserLocation() {
-            try {
-                // Race both methods - whichever returns first wins
-                const location = await Promise.race([
-                    getGPSLocation(),
-                    getIPBasedLocation()
-                ]);
-
-                return location;
-
-            } catch (error) {
-                // If race fails, try IP as ultimate fallback
-                try {
-                    const ipLocation = await getIPBasedLocation();
-                    return ipLocation;
-                } catch (ipError) {
-                    throw new Error('Unable to determine location. Please check permissions and network.');
-                }
-            }
-        }
-
-        // ========================================
-        // GET LOCATION NAME FROM COORDINATES
-        // ========================================
-        async function getLocationName(latitude, longitude) {
-            try {
-                // Using OpenStreetMap's Nominatim API with highest zoom for precise location
-                const response = await fetch(
-                    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=19&addressdetails=1`,
-                    {
-                        headers: {
-                            'User-Agent': 'AttendanceTracker/1.0'
-                        }
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error('Failed to get location name');
-                }
-
-                const data = await response.json();
-                const address = data.address || {};
-                const parts = [];
-
-                // Build precise address starting with most specific details
-
-                // Building/POI name
-                if (address.building) parts.push(address.building);
-                else if (address.shop) parts.push(address.shop);
-                else if (address.amenity) parts.push(address.amenity);
-                else if (address.office) parts.push(address.office);
-
-                // House number and street
-                if (address.house_number && address.road) {
-                    parts.push(`${address.house_number} ${address.road}`);
-                } else if (address.road) {
-                    parts.push(address.road);
-                } else if (address.pedestrian) {
-                    parts.push(address.pedestrian);
-                }
-
-                // Neighbourhood/Quarter/Suburb
-                if (address.quarter) parts.push(address.quarter);
-                else if (address.neighbourhood) parts.push(address.neighbourhood);
-                else if (address.suburb) parts.push(address.suburb);
-
-                // City/Town/Village
-                if (address.city) parts.push(address.city);
-                else if (address.town) parts.push(address.town);
-                else if (address.village) parts.push(address.village);
-                else if (address.municipality) parts.push(address.municipality);
-
-                // Region/State
-                if (address.region) parts.push(address.region);
-                else if (address.state) parts.push(address.state);
-                else if (address.province) parts.push(address.province);
-
-                // Country
-                if (address.country) parts.push(address.country);
-
-                // Build final address string
-                let locationName = parts.join(', ');
-
-                // If we couldn't build a good address, try display_name (often more detailed)
-                if (parts.length < 3 && data.display_name) {
-                    locationName = data.display_name;
-                }
-
-                return locationName || `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
-
-            } catch (error) {
-                console.error('Error getting location name:', error);
-                // Fallback to coordinates if reverse geocoding fails
-                return `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
-            }
-        }
-
-        // ========================================
-        // FORMAT LOCATION FOR STORAGE
-        // ========================================
-        async function formatLocation(location) {
-            // If IP-based location, use the city/region data from the API
-            if (location.method === 'IP') {
-                const ipLocation = `${location.city}, ${location.region}, ${location.country}`;
-                return `${ipLocation} [IP: ${location.ip}] (±${(location.accuracy / 1000).toFixed(0)}km)`;
-            }
-
-            // For GPS, use reverse geocoding
-            if (location.method === 'GPS') {
-                const locationName = await getLocationName(location.latitude, location.longitude);
-                return `${locationName} [GPS] (±${location.accuracy.toFixed(0)}m)`;
-            }
-
-            // Fallback
-            return `Lat: ${location.latitude.toFixed(6)}, Lng: ${location.longitude.toFixed(6)} (±${location.accuracy.toFixed(0)}m)`;
-        }
-
-        // ========================================
-        // LATE REASON MODAL FUNCTIONS
-        // ========================================
-        function openLateReasonModal() {
-            document.getElementById('lateReasonModal').classList.remove('hidden');
-            document.getElementById('lateReasonModal').classList.add('flex');
-            document.getElementById('lateReasonInput').value = '';
-        }
-
-        function closeLateReasonModal() {
-            document.getElementById('lateReasonModal').classList.add('hidden');
-            document.getElementById('lateReasonModal').classList.remove('flex');
-        }
-
-        // ========================================
-        // CHECK IN FUNCTION
-        // ========================================
-        async function checkIn() {
-            // Check if already checked in today FIRST
-            const existingRecord = await findTodayRecord();
-
-            if (existingRecord && existingRecord.fields['Check In']) {
-                // If already checked out, don't allow checking in again
-                if (existingRecord.fields['Check Out']) {
-                    showMessage('You have already completed your attendance for today (checked in and out). Please wait until tomorrow.', 'error');
-                    return;
-                }
-                showMessage('You have already checked in today!', 'error');
-                return;
-            }
-
-            // Check if late (after 8:30 AM)
-            const now = new Date();
-            const checkInHour = now.getHours();
-            const checkInMinute = now.getMinutes();
-            const isLate = checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
-
-            if (isLate) {
-                // Show modal for late reason
-                openLateReasonModal();
-            } else {
-                // Proceed with normal check-in
-                await performCheckIn(null);
-            }
-        }
-
-        // Handle late reason form submission
-        document.getElementById('lateReasonForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const lateReason = document.getElementById('lateReasonInput').value.trim();
-            closeLateReasonModal();
-            await performCheckIn(lateReason);
+      // Handle late reason form submission
+      document
+        .getElementById("lateReasonForm")
+        .addEventListener("submit", async function (e) {
+          e.preventDefault();
+          const lateReason = document
+            .getElementById("lateReasonInput")
+            .value.trim();
+          closeLateReasonModal();
+          await performCheckIn(lateReason);
         });
 
-        // ========================================
-        // PERFORM CHECK IN (with optional late reason)
-        // ========================================
-        async function performCheckIn(lateReason) {
-            const today = getTodayDate();
-            const time = getCurrentTime();
-            const datetime = getCurrentDateTime();
+      // ========================================
+      // PERFORM CHECK IN (with optional late reason)
+      // ========================================
+      async function performCheckIn(lateReason) {
+        const today = getTodayDate();
+        const time = getCurrentTime();
+        const datetime = getCurrentDateTime();
 
-            try {
-                showMessage('Getting your location...', 'info');
+        try {
+          showMessage("Getting your location...", "info");
 
-                // Use IP-based location only
-                let locationString = 'Location unavailable';
-                let ipAddress = 'Unknown';
-                try {
-                    const ipLocation = await getIPBasedLocation();
-                    ipAddress = ipLocation.ip;
-                    locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
-                } catch (locationError) {
-                    console.error('Location error:', locationError);
-                }
+          // Use IP-based location only
+          let locationString = "Location unavailable";
+          let ipAddress = "Unknown";
+          try {
+            const ipLocation = await getIPBasedLocation();
+            ipAddress = ipLocation.ip;
+            locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
+          } catch (locationError) {
+            console.error("Location error:", locationError);
+          }
 
-                const fields = {
-                    'Check In': datetime,
-                    'Check In Location': locationString,
-                    'IP Address': ipAddress
-                };
+          const fields = {
+            "Check In": datetime,
+            "Check In Location": locationString,
+            "IP Address": ipAddress,
+          };
 
-                // Add late reason if applicable
-                if (lateReason) {
-                    fields['Late Reason'] = lateReason;
-                }
+          // Add late reason if applicable
+          if (lateReason) {
+            fields["Late Reason"] = lateReason;
+          }
 
-                const existingRecord = await findTodayRecord();
+          const existingRecord = await findTodayRecord();
 
-                if (existingRecord) {
-                    // Update existing record
-                    await updateRecord(existingRecord.id, fields);
-                    todayRecordId = existingRecord.id;
-                    setTodayRecordId(existingRecord.id);
-                } else {
-                    // Create new record
-                    const newRecord = await createRecord({
-                        'Date': today,
-                        'Employee': [EMPLOYEE_ID],
-                        ...fields
-                    });
-                    // Store the record ID for checkout in both memory and localStorage
-                    todayRecordId = newRecord.id;
-                    setTodayRecordId(newRecord.id);
-                }
-
-                showMessage(`Successfully checked in at ${time}`, 'success');
-                loadTodayStatus(); // Refresh today's status
-                loadAttendanceHistory(); // Refresh history
-            } catch (error) {
-                console.error('Check-in error:', error);
-                showMessage(`Error checking in: ${error.message}`, 'error');
-            }
-        }
-
-        // ========================================
-        // CHECK OUT FUNCTION
-        // ========================================
-        async function checkOut() {
-            const time = getCurrentTime();
-            const datetime = getCurrentDateTime();
-
-            try {
-                // Check if we have a record ID from check-in (memory or localStorage)
-                if (!todayRecordId) {
-                    todayRecordId = getTodayRecordId();
-                }
-
-                // If still no record ID, try finding today's record from Airtable
-                if (!todayRecordId) {
-                    const existingRecord = await findTodayRecord();
-                    if (existingRecord) {
-                        todayRecordId = existingRecord.id;
-                        setTodayRecordId(existingRecord.id);
-                    } else {
-                        showMessage('Please check in first!', 'error');
-                        return;
-                    }
-                }
-
-                showMessage('Getting your location...', 'info');
-
-                // Use IP-based location only
-                let locationString = 'Location unavailable';
-                let ipAddress = 'Unknown';
-                try {
-                    const ipLocation = await getIPBasedLocation();
-                    ipAddress = ipLocation.ip;
-                    locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
-                } catch (locationError) {
-                    console.error('Location error:', locationError);
-                }
-
-                // Update record with check-out time and location
-                const updateFields = {
-                    'Check Out': datetime,
-                    'Check Out Location': locationString,
-                    'IP Address': ipAddress
-                };
-
-                await updateRecord(todayRecordId, updateFields);
-
-                // Clear the session since checkout is complete
-                clearTodayRecordId();
-                todayRecordId = null;
-
-                showMessage(`Successfully checked out at ${time}`, 'success');
-
-                // Disable both check in and check out buttons after completing attendance
-                document.getElementById('checkOutBtn').disabled = true;
-                document.getElementById('checkOutBtn').classList.add('opacity-50', 'cursor-not-allowed');
-                document.getElementById('checkInBtn').disabled = true;
-                document.getElementById('checkInBtn').classList.add('opacity-50', 'cursor-not-allowed');
-
-                loadTodayStatus(); // Refresh today's status
-                loadAttendanceHistory(); // Refresh history with updated record
-            } catch (error) {
-                console.error('Check-out error:', error);
-                showMessage(`Error checking out: ${error.message}`, 'error');
-            }
-        }
-
-        // ========================================
-        // FIND TODAY'S ATTENDANCE RECORD
-        // ========================================
-        async function findTodayRecord() {
-            const today = getTodayDate();
-
-            // Get all records for this employee using Worker API
-            const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
-            const data = await getAttendance(filterFormula);
-
-            // Filter in JavaScript to find today's record
-            const todayRecord = data.records.find(record => {
-                const recordDate = record.fields.Date;
-                return recordDate === today;
+          if (existingRecord) {
+            // Update existing record
+            await updateRecord(existingRecord.id, fields);
+            todayRecordId = existingRecord.id;
+            setTodayRecordId(existingRecord.id);
+          } else {
+            // Create new record
+            const newRecord = await createRecord({
+              Date: today,
+              Employee: [EMPLOYEE_ID],
+              ...fields,
             });
+            // Store the record ID for checkout in both memory and localStorage
+            todayRecordId = newRecord.id;
+            setTodayRecordId(newRecord.id);
+          }
 
-            return todayRecord || null;
+          showMessage(`Successfully checked in at ${time}`, "success");
+          loadTodayStatus(); // Refresh today's status
+          loadAttendanceHistory(); // Refresh history
+        } catch (error) {
+          console.error("Check-in error:", error);
+          showMessage(`Error checking in: ${error.message}`, "error");
         }
+      }
 
-        // ========================================
-        // CREATE NEW ATTENDANCE RECORD
-        // ========================================
-        async function createRecord(fields) {
-            return await createAttendance(fields);
-        }
+      // ========================================
+      // CHECK OUT FUNCTION
+      // ========================================
+      async function checkOut() {
+        const time = getCurrentTime();
+        const datetime = getCurrentDateTime();
 
-        // ========================================
-        // UPDATE EXISTING ATTENDANCE RECORD
-        // ========================================
-        async function updateRecord(recordId, fields) {
-            return await updateAttendance(recordId, fields);
-        }
+        try {
+          // Check if we have a record ID from check-in (memory or localStorage)
+          if (!todayRecordId) {
+            todayRecordId = getTodayRecordId();
+          }
 
-        // ========================================
-        // LOAD TODAY'S STATUS
-        // ========================================
-        async function loadTodayStatus() {
-            try {
-                let todayRecord = null;
-
-                // Try to get record ID from memory or localStorage
-                let recordId = todayRecordId || getTodayRecordId();
-
-                // If we have a stored record ID, fetch it directly using Worker API
-                if (recordId) {
-                    try {
-                        todayRecord = await getAttendanceRecord(recordId);
-                        // Sync the memory variable
-                        todayRecordId = recordId;
-                    } catch (error) {
-                        // Record ID might be invalid, clear it and search again
-                        clearTodayRecordId();
-                        todayRecordId = null;
-                        todayRecord = await findTodayRecord();
-                        if (todayRecord) {
-                            todayRecordId = todayRecord.id;
-                            setTodayRecordId(todayRecord.id);
-                        }
-                    }
-                } else {
-                    // Fallback to searching
-                    todayRecord = await findTodayRecord();
-                    if (todayRecord) {
-                        todayRecordId = todayRecord.id;
-                        setTodayRecordId(todayRecord.id);
-                    }
-                }
-
-                if (todayRecord && todayRecord.fields) {
-                    const checkInRaw = todayRecord.fields['Check In'];
-                    const checkOutRaw = todayRecord.fields['Check Out'];
-
-                    // Extract time from datetime
-                    const checkIn = checkInRaw ? new Date(checkInRaw).toLocaleTimeString('en-US', { hour12: false }) : 'Not yet';
-                    const checkOut = checkOutRaw ? new Date(checkOutRaw).toLocaleTimeString('en-US', { hour12: false }) : 'Not yet';
-
-                    document.getElementById('todayCheckIn').textContent = checkIn;
-                    document.getElementById('todayCheckOut').textContent = checkOut;
-
-                    // Calculate hours
-                    if (checkIn !== 'Not yet' && checkOut !== 'Not yet') {
-                        const hours = calculateHours(checkIn, checkOut);
-                        document.getElementById('todayHours').textContent = hours;
-                    } else if (checkIn !== 'Not yet') {
-                        // Show current duration
-                        const currentTime = getCurrentTime();
-                        const hours = calculateHours(checkIn, currentTime);
-                        document.getElementById('todayHours').textContent = hours + ' (ongoing)';
-                    } else {
-                        document.getElementById('todayHours').textContent = '0h 0m';
-                    }
-
-                    // Update button states
-                    if (checkIn !== 'Not yet') {
-                        document.getElementById('checkInBtn').disabled = true;
-                        document.getElementById('checkInBtn').classList.add('opacity-50', 'cursor-not-allowed');
-                    }
-                    if (checkOut !== 'Not yet') {
-                        // If checked out, disable both buttons (no re-checking in allowed)
-                        document.getElementById('checkOutBtn').disabled = true;
-                        document.getElementById('checkOutBtn').classList.add('opacity-50', 'cursor-not-allowed');
-                        document.getElementById('checkInBtn').disabled = true;
-                        document.getElementById('checkInBtn').classList.add('opacity-50', 'cursor-not-allowed');
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading today status:', error);
+          // If still no record ID, try finding today's record from Airtable
+          if (!todayRecordId) {
+            const existingRecord = await findTodayRecord();
+            if (existingRecord) {
+              todayRecordId = existingRecord.id;
+              setTodayRecordId(existingRecord.id);
+            } else {
+              showMessage("Please check in first!", "error");
+              return;
             }
+          }
+
+          showMessage("Getting your location...", "info");
+
+          // Use IP-based location only
+          let locationString = "Location unavailable";
+          let ipAddress = "Unknown";
+          try {
+            const ipLocation = await getIPBasedLocation();
+            ipAddress = ipLocation.ip;
+            locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
+          } catch (locationError) {
+            console.error("Location error:", locationError);
+          }
+
+          // Update record with check-out time and location
+          const updateFields = {
+            "Check Out": datetime,
+            "Check Out Location": locationString,
+            "IP Address": ipAddress,
+          };
+
+          await updateRecord(todayRecordId, updateFields);
+
+          // Clear the session since checkout is complete
+          clearTodayRecordId();
+          todayRecordId = null;
+
+          showMessage(`Successfully checked out at ${time}`, "success");
+
+          // Disable both check in and check out buttons after completing attendance
+          document.getElementById("checkOutBtn").disabled = true;
+          document
+            .getElementById("checkOutBtn")
+            .classList.add("opacity-50", "cursor-not-allowed");
+          document.getElementById("checkInBtn").disabled = true;
+          document
+            .getElementById("checkInBtn")
+            .classList.add("opacity-50", "cursor-not-allowed");
+
+          loadTodayStatus(); // Refresh today's status
+          loadAttendanceHistory(); // Refresh history with updated record
+        } catch (error) {
+          console.error("Check-out error:", error);
+          showMessage(`Error checking out: ${error.message}`, "error");
         }
+      }
 
-        // ========================================
-        // CALCULATE HOURS BETWEEN TWO TIMES
-        // ========================================
-        function calculateHours(startTime, endTime) {
-            const [startHours, startMinutes, startSeconds] = startTime.split(':').map(Number);
-            const [endHours, endMinutes, endSeconds] = endTime.split(':').map(Number);
+      // ========================================
+      // FIND TODAY'S ATTENDANCE RECORD
+      // ========================================
+      async function findTodayRecord() {
+        const today = getTodayDate();
 
-            const startTotal = startHours * 60 + startMinutes + startSeconds / 60;
-            const endTotal = endHours * 60 + endMinutes + endSeconds / 60;
+        // Get all records for this employee using Worker API
+        const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+        const data = await getAttendance(filterFormula);
 
-            const diffMinutes = endTotal - startTotal;
-            const hours = Math.floor(diffMinutes / 60);
-            const minutes = Math.floor(diffMinutes % 60);
+        // Filter in JavaScript to find today's record
+        const todayRecord = data.records.find((record) => {
+          const recordDate = record.fields.Date;
+          return recordDate === today;
+        });
 
-            return `${hours}h ${minutes}m`;
-        }
+        return todayRecord || null;
+      }
 
-        // ========================================
-        // LOAD ATTENDANCE HISTORY
-        // ========================================
-        async function loadAttendanceHistory() {
-            const loadingDiv = document.getElementById('loadingHistory');
-            const emptyDiv = document.getElementById('emptyHistory');
-            const tableDiv = document.getElementById('attendanceTable');
-            const tableBody = document.getElementById('attendanceTableBody');
+      // ========================================
+      // CREATE NEW ATTENDANCE RECORD
+      // ========================================
+      async function createRecord(fields) {
+        return await createAttendance(fields);
+      }
 
-            // Show loading
-            loadingDiv.classList.remove('hidden');
-            emptyDiv.classList.add('hidden');
-            tableDiv.classList.add('hidden');
+      // ========================================
+      // UPDATE EXISTING ATTENDANCE RECORD
+      // ========================================
+      async function updateRecord(recordId, fields) {
+        return await updateAttendance(recordId, fields);
+      }
 
-            let filterFormula = ''; // Declare here for error handling scope
+      // ========================================
+      // LOAD TODAY'S STATUS
+      // ========================================
+      async function loadTodayStatus() {
+        try {
+          let todayRecord = null;
 
+          // Try to get record ID from memory or localStorage
+          let recordId = todayRecordId || getTodayRecordId();
+
+          // If we have a stored record ID, fetch it directly using Worker API
+          if (recordId) {
             try {
-                const filter = document.getElementById('monthFilter').value;
+              todayRecord = await getAttendanceRecord(recordId);
+              // Sync the memory variable
+              todayRecordId = recordId;
+            } catch (error) {
+              // Record ID might be invalid, clear it and search again
+              clearTodayRecordId();
+              todayRecordId = null;
+              todayRecord = await findTodayRecord();
+              if (todayRecord) {
+                todayRecordId = todayRecord.id;
+                setTodayRecordId(todayRecord.id);
+              }
+            }
+          } else {
+            // Fallback to searching
+            todayRecord = await findTodayRecord();
+            if (todayRecord) {
+              todayRecordId = todayRecord.id;
+              setTodayRecordId(todayRecord.id);
+            }
+          }
 
-                // Fetch ALL records using Worker API and filter/sort on client side
-                const data = await getAttendance();
+          if (todayRecord && todayRecord.fields) {
+            const checkInRaw = todayRecord.fields["Check In"];
+            const checkOutRaw = todayRecord.fields["Check Out"];
 
-                // Filter records for this employee on the client side
-                let records = data.records.filter(record => {
-                    const employeeField = record.fields['Employee'];
-                    // Check if Employee field exists and contains this employee's ID
-                    return employeeField && Array.isArray(employeeField) && employeeField.includes(EMPLOYEE_ID);
-                });
+            // Extract time from datetime
+            const checkIn = checkInRaw
+              ? new Date(checkInRaw).toLocaleTimeString("en-US", {
+                  hour12: false,
+                })
+              : "Not yet";
+            const checkOut = checkOutRaw
+              ? new Date(checkOutRaw).toLocaleTimeString("en-US", {
+                  hour12: false,
+                })
+              : "Not yet";
 
-                // Sort by Date descending (client-side)
-                records.sort((a, b) => {
-                    const dateA = new Date(a.fields['Date'] || 0);
-                    const dateB = new Date(b.fields['Date'] || 0);
-                    return dateB - dateA;
-                });
+            document.getElementById("todayCheckIn").textContent = checkIn;
+            document.getElementById("todayCheckOut").textContent = checkOut;
 
-                // Filter by date in JavaScript
-                if (filter === 'current') {
-                    const now = new Date();
-                    const year = now.getFullYear();
-                    const month = now.getMonth() + 1;
-                    const monthStr = month.toString().padStart(2, '0');
-                    const targetMonth = `${year}-${monthStr}`;
+            // Calculate hours
+            if (checkIn !== "Not yet" && checkOut !== "Not yet") {
+              const hours = calculateHours(checkIn, checkOut);
+              document.getElementById("todayHours").textContent = hours;
+            } else if (checkIn !== "Not yet") {
+              // Show current duration
+              const currentTime = getCurrentTime();
+              const hours = calculateHours(checkIn, currentTime);
+              document.getElementById("todayHours").textContent =
+                hours + " (ongoing)";
+            } else {
+              document.getElementById("todayHours").textContent = "0h 0m";
+            }
 
-                    records = records.filter(record => {
-                        const recordDate = record.fields.Date || '';
-                        return recordDate.startsWith(targetMonth);
-                    });
-                } else if (filter === 'last') {
-                    const now = new Date();
-                    const lastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-                    const year = lastMonth.getFullYear();
-                    const month = lastMonth.getMonth() + 1;
-                    const monthStr = month.toString().padStart(2, '0');
-                    const targetMonth = `${year}-${monthStr}`;
+            // Update button states
+            if (checkIn !== "Not yet") {
+              document.getElementById("checkInBtn").disabled = true;
+              document
+                .getElementById("checkInBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
+            }
+            if (checkOut !== "Not yet") {
+              // If checked out, disable both buttons (no re-checking in allowed)
+              document.getElementById("checkOutBtn").disabled = true;
+              document
+                .getElementById("checkOutBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
+              document.getElementById("checkInBtn").disabled = true;
+              document
+                .getElementById("checkInBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
+            }
+          }
+        } catch (error) {
+          console.error("Error loading today status:", error);
+        }
+      }
 
-                    records = records.filter(record => {
-                        const recordDate = record.fields.Date || '';
-                        return recordDate.startsWith(targetMonth);
-                    });
-                }
+      // ========================================
+      // CALCULATE HOURS BETWEEN TWO TIMES
+      // ========================================
+      function calculateHours(startTime, endTime) {
+        const [startHours, startMinutes, startSeconds] = startTime
+          .split(":")
+          .map(Number);
+        const [endHours, endMinutes, endSeconds] = endTime
+          .split(":")
+          .map(Number);
 
-                // Hide loading
-                loadingDiv.classList.add('hidden');
+        const startTotal = startHours * 60 + startMinutes + startSeconds / 60;
+        const endTotal = endHours * 60 + endMinutes + endSeconds / 60;
 
-                if (records.length === 0) {
-                    emptyDiv.classList.remove('hidden');
-                    tableDiv.classList.add('hidden');
-                    return;
-                }
+        const diffMinutes = endTotal - startTotal;
+        const hours = Math.floor(diffMinutes / 60);
+        const minutes = Math.floor(diffMinutes % 60);
 
-                // Show table
-                tableDiv.classList.remove('hidden');
+        return `${hours}h ${minutes}m`;
+      }
 
-                // Calculate stats
-                let presentCount = 0;
-                let lateCount = 0;
-                let totalMinutes = 0;
-                let daysWithHours = 0;
+      // ========================================
+      // LOAD ATTENDANCE HISTORY
+      // ========================================
+      async function loadAttendanceHistory() {
+        const loadingDiv = document.getElementById("loadingHistory");
+        const emptyDiv = document.getElementById("emptyHistory");
+        const tableDiv = document.getElementById("attendanceTable");
+        const tableBody = document.getElementById("attendanceTableBody");
 
-                // Clear table
-                tableBody.innerHTML = '';
+        // Show loading
+        loadingDiv.classList.remove("hidden");
+        emptyDiv.classList.add("hidden");
+        tableDiv.classList.add("hidden");
 
-                // Populate table
-                records.forEach(record => {
-                    const fields = record.fields;
-                    const date = fields.Date || '';
-                    const checkInRaw = fields['Check In'];
-                    const checkOutRaw = fields['Check Out'];
-                    const checkInLocation = fields['Check In Location'] || '';
+        let filterFormula = ""; // Declare here for error handling scope
 
-                    // Extract time from datetime
-                    const checkIn = checkInRaw ? new Date(checkInRaw).toLocaleTimeString('en-US', { hour12: false }) : '-';
-                    const checkOut = checkOutRaw ? new Date(checkOutRaw).toLocaleTimeString('en-US', { hour12: false }) : '-';
+        try {
+          const filter = document.getElementById("monthFilter").value;
 
-                    let hours = '-';
-                    let status = 'Incomplete';
-                    let statusClass = 'bg-yellow-100 text-yellow-800';
+          // Fetch ALL records using Worker API and filter/sort on client side
+          const data = await getAttendance();
 
-                    if (checkIn !== '-' && checkOut !== '-') {
-                        hours = calculateHours(checkIn, checkOut);
-                        presentCount++;
+          // Filter records for this employee on the client side
+          let records = data.records.filter((record) => {
+            const employeeField = record.fields["Employee"];
+            // Check if Employee field exists and contains this employee's ID
+            return (
+              employeeField &&
+              Array.isArray(employeeField) &&
+              employeeField.includes(EMPLOYEE_ID)
+            );
+          });
 
-                        // Calculate total minutes for average
-                        const [h, m] = hours.replace('h', '').replace('m', '').split(' ').map(Number);
-                        totalMinutes += (h * 60 + m);
-                        daysWithHours++;
+          // Sort by Date descending (client-side)
+          records.sort((a, b) => {
+            const dateA = new Date(a.fields["Date"] || 0);
+            const dateB = new Date(b.fields["Date"] || 0);
+            return dateB - dateA;
+          });
 
-                        // Check if late (after 8:30 AM)
-                        const checkInHour = parseInt(checkIn.split(':')[0]);
-                        const checkInMinute = parseInt(checkIn.split(':')[1]);
-                        if (checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30)) {
-                            status = 'Late';
-                            statusClass = 'bg-orange-100 text-orange-800';
-                            lateCount++;
-                        } else {
-                            status = 'On Time';
-                            statusClass = 'bg-green-100 text-green-800';
-                        }
-                    } else if (checkIn !== '-') {
-                        status = 'Checked In';
-                        statusClass = 'bg-blue-100 text-blue-800';
-                    }
+          // Filter by date in JavaScript
+          if (filter === "current") {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+            const monthStr = month.toString().padStart(2, "0");
+            const targetMonth = `${year}-${monthStr}`;
 
-                    const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50';
-                    row.innerHTML = `
+            records = records.filter((record) => {
+              const recordDate = record.fields.Date || "";
+              return recordDate.startsWith(targetMonth);
+            });
+          } else if (filter === "last") {
+            const now = new Date();
+            const lastMonth = new Date(
+              now.getFullYear(),
+              now.getMonth() - 1,
+              1
+            );
+            const year = lastMonth.getFullYear();
+            const month = lastMonth.getMonth() + 1;
+            const monthStr = month.toString().padStart(2, "0");
+            const targetMonth = `${year}-${monthStr}`;
+
+            records = records.filter((record) => {
+              const recordDate = record.fields.Date || "";
+              return recordDate.startsWith(targetMonth);
+            });
+          }
+
+          // Hide loading
+          loadingDiv.classList.add("hidden");
+
+          if (records.length === 0) {
+            emptyDiv.classList.remove("hidden");
+            tableDiv.classList.add("hidden");
+            return;
+          }
+
+          // Show table
+          tableDiv.classList.remove("hidden");
+
+          // Calculate stats
+          let presentCount = 0;
+          let lateCount = 0;
+          let totalMinutes = 0;
+          let daysWithHours = 0;
+
+          // Clear table
+          tableBody.innerHTML = "";
+
+          // Populate table
+          records.forEach((record) => {
+            const fields = record.fields;
+            const date = fields.Date || "";
+            const checkInRaw = fields["Check In"];
+            const checkOutRaw = fields["Check Out"];
+            const checkInLocation = fields["Check In Location"] || "";
+
+            // Extract time from datetime
+            const checkIn = checkInRaw
+              ? new Date(checkInRaw).toLocaleTimeString("en-US", {
+                  hour12: false,
+                })
+              : "-";
+            const checkOut = checkOutRaw
+              ? new Date(checkOutRaw).toLocaleTimeString("en-US", {
+                  hour12: false,
+                })
+              : "-";
+
+            let hours = "-";
+            let status = "Incomplete";
+            let statusClass = "bg-yellow-100 text-yellow-800";
+
+            if (checkIn !== "-" && checkOut !== "-") {
+              hours = calculateHours(checkIn, checkOut);
+              presentCount++;
+
+              // Calculate total minutes for average
+              const [h, m] = hours
+                .replace("h", "")
+                .replace("m", "")
+                .split(" ")
+                .map(Number);
+              totalMinutes += h * 60 + m;
+              daysWithHours++;
+
+              // Check if late (after 8:30 AM)
+              const checkInHour = parseInt(checkIn.split(":")[0]);
+              const checkInMinute = parseInt(checkIn.split(":")[1]);
+              if (
+                checkInHour > 8 ||
+                (checkInHour === 8 && checkInMinute > 30)
+              ) {
+                status = "Late";
+                statusClass = "bg-orange-100 text-orange-800";
+                lateCount++;
+              } else {
+                status = "On Time";
+                statusClass = "bg-green-100 text-green-800";
+              }
+            } else if (checkIn !== "-") {
+              status = "Checked In";
+              statusClass = "bg-blue-100 text-blue-800";
+            }
+
+            const row = document.createElement("tr");
+            row.className = "hover:bg-gray-50";
+            row.innerHTML = `
                         <td class="px-4 py-3 text-sm text-gray-900">${formatDate(date)}</td>
                         <td class="px-4 py-3 text-sm text-gray-700">${checkIn}</td>
                         <td class="px-4 py-3 text-sm text-gray-700">${checkOut}</td>
@@ -1078,92 +1260,107 @@
                             </span>
                         </td>
                         <td class="px-4 py-3 text-xs text-gray-600" title="${checkInLocation}">
-                            ${checkInLocation ? (checkInLocation.length > 30 ? checkInLocation.substring(0, 30) + '...' : checkInLocation) : '-'}
+                            ${checkInLocation ? (checkInLocation.length > 30 ? checkInLocation.substring(0, 30) + "..." : checkInLocation) : "-"}
                         </td>
                     `;
-                    tableBody.appendChild(row);
-                });
+            tableBody.appendChild(row);
+          });
 
-                // Update stats
-                document.getElementById('presentDays').textContent = presentCount;
-                document.getElementById('lateDays').textContent = lateCount;
+          // Update stats
+          document.getElementById("presentDays").textContent = presentCount;
+          document.getElementById("lateDays").textContent = lateCount;
 
-                if (daysWithHours > 0) {
-                    const avgMinutes = totalMinutes / daysWithHours;
-                    const avgHours = Math.floor(avgMinutes / 60);
-                    const avgMins = Math.floor(avgMinutes % 60);
-                    document.getElementById('avgHours').textContent = `${avgHours}h ${avgMins}m`;
+          if (daysWithHours > 0) {
+            const avgMinutes = totalMinutes / daysWithHours;
+            const avgHours = Math.floor(avgMinutes / 60);
+            const avgMins = Math.floor(avgMinutes % 60);
+            document.getElementById("avgHours").textContent =
+              `${avgHours}h ${avgMins}m`;
 
-                    const totalHours = Math.floor(totalMinutes / 60);
-                    const totalMins = Math.floor(totalMinutes % 60);
-                    document.getElementById('totalHours').textContent = `${totalHours}h ${totalMins}m`;
-                } else {
-                    document.getElementById('avgHours').textContent = '0h 0m';
-                    document.getElementById('totalHours').textContent = '0h 0m';
-                }
+            const totalHours = Math.floor(totalMinutes / 60);
+            const totalMins = Math.floor(totalMinutes % 60);
+            document.getElementById("totalHours").textContent =
+              `${totalHours}h ${totalMins}m`;
+          } else {
+            document.getElementById("avgHours").textContent = "0h 0m";
+            document.getElementById("totalHours").textContent = "0h 0m";
+          }
 
-                // Calculate attendance rate
-                const now = new Date();
-                const year = now.getFullYear();
-                const month = now.getMonth();
-                const workingDays = getWorkingDaysInMonth(year, month);
-                const attendanceRate = workingDays > 0 ? Math.round((presentCount / workingDays) * 100) : 0;
+          // Calculate attendance rate
+          const now = new Date();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const workingDays = getWorkingDaysInMonth(year, month);
+          const attendanceRate =
+            workingDays > 0
+              ? Math.round((presentCount / workingDays) * 100)
+              : 0;
 
-                document.getElementById('workingDays').textContent = workingDays;
-                document.getElementById('attendanceRateText').textContent = `${attendanceRate}%`;
-                document.getElementById('attendanceRateBar').style.width = `${attendanceRate}%`;
+          document.getElementById("workingDays").textContent = workingDays;
+          document.getElementById("attendanceRateText").textContent =
+            `${attendanceRate}%`;
+          document.getElementById("attendanceRateBar").style.width =
+            `${attendanceRate}%`;
 
-                // Change color based on rate
-                const rateBar = document.getElementById('attendanceRateBar');
-                if (attendanceRate >= 90) {
-                    rateBar.className = 'bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500';
-                } else if (attendanceRate >= 75) {
-                    rateBar.className = 'bg-gradient-to-r from-red-500 to-blue-600 h-3 rounded-full transition-all duration-500';
-                } else if (attendanceRate >= 60) {
-                    rateBar.className = 'bg-gradient-to-r from-yellow-500 to-orange-600 h-3 rounded-full transition-all duration-500';
-                } else {
-                    rateBar.className = 'bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500';
-                }
+          // Change color based on rate
+          const rateBar = document.getElementById("attendanceRateBar");
+          if (attendanceRate >= 90) {
+            rateBar.className =
+              "bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500";
+          } else if (attendanceRate >= 75) {
+            rateBar.className =
+              "bg-gradient-to-r from-red-500 to-blue-600 h-3 rounded-full transition-all duration-500";
+          } else if (attendanceRate >= 60) {
+            rateBar.className =
+              "bg-gradient-to-r from-yellow-500 to-orange-600 h-3 rounded-full transition-all duration-500";
+          } else {
+            rateBar.className =
+              "bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500";
+          }
+        } catch (error) {
+          console.error("Error loading attendance history:", error);
+          loadingDiv.classList.add("hidden");
+          emptyDiv.classList.remove("hidden");
 
-            } catch (error) {
-                console.error('Error loading attendance history:', error);
-                loadingDiv.classList.add('hidden');
-                emptyDiv.classList.remove('hidden');
-
-                // Show error message to user
-                emptyDiv.innerHTML = `
+          // Show error message to user
+          emptyDiv.innerHTML = `
                     <i class="fas fa-exclamation-triangle text-6xl text-red-300 mb-4"></i>
                     <p class="text-red-500 text-lg font-semibold">Error Loading Attendance</p>
                     <p class="text-gray-500 text-sm mt-2">${error.message}</p>
                     <p class="text-gray-400 text-xs mt-2">Check the browser console for more details</p>
                 `;
-            }
         }
+      }
 
-        // ========================================
-        // CALCULATE WORKING DAYS IN MONTH
-        // ========================================
-        function getWorkingDaysInMonth(year, month) {
-            // Fixed to 24 working days per month as per company policy
-            return 24;
-        }
+      // ========================================
+      // CALCULATE WORKING DAYS IN MONTH
+      // ========================================
+      function getWorkingDaysInMonth(year, month) {
+        // Fixed to 24 working days per month as per company policy
+        return 24;
+      }
 
-        // ========================================
-        // FORMAT DATE
-        // ========================================
-        function formatDate(dateString) {
-            if (!dateString) return '-';
-            const date = new Date(dateString);
-            const options = { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
+      // ========================================
+      // FORMAT DATE
+      // ========================================
+      function formatDate(dateString) {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        const options = {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        };
+        return date.toLocaleDateString("en-US", options);
+      }
 
-        // ========================================
-        // MONTH FILTER CHANGE HANDLER
-        // ========================================
-        document.getElementById('monthFilter').addEventListener('change', () => {
-            loadAttendanceHistory();
-        });
+      // ========================================
+      // MONTH FILTER CHANGE HANDLER
+      // ========================================
+      document.getElementById("monthFilter").addEventListener("change", () => {
+        loadAttendanceHistory();
+      });
     </script>
-</body>
+  </body>
 </html>
