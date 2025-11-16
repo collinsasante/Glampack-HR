@@ -367,6 +367,8 @@
         document.getElementById('medicalClaimForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
+            console.log('=== Starting Medical Claim Submission ===');
+
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
@@ -377,27 +379,35 @@
                 const amount = parseFloat(document.getElementById('amount').value);
                 const description = document.getElementById('description').value;
 
+                console.log('Form data:', { visitDate, hospitalName, amount, description });
+                console.log('Selected files:', selectedFiles.length);
+
                 if (selectedFiles.length === 0) {
                     throw new Error('Please upload at least one receipt');
                 }
 
                 // Upload all files to Cloudinary
+                console.log('Starting Cloudinary upload for', selectedFiles.length, 'files');
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipts...';
                 const uploadedFiles = [];
 
                 for (let i = 0; i < selectedFiles.length; i++) {
                     const file = selectedFiles[i];
+                    console.log(`Uploading file ${i + 1}/${selectedFiles.length}:`, file.name);
                     submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length}...`;
 
                     const uploadResult = await uploadToCloudinary(file, (progress) => {
                         submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length} (${Math.round(progress)}%)`;
                     });
 
+                    console.log(`File ${i + 1} uploaded successfully:`, uploadResult.url);
                     uploadedFiles.push({
                         url: uploadResult.url,
                         filename: file.name
                     });
                 }
+
+                console.log('All files uploaded. Total:', uploadedFiles.length);
 
                 // Update button text to show saving
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving claim...';
@@ -409,10 +419,14 @@
                     'Hospital/Clinic Name': hospitalName,
                     'Description of Treatment': description,
                     'Amount Spent (GH₵)': amount,
-                    'Upload Receipt/Proof': uploadedFiles
+                    'Upload Receipt/Proof': uploadedFiles,
+                    'Status': 'Pending'
                 };
 
-                await createMedicalClaim(claimFields);
+                console.log('Creating claim with fields:', claimFields);
+
+                const result = await createMedicalClaim(claimFields);
+                console.log('Claim created successfully:', result);
 
                 showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
 
