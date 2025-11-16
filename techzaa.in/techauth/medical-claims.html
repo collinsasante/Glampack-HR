@@ -267,8 +267,8 @@
         async function loadMedicalBalance() {
             try {
                 console.log('=== Loading medical balance ===');
-                // Use direct comparison for linked record field
-                const filterFormula = `AND({Employee} = '${currentEmployee.id}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
+                // Employee field is array, use name lookup which is most reliable
+                const filterFormula = `AND({Full Name (from Employee)} = '${currentEmployee.name}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
                 console.log('Balance filter formula:', filterFormula);
                 const data = await getMedicalClaims(filterFormula);
                 console.log('Balance data:', data);
@@ -306,28 +306,40 @@
                     console.log('Sample Employee field:', allData.records[0].fields.Employee);
                 }
 
-                // Try multiple filter approaches to find which one works
+                // Employee field is an array: ['recIU9u6YrUXGBrTr']
+                // Need to use SEARCH instead of FIND for better array handling
 
-                // Approach 1: ARRAYJOIN (original)
-                const filterFormula1 = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
-                console.log('Filter formula 1 (ARRAYJOIN):', filterFormula1);
+                // Approach 1: SEARCH with ARRAYJOIN (SEARCH returns position, 0 if not found)
+                const filterFormula1 = `SEARCH('${currentEmployee.id}', ARRAYJOIN({Employee}, ','))`;
+                console.log('Filter formula 1 (SEARCH + ARRAYJOIN):', filterFormula1);
 
-                // Approach 2: Direct comparison with linked record
-                const filterFormula2 = `{Employee} = '${currentEmployee.id}'`;
-                console.log('Filter formula 2 (direct comparison):', filterFormula2);
+                // Approach 2: FIND with greater than 0 check
+                const filterFormula2 = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}, ',')) > 0`;
+                console.log('Filter formula 2 (FIND > 0):', filterFormula2);
 
-                // Approach 3: RECORD_ID function
-                const filterFormula3 = `RECORD_ID() = '${currentEmployee.id}'`;
-                console.log('Filter formula 3 (RECORD_ID):', filterFormula3);
+                // Approach 3: Using lookup field Full Name (most reliable)
+                const filterFormula3 = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
+                console.log('Filter formula 3 (by name):', filterFormula3);
 
-                // Approach 4: Using lookup field Full Name
-                const filterFormula4 = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
-                console.log('Filter formula 4 (by name):', filterFormula4);
+                // Try approach 3 first (name lookup is most reliable)
+                console.log('Testing filter formula 3 (by name)...');
+                let data = await getMedicalClaims(filterFormula3);
+                console.log('Approach 3 result:', data);
 
-                // Try approach 2 first (most likely to work for linked records)
-                const data = await getMedicalClaims(filterFormula2);
-                console.log('Filtered API response:', data);
-                console.log('Filtered records:', data.records);
+                if (!data.records || data.records.length === 0) {
+                    console.log('Approach 3 failed, trying approach 1 (SEARCH)...');
+                    data = await getMedicalClaims(filterFormula1);
+                    console.log('Approach 1 result:', data);
+                }
+
+                if (!data.records || data.records.length === 0) {
+                    console.log('Approach 1 failed, trying approach 2 (FIND > 0)...');
+                    data = await getMedicalClaims(filterFormula2);
+                    console.log('Approach 2 result:', data);
+                }
+
+                console.log('Final filtered API response:', data);
+                console.log('Final filtered records:', data.records);
 
                 const claims = data.records || [];
                 console.log('Number of filtered claims found:', claims.length);
