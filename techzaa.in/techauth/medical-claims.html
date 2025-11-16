@@ -287,15 +287,23 @@
         // Load claims history
         async function loadClaimsHistory() {
             try {
-                console.log('Loading claims for employee:', currentEmployee.id);
+                console.log('=== Loading claims history ===');
+                console.log('Current employee:', currentEmployee);
+                console.log('Employee ID:', currentEmployee.id);
+
                 const filterFormula = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
                 console.log('Filter formula:', filterFormula);
 
                 const data = await getMedicalClaims(filterFormula);
-                console.log('Claims data received:', data);
+                console.log('Raw API response:', data);
+                console.log('Response records:', data.records);
 
                 const claims = data.records || [];
-                console.log('Number of claims:', claims.length);
+                console.log('Number of claims found:', claims.length);
+
+                if (claims.length > 0) {
+                    console.log('First claim:', claims[0]);
+                }
 
                 const historyDiv = document.getElementById('claimsHistory');
 

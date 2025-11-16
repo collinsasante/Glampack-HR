@@ -200,8 +200,17 @@
         // Load all claims
         async function loadAllClaims() {
             try {
+                console.log('=== Loading all medical claims for admin ===');
                 const data = await getMedicalClaims();
+                console.log('Raw API response:', data);
+                console.log('Response records:', data.records);
+
                 allClaims = data.records || [];
+                console.log('Total claims loaded:', allClaims.length);
+
+                if (allClaims.length > 0) {
+                    console.log('First claim:', allClaims[0]);
+                }
 
                 // Update stats
                 updateStats();
@@ -211,6 +220,7 @@
 
             } catch (error) {
                 console.error('Error loading claims:', error);
+                console.error('Full error details:', error);
                 showMessage('Failed to load claims', 'error');
             }
         }
