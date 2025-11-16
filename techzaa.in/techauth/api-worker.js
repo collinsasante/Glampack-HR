@@ -51,6 +51,8 @@ export default {
         return handleMedicalClaims(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/emergency-contacts')) {
         return handleEmergencyContacts(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
+      } else if (path === '/api/cloudinary/config') {
+        return handleCloudinaryConfig(env, corsHeaders);
       } else {
         return new Response(
           JSON.stringify({ error: 'Not found' }),
@@ -551,4 +553,23 @@ async function handleEmergencyContacts(request, env, apiKey, baseId, corsHeaders
       status: response.status,
     });
   }
+}
+
+// Cloudinary Config handler - returns config without exposing secrets in frontend
+function handleCloudinaryConfig(env, corsHeaders) {
+  const cloudName = env.CLOUDINARY_CLOUD_NAME || 'dow5ohgj9';
+  const uploadPreset = env.CLOUDINARY_UPLOAD_PRESET || 'glampack_hr_uploads';
+
+  return new Response(
+    JSON.stringify({
+      cloudName,
+      uploadPreset,
+      folder: 'glampack-hr/medical-receipts',
+      apiUrl: 'https://api.cloudinary.com/v1_1'
+    }),
+    {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
+    }
+  );
 }

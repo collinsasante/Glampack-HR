@@ -1,12 +1,27 @@
 // Cloudinary Configuration for Medical Receipt Uploads
-// Replace these values with your actual Cloudinary credentials
+// Credentials are fetched from backend API for security
 
-const CLOUDINARY_CONFIG = {
-  cloudName: "dow5ohgj9", // Replace with your Cloudinary cloud name
-  uploadPreset: "glampack_hr_uploads", // Replace with your unsigned upload preset
-  folder: "glampack-hr/medical-receipts", // Folder in Cloudinary to organize uploads
-  apiUrl: "https://api.cloudinary.com/v1_1", // Cloudinary API base URL
-};
+let CLOUDINARY_CONFIG = null;
+
+/**
+ * Fetch Cloudinary configuration from backend API
+ * @returns {Promise<object>} Cloudinary configuration
+ */
+async function getCloudinaryConfig() {
+  if (CLOUDINARY_CONFIG) return CLOUDINARY_CONFIG;
+
+  try {
+    const response = await fetch(`${API_CONFIG.workerUrl}/api/cloudinary/config`);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch Cloudinary config: ${response.status}`);
+    }
+    CLOUDINARY_CONFIG = await response.json();
+    return CLOUDINARY_CONFIG;
+  } catch (error) {
+    console.error('Error fetching Cloudinary config:', error);
+    throw new Error('Unable to load upload configuration. Please try again later.');
+  }
+}
 
 /**
  * Upload a file to Cloudinary
@@ -15,6 +30,9 @@ const CLOUDINARY_CONFIG = {
  * @returns {Promise<object>} Upload result with URL and public_id
  */
 async function uploadToCloudinary(file, onProgress = null) {
+  // Fetch config from backend first
+  const config = await getCloudinaryConfig();
+
   // Validate file
   const maxSize = 5 * 1024 * 1024; // 5MB
   if (file.size > maxSize) {
@@ -37,14 +55,14 @@ async function uploadToCloudinary(file, onProgress = null) {
   // Create form data
   const formData = new FormData();
   formData.append("file", file);
-  formData.append("upload_preset", CLOUDINARY_CONFIG.uploadPreset);
-  formData.append("folder", CLOUDINARY_CONFIG.folder);
+  formData.append("upload_preset", config.uploadPreset);
+  formData.append("folder", config.folder);
 
   // Add tags for organization
   formData.append("tags", "medical-receipt,hr-system");
 
   // Build upload URL
-  const uploadUrl = `${CLOUDINARY_CONFIG.apiUrl}/${CLOUDINARY_CONFIG.cloudName}/auto/upload`;
+  const uploadUrl = `${config.apiUrl}/${config.cloudName}/auto/upload`;
 
   try {
     // Create XMLHttpRequest for progress tracking
@@ -135,11 +153,18 @@ function getCloudinaryThumbnail(url, width = 200, height = 200) {
 
 /**
  * Validate Cloudinary configuration
- * @returns {boolean} True if configuration is valid
+ * @returns {Promise<boolean>} True if configuration is valid
  */
-function isCloudinaryConfigured() {
-  return (
-    CLOUDINARY_CONFIG.cloudName !== "YOUR_CLOUD_NAME" &&
-    CLOUDINARY_CONFIG.uploadPreset !== "YOUR_UPLOAD_PRESET"
-  );
+async function isCloudinaryConfigured() {
+  try {
+    const config = await getCloudinaryConfig();
+    return (
+      config.cloudName &&
+      config.uploadPreset &&
+      config.cloudName !== "YOUR_CLOUD_NAME" &&
+      config.uploadPreset !== "YOUR_UPLOAD_PRESET"
+    );
+  } catch (error) {
+    return false;
+  }
 }

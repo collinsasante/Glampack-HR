@@ -699,7 +699,8 @@
                 const emergencyData = {
                     'Emergency Contact Name': document.getElementById('emergencyContactName').value.trim(),
                     'Relationship': document.getElementById('emergencyRelationship').value,
-                    'Phone Number': document.getElementById('emergencyPhone').value.trim()
+                    'Phone Number': document.getElementById('emergencyPhone').value.trim(),
+                    'Employee': [currentUser.id] // Link to current employee
                 };
 
                 // Only add optional fields if they have values
@@ -709,12 +710,16 @@
                 const emergencyAddress = document.getElementById('emergencyAddress').value.trim();
                 if (emergencyAddress) emergencyData['Address'] = emergencyAddress;
 
+                console.log('Saving emergency contact with data:', emergencyData);
+
                 // Create or update emergency contact in separate table
                 if (emergencyContactRecord) {
-                    // Update existing record
-                    await updateEmergencyContact(emergencyContactRecord.id, emergencyData);
+                    // Update existing record (don't update the Employee link when updating)
+                    const updateData = { ...emergencyData };
+                    delete updateData['Employee']; // Can't update linked field
+                    await updateEmergencyContact(emergencyContactRecord.id, updateData);
                 } else {
-                    // Create new record
+                    // Create new record with Employee link
                     await createEmergencyContact(emergencyData);
                 }
 
