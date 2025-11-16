@@ -26,11 +26,6 @@
         * {
             font-family: 'Inter', sans-serif;
         }
-
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-        }
     </style>
 </head>
 <body class="bg-gray-50">
@@ -180,14 +175,19 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             // Check authentication
-            currentEmployee = checkAuth();
+            if (!requireAuth()) {
+                window.location.href = 'packaging-glamour-signin.html';
+                return;
+            }
+
+            currentEmployee = getCurrentUser();
             if (!currentEmployee) {
                 window.location.href = 'packaging-glamour-signin.html';
                 return;
             }
 
             // Check if user is admin
-            if (!currentEmployee.isAdmin) {
+            if (currentEmployee.role !== 'Admin') {
                 showMessage('Access denied. Admin privileges required.', 'error');
                 setTimeout(() => window.location.href = 'dashboard.html', 2000);
                 return;
