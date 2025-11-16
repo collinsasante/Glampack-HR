@@ -194,21 +194,22 @@
                             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500"></textarea>
                     </div>
 
-                    <!-- Receipt Upload -->
+                    <!-- Receipt Upload - Multiple Files -->
                     <div>
                         <label for="receipt" class="block text-sm font-medium text-gray-700 mb-2">
-                            Upload Receipt/Proof <span class="text-red-600">*</span>
+                            Upload Receipts/Proof <span class="text-red-600">*</span>
                         </label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors">
-                            <input type="file" id="receipt" required accept="image/*,.pdf" class="hidden">
+                            <input type="file" id="receipt" required accept="image/*,.pdf" class="hidden" multiple>
                             <label for="receipt" class="cursor-pointer">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
-                                <p class="text-sm text-gray-600">Click to upload receipt</p>
-                                <p class="text-xs text-gray-500 mt-1">PDF or Image files (Max 5MB)</p>
+                                <p class="text-sm text-gray-600">Click to upload receipts (multiple files allowed)</p>
+                                <p class="text-xs text-gray-500 mt-1">PDF or Image files (Max 5MB each)</p>
                             </label>
-                            <div id="fileInfo" class="mt-3 hidden">
-                                <p class="text-sm text-green-600"><i class="fas fa-check-circle mr-1"></i><span id="fileName"></span></p>
-                            </div>
+                        </div>
+                        <!-- Selected Files List -->
+                        <div id="filesList" class="mt-3 space-y-2">
+                            <!-- Files will be listed here with delete buttons -->
                         </div>
                     </div>
 
@@ -278,19 +279,55 @@
             await loadMedicalBalance();
             await loadClaimsHistory();
 
-            // File upload preview
+            // Multiple file upload handling
+            let selectedFiles = [];
+
             document.getElementById('receipt').addEventListener('change', function(e) {
-                const file = e.target.files[0];
-                if (file) {
+                const newFiles = Array.from(e.target.files);
+
+                // Validate each file
+                for (let file of newFiles) {
                     if (file.size > 5 * 1024 * 1024) {
-                        showMessage('File size must be less than 5MB', 'error');
-                        e.target.value = '';
-                        return;
+                        showMessage(`${file.name} is too large. Max size is 5MB`, 'error');
+                        continue;
                     }
-                    document.getElementById('fileName').textContent = file.name;
-                    document.getElementById('fileInfo').classList.remove('hidden');
+                    // Check if file already selected
+                    if (!selectedFiles.find(f => f.name === file.name && f.size === file.size)) {
+                        selectedFiles.push(file);
+                    }
                 }
+
+                displaySelectedFiles();
+                e.target.value = ''; // Reset input to allow re-selecting same file
             });
+
+            function displaySelectedFiles() {
+                const filesList = document.getElementById('filesList');
+                if (selectedFiles.length === 0) {
+                    filesList.innerHTML = '';
+                    return;
+                }
+
+                filesList.innerHTML = selectedFiles.map((file, index) => `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="flex items-center space-x-3">
+                            <i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf text-red-500' : 'fa-file-image text-blue-500'}"></i>
+                            <div>
+                                <p class="text-sm font-medium text-gray-800">${file.name}</p>
+                                <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800">
+                            <i class="fas fa-times-circle"></i>
+                        </button>
+                    </div>
+                `).join('');
+            }
+
+            window.removeFile = function(index) {
+                selectedFiles.splice(index, 1);
+                displaySelectedFiles();
+            };
 
             // Set max date to today
             document.getElementById('visitDate').max = new Date().toISOString().split('T')[0];
@@ -350,6 +387,16 @@
                         'Rejected': 'bg-red-100 text-red-800'
                     };
 
+                    // Handle multiple receipts
+                    const receipts = fields['Upload Receipt/Proof'] || [];
+                    const receiptsHTML = receipts.length > 0
+                        ? receipts.map((receipt, idx) => `
+                            <a href="${receipt.url}" target="_blank" class="text-blue-600 hover:underline text-xs">
+                                <i class="fas fa-file-alt mr-1"></i>Receipt ${idx + 1}
+                            </a>
+                          `).join(' ')
+                        : '';
+
                     return `
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-start justify-between mb-2">
@@ -364,7 +411,9 @@
                             <p class="text-sm text-gray-700 mb-2">${fields['Description of Treatment'] || 'No description'}</p>
                             <div class="flex items-center justify-between text-sm">
                                 <span class="font-semibold text-red-600">GH₵${(fields['Amount Spent (GH₵)'] || 0).toFixed(2)}</span>
-                                ${fields['Upload Receipt/Proof'] ? `<a href="${fields['Upload Receipt/Proof'][0].url}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt mr-1"></i>View Receipt</a>` : ''}
+                                <div class="flex gap-2">
+                                    ${receiptsHTML}
+                                </div>
                             </div>
                         </div>
                     `;
@@ -389,43 +438,50 @@
                 const hospitalName = document.getElementById('hospitalName').value;
                 const amount = parseFloat(document.getElementById('amount').value);
                 const description = document.getElementById('description').value;
-                const receiptFile = document.getElementById('receipt').files[0];
 
-                if (!receiptFile) {
-                    throw new Error('Please upload a receipt');
+                if (selectedFiles.length === 0) {
+                    throw new Error('Please upload at least one receipt');
                 }
 
-                // Update button text to show uploading status
-                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipt...';
+                // Upload all files to Cloudinary
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipts...';
+                const uploadedFiles = [];
 
-                // Upload to Cloudinary with progress tracking
-                const uploadResult = await uploadToCloudinary(receiptFile, (progress) => {
-                    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading... ${Math.round(progress)}%`;
-                });
+                for (let i = 0; i < selectedFiles.length; i++) {
+                    const file = selectedFiles[i];
+                    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length}...`;
+
+                    const uploadResult = await uploadToCloudinary(file, (progress) => {
+                        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length} (${Math.round(progress)}%)`;
+                    });
+
+                    uploadedFiles.push({
+                        url: uploadResult.url,
+                        filename: file.name
+                    });
+                }
 
                 // Update button text to show saving
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving claim...';
 
-                // Create claim record matching Airtable structure with Cloudinary URL
+                // Create claim record matching Airtable structure with all Cloudinary URLs
                 const claimFields = {
                     'Date of visit': visitDate,
                     'Employee': [currentEmployee.id],
                     'Hospital/Clinic Name': hospitalName,
                     'Description of Treatment': description,
                     'Amount Spent (GH₵)': amount,
-                    'Upload Receipt/Proof': [{
-                        url: uploadResult.url,
-                        filename: receiptFile.name
-                    }]
+                    'Upload Receipt/Proof': uploadedFiles
                 };
 
                 await createMedicalClaim(claimFields);
 
                 showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
 
-                // Reset form
+                // Reset form and selected files
                 e.target.reset();
-                document.getElementById('fileInfo').classList.add('hidden');
+                selectedFiles = [];
+                displaySelectedFiles();
 
                 // Reload claims and balance
                 await loadMedicalBalance();
