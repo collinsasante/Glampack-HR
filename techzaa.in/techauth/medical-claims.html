@@ -291,18 +291,30 @@
                 console.log('Current employee:', currentEmployee);
                 console.log('Employee ID:', currentEmployee.id);
 
+                // First, test getting ALL claims without filter
+                console.log('Testing: Getting ALL claims (no filter)...');
+                const allData = await getMedicalClaims();
+                console.log('All claims (no filter):', allData.records);
+                console.log('Total claims in database:', allData.records?.length || 0);
+
+                if (allData.records && allData.records.length > 0) {
+                    console.log('Sample claim structure:', allData.records[0]);
+                    console.log('Sample Employee field:', allData.records[0].fields.Employee);
+                }
+
+                // Now try with filter
                 const filterFormula = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
                 console.log('Filter formula:', filterFormula);
 
                 const data = await getMedicalClaims(filterFormula);
-                console.log('Raw API response:', data);
-                console.log('Response records:', data.records);
+                console.log('Filtered API response:', data);
+                console.log('Filtered records:', data.records);
 
                 const claims = data.records || [];
-                console.log('Number of claims found:', claims.length);
+                console.log('Number of filtered claims found:', claims.length);
 
                 if (claims.length > 0) {
-                    console.log('First claim:', claims[0]);
+                    console.log('First filtered claim:', claims[0]);
                 }
 
                 const historyDiv = document.getElementById('claimsHistory');
@@ -427,6 +439,9 @@
 
                 const result = await createMedicalClaim(claimFields);
                 console.log('Claim created successfully:', result);
+                console.log('Created claim ID:', result.id);
+                console.log('Created claim fields:', result.fields);
+                console.log('Employee field in created claim:', result.fields.Employee);
 
                 showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
 
@@ -436,6 +451,7 @@
                 displaySelectedFiles();
 
                 // Reload claims and balance
+                console.log('Reloading medical balance and claims history...');
                 await loadMedicalBalance();
                 await loadClaimsHistory();
 
