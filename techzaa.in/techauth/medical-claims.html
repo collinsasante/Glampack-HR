@@ -266,8 +266,12 @@
         // Load medical balance
         async function loadMedicalBalance() {
             try {
-                const filterFormula = `AND(FIND('${currentEmployee.id}', ARRAYJOIN({Employee})), YEAR({Date of visit}) = ${new Date().getFullYear()})`;
+                console.log('=== Loading medical balance ===');
+                // Use direct comparison for linked record field
+                const filterFormula = `AND({Employee} = '${currentEmployee.id}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
+                console.log('Balance filter formula:', filterFormula);
                 const data = await getMedicalClaims(filterFormula);
+                console.log('Balance data:', data);
 
                 const approvedClaims = data.records?.filter(r => r.fields.Status === 'Approved') || [];
                 const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields['Amount Spent (GH₵)'] || 0), 0);
@@ -302,11 +306,26 @@
                     console.log('Sample Employee field:', allData.records[0].fields.Employee);
                 }
 
-                // Now try with filter
-                const filterFormula = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
-                console.log('Filter formula:', filterFormula);
+                // Try multiple filter approaches to find which one works
 
-                const data = await getMedicalClaims(filterFormula);
+                // Approach 1: ARRAYJOIN (original)
+                const filterFormula1 = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
+                console.log('Filter formula 1 (ARRAYJOIN):', filterFormula1);
+
+                // Approach 2: Direct comparison with linked record
+                const filterFormula2 = `{Employee} = '${currentEmployee.id}'`;
+                console.log('Filter formula 2 (direct comparison):', filterFormula2);
+
+                // Approach 3: RECORD_ID function
+                const filterFormula3 = `RECORD_ID() = '${currentEmployee.id}'`;
+                console.log('Filter formula 3 (RECORD_ID):', filterFormula3);
+
+                // Approach 4: Using lookup field Full Name
+                const filterFormula4 = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
+                console.log('Filter formula 4 (by name):', filterFormula4);
+
+                // Try approach 2 first (most likely to work for linked records)
+                const data = await getMedicalClaims(filterFormula2);
                 console.log('Filtered API response:', data);
                 console.log('Filtered records:', data.records);
 
