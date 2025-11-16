@@ -39,16 +39,17 @@
 </head>
 <body class="bg-gray-100 min-h-screen">
 
-    <!-- Navigation Bar -->
-    <nav class="bg-white shadow-lg">
-        <div class="container mx-auto px-4">
-            <div class="flex justify-between items-center py-4">
-                <div class="flex items-center space-x-4">
-                    <h1 class="text-2xl font-bold text-red-600">HR System</h1>
-                    <span class="text-gray-600" id="userInfo"></span>
+    <!-- Navigation Header -->
+    <header class="bg-white shadow-md sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex items-center justify-between">
+                <!-- Logo -->
+                <div class="flex items-center space-x-3">
+                    <img src="assets/images/logo_red.png" alt="Logo" class="h-10">
+                    <span class="text-xl font-bold text-gray-800">Announcements</span>
                 </div>
 
-                <!-- Desktop Menu -->
+                <!-- Navigation Menu -->
                 <div class="flex items-center space-x-4">
                     <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-chart-line mr-1"></i> Dashboard
@@ -58,6 +59,9 @@
                     </a>
                     <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="medical-claims.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
                     </a>
                     <a href="profile.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-user mr-1"></i> Profile
@@ -77,7 +81,7 @@
                 </div>
             </div>
         </div>
-    </nav>
+    </header>
 
     <div class="container mx-auto px-4 py-8">
         <!-- Header Section -->
