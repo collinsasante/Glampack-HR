@@ -35,27 +35,6 @@
             border-left: 4px solid #dc2626;
         }
 
-        /* Mobile Menu Styles */
-        #mobileMenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
-        }
-
-        #mobileMenu.open {
-            max-height: 500px;
-        }
-
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            #desktopMenu {
-                display: none;
-            }
-
-            #mobileMenuButton {
-                display: block;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen">
@@ -66,11 +45,11 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-red-600">HR System</h1>
-                    <span class="text-gray-600 hidden md:inline" id="userInfo"></span>
+                    <span class="text-gray-600" id="userInfo"></span>
                 </div>
 
                 <!-- Desktop Menu -->
-                <div id="desktopMenu" class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-4">
                     <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-chart-line mr-1"></i> Dashboard
                     </a>
@@ -91,39 +70,6 @@
                     </a>
                     <button onclick="logout()" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <button id="mobileMenuButton" class="md:hidden text-gray-600 hover:text-red-600 text-2xl" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="md:hidden">
-                <div class="flex flex-col space-y-2 pb-4">
-                    <span class="text-gray-600 text-sm border-b pb-2" id="userInfoMobile"></span>
-                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-chart-line mr-2"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-clock mr-2"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-calendar-alt mr-2"></i> Leave
-                    </a>
-                    <a href="profile.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-user mr-2"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-red-600 font-semibold py-2">
-                        <i class="fas fa-bullhorn mr-2"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-money-bill-wave mr-2"></i> Payroll
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 py-2 text-left">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </button>
                 </div>
             </div>
@@ -229,29 +175,26 @@
             <h3 class="text-xl font-semibold text-gray-700 mb-2">No Announcements Yet</h3>
             <p class="text-gray-500">Check back later for updates and news</p>
         </div>
+
+        <!-- Announcement Detail Modal -->
+        <div id="announcementModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+            <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+                <div class="p-6 border-b flex justify-between items-start">
+                    <h3 id="modalTitle" class="text-2xl font-bold text-gray-800"></h3>
+                    <button onclick="closeAnnouncementModal()" class="text-gray-400 hover:text-gray-600">
+                        <i class="fas fa-times text-xl"></i>
+                    </button>
+                </div>
+                <div class="p-6">
+                    <div id="modalPriority" class="mb-4"></div>
+                    <div id="modalMeta" class="text-sm text-gray-500 mb-4"></div>
+                    <div id="modalMessage" class="text-gray-700 whitespace-pre-line"></div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // ========================================
-        // MOBILE MENU TOGGLE
-        // ========================================
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const menuButton = document.getElementById('mobileMenuButton');
-            const icon = menuButton.querySelector('i');
-
-            mobileMenu.classList.toggle('open');
-
-            // Toggle icon between bars and times
-            if (mobileMenu.classList.contains('open')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        }
-
         // ========================================
         // AUTHENTICATION CHECK
         // ========================================
@@ -265,12 +208,8 @@
         function updateUserInfo() {
             const userInfoText = `Welcome, ${currentUser.name}`;
             const userInfoElement = document.getElementById('userInfo');
-            const userInfoMobileElement = document.getElementById('userInfoMobile');
             if (userInfoElement && currentUser) {
                 userInfoElement.textContent = userInfoText;
-            }
-            if (userInfoMobileElement && currentUser) {
-                userInfoMobileElement.textContent = userInfoText;
             }
         }
         updateUserInfo();
@@ -492,7 +431,7 @@
                 const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
 
                 return `
-                    <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? 'unread' : ''}" data-id="${announcement.id}">
+                    <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? 'unread' : ''} cursor-pointer hover:shadow-lg transition-shadow" data-id="${announcement.id}" onclick="showAnnouncementDetail('${announcement.id}')">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center space-x-3">
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}">
@@ -559,6 +498,68 @@
                 alert('Error marking as read. Please try again.');
             }
             */
+        }
+
+        // ========================================
+        // SHOW ANNOUNCEMENT DETAIL MODAL
+        // ========================================
+        // Show announcement detail modal
+        function showAnnouncementDetail(announcementId) {
+            const announcement = allAnnouncements.find(a => a.id === announcementId);
+            if (!announcement) return;
+
+            const priority = announcement.fields['Priority'] || 'Medium';
+            const title = announcement.fields['Title'] || 'Untitled';
+            const message = announcement.fields['Message'] || '';
+            const author = announcement.fields['Posted By'] || 'Admin';
+            const dateObj = new Date(announcement.createdTime);
+            const formattedDate = dateObj.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            const priorityColors = {
+                'High': 'bg-red-100 text-red-800',
+                'Medium': 'bg-yellow-100 text-yellow-800',
+                'Low': 'bg-blue-100 text-blue-800'
+            };
+
+            const priorityIcons = {
+                'High': 'fa-exclamation-circle',
+                'Medium': 'fa-info-circle',
+                'Low': 'fa-flag'
+            };
+
+            const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800';
+            const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalPriority').innerHTML = `
+                <span class="px-3 py-1 rounded-full text-sm font-semibold ${priorityColor}">
+                    <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
+                </span>
+            `;
+            document.getElementById('modalMeta').innerHTML = `
+                <i class="fas fa-user mr-2"></i> Posted by ${author} &nbsp;&nbsp;
+                <i class="fas fa-calendar mr-2"></i> ${formattedDate}
+            `;
+            document.getElementById('modalMessage').textContent = message;
+
+            // Mark as read when viewing
+            markAsRead(announcementId);
+
+            // Show modal
+            document.getElementById('announcementModal').classList.remove('hidden');
+            document.getElementById('announcementModal').classList.add('flex');
+        }
+
+        // Close announcement modal
+        function closeAnnouncementModal() {
+            document.getElementById('announcementModal').classList.add('hidden');
+            document.getElementById('announcementModal').classList.remove('flex');
         }
 
         // ========================================

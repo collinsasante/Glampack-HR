@@ -13,7 +13,8 @@ const API_CONFIG = {
         leaveRequests: '/api/leave-requests',
         announcements: '/api/announcements',
         payroll: '/api/payroll',
-        medicalClaims: '/api/medical-claims'
+        medicalClaims: '/api/medical-claims',
+        emergencyContacts: '/api/emergency-contacts'
     }
 };
 
@@ -299,6 +300,59 @@ async function createMedicalClaim(fields) {
  */
 async function updateMedicalClaim(recordId, fields) {
     return workerRequest(`${API_CONFIG.endpoints.medicalClaims}/${recordId}`, 'PATCH', { fields });
+}
+
+// ========================================
+// EMERGENCY CONTACTS API
+// ========================================
+
+/**
+ * Get emergency contacts
+ * @param {string} filterFormula - Airtable filter formula (optional)
+ * @returns {Promise<object>} Emergency contact records
+ */
+async function getEmergencyContacts(filterFormula = null) {
+    const queryParams = filterFormula
+        ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
+        : '';
+    return workerRequest(API_CONFIG.endpoints.emergencyContacts, 'GET', null, queryParams);
+}
+
+/**
+ * Get a specific emergency contact by ID
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Emergency contact record
+ */
+async function getEmergencyContact(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.emergencyContacts}/${recordId}`, 'GET');
+}
+
+/**
+ * Create an emergency contact
+ * @param {object} fields - Emergency contact data
+ * @returns {Promise<object>} Created emergency contact record
+ */
+async function createEmergencyContact(fields) {
+    return workerRequest(API_CONFIG.endpoints.emergencyContacts, 'POST', { fields });
+}
+
+/**
+ * Update an emergency contact
+ * @param {string} recordId - Airtable record ID
+ * @param {object} fields - Updated emergency contact data
+ * @returns {Promise<object>} Updated emergency contact record
+ */
+async function updateEmergencyContact(recordId, fields) {
+    return workerRequest(`${API_CONFIG.endpoints.emergencyContacts}/${recordId}`, 'PATCH', { fields });
+}
+
+/**
+ * Delete an emergency contact
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Deletion confirmation
+ */
+async function deleteEmergencyContact(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.emergencyContacts}/${recordId}`, 'DELETE');
 }
 
 // ========================================

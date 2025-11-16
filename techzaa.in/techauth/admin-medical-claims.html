@@ -44,16 +44,34 @@
                     <span class="text-xl font-bold text-gray-800">Admin - Medical Claims</span>
                 </div>
 
-                <!-- Navigation -->
+                <!-- Navigation Menu -->
                 <div class="flex items-center space-x-4">
-                    <a href="admin-dashboard.html" class="text-gray-600 hover:text-red-600">
+                    <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-chart-line mr-1"></i> Dashboard
                     </a>
-                    <a href="admin-medical-claims.html" class="text-red-600 font-semibold">
-                        <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-clock mr-1"></i> Attendance
                     </a>
-                    <button onclick="handleSignOut()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
+                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-calendar-alt mr-1"></i> Leave
+                    </a>
+                    <a href="profile.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-user mr-1"></i> Profile
+                    </a>
+                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
+                    </a>
+                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+                    </a>
+                    <a href="admin-medical-claims.html" class="text-red-600 font-semibold">
+                        <i class="fas fa-notes-medical mr-1"></i> Med Claims
+                    </a>
+                    <a href="admin-dashboard.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-user-shield mr-1"></i> Admin
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
                     </button>
                 </div>
             </div>
@@ -221,7 +239,7 @@
             const approved = allClaims.filter(c => c.fields.Status === 'Approved').length;
             const totalAmount = allClaims
                 .filter(c => c.fields.Status === 'Approved')
-                .reduce((sum, c) => sum + (c.fields.Amount || 0), 0);
+                .reduce((sum, c) => sum + (c.fields['Amount Spent (GH₵)'] || 0), 0);
 
             document.getElementById('pendingCount').textContent = pending;
             document.getElementById('approvedCount').textContent = approved;
@@ -279,17 +297,16 @@
                 return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="font-medium text-gray-900">${fields['Employee Name'] || 'N/A'}</div>
-                            <div class="text-sm text-gray-500">${fields.Email || ''}</div>
+                            <div class="font-medium text-gray-900">${fields['Full Name (from Employee)'] || 'N/A'}</div>
                         </td>
                         <td class="px-6 py-4">
-                            <div class="text-sm text-gray-900">${fields['Hospital Name'] || 'N/A'}</div>
+                            <div class="text-sm text-gray-900">${fields['Hospital/Clinic Name'] || 'N/A'}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${fields.Date ? new Date(fields.Date).toLocaleDateString() : 'N/A'}
+                            ${fields['Date of visit'] ? new Date(fields['Date of visit']).toLocaleDateString() : 'N/A'}
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <span class="text-sm font-semibold text-gray-900">GH₵${(fields.Amount || 0).toFixed(2)}</span>
+                            <span class="text-sm font-semibold text-gray-900">GH₵${(fields['Amount Spent (GH₵)'] || 0).toFixed(2)}</span>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[fields.Status] || 'bg-gray-100 text-gray-800'}">
@@ -315,23 +332,19 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-sm font-medium text-gray-500">Employee Name</p>
-                        <p class="text-base font-semibold text-gray-900">${fields['Employee Name'] || 'N/A'}</p>
-                    </div>
-                    <div>
-                        <p class="text-sm font-medium text-gray-500">Email</p>
-                        <p class="text-base text-gray-900">${fields.Email || 'N/A'}</p>
+                        <p class="text-base font-semibold text-gray-900">${fields['Full Name (from Employee)'] || 'N/A'}</p>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500">Hospital/Clinic</p>
-                        <p class="text-base text-gray-900">${fields['Hospital Name'] || 'N/A'}</p>
+                        <p class="text-base text-gray-900">${fields['Hospital/Clinic Name'] || 'N/A'}</p>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500">Visit Date</p>
-                        <p class="text-base text-gray-900">${fields.Date ? new Date(fields.Date).toLocaleDateString() : 'N/A'}</p>
+                        <p class="text-base text-gray-900">${fields['Date of visit'] ? new Date(fields['Date of visit']).toLocaleDateString() : 'N/A'}</p>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500">Amount</p>
-                        <p class="text-base font-semibold text-gray-900">GH₵${(fields.Amount || 0).toFixed(2)}</p>
+                        <p class="text-base font-semibold text-gray-900">GH₵${(fields['Amount Spent (GH₵)'] || 0).toFixed(2)}</p>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500">Status</p>
@@ -339,13 +352,13 @@
                     </div>
                 </div>
                 <div class="col-span-2">
-                    <p class="text-sm font-medium text-gray-500 mb-2">Description</p>
-                    <p class="text-base text-gray-900 bg-gray-50 p-3 rounded">${fields.Description || 'No description provided'}</p>
+                    <p class="text-sm font-medium text-gray-500 mb-2">Description of Treatment</p>
+                    <p class="text-base text-gray-900 bg-gray-50 p-3 rounded">${fields['Description of Treatment'] || 'No description provided'}</p>
                 </div>
-                ${fields.Receipt ? `
+                ${fields['Upload Receipt/Proof'] ? `
                 <div class="col-span-2">
                     <p class="text-sm font-medium text-gray-500 mb-2">Receipt</p>
-                    <a href="${fields.Receipt[0].url}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
+                    <a href="${fields['Upload Receipt/Proof'][0].url}" target="_blank" class="inline-flex items-center px-4 py-2 bg-blue-100 text-blue-700 rounded hover:bg-blue-200">
                         <i class="fas fa-file-alt mr-2"></i>View Receipt
                     </a>
                 </div>

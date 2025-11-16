@@ -40,27 +40,6 @@
             background-color: #fee2e2;
         }
 
-        /* Mobile Menu Styles */
-        #mobileMenu {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-in-out;
-        }
-
-        #mobileMenu.open {
-            max-height: 500px;
-        }
-
-        /* Mobile Responsive Styles */
-        @media (max-width: 768px) {
-            #desktopMenu {
-                display: none;
-            }
-
-            #mobileMenuButton {
-                display: block;
-            }
-        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -71,11 +50,11 @@
             <div class="flex justify-between items-center py-4">
                 <div class="flex items-center space-x-4">
                     <h1 class="text-2xl font-bold text-red-600">HR System</h1>
-                    <span class="text-gray-600 hidden md:inline" id="userInfo"></span>
+                    <span class="text-gray-600" id="userInfo"></span>
                 </div>
 
                 <!-- Desktop Menu -->
-                <div id="desktopMenu" class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-4">
                     <a href="#" onclick="goToDashboard()" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-chart-line mr-1"></i> Dashboard
                     </a>
@@ -99,39 +78,6 @@
                     </a>
                     <button onclick="logout()" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-sign-out-alt mr-1"></i> Logout
-                    </button>
-                </div>
-
-                <!-- Mobile Menu Button -->
-                <button id="mobileMenuButton" class="md:hidden text-gray-600 hover:text-red-600 text-2xl" onclick="toggleMobileMenu()">
-                    <i class="fas fa-bars"></i>
-                </button>
-            </div>
-
-            <!-- Mobile Menu -->
-            <div id="mobileMenu" class="md:hidden">
-                <div class="flex flex-col space-y-2 pb-4">
-                    <span class="text-gray-600 text-sm border-b pb-2" id="userInfoMobile"></span>
-                    <a href="#" onclick="goToDashboard()" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-chart-line mr-2"></i> Dashboard
-                    </a>
-                    <a href="attendance-tracker.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-clock mr-2"></i> Attendance
-                    </a>
-                    <a href="leave-request.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-calendar-alt mr-2"></i> Leave
-                    </a>
-                    <a href="profile.html" class="text-red-600 font-semibold py-2">
-                        <i class="fas fa-user mr-2"></i> Profile
-                    </a>
-                    <a href="announcements.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-bullhorn mr-2"></i> Announcements
-                    </a>
-                    <a href="payroll.html" class="text-gray-600 hover:text-red-600 py-2">
-                        <i class="fas fa-money-bill-wave mr-2"></i> Payroll
-                    </a>
-                    <button onclick="logout()" class="text-gray-600 hover:text-red-600 py-2 text-left">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </button>
                 </div>
             </div>
@@ -399,31 +345,12 @@
     </div>
 
     <script>
-        // ========================================
-        // MOBILE MENU TOGGLE
-        // ========================================
-        function toggleMobileMenu() {
-            const mobileMenu = document.getElementById('mobileMenu');
-            const menuButton = document.getElementById('mobileMenuButton');
-            const icon = menuButton.querySelector('i');
-
-            mobileMenu.classList.toggle('open');
-
-            // Toggle icon between bars and times
-            if (mobileMenu.classList.contains('open')) {
-                icon.classList.remove('fa-bars');
-                icon.classList.add('fa-times');
-            } else {
-                icon.classList.remove('fa-times');
-                icon.classList.add('fa-bars');
-            }
-        }
-
         // Authentication check
         if (!requireAuth()) {}
 
         const currentUser = getCurrentUser();
         let employeeData = null;
+        let emergencyContactRecord = null; // Store the emergency contact record
         let isSubmitting = false;
 
         // Redirect to correct dashboard based on role
@@ -488,7 +415,6 @@
         async function initializePage() {
             const userInfoText = `Welcome, ${currentUser.name}`;
             document.getElementById('userInfo').textContent = userInfoText;
-            document.getElementById('userInfoMobile').textContent = userInfoText;
             await loadEmployeeData();
         }
 
@@ -499,7 +425,7 @@
                 employeeData = data.fields;
                 populateProfile();
                 populateEmployment();
-                populateEmergencyContact();
+                await loadEmergencyContact(); // Load from separate table
             } catch (error) {
                 console.error('Error loading employee data:', error);
                 showNotification('Failed to load profile data. Please refresh the page.', 'error');
@@ -540,13 +466,34 @@
             document.getElementById('sickLeave').textContent = employeeData['Sick Leave Balance'] || 0;
         }
 
-        // Populate emergency contact
-        function populateEmergencyContact() {
-            document.getElementById('emergencyContactName').value = employeeData['Emergency Contact Name'] || '';
-            document.getElementById('emergencyRelationship').value = employeeData['Emergency Contact Relationship'] || '';
-            document.getElementById('emergencyPhone').value = employeeData['Emergency Contact Phone'] || '';
-            document.getElementById('emergencyEmail').value = employeeData['Emergency Contact Email'] || '';
-            document.getElementById('emergencyAddress').value = employeeData['Emergency Contact Address'] || '';
+        // Load and populate emergency contact from separate table
+        async function loadEmergencyContact() {
+            try {
+                // Search for emergency contact linked to this employee by name
+                const filterFormula = `{Emergency Contact Name} = '${currentUser.name}'`;
+                const data = await getEmergencyContacts(filterFormula);
+
+                if (data.records && data.records.length > 0) {
+                    emergencyContactRecord = data.records[0];
+                    const fields = emergencyContactRecord.fields;
+
+                    document.getElementById('emergencyContactName').value = fields['Emergency Contact Name'] || '';
+                    document.getElementById('emergencyRelationship').value = fields['Relationship'] || '';
+                    document.getElementById('emergencyPhone').value = fields['Phone Number'] || '';
+                    document.getElementById('emergencyEmail').value = fields['Email'] || '';
+                    document.getElementById('emergencyAddress').value = fields['Address'] || '';
+                } else {
+                    // No emergency contact found - clear fields
+                    emergencyContactRecord = null;
+                    document.getElementById('emergencyContactName').value = '';
+                    document.getElementById('emergencyRelationship').value = '';
+                    document.getElementById('emergencyPhone').value = '';
+                    document.getElementById('emergencyEmail').value = '';
+                    document.getElementById('emergencyAddress').value = '';
+                }
+            } catch (error) {
+                console.error('Error loading emergency contact:', error);
+            }
         }
 
         // Tab switching
@@ -742,25 +689,32 @@
             saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
 
             try {
-                // Build update object with emergency contact fields
-                const updateData = {
+                // Build emergency contact data with correct field names
+                const emergencyData = {
                     'Emergency Contact Name': document.getElementById('emergencyContactName').value.trim(),
-                    'Emergency Contact Relationship': document.getElementById('emergencyRelationship').value,
-                    'Emergency Contact Phone': document.getElementById('emergencyPhone').value.trim()
+                    'Relationship': document.getElementById('emergencyRelationship').value,
+                    'Phone Number': document.getElementById('emergencyPhone').value.trim()
                 };
 
                 // Only add optional fields if they have values
                 const emergencyEmail = document.getElementById('emergencyEmail').value.trim();
-                if (emergencyEmail) updateData['Emergency Contact Email'] = emergencyEmail;
+                if (emergencyEmail) emergencyData['Email'] = emergencyEmail;
 
                 const emergencyAddress = document.getElementById('emergencyAddress').value.trim();
-                if (emergencyAddress) updateData['Emergency Contact Address'] = emergencyAddress;
+                if (emergencyAddress) emergencyData['Address'] = emergencyAddress;
 
-                await updateEmployee(currentUser.id, updateData);
+                // Create or update emergency contact in separate table
+                if (emergencyContactRecord) {
+                    // Update existing record
+                    await updateEmergencyContact(emergencyContactRecord.id, emergencyData);
+                } else {
+                    // Create new record
+                    await createEmergencyContact(emergencyData);
+                }
 
                 showNotification('Emergency contact updated successfully!', 'success');
                 toggleEditEmergency();
-                await loadEmployeeData();
+                await loadEmergencyContact();
             } catch (error) {
                 console.error('Error updating emergency contact:', error);
                 // More detailed error message

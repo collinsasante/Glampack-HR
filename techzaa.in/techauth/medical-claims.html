@@ -28,7 +28,7 @@
         }
 
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-color: #f9fafb;
             min-height: 100vh;
         }
     </style>
@@ -44,8 +44,8 @@
                     <span class="text-xl font-bold text-gray-800">Medical Claims</span>
                 </div>
 
-                <!-- Desktop Menu -->
-                <div id="desktopMenu" class="flex items-center space-x-4">
+                <!-- Navigation Menu -->
+                <div class="flex items-center space-x-4">
                     <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-chart-line mr-1"></i> Dashboard
                     </a>
@@ -61,8 +61,14 @@
                     <a href="profile.html" class="text-gray-600 hover:text-red-600">
                         <i class="fas fa-user mr-1"></i> Profile
                     </a>
-                    <button onclick="handleSignOut()" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-colors">
-                        <i class="fas fa-sign-out-alt mr-1"></i> Sign Out
+                    <a href="announcements.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-bullhorn mr-1"></i> Announcements
+                    </a>
+                    <a href="payroll.html" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-money-bill-wave mr-1"></i> Payroll
+                    </a>
+                    <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+                        <i class="fas fa-sign-out-alt mr-1"></i> Logout
                     </button>
                 </div>
             </div>
@@ -177,7 +183,12 @@
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             // Check authentication
-            currentEmployee = checkAuth();
+            if (!requireAuth()) {
+                window.location.href = 'packaging-glamour-signin.html';
+                return;
+            }
+
+            currentEmployee = getCurrentUser();
             if (!currentEmployee) {
                 window.location.href = 'packaging-glamour-signin.html';
                 return;
@@ -211,11 +222,11 @@
         // Load medical balance
         async function loadMedicalBalance() {
             try {
-                const filterFormula = `AND({Email} = '${currentEmployee.email}', YEAR({Date}) = ${new Date().getFullYear()})`;
+                const filterFormula = `AND(FIND('${currentEmployee.id}', ARRAYJOIN({Employee})), YEAR({Date of visit}) = ${new Date().getFullYear()})`;
                 const data = await getMedicalClaims(filterFormula);
 
                 const approvedClaims = data.records?.filter(r => r.fields.Status === 'Approved') || [];
-                const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields.Amount || 0), 0);
+                const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields['Amount Spent (GH₵)'] || 0), 0);
                 const remaining = 1000 - totalSpent;
 
                 document.getElementById('medicalBalance').textContent = `GH₵${remaining.toFixed(2)}`;
@@ -232,7 +243,7 @@
         // Load claims history
         async function loadClaimsHistory() {
             try {
-                const filterFormula = `{Email} = '${currentEmployee.email}'`;
+                const filterFormula = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
                 const data = await getMedicalClaims(filterFormula);
                 const claims = data.records || [];
 
@@ -260,17 +271,17 @@
                         <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
                             <div class="flex items-start justify-between mb-2">
                                 <div>
-                                    <h3 class="font-semibold text-gray-800">${fields['Hospital Name'] || 'N/A'}</h3>
-                                    <p class="text-sm text-gray-600">${new Date(fields.Date).toLocaleDateString()}</p>
+                                    <h3 class="font-semibold text-gray-800">${fields['Hospital/Clinic Name'] || 'N/A'}</h3>
+                                    <p class="text-sm text-gray-600">${new Date(fields['Date of visit']).toLocaleDateString()}</p>
                                 </div>
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold ${statusColors[fields.Status] || 'bg-gray-100 text-gray-800'}">
                                     ${fields.Status || 'Pending'}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-700 mb-2">${fields.Description || 'No description'}</p>
+                            <p class="text-sm text-gray-700 mb-2">${fields['Description of Treatment'] || 'No description'}</p>
                             <div class="flex items-center justify-between text-sm">
-                                <span class="font-semibold text-red-600">GH₵${(fields.Amount || 0).toFixed(2)}</span>
-                                ${fields.Receipt ? `<a href="${fields.Receipt[0].url}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt mr-1"></i>View Receipt</a>` : ''}
+                                <span class="font-semibold text-red-600">GH₵${(fields['Amount Spent (GH₵)'] || 0).toFixed(2)}</span>
+                                ${fields['Upload Receipt/Proof'] ? `<a href="${fields['Upload Receipt/Proof'][0].url}" target="_blank" class="text-blue-600 hover:underline"><i class="fas fa-file-alt mr-1"></i>View Receipt</a>` : ''}
                             </div>
                         </div>
                     `;
@@ -304,17 +315,14 @@
                 // Convert file to base64
                 const base64Receipt = await fileToBase64(receiptFile);
 
-                // Create claim record
+                // Create claim record matching Airtable structure
                 const claimFields = {
-                    'Email': currentEmployee.email,
-                    'Employee Name': currentEmployee.fullName,
-                    'Date': visitDate,
-                    'Hospital Name': hospitalName,
-                    'Amount': amount,
-                    'Description': description,
-                    'Status': 'Pending',
-                    'Submitted Date': new Date().toISOString(),
-                    'Receipt': [{
+                    'Date of visit': visitDate,
+                    'Employee': [currentEmployee.id],
+                    'Hospital/Clinic Name': hospitalName,
+                    'Description of Treatment': description,
+                    'Amount Spent (GH₵)': amount,
+                    'Upload Receipt/Proof': [{
                         url: base64Receipt,
                         filename: receiptFile.name
                     }]

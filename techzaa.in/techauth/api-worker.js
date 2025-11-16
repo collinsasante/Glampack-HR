@@ -47,6 +47,10 @@ export default {
         return handleAnnouncements(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/payroll')) {
         return handlePayroll(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
+      } else if (path.startsWith('/api/medical-claims')) {
+        return handleMedicalClaims(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
+      } else if (path.startsWith('/api/emergency-contacts')) {
+        return handleEmergencyContacts(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else {
         return new Response(
           JSON.stringify({ error: 'Not found' }),
@@ -422,6 +426,124 @@ async function handlePayroll(request, env, apiKey, baseId, corsHeaders) {
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
 
     const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  }
+}
+// Add these functions to the end of api-worker.js file (before the closing of the file)
+
+// Medical Claims API handler
+async function handleMedicalClaims(request, env, apiKey, baseId, corsHeaders) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const tableName = 'Medical Claims';
+
+  if (request.method === 'GET') {
+    const filterFormula = url.searchParams.get('filterByFormula');
+    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    if (filterFormula) {
+      airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+    }
+
+    const response = await airtableRequest(airtableUrl, apiKey);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'POST') {
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'PATCH') {
+    const recordId = pathParts[3];
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  }
+}
+
+// Emergency Contacts API handler
+async function handleEmergencyContacts(request, env, apiKey, baseId, corsHeaders) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const tableName = 'Emergency Contact';
+
+  if (request.method === 'GET') {
+    // Check if requesting a specific record
+    const recordId = pathParts[3];
+    if (recordId) {
+      const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+      const response = await airtableRequest(airtableUrl, apiKey);
+      const data = await response.json();
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: response.status,
+      });
+    }
+
+    // Get list with optional filter
+    const filterFormula = url.searchParams.get('filterByFormula');
+    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    if (filterFormula) {
+      airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+    }
+
+    const response = await airtableRequest(airtableUrl, apiKey);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'POST') {
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'PATCH') {
+    const recordId = pathParts[3];
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'DELETE') {
+    const recordId = pathParts[3];
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {
