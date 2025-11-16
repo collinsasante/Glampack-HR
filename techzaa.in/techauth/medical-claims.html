@@ -93,63 +93,6 @@
             </div>
         </div>
 
-        <!-- Policy Documents Section -->
-        <div class="bg-gradient-to-r from-red-50 to-orange-50 rounded-lg shadow-md p-6 mb-8 border border-red-100">
-            <div class="flex items-center mb-4">
-                <div class="bg-red-600 p-3 rounded-lg mr-4">
-                    <i class="fas fa-book text-white text-2xl"></i>
-                </div>
-                <div>
-                    <h2 class="text-xl font-bold text-gray-800">Important Documents</h2>
-                    <p class="text-sm text-gray-600">Please review these policies before submitting a claim</p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-                <!-- Staff Medical Policy -->
-                <a href="#" onclick="openPolicyDocument('medical-policy'); return false;"
-                   class="bg-white rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer border border-red-200 hover:border-red-400">
-                    <div class="flex items-start">
-                        <div class="bg-red-100 p-3 rounded-lg mr-3">
-                            <i class="fas fa-file-medical text-red-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-1">Staff Medical Policy</h3>
-                            <p class="text-xs text-gray-600">Coverage details and guidelines</p>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Employee Handbook -->
-                <a href="#" onclick="openPolicyDocument('employee-handbook'); return false;"
-                   class="bg-white rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer border border-orange-200 hover:border-orange-400">
-                    <div class="flex items-start">
-                        <div class="bg-orange-100 p-3 rounded-lg mr-3">
-                            <i class="fas fa-book-open text-orange-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-1">Employee Handbook</h3>
-                            <p class="text-xs text-gray-600">Company policies and procedures</p>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Staff Welfare Guide -->
-                <a href="#" onclick="openPolicyDocument('welfare-guide'); return false;"
-                   class="bg-white rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer border border-green-200 hover:border-green-400">
-                    <div class="flex items-start">
-                        <div class="bg-green-100 p-3 rounded-lg mr-3">
-                            <i class="fas fa-hands-helping text-green-600 text-xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="font-semibold text-gray-800 mb-1">Staff Welfare Guide</h3>
-                            <p class="text-xs text-gray-600">Benefits and support programs</p>
-                        </div>
-                    </div>
-                </a>
-            </div>
-        </div>
-
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <!-- Submit New Claim Form -->
             <div class="bg-white rounded-lg shadow-md p-6">
@@ -200,7 +143,7 @@
                             Upload Receipts/Proof <span class="text-red-600">*</span>
                         </label>
                         <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-red-500 transition-colors">
-                            <input type="file" id="receipt" required accept="image/*,.pdf" class="hidden" multiple>
+                            <input type="file" id="receipt" accept="image/*,.pdf" class="hidden" multiple>
                             <label for="receipt" class="cursor-pointer">
                                 <i class="fas fa-cloud-upload-alt text-4xl text-gray-400 mb-2"></i>
                                 <p class="text-sm text-gray-600">Click to upload receipts (multiple files allowed)</p>
@@ -233,24 +176,6 @@
                         <p>No claims submitted yet</p>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Policy Document Modal -->
-    <div id="policyModal" class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
-            <div class="p-6 border-b flex justify-between items-start sticky top-0 bg-white">
-                <div>
-                    <h3 id="policyTitle" class="text-2xl font-bold text-gray-800"></h3>
-                    <p id="policySubtitle" class="text-sm text-gray-600 mt-1"></p>
-                </div>
-                <button onclick="closePolicyModal()" class="text-gray-400 hover:text-gray-600">
-                    <i class="fas fa-times text-xl"></i>
-                </button>
-            </div>
-            <div class="p-6">
-                <div id="policyContent" class="prose max-w-none"></div>
             </div>
         </div>
     </div>
@@ -516,158 +441,6 @@
             setTimeout(() => div.remove(), 5000);
         }
 
-        // Policy document content
-        const policyDocuments = {
-            'medical-policy': {
-                title: 'Staff Medical Policy',
-                subtitle: 'Effective Date: January 2025',
-                content: `
-                    <h2>Medical Coverage Overview</h2>
-                    <p>All permanent and contract staff members are entitled to an annual medical allowance of <strong>GH₵1,000</strong> to cover medical expenses incurred during the year.</p>
-
-                    <h3>Eligible Expenses</h3>
-                    <ul>
-                        <li>Consultation fees at registered hospitals and clinics</li>
-                        <li>Prescribed medications and pharmaceutical products</li>
-                        <li>Laboratory tests and diagnostic procedures</li>
-                        <li>Emergency medical treatment</li>
-                        <li>Specialist consultations (with referral)</li>
-                    </ul>
-
-                    <h3>Claim Submission Guidelines</h3>
-                    <ol>
-                        <li>Submit claims within <strong>30 days</strong> of receiving treatment</li>
-                        <li>Attach original receipts or invoices from the healthcare provider</li>
-                        <li>Provide a detailed description of the treatment received</li>
-                        <li>Ensure all receipts are clearly dated and stamped by the facility</li>
-                    </ol>
-
-                    <h3>Non-Covered Items</h3>
-                    <ul>
-                        <li>Cosmetic procedures and treatments</li>
-                        <li>Traditional or alternative medicine (unless pre-approved)</li>
-                        <li>Experimental treatments</li>
-                        <li>Over-the-counter medications without prescription</li>
-                    </ul>
-
-                    <h3>Approval Process</h3>
-                    <p>All medical claims are reviewed by the HR department within <strong>5-7 business days</strong>. Approved claims will be reimbursed in the next payroll cycle.</p>
-
-                    <h3>Contact Information</h3>
-                    <p>For questions regarding your medical coverage, please contact the HR department at <strong>hr@glampack.com</strong></p>
-                `
-            },
-            'employee-handbook': {
-                title: 'Employee Handbook',
-                subtitle: 'Updated: January 2025',
-                content: `
-                    <h2>Welcome to Glampack</h2>
-                    <p>This handbook provides essential information about company policies, procedures, and your rights and responsibilities as an employee.</p>
-
-                    <h3>Working Hours</h3>
-                    <ul>
-                        <li><strong>Regular Hours:</strong> Monday - Friday, 8:00 AM - 5:00 PM</li>
-                        <li><strong>Break Time:</strong> 1 hour lunch break (12:00 PM - 1:00 PM)</li>
-                        <li><strong>Late Arrival:</strong> Arrivals after 8:30 AM require explanation</li>
-                    </ul>
-
-                    <h3>Leave Entitlements</h3>
-                    <ul>
-                        <li><strong>Annual Leave:</strong> 20 working days per year</li>
-                        <li><strong>Sick Leave:</strong> 10 working days per year (medical certificate required for 3+ days)</li>
-                        <li><strong>Emergency Leave:</strong> Subject to approval by line manager</li>
-                    </ul>
-
-                    <h3>Code of Conduct</h3>
-                    <ol>
-                        <li>Maintain professionalism in all interactions</li>
-                        <li>Respect confidentiality of company and client information</li>
-                        <li>Dress appropriately for your role and department</li>
-                        <li>Report to work on time and fulfill your responsibilities</li>
-                    </ol>
-
-                    <h3>Performance Reviews</h3>
-                    <p>Performance evaluations are conducted <strong>semi-annually</strong> to discuss achievements, areas for improvement, and career development opportunities.</p>
-
-                    <h3>Grievance Procedure</h3>
-                    <p>If you have concerns or complaints, please first discuss with your line manager. If unresolved, escalate to HR department within 7 days.</p>
-
-                    <h3>Technology & Equipment</h3>
-                    <p>Company-provided equipment must be used for business purposes only. Personal use should be limited and appropriate.</p>
-                `
-            },
-            'welfare-guide': {
-                title: 'Staff Welfare Guide',
-                subtitle: 'Employee Benefits & Support Programs',
-                content: `
-                    <h2>Your Wellbeing Matters</h2>
-                    <p>Glampack is committed to supporting the physical, mental, and financial wellbeing of all staff members.</p>
-
-                    <h3>Medical Benefits</h3>
-                    <ul>
-                        <li><strong>Annual Medical Allowance:</strong> GH₵1,000 per employee</li>
-                        <li><strong>Health Insurance:</strong> Comprehensive coverage for permanent staff</li>
-                        <li><strong>Emergency Medical Support:</strong> 24/7 assistance hotline</li>
-                    </ul>
-
-                    <h3>Financial Wellness</h3>
-                    <ul>
-                        <li><strong>Salary Advances:</strong> Available in emergency situations (subject to approval)</li>
-                        <li><strong>End of Year Bonus:</strong> Performance-based bonuses distributed in December</li>
-                        <li><strong>Pension Contribution:</strong> Company contributes to SSNIT and private pension schemes</li>
-                    </ul>
-
-                    <h3>Work-Life Balance</h3>
-                    <ul>
-                        <li><strong>Flexible Working:</strong> Remote work options available for eligible roles</li>
-                        <li><strong>Family Support:</strong> Maternity/Paternity leave as per labor laws</li>
-                        <li><strong>Study Leave:</strong> Support for continuing education and professional development</li>
-                    </ul>
-
-                    <h3>Employee Assistance Program</h3>
-                    <p>Confidential counseling and support services are available for:</p>
-                    <ul>
-                        <li>Mental health and stress management</li>
-                        <li>Financial planning and debt management</li>
-                        <li>Legal advice and support</li>
-                        <li>Family and relationship counseling</li>
-                    </ul>
-
-                    <h3>Social Activities</h3>
-                    <p>Regular team building activities, annual staff retreat, and quarterly social events to foster team spirit and camaraderie.</p>
-
-                    <h3>Recognition Programs</h3>
-                    <ul>
-                        <li><strong>Employee of the Month:</strong> Outstanding performance recognition</li>
-                        <li><strong>Long Service Awards:</strong> Celebrating tenure milestones</li>
-                        <li><strong>Spot Bonuses:</strong> Instant recognition for exceptional contributions</li>
-                    </ul>
-
-                    <h3>Support Contacts</h3>
-                    <p><strong>HR Department:</strong> hr@glampack.com | Ext: 100<br>
-                    <strong>Welfare Officer:</strong> welfare@glampack.com | Ext: 101</p>
-                `
-            }
-        };
-
-        // Open policy document modal
-        function openPolicyDocument(docType) {
-            const doc = policyDocuments[docType];
-            if (!doc) return;
-
-            document.getElementById('policyTitle').textContent = doc.title;
-            document.getElementById('policySubtitle').textContent = doc.subtitle;
-            document.getElementById('policyContent').innerHTML = doc.content;
-
-            document.getElementById('policyModal').classList.remove('hidden');
-            document.getElementById('policyModal').classList.add('flex');
-        }
-
-        // Close policy modal
-        function closePolicyModal() {
-            document.getElementById('policyModal').classList.add('hidden');
-            document.getElementById('policyModal').classList.remove('flex');
-        }
     </script>
 </body>
 </html>
