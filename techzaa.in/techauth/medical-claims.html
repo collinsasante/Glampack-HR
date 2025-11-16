@@ -266,12 +266,8 @@
         // Load medical balance
         async function loadMedicalBalance() {
             try {
-                console.log('=== Loading medical balance ===');
-                // Employee field is array, use name lookup which is most reliable
                 const filterFormula = `AND({Full Name (from Employee)} = '${currentEmployee.name}', YEAR({Date of visit}) = ${new Date().getFullYear()})`;
-                console.log('Balance filter formula:', filterFormula);
                 const data = await getMedicalClaims(filterFormula);
-                console.log('Balance data:', data);
 
                 const approvedClaims = data.records?.filter(r => r.fields.Status === 'Approved') || [];
                 const totalSpent = approvedClaims.reduce((sum, claim) => sum + (claim.fields['Amount Spent (GH₵)'] || 0), 0);
@@ -291,62 +287,10 @@
         // Load claims history
         async function loadClaimsHistory() {
             try {
-                console.log('=== Loading claims history ===');
-                console.log('Current employee:', currentEmployee);
-                console.log('Employee ID:', currentEmployee.id);
-
-                // First, test getting ALL claims without filter
-                console.log('Testing: Getting ALL claims (no filter)...');
-                const allData = await getMedicalClaims();
-                console.log('All claims (no filter):', allData.records);
-                console.log('Total claims in database:', allData.records?.length || 0);
-
-                if (allData.records && allData.records.length > 0) {
-                    console.log('Sample claim structure:', allData.records[0]);
-                    console.log('Sample Employee field:', allData.records[0].fields.Employee);
-                }
-
-                // Employee field is an array: ['recIU9u6YrUXGBrTr']
-                // Need to use SEARCH instead of FIND for better array handling
-
-                // Approach 1: SEARCH with ARRAYJOIN (SEARCH returns position, 0 if not found)
-                const filterFormula1 = `SEARCH('${currentEmployee.id}', ARRAYJOIN({Employee}, ','))`;
-                console.log('Filter formula 1 (SEARCH + ARRAYJOIN):', filterFormula1);
-
-                // Approach 2: FIND with greater than 0 check
-                const filterFormula2 = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}, ',')) > 0`;
-                console.log('Filter formula 2 (FIND > 0):', filterFormula2);
-
-                // Approach 3: Using lookup field Full Name (most reliable)
-                const filterFormula3 = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
-                console.log('Filter formula 3 (by name):', filterFormula3);
-
-                // Try approach 3 first (name lookup is most reliable)
-                console.log('Testing filter formula 3 (by name)...');
-                let data = await getMedicalClaims(filterFormula3);
-                console.log('Approach 3 result:', data);
-
-                if (!data.records || data.records.length === 0) {
-                    console.log('Approach 3 failed, trying approach 1 (SEARCH)...');
-                    data = await getMedicalClaims(filterFormula1);
-                    console.log('Approach 1 result:', data);
-                }
-
-                if (!data.records || data.records.length === 0) {
-                    console.log('Approach 1 failed, trying approach 2 (FIND > 0)...');
-                    data = await getMedicalClaims(filterFormula2);
-                    console.log('Approach 2 result:', data);
-                }
-
-                console.log('Final filtered API response:', data);
-                console.log('Final filtered records:', data.records);
-
+                // Use name lookup filter (most reliable for linked record arrays)
+                const filterFormula = `{Full Name (from Employee)} = '${currentEmployee.name}'`;
+                const data = await getMedicalClaims(filterFormula);
                 const claims = data.records || [];
-                console.log('Number of filtered claims found:', claims.length);
-
-                if (claims.length > 0) {
-                    console.log('First filtered claim:', claims[0]);
-                }
 
                 const historyDiv = document.getElementById('claimsHistory');
 
@@ -410,8 +354,6 @@
         document.getElementById('medicalClaimForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            console.log('=== Starting Medical Claim Submission ===');
-
             const submitBtn = e.target.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Submitting...';
@@ -422,35 +364,27 @@
                 const amount = parseFloat(document.getElementById('amount').value);
                 const description = document.getElementById('description').value;
 
-                console.log('Form data:', { visitDate, hospitalName, amount, description });
-                console.log('Selected files:', selectedFiles.length);
-
                 if (selectedFiles.length === 0) {
                     throw new Error('Please upload at least one receipt');
                 }
 
                 // Upload all files to Cloudinary
-                console.log('Starting Cloudinary upload for', selectedFiles.length, 'files');
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Uploading receipts...';
                 const uploadedFiles = [];
 
                 for (let i = 0; i < selectedFiles.length; i++) {
                     const file = selectedFiles[i];
-                    console.log(`Uploading file ${i + 1}/${selectedFiles.length}:`, file.name);
                     submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length}...`;
 
                     const uploadResult = await uploadToCloudinary(file, (progress) => {
                         submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i>Uploading ${i + 1}/${selectedFiles.length} (${Math.round(progress)}%)`;
                     });
 
-                    console.log(`File ${i + 1} uploaded successfully:`, uploadResult.url);
                     uploadedFiles.push({
                         url: uploadResult.url,
                         filename: file.name
                     });
                 }
-
-                console.log('All files uploaded. Total:', uploadedFiles.length);
 
                 // Update button text to show saving
                 submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Saving claim...';
@@ -466,13 +400,7 @@
                     'Status': 'Pending'
                 };
 
-                console.log('Creating claim with fields:', claimFields);
-
-                const result = await createMedicalClaim(claimFields);
-                console.log('Claim created successfully:', result);
-                console.log('Created claim ID:', result.id);
-                console.log('Created claim fields:', result.fields);
-                console.log('Employee field in created claim:', result.fields.Employee);
+                await createMedicalClaim(claimFields);
 
                 showMessage('Medical claim submitted successfully! Awaiting admin approval.', 'success');
 
@@ -482,7 +410,6 @@
                 displaySelectedFiles();
 
                 // Reload claims and balance
-                console.log('Reloading medical balance and claims history...');
                 await loadMedicalBalance();
                 await loadClaimsHistory();
 

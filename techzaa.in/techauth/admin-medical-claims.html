@@ -200,17 +200,8 @@
         // Load all claims
         async function loadAllClaims() {
             try {
-                console.log('=== Loading all medical claims for admin ===');
                 const data = await getMedicalClaims();
-                console.log('Raw API response:', data);
-                console.log('Response records:', data.records);
-
                 allClaims = data.records || [];
-                console.log('Total claims loaded:', allClaims.length);
-
-                if (allClaims.length > 0) {
-                    console.log('First claim:', allClaims[0]);
-                }
 
                 // Update stats
                 updateStats();
@@ -220,7 +211,6 @@
 
             } catch (error) {
                 console.error('Error loading claims:', error);
-                console.error('Full error details:', error);
                 showMessage('Failed to load claims', 'error');
             }
         }
@@ -317,15 +307,10 @@
 
         // View claim details
         function viewClaim(claim) {
-            console.log('=== Viewing claim details ===');
-            console.log('Claim:', claim);
-
             const fields = claim.fields;
-            console.log('Claim fields:', fields);
 
             // Handle multiple receipts
             const receipts = fields['Upload Receipt/Proof'] || [];
-            console.log('Receipts:', receipts);
 
             const receiptsHTML = receipts.length > 0
                 ? `<div class="col-span-2">
@@ -395,21 +380,15 @@
         // Update claim status
         async function updateClaimStatus(recordId, status) {
             try {
-                console.log('=== Updating claim status ===');
-                console.log('Record ID:', recordId);
-                console.log('New status:', status);
-
                 const updateBtn = event.target;
                 updateBtn.disabled = true;
                 updateBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Updating...';
 
-                const result = await updateMedicalClaim(recordId, { Status: status });
-                console.log('Update result:', result);
+                await updateMedicalClaim(recordId, { Status: status });
 
                 showMessage(`Claim ${status.toLowerCase()} successfully!`, 'success');
 
                 // Reload claims
-                console.log('Reloading claims after status update...');
                 await loadAllClaims();
 
                 // Close modal
@@ -417,7 +396,6 @@
 
             } catch (error) {
                 console.error('Error updating claim:', error);
-                console.error('Full error details:', error);
                 showMessage('Failed to update claim status', 'error');
             }
         }
