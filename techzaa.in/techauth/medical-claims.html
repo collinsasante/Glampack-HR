@@ -187,6 +187,36 @@
         let currentEmployee = null;
         let selectedFiles = []; // Global variable for selected files
 
+        // Global function to display selected files
+        function displaySelectedFiles() {
+            const filesList = document.getElementById('filesList');
+            if (selectedFiles.length === 0) {
+                filesList.innerHTML = '';
+                return;
+            }
+
+            filesList.innerHTML = selectedFiles.map((file, index) => `
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <div class="flex items-center space-x-3">
+                        <i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf text-red-500' : 'fa-file-image text-blue-500'}"></i>
+                        <div>
+                            <p class="text-sm font-medium text-gray-800">${file.name}</p>
+                            <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800">
+                        <i class="fas fa-times-circle"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Global function to remove a file
+        window.removeFile = function(index) {
+            selectedFiles.splice(index, 1);
+            displaySelectedFiles();
+        };
+
         // Initialize page
         document.addEventListener('DOMContentLoaded', async function() {
             // Check authentication
@@ -228,34 +258,6 @@
                 displaySelectedFiles();
                 e.target.value = ''; // Reset input to allow re-selecting same file
             });
-
-            function displaySelectedFiles() {
-                const filesList = document.getElementById('filesList');
-                if (selectedFiles.length === 0) {
-                    filesList.innerHTML = '';
-                    return;
-                }
-
-                filesList.innerHTML = selectedFiles.map((file, index) => `
-                    <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <div class="flex items-center space-x-3">
-                            <i class="fas ${file.type.includes('pdf') ? 'fa-file-pdf text-red-500' : 'fa-file-image text-blue-500'}"></i>
-                            <div>
-                                <p class="text-sm font-medium text-gray-800">${file.name}</p>
-                                <p class="text-xs text-gray-500">${(file.size / 1024).toFixed(1)} KB</p>
-                            </div>
-                        </div>
-                        <button type="button" onclick="removeFile(${index})" class="text-red-600 hover:text-red-800">
-                            <i class="fas fa-times-circle"></i>
-                        </button>
-                    </div>
-                `).join('');
-            }
-
-            window.removeFile = function(index) {
-                selectedFiles.splice(index, 1);
-                displaySelectedFiles();
-            };
 
             // Set max date to today
             document.getElementById('visitDate').max = new Date().toISOString().split('T')[0];
