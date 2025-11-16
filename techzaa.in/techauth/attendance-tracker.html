@@ -875,6 +875,10 @@
           }
 
           showMessage(`Successfully checked in at ${time}`, "success");
+
+          // Signal dashboard to refresh
+          localStorage.setItem('attendanceUpdated', Date.now().toString());
+
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history
         } catch (error) {
@@ -935,6 +939,9 @@
           todayRecordId = null;
 
           showMessage(`Successfully checked out at ${time}`, "success");
+
+          // Signal dashboard to refresh
+          localStorage.setItem('attendanceUpdated', Date.now().toString());
 
           // Disable both check in and check out buttons after completing attendance
           document.getElementById("checkOutBtn").disabled = true;

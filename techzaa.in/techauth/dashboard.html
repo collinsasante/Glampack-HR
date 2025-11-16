@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -19,7 +19,6 @@
           <!-- Logo -->
           <div class="flex items-center space-x-3">
             <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
-            <span class="text-xl font-bold text-gray-800">Dashboard</span>
           </div>
 
           <!-- Navigation Menu -->
@@ -36,7 +35,10 @@
             >
               <i class="fas fa-clock mr-1"></i> Attendance
             </a>
-            <a href="leave-request.html" class="text-gray-600 hover:text-red-600">
+            <a
+              href="leave-request.html"
+              class="text-gray-600 hover:text-red-600"
+            >
               <i class="fas fa-calendar-alt mr-1"></i> Leave
             </a>
             <a
@@ -65,10 +67,7 @@
             >
               <i class="fas fa-user-shield mr-1"></i> Admin
             </a>
-            <button
-              onclick="logout()"
-              class="text-gray-600 hover:text-red-600"
-            >
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
               <i class="fas fa-sign-out-alt mr-1"></i> Logout
             </button>
           </div>
@@ -93,7 +92,10 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">Today's Status</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1" id="todayStatus">
+              <h3
+                class="text-2xl font-bold text-gray-800 mt-1"
+                id="todayStatus"
+              >
                 --
               </h3>
               <p class="text-gray-600 text-sm mt-1" id="checkInTime">--</p>
@@ -109,7 +111,10 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">Monthly Hours</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1" id="monthlyHours">
+              <h3
+                class="text-2xl font-bold text-gray-800 mt-1"
+                id="monthlyHours"
+              >
                 0
               </h3>
               <p class="text-gray-600 text-sm mt-1">This month</p>
@@ -125,7 +130,10 @@
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">Leave Balance</p>
-              <h3 class="text-2xl font-bold text-gray-800 mt-1" id="leaveBalance">
+              <h3
+                class="text-2xl font-bold text-gray-800 mt-1"
+                id="leaveBalance"
+              >
                 --
               </h3>
               <p class="text-gray-600 text-sm mt-1">Days remaining</p>
@@ -302,15 +310,20 @@
             const checkOut = record.fields["Check Out"];
 
             if (checkOut) {
-              document.getElementById("todayStatus").textContent = "Checked Out";
-              document.getElementById("checkInTime").textContent = `${checkIn} - ${checkOut}`;
+              document.getElementById("todayStatus").textContent =
+                "Checked Out";
+              document.getElementById("checkInTime").textContent =
+                `${checkIn} - ${checkOut}`;
             } else if (checkIn) {
               document.getElementById("todayStatus").textContent = "Checked In";
-              document.getElementById("checkInTime").textContent = `Since ${checkIn}`;
+              document.getElementById("checkInTime").textContent =
+                `Since ${checkIn}`;
             }
           } else {
-            document.getElementById("todayStatus").textContent = "Not Checked In";
-            document.getElementById("checkInTime").textContent = "No record today";
+            document.getElementById("todayStatus").textContent =
+              "Not Checked In";
+            document.getElementById("checkInTime").textContent =
+              "No record today";
           }
         } catch (error) {
           console.error("Error loading today status:", error);
@@ -598,7 +611,9 @@
 
           // Sort by date descending and take first 3
           const recentAttendance = attendanceData.records
-            .sort((a, b) => new Date(b.fields["Date"]) - new Date(a.fields["Date"]))
+            .sort(
+              (a, b) => new Date(b.fields["Date"]) - new Date(a.fields["Date"])
+            )
             .slice(0, 3);
 
           recentAttendance.forEach((record) => {
@@ -690,6 +705,38 @@
             </div>
           `;
         }
+      }
+
+      // ========================================
+      // AUTO-REFRESH ON ATTENDANCE UPDATE
+      // ========================================
+      let lastAttendanceCheck = localStorage.getItem('attendanceUpdated') || '0';
+
+      // Listen for storage changes (works across tabs)
+      window.addEventListener('storage', function(e) {
+        if (e.key === 'attendanceUpdated' && e.newValue !== lastAttendanceCheck) {
+          lastAttendanceCheck = e.newValue;
+          refreshAttendanceData();
+        }
+      });
+
+      // Poll for changes every 3 seconds (works within same tab)
+      setInterval(function() {
+        const currentValue = localStorage.getItem('attendanceUpdated') || '0';
+        if (currentValue !== lastAttendanceCheck) {
+          lastAttendanceCheck = currentValue;
+          refreshAttendanceData();
+        }
+      }, 3000);
+
+      // Refresh only attendance-related data
+      async function refreshAttendanceData() {
+        await Promise.all([
+          loadTodayStatus(),
+          loadMonthlyHours(),
+          loadAttendanceData(),
+          loadRecentActivity(),
+        ]);
       }
 
       // Initialize on page load
