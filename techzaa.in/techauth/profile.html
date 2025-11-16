@@ -627,8 +627,11 @@
 
       // Initialize page
       async function initializePage() {
-        const userInfoText = `Welcome, ${currentUser.name}`;
-        document.getElementById("userInfo").textContent = userInfoText;
+        // Show admin link if user is admin
+        const adminLink = document.getElementById("adminLink");
+        if (currentUser.role === "Admin" && adminLink) {
+          adminLink.style.display = "inline-block";
+        }
         await loadEmployeeData();
       }
 
@@ -906,8 +909,6 @@
                 "currentUser",
                 JSON.stringify(currentUser)
               );
-              document.getElementById("userInfo").textContent =
-                `Welcome, ${newName}`;
             }
 
             showNotification("Profile updated successfully!", "success");

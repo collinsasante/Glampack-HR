@@ -323,15 +323,11 @@
 
       const currentUser = getCurrentUser();
 
-      // Display user info
-      function updateUserInfo() {
-        const userInfoText = `Welcome, ${currentUser.name}`;
-        const userInfoElement = document.getElementById("userInfo");
-        if (userInfoElement && currentUser) {
-          userInfoElement.textContent = userInfoText;
-        }
+      // Show admin link if user is admin
+      const adminLink = document.getElementById("adminLink");
+      if (currentUser.role === "Admin" && adminLink) {
+        adminLink.style.display = "inline-block";
       }
-      updateUserInfo();
 
       // ========================================
       // LOAD CURRENT SALARY INFO

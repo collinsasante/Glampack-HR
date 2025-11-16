@@ -451,14 +451,15 @@
       // ========================================
       async function initializeDashboard() {
         // Display user name
-        document.getElementById("userName").textContent =
-          currentUser.name.split(" ")[0];
-        const userInfoText = `Welcome, ${currentUser.name}`;
-        document.getElementById("userInfo").textContent = userInfoText;
+        const userNameElement = document.getElementById("userName");
+        if (userNameElement) {
+          userNameElement.textContent = currentUser.name.split(" ")[0];
+        }
 
         // Show admin link if user is admin
-        if (currentUser.role === "Admin") {
-          document.getElementById("adminLink").style.display = "inline-block";
+        const adminLink = document.getElementById("adminLink");
+        if (currentUser.role === "Admin" && adminLink) {
+          adminLink.style.display = "inline-block";
         }
 
         // Load all data

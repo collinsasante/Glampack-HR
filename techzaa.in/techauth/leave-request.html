@@ -307,9 +307,11 @@
       // INITIALIZE PAGE
       // ========================================
       async function initializePage() {
-        // Display user info
-        const userInfoText = `Welcome, ${currentUser.name}`;
-        document.getElementById("userInfo").textContent = userInfoText;
+        // Show admin link if user is admin
+        const adminLink = document.getElementById("adminLink");
+        if (currentUser.role === "Admin" && adminLink) {
+          adminLink.style.display = "inline-block";
+        }
 
         // Set minimum date to today
         const today = new Date().toISOString().split("T")[0];
