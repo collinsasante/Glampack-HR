@@ -320,9 +320,15 @@
         // Load claims history
         async function loadClaimsHistory() {
             try {
+                console.log('Loading claims for employee:', currentEmployee.id);
                 const filterFormula = `FIND('${currentEmployee.id}', ARRAYJOIN({Employee}))`;
+                console.log('Filter formula:', filterFormula);
+
                 const data = await getMedicalClaims(filterFormula);
+                console.log('Claims data received:', data);
+
                 const claims = data.records || [];
+                console.log('Number of claims:', claims.length);
 
                 const historyDiv = document.getElementById('claimsHistory');
 
