@@ -734,13 +734,22 @@ async function loadAttendanceRecords() {
     const date = document.getElementById('attendanceDate').value || new Date().toISOString().split('T')[0];
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
 
+    console.log('=== LOADING ATTENDANCE RECORDS ===');
+    console.log('Date:', date);
+    console.log('Employee ID Filter:', employeeId);
+
     try {
         let filterFormula = `{Date} = '${date}'`;
         if (employeeId) {
-            filterFormula = `AND({Date} = '${date}', {Employee} = '${employeeId}')`;
+            // Employee field is a linked record (array), so we need to use FIND and ARRAYJOIN
+            filterFormula = `AND({Date} = '${date}', FIND('${employeeId}', ARRAYJOIN({Employee})))`;
         }
 
+        console.log('Filter formula:', filterFormula);
+
         const data = await getAttendance(filterFormula);
+        console.log('Attendance records fetched:', data.records?.length || 0);
+
         allAttendanceRecords = data.records || [];
         await displayAttendanceRecords(allAttendanceRecords);
     } catch (error) {
