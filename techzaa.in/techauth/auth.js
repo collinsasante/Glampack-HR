@@ -38,31 +38,9 @@ async function login(email, password) {
 
         const employee = data.records[0];
 
-        // Check if employee has a password set
-        const storedPasswordHash = employee.fields['Password'];
-
-        // Validate password
-        if (!password || password.trim() === '') {
-            showError('Please enter a password');
-            showLoading(false);
-            return false;
-        }
-
-        // If no password is set in Airtable, show error
-        if (!storedPasswordHash) {
-            showError('Account not set up. Please sign up first.');
-            showLoading(false);
-            return false;
-        }
-
-        // Hash the entered password and compare with stored hash
-        const enteredPasswordHash = await hashPassword(password.trim());
-
-        if (storedPasswordHash !== enteredPasswordHash) {
-            showError('Invalid email or password');
-            showLoading(false);
-            return false;
-        }
+        // NOTE: Password validation is now handled by Firebase Authentication
+        // We only validate the user exists in Airtable and retrieve their profile
+        // The packaging-glamour-signin.html page checks Firebase authentication first
 
         // Store user session
         const userSession = {
