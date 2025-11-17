@@ -166,27 +166,11 @@
           </div>
         </div>
 
-        <!-- Leave Balance -->
-        <div class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-center justify-between">
-            <div>
-              <p class="text-gray-500 text-sm">Leave Balance</p>
-              <h3
-                class="text-2xl font-bold text-gray-800 mt-1"
-                id="leaveBalance"
-              >
-                --
-              </h3>
-              <p class="text-gray-600 text-sm mt-1">Days remaining</p>
-            </div>
-            <div class="bg-yellow-100 p-3 rounded-full">
-              <i class="fas fa-calendar-alt text-yellow-600 text-2xl"></i>
-            </div>
-          </div>
-        </div>
-
         <!-- Medical Claims -->
-        <div class="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow" onclick="window.location.href='medical-claims.html'">
+        <div
+          class="bg-white rounded-lg shadow-md p-6 cursor-pointer hover:shadow-lg transition-shadow"
+          onclick="window.location.href='medical-claims.html'"
+        >
           <div class="flex items-center justify-between">
             <div>
               <p class="text-gray-500 text-sm">Medical Claims</p>
@@ -221,6 +205,53 @@
               <i class="fas fa-hourglass-half text-purple-600 text-2xl"></i>
             </div>
           </div>
+        </div>
+      </div>
+      <!-- Policy Documents -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          <i class="fas fa-file-alt mr-2"></i>Policy Documents
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a
+            href="#"
+            onclick="alert('Staff Medical Policy document will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all"
+          >
+            <div class="bg-blue-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-heartbeat text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Staff Medical Policy</p>
+              <p class="text-xs text-gray-600">Healthcare guidelines</p>
+            </div>
+          </a>
+          <a
+            href="#"
+            onclick="alert('Employee Handbook will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border border-green-200 transition-all"
+          >
+            <div class="bg-green-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-book text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Employee Handbook</p>
+              <p class="text-xs text-gray-600">Company policies</p>
+            </div>
+          </a>
+          <a
+            href="#"
+            onclick="alert('Staff Welfare Guide will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 transition-all"
+          >
+            <div class="bg-purple-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-hands-helping text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Staff Welfare Guide</p>
+              <p class="text-xs text-gray-600">Benefits & support</p>
+            </div>
+          </a>
         </div>
       </div>
 
@@ -281,54 +312,6 @@
           >
             <i class="fas fa-user-edit text-3xl mb-3 block"></i>
             <p class="font-semibold text-base">Update Profile</p>
-          </a>
-        </div>
-      </div>
-
-      <!-- Policy Documents -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-          <i class="fas fa-file-alt mr-2"></i>Policy Documents
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <a
-            href="#"
-            onclick="alert('Staff Medical Policy document will be available soon'); return false;"
-            class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all"
-          >
-            <div class="bg-blue-500 p-3 rounded-lg mr-4">
-              <i class="fas fa-heartbeat text-white text-xl"></i>
-            </div>
-            <div>
-              <p class="font-semibold text-gray-800">Staff Medical Policy</p>
-              <p class="text-xs text-gray-600">Healthcare guidelines</p>
-            </div>
-          </a>
-          <a
-            href="#"
-            onclick="alert('Employee Handbook will be available soon'); return false;"
-            class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border border-green-200 transition-all"
-          >
-            <div class="bg-green-500 p-3 rounded-lg mr-4">
-              <i class="fas fa-book text-white text-xl"></i>
-            </div>
-            <div>
-              <p class="font-semibold text-gray-800">Employee Handbook</p>
-              <p class="text-xs text-gray-600">Company policies</p>
-            </div>
-          </a>
-          <a
-            href="#"
-            onclick="alert('Staff Welfare Guide will be available soon'); return false;"
-            class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 transition-all"
-          >
-            <div class="bg-purple-500 p-3 rounded-lg mr-4">
-              <i class="fas fa-hands-helping text-white text-xl"></i>
-            </div>
-            <div>
-              <p class="font-semibold text-gray-800">Staff Welfare Guide</p>
-              <p class="text-xs text-gray-600">Benefits & support</p>
-            </div>
           </a>
         </div>
       </div>
@@ -409,53 +392,79 @@
       async function loadTodayStatus() {
         try {
           // Verify getAttendance function exists
-          if (typeof getAttendance === 'undefined') {
-            console.error('getAttendance function not found! Check if config-worker.js loaded properly.');
-            throw new Error('getAttendance function not defined');
+          if (typeof getAttendance === "undefined") {
+            console.error(
+              "getAttendance function not found! Check if config-worker.js loaded properly."
+            );
+            throw new Error("getAttendance function not defined");
           }
 
           const today = new Date().toISOString().split("T")[0];
 
-          console.log('=== LOAD TODAY STATUS ===');
-          console.log('Looking for date:', today);
-          console.log('Employee ID:', currentUser.id);
-          console.log('Employee Name:', currentUser.name);
+          console.log("=== LOAD TODAY STATUS ===");
+          console.log("Looking for date:", today);
+          console.log("Employee ID:", currentUser.id);
+          console.log("Employee Name:", currentUser.name);
 
           // First, get ALL attendance records (no filter) to see what exists
           const allData = await getAttendance(); // No filter to see everything
 
-          console.log('Total attendance records in database:', allData.records?.length || 0);
+          console.log(
+            "Total attendance records in database:",
+            allData.records?.length || 0
+          );
           if (allData.records && allData.records.length > 0) {
             // DIAGNOSTIC: Show all field names from a sample record
             if (allData.records[0]) {
-              console.log('=== ATTENDANCE FIELD NAMES (for debugging) ===');
-              console.log('Available fields in Attendance table:', Object.keys(allData.records[0].fields));
-              console.log('Sample records (first 3):', allData.records.slice(0, 3).map(r => ({
-                id: r.id,
-                date: r.fields.Date,
-                employee: r.fields.Employee,
-                checkIn: r.fields['Check In'] || r.fields['CheckIn'] || r.fields['Check-In'],
-                checkOut: r.fields['Check Out'] || r.fields['CheckOut'] || r.fields['Check-Out']
-              })));
+              console.log("=== ATTENDANCE FIELD NAMES (for debugging) ===");
+              console.log(
+                "Available fields in Attendance table:",
+                Object.keys(allData.records[0].fields)
+              );
+              console.log(
+                "Sample records (first 3):",
+                allData.records.slice(0, 3).map((r) => ({
+                  id: r.id,
+                  date: r.fields.Date,
+                  employee: r.fields.Employee,
+                  checkIn:
+                    r.fields["Check In"] ||
+                    r.fields["CheckIn"] ||
+                    r.fields["Check-In"],
+                  checkOut:
+                    r.fields["Check Out"] ||
+                    r.fields["CheckOut"] ||
+                    r.fields["Check-Out"],
+                }))
+              );
             }
 
             // Try to find records for this employee by checking all records
-            const myRecords = allData.records.filter(r => {
+            const myRecords = allData.records.filter((r) => {
               const emp = r.fields.Employee;
-              console.log('Record employee field:', emp, 'Type:', typeof emp, 'Is Array:', Array.isArray(emp));
+              console.log(
+                "Record employee field:",
+                emp,
+                "Type:",
+                typeof emp,
+                "Is Array:",
+                Array.isArray(emp)
+              );
               // Handle different possible formats
               if (Array.isArray(emp)) {
                 return emp.includes(currentUser.id);
-              } else if (typeof emp === 'string') {
+              } else if (typeof emp === "string") {
                 return emp === currentUser.id;
               }
               return false;
             });
 
-            console.log('My attendance records found:', myRecords.length);
+            console.log("My attendance records found:", myRecords.length);
             if (myRecords.length > 0) {
-              const dates = myRecords.map(r => r.fields.Date).filter(d => d);
-              console.log('My attendance dates:', dates);
+              const dates = myRecords
+                .map((r) => r.fields.Date)
+                .filter((d) => d);
+              console.log("My attendance dates:", dates);
             }
           }
 
@@ -463,24 +472,41 @@
           const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
           const data = await getAttendance(filterFormula);
 
-          console.log('Records for today:', data.records?.length || 0);
+          console.log("Records for today:", data.records?.length || 0);
 
           if (data.records && data.records.length > 0) {
             const record = data.records[0];
-            const checkIn = record.fields["Check In"];
-            const checkOut = record.fields["Check Out"];
+            // Try multiple possible field name variations (camelCase vs space-separated)
+            const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
+            const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
 
-            console.log('Today record - Check In:', checkIn, 'Check Out:', checkOut);
+            console.log(
+              "Today record - Check In:",
+              checkIn,
+              "Check Out:",
+              checkOut
+            );
+
+            // Helper function to format time from timestamp
+            const formatTime = (timestamp) => {
+              if (!timestamp) return '';
+              // Handle ISO timestamp format (e.g., "2025-11-17T11:10:40.754Z")
+              if (timestamp.includes('T')) {
+                const date = new Date(timestamp);
+                return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+              }
+              // Already in time format
+              return timestamp;
+            };
 
             if (checkOut) {
-              document.getElementById("todayStatus").textContent =
-                "Checked Out";
+              document.getElementById("todayStatus").textContent = "Checked Out";
               document.getElementById("checkInTime").textContent =
-                `${checkIn} - ${checkOut}`;
+                `${formatTime(checkIn)} - ${formatTime(checkOut)}`;
             } else if (checkIn) {
               document.getElementById("todayStatus").textContent = "Checked In";
               document.getElementById("checkInTime").textContent =
-                `Since ${checkIn}`;
+                `Since ${formatTime(checkIn)}`;
             } else {
               document.getElementById("todayStatus").textContent =
                 "Not Checked In";
@@ -488,7 +514,9 @@
                 "No record today";
             }
           } else {
-            console.log('No attendance record found for today. Please check in at attendance-tracker.html');
+            console.log(
+              "No attendance record found for today. Please check in at attendance-tracker.html"
+            );
             document.getElementById("todayStatus").textContent =
               "Not Checked In";
             document.getElementById("checkInTime").textContent =
@@ -498,7 +526,8 @@
           console.error("Error loading today status:", error);
           console.error("Error details:", error.message, error.stack);
           document.getElementById("todayStatus").textContent = "--";
-          document.getElementById("checkInTime").textContent = "Error loading status";
+          document.getElementById("checkInTime").textContent =
+            "Error loading status";
         }
       }
 
@@ -511,15 +540,18 @@
           const now = new Date();
           const year = now.getFullYear();
           const month = now.getMonth() + 1; // JavaScript months are 0-indexed
-          const yearMonth = `${year}-${month.toString().padStart(2, '0')}`;
+          const yearMonth = `${year}-${month.toString().padStart(2, "0")}`;
 
-          console.log('Loading monthly hours for:', yearMonth);
+          console.log("Loading monthly hours for:", yearMonth);
 
           // Get all attendance records for this employee
           const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
           const data = await getAttendance(filterFormula);
 
-          console.log('Total attendance records found:', data.records?.length || 0);
+          console.log(
+            "Total attendance records found:",
+            data.records?.length || 0
+          );
 
           let totalHours = 0;
           let recordsThisMonth = 0;
@@ -530,21 +562,27 @@
 
               // Check if record is from current month
               if (recordDate && recordDate.startsWith(yearMonth)) {
-                const checkIn = record.fields["Check In"];
-                const checkOut = record.fields["Check Out"];
+                // Try multiple possible field name variations
+                const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
+                const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
 
                 if (checkIn && checkOut) {
-                  const hours = calculateHoursFromTimes(checkIn, checkOut);
+                  const hours = calculateHoursFromTimestamps(checkIn, checkOut);
                   totalHours += hours;
                   recordsThisMonth++;
-                  console.log(`Record ${recordDate}: ${checkIn} - ${checkOut} = ${hours.toFixed(2)} hours`);
+                  console.log(
+                    `Record ${recordDate}: ${checkIn} - ${checkOut} = ${hours.toFixed(2)} hours`
+                  );
                 }
               }
             });
           }
 
-          console.log(`Total: ${recordsThisMonth} records, ${totalHours.toFixed(1)} hours`);
-          document.getElementById("monthlyHours").textContent = totalHours.toFixed(1);
+          console.log(
+            `Total: ${recordsThisMonth} records, ${totalHours.toFixed(1)} hours`
+          );
+          document.getElementById("monthlyHours").textContent =
+            totalHours.toFixed(1);
         } catch (error) {
           console.error("Error loading monthly hours:", error);
           document.getElementById("monthlyHours").textContent = "0";
@@ -561,6 +599,21 @@
           const diffMs = checkOutTime - checkInTime;
           return diffMs / (1000 * 60 * 60); // Convert to hours
         } catch (error) {
+          return 0;
+        }
+      }
+
+      // ========================================
+      // CALCULATE HOURS FROM TIMESTAMPS
+      // ========================================
+      function calculateHoursFromTimestamps(checkIn, checkOut) {
+        try {
+          const checkInTime = new Date(checkIn);
+          const checkOutTime = new Date(checkOut);
+          const diffMs = checkOutTime - checkInTime;
+          return diffMs / (1000 * 60 * 60); // Convert to hours
+        } catch (error) {
+          console.error('Error calculating hours from timestamps:', error);
           return 0;
         }
       }
@@ -611,32 +664,39 @@
       async function loadMedicalClaimsCount() {
         try {
           // Verify getMedicalClaims function exists
-          if (typeof getMedicalClaims === 'undefined') {
-            console.error('getMedicalClaims function not found! Check if config-worker.js loaded properly.');
-            throw new Error('getMedicalClaims function not defined');
+          if (typeof getMedicalClaims === "undefined") {
+            console.error(
+              "getMedicalClaims function not found! Check if config-worker.js loaded properly."
+            );
+            throw new Error("getMedicalClaims function not defined");
           }
 
-          // Fetch medical claims for this employee
-          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
-          console.log('Loading medical claims with formula:', filterFormula);
+          // Fetch ALL medical claims (no filter) to see structure
+          console.log("Loading all medical claims for employee:", currentUser.id);
+          const data = await getMedicalClaims(); // No filter
 
-          const data = await getMedicalClaims(filterFormula);
-          console.log('Medical claims data received:', data);
+          console.log("Total medical claims in database:", data.records?.length || 0);
 
           // DIAGNOSTIC: Show all field names from a sample record
           if (data.records && data.records.length > 0 && data.records[0]) {
-            console.log('=== MEDICAL CLAIMS FIELD NAMES (for debugging) ===');
-            console.log('Available fields in MedicalClaims table:', Object.keys(data.records[0].fields));
-            console.log('Sample record data:', data.records[0].fields);
+            console.log("=== MEDICAL CLAIMS FIELD NAMES (for debugging) ===");
+            console.log(
+              "Available fields in MedicalClaims table:",
+              Object.keys(data.records[0].fields)
+            );
+            console.log("Sample record data:", data.records[0].fields);
           }
 
-          // Count pending claims
+          // Filter for this employee's pending claims (filter in JavaScript)
           const pendingClaims = (data.records || []).filter((record) => {
-            const status = record.fields.Status || 'Pending';
-            return status === 'Pending';
+            const employees = record.fields.Employee || record.fields.employee || [];
+            const status = record.fields.Status || record.fields.status || "Pending";
+            const isThisEmployee = employees.includes(currentUser.id);
+            const isPending = status === "Pending";
+            return isThisEmployee && isPending;
           });
 
-          console.log('Pending medical claims count:', pendingClaims.length);
+          console.log("Pending medical claims for this employee:", pendingClaims.length);
           document.getElementById("medicalClaimsCount").textContent =
             pendingClaims.length;
         } catch (error) {
@@ -688,11 +748,12 @@
           const record = records.find((r) => r.fields["Date"] === dateStr);
 
           if (record) {
-            const checkIn = record.fields["Check In"];
-            const checkOut = record.fields["Check Out"];
+            // Try multiple possible field name variations (camelCase vs space-separated)
+            const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
+            const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
 
             if (checkIn && checkOut) {
-              const hours = calculateHoursFromTimes(checkIn, checkOut);
+              const hours = calculateHoursFromTimestamps(checkIn, checkOut);
               hoursWorked.push(hours);
             } else {
               hoursWorked.push(0);
@@ -935,30 +996,39 @@
       // ========================================
       // AUTO-REFRESH ON ATTENDANCE UPDATE
       // ========================================
-      let lastAttendanceCheck = localStorage.getItem('attendanceUpdated') || '0';
-      let lastMedicalClaimsCheck = localStorage.getItem('medicalClaimsUpdated') || '0';
+      let lastAttendanceCheck =
+        localStorage.getItem("attendanceUpdated") || "0";
+      let lastMedicalClaimsCheck =
+        localStorage.getItem("medicalClaimsUpdated") || "0";
 
       // Listen for storage changes (works across tabs)
-      window.addEventListener('storage', function(e) {
-        if (e.key === 'attendanceUpdated' && e.newValue !== lastAttendanceCheck) {
+      window.addEventListener("storage", function (e) {
+        if (
+          e.key === "attendanceUpdated" &&
+          e.newValue !== lastAttendanceCheck
+        ) {
           lastAttendanceCheck = e.newValue;
           refreshAttendanceData();
         }
-        if (e.key === 'medicalClaimsUpdated' && e.newValue !== lastMedicalClaimsCheck) {
+        if (
+          e.key === "medicalClaimsUpdated" &&
+          e.newValue !== lastMedicalClaimsCheck
+        ) {
           lastMedicalClaimsCheck = e.newValue;
           refreshMedicalClaimsData();
         }
       });
 
       // Poll for changes every 3 seconds (works within same tab)
-      setInterval(function() {
-        const currentValue = localStorage.getItem('attendanceUpdated') || '0';
+      setInterval(function () {
+        const currentValue = localStorage.getItem("attendanceUpdated") || "0";
         if (currentValue !== lastAttendanceCheck) {
           lastAttendanceCheck = currentValue;
           refreshAttendanceData();
         }
 
-        const medicalClaimsValue = localStorage.getItem('medicalClaimsUpdated') || '0';
+        const medicalClaimsValue =
+          localStorage.getItem("medicalClaimsUpdated") || "0";
         if (medicalClaimsValue !== lastMedicalClaimsCheck) {
           lastMedicalClaimsCheck = medicalClaimsValue;
           refreshMedicalClaimsData();
