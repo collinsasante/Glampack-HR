@@ -255,7 +255,7 @@
         </div>
       </div>
 
-      <!-- Charts and Activity Section -->
+      <!-- Charts and Announcements Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <!-- Attendance Chart -->
         <div class="lg:col-span-2 bg-white rounded-lg shadow-md p-6">
@@ -265,74 +265,24 @@
           <canvas id="attendanceChart" height="100"></canvas>
         </div>
 
-        <!-- Recent Activity -->
+        <!-- Latest Announcements -->
         <div class="bg-white rounded-lg shadow-md p-6">
-          <h3 class="text-lg font-semibold text-gray-800 mb-4">
-            <i class="fas fa-history mr-2"></i>Recent Activity
-          </h3>
-          <div id="activityFeed" class="space-y-4 max-h-80 overflow-y-auto">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold text-gray-800">
+              <i class="fas fa-bullhorn mr-2"></i>Announcements
+            </h3>
+            <a
+              href="announcements.html"
+              class="text-red-600 hover:text-red-700 text-sm"
+            >
+              View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+          </div>
+          <div id="announcementsList" class="space-y-3 max-h-80 overflow-y-auto">
             <div class="text-center text-gray-500 py-8">
               <i class="fas fa-spinner fa-spin text-2xl"></i>
-              <p class="mt-2">Loading activities...</p>
+              <p class="mt-2">Loading announcements...</p>
             </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Actions -->
-      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h3 class="text-lg font-semibold text-gray-800 mb-4">
-          <i class="fas fa-bolt mr-2"></i>Quick Actions
-        </h3>
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <a
-            href="attendance-tracker.html"
-            class="quick-action-green flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
-          >
-            <i class="fas fa-sign-in-alt text-3xl mb-3 block"></i>
-            <p class="font-semibold text-base">Check In/Out</p>
-          </a>
-          <a
-            href="leave-request.html"
-            class="quick-action-blue flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
-          >
-            <i class="fas fa-calendar-plus text-3xl mb-3 block"></i>
-            <p class="font-semibold text-base">Request Leave</p>
-          </a>
-          <a
-            href="medical-claims.html"
-            class="quick-action-purple flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
-          >
-            <i class="fas fa-file-medical text-3xl mb-3 block"></i>
-            <p class="font-semibold text-base">Medical Claim</p>
-          </a>
-          <a
-            href="profile.html"
-            class="quick-action-orange flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
-          >
-            <i class="fas fa-user-edit text-3xl mb-3 block"></i>
-            <p class="font-semibold text-base">Update Profile</p>
-          </a>
-        </div>
-      </div>
-
-      <!-- Announcements -->
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between mb-4">
-          <h3 class="text-lg font-semibold text-gray-800">
-            <i class="fas fa-bullhorn mr-2"></i>Latest Announcements
-          </h3>
-          <a
-            href="announcements.html"
-            class="text-red-600 hover:text-red-700 text-sm"
-          >
-            View All <i class="fas fa-arrow-right ml-1"></i>
-          </a>
-        </div>
-        <div id="announcementsList" class="space-y-3">
-          <div class="text-center text-gray-500 py-8">
-            <i class="fas fa-spinner fa-spin text-2xl"></i>
-            <p class="mt-2">Loading announcements...</p>
           </div>
         </div>
       </div>
@@ -381,7 +331,6 @@
           loadMedicalClaimsCount(),
           loadAttendanceData(),
           loadAnnouncements(),
-          loadRecentActivity(),
         ]);
       }
 
@@ -771,116 +720,6 @@
       }
 
       // ========================================
-      // LOAD RECENT ACTIVITY
-      // ========================================
-      async function loadRecentActivity() {
-        try {
-          const container = document.getElementById("activityFeed");
-          const activities = [];
-
-          // Get recent attendance
-          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
-          const attendanceData = await getAttendance(filterFormula);
-
-          // Sort by date descending and take first 3
-          const recentAttendance = attendanceData.records
-            .sort(
-              (a, b) => new Date(b.fields["Date"]) - new Date(a.fields["Date"])
-            )
-            .slice(0, 3);
-
-          recentAttendance.forEach((record) => {
-            const date = record.fields["Date"];
-            const checkIn = record.fields["Check In"];
-            const checkOut = record.fields["Check Out"];
-
-            if (checkIn) {
-              activities.push({
-                type: "attendance",
-                date: date,
-                icon: "fa-clock",
-                color: "text-green-600",
-                text: checkOut
-                  ? `Checked in at ${checkIn}, out at ${checkOut}`
-                  : `Checked in at ${checkIn}`,
-              });
-            }
-          });
-
-          // Get recent leave requests
-          const leaveData = await getLeaveRequests(null);
-
-          // Filter for this employee's leave requests, sort and take first 2
-          const recentLeave = (leaveData.records || [])
-            .filter((record) => {
-              const employees = record.fields.Employee || [];
-              return employees.includes(currentUser.id);
-            })
-            .sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime))
-            .slice(0, 2);
-
-          recentLeave.forEach((record) => {
-            const leaveType = record.fields["Leave Type"];
-            const status = record.fields["Status"];
-            const startDate = record.fields["Start Date"];
-            activities.push({
-              type: "leave",
-              date: startDate,
-              icon: "fa-calendar-alt",
-              color:
-                status === "Approved"
-                  ? "text-green-600"
-                  : status === "Rejected"
-                    ? "text-red-600"
-                    : "text-yellow-600",
-              text: `${leaveType} - ${status}`,
-            });
-          });
-
-          // Sort all activities by date
-          activities.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-          // Render activities
-          if (activities.length === 0) {
-            container.innerHTML = `
-              <div class="text-center text-gray-500 py-4">
-                <i class="fas fa-inbox text-2xl mb-2"></i>
-                <p>No recent activity</p>
-              </div>
-            `;
-            return;
-          }
-
-          container.innerHTML = activities
-            .slice(0, 5)
-            .map(
-              (activity) => `
-            <div class="flex items-start gap-3 pb-3 border-b border-gray-100 last:border-0">
-              <div class="bg-gray-100 p-2 rounded-full">
-                <i class="fas ${activity.icon} ${activity.color}"></i>
-              </div>
-              <div class="flex-1">
-                <p class="text-sm text-gray-800">${activity.text}</p>
-                <p class="text-xs text-gray-500 mt-1">
-                  ${new Date(activity.date).toLocaleDateString()}
-                </p>
-              </div>
-            </div>
-          `
-            )
-            .join("");
-        } catch (error) {
-          console.error("Error loading recent activity:", error);
-          document.getElementById("activityFeed").innerHTML = `
-            <div class="text-center text-red-500 py-4">
-              <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
-              <p>Failed to load activities</p>
-            </div>
-          `;
-        }
-      }
-
-      // ========================================
       // AUTO-REFRESH ON ATTENDANCE UPDATE
       // ========================================
       let lastAttendanceCheck =
@@ -928,7 +767,6 @@
           loadTodayStatus(),
           loadMonthlyHours(),
           loadAttendanceData(),
-          loadRecentActivity(),
         ]);
       }
 
