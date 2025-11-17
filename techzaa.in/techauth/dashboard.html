@@ -430,6 +430,13 @@
             const dates = allData.records.map(r => r.fields.Date).filter(d => d);
             console.log('All attendance dates found:', dates);
             console.log('Most recent 5 dates:', dates.slice(-5));
+
+            // DIAGNOSTIC: Show all field names from a sample record
+            if (allData.records[0]) {
+              console.log('=== ATTENDANCE FIELD NAMES (for debugging) ===');
+              console.log('Available fields in Attendance table:', Object.keys(allData.records[0].fields));
+              console.log('Sample record data:', allData.records[0].fields);
+            }
           }
 
           // Now look for today's specific record
@@ -595,6 +602,13 @@
 
           const data = await getMedicalClaims(filterFormula);
           console.log('Medical claims data received:', data);
+
+          // DIAGNOSTIC: Show all field names from a sample record
+          if (data.records && data.records.length > 0 && data.records[0]) {
+            console.log('=== MEDICAL CLAIMS FIELD NAMES (for debugging) ===');
+            console.log('Available fields in MedicalClaims table:', Object.keys(data.records[0].fields));
+            console.log('Sample record data:', data.records[0].fields);
+          }
 
           // Count pending claims
           const pendingClaims = (data.records || []).filter((record) => {
