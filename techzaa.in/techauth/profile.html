@@ -998,26 +998,11 @@
 
             showNotification("Profile updated successfully!", "success");
 
-            // Reload employee data and repopulate the form
-            const data = await getEmployee(currentUser.id);
-            employeeData = data.fields;
-
-            console.log('DEBUG: After save, employeeData:', employeeData);
-            console.log('DEBUG: Full Name from Airtable:', employeeData['Full Name']);
-
-            // Repopulate the form with fresh data from Airtable
-            populateProfile();
-
-            // Verify the input values after populateProfile()
-            console.log('DEBUG: After populateProfile(), fullName input value:', document.getElementById("fullName").value);
-            console.log('DEBUG: After populateProfile(), phoneNumber input value:', document.getElementById("phoneNumber").value);
-
-            // Exit edit mode to show the saved values
+            // Exit edit mode first
             toggleEditProfile();
 
-            // Verify the input values are still there after toggleEditProfile()
-            console.log('DEBUG: After toggleEditProfile(), fullName input value:', document.getElementById("fullName").value);
-            console.log('DEBUG: After toggleEditProfile(), readonly attribute:', document.getElementById("fullName").hasAttribute('readonly'));
+            // Reload employee data from Airtable
+            await loadEmployeeData();
           } catch (error) {
             console.error("Error updating profile:", error);
             // More detailed error message

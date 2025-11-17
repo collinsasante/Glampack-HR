@@ -110,7 +110,14 @@
             id="tab-employees"
             class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active"
           >
-            <i class="fas fa-users mr-2"></i> Employee Management
+            <i class="fas fa-users mr-2"></i> Employees
+          </button>
+          <button
+            onclick="switchTab('medical')"
+            id="tab-medical"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
+          >
+            <i class="fas fa-notes-medical mr-2"></i> Medical Claims
           </button>
           <button
             onclick="switchTab('leave')"
@@ -124,7 +131,7 @@
             id="tab-attendance"
             class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
           >
-            <i class="fas fa-clock mr-2"></i> Attendance Records
+            <i class="fas fa-clock mr-2"></i> Attendance
           </button>
           <button
             onclick="switchTab('announcements')"
@@ -138,7 +145,7 @@
             id="tab-payroll"
             class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
           >
-            <i class="fas fa-money-check-alt mr-2"></i> Payroll Management
+            <i class="fas fa-money-check-alt mr-2"></i> Payroll
           </button>
         </div>
       </div>
@@ -233,6 +240,23 @@
                 </tr>
               </tbody>
             </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Medical Claims Tab -->
+      <div id="content-medical" class="tab-content hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+          <h3 class="text-xl font-bold text-gray-800 mb-4">Medical Claims Management</h3>
+          <p class="text-gray-600 mb-6">View and approve employee medical expense claims</p>
+
+          <!-- Iframe to load medical claims page -->
+          <div class="border rounded-lg overflow-hidden" style="height: calc(100vh - 350px); min-height: 600px;">
+            <iframe
+              src="admin-medical-claims.html"
+              class="w-full h-full border-0"
+              title="Medical Claims Management"
+            ></iframe>
           </div>
         </div>
       </div>
