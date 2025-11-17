@@ -54,26 +54,28 @@
   <body class="bg-gray-100 min-h-screen">
     <!-- Navigation Bar -->
     <nav class="bg-white shadow-lg">
-      <div class="flex items-center space-x-3">
-        <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
-      </div>
-      
+      <div class="flex justify-between items-center px-6 py-3">
+        <!-- Logo -->
+        <div class="flex items-center space-x-3">
+          <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+        </div>
 
-          <!-- Admin Menu -->
-          <div class="flex items-center space-x-4">
-            <a href="admin-dashboard.html" class="text-red-600 font-semibold">
-              <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
-            </a>
-            <a
-              href="admin-medical-claims.html"
-              class="text-gray-600 hover:text-red-600"
-            >
-              <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-            </a>
-            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-              <i class="fas fa-sign-out-alt mr-1"></i> Logout
-            </button>
-          </div>
+        <!-- Admin Menu -->
+        <div class="flex items-center space-x-4">
+          <a href="admin-dashboard.html" class="text-red-600 font-semibold">
+            <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
+          </a>
+
+          <a
+            href="admin-medical-claims.html"
+            class="text-gray-600 hover:text-red-600"
+          >
+            <i class="fas fa-notes-medical mr-1"></i> Medical Claims
+          </a>
+
+          <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+          </button>
         </div>
       </div>
     </nav>
