@@ -30,6 +30,13 @@
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+
     <!-- Configuration Script - Load FIRST -->
     <script src="config-worker.js?v=2"></script>
     <!-- Authentication Script -->
@@ -218,6 +225,11 @@
     </div>
 
     <script>
+      // Initialize Firebase on page load
+      window.addEventListener('load', function() {
+        setTimeout(initializeFirebase, 100);
+      });
+
       // Toggle password visibility
       function togglePasswordVisibility(inputId, iconId) {
         const input = document.getElementById(inputId);
@@ -243,23 +255,156 @@
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("pwd").value.trim();
 
-          const success = await login(email, password);
+          const submitBtn = e.target.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Signing In...';
 
-          if (success) {
-            // Get the logged-in user's actual role from Airtable
-            const currentUser = getCurrentUser();
+          try {
+            // Step 1: Sign in with Firebase to check email verification
+            if (!auth) {
+              initializeFirebase();
+            }
 
-            showSuccess("Login successful! Redirecting...");
-            setTimeout(() => {
-              // Redirect based on role from Airtable
-              if (currentUser.role === "Admin") {
-                window.location.href = "admin-dashboard.html";
-              } else {
-                window.location.href = "dashboard.html";
+            if (!auth) {
+              throw new Error('Authentication service not initialized');
+            }
+
+            // Attempt Firebase sign-in
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            const firebaseUser = userCredential.user;
+
+            // Step 2: Check if email is verified
+            if (!firebaseUser.emailVerified) {
+              // Sign out from Firebase
+              await auth.signOut();
+
+              // Show error with option to resend verification
+              showEmailVerificationError(email);
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = 'Sign In';
+              return;
+            }
+
+            // Step 3: Sign in with Airtable (existing logic)
+            const success = await login(email, password);
+
+            if (success) {
+              // Get the logged-in user's actual role from Airtable
+              const currentUser = getCurrentUser();
+
+              showSuccess("Login successful! Redirecting...");
+              setTimeout(() => {
+                // Redirect based on role from Airtable
+                if (currentUser.role === "Admin") {
+                  window.location.href = "admin-dashboard.html";
+                } else {
+                  window.location.href = "dashboard.html";
+                }
+              }, 1000);
+            } else {
+              // Sign out from Firebase if Airtable login failed
+              await auth.signOut();
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = 'Sign In';
+            }
+          } catch (error) {
+            console.error('Login error:', error);
+
+            // Handle specific Firebase errors
+            let errorMessage = 'Login failed. Please try again.';
+            if (error.code) {
+              switch (error.code) {
+                case 'auth/user-not-found':
+                  errorMessage = 'No account found with this email. Please sign up.';
+                  break;
+                case 'auth/wrong-password':
+                  errorMessage = 'Invalid email or password.';
+                  break;
+                case 'auth/invalid-email':
+                  errorMessage = 'Invalid email address.';
+                  break;
+                case 'auth/user-disabled':
+                  errorMessage = 'This account has been disabled. Please contact support.';
+                  break;
+                case 'auth/too-many-requests':
+                  errorMessage = 'Too many failed login attempts. Please try again later.';
+                  break;
+                default:
+                  errorMessage = error.message || errorMessage;
               }
-            }, 1000);
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+
+            showError(errorMessage);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Sign In';
           }
         });
+
+      // Show email verification error with resend option
+      function showEmailVerificationError(email) {
+        const errorDiv = document.createElement('div');
+        errorDiv.id = 'error-message';
+        errorDiv.className = 'bg-yellow-100 border border-yellow-400 text-yellow-900 px-4 py-3 rounded-lg mb-4';
+        errorDiv.innerHTML = `
+          <div class="space-y-2">
+            <div class="flex items-center">
+              <i class="fas fa-exclamation-triangle mr-2"></i>
+              <span class="font-semibold">Email Not Verified</span>
+            </div>
+            <p class="text-sm">Please verify your email address before signing in. Check your inbox for the verification email.</p>
+            <button onclick="resendVerificationEmail('${email}')" class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition-colors">
+              <i class="fas fa-envelope mr-1"></i> Resend Verification Email
+            </button>
+          </div>
+        `;
+
+        const existingError = document.getElementById('error-message');
+        if (existingError) existingError.remove();
+
+        const form = document.querySelector('.space-y-5');
+        if (form) {
+          form.parentNode.insertBefore(errorDiv, form);
+        }
+      }
+
+      // Resend verification email
+      async function resendVerificationEmail(email) {
+        try {
+          if (!auth) {
+            initializeFirebase();
+          }
+
+          // Get current user (might still be signed in)
+          let firebaseUser = auth.currentUser;
+
+          // If not signed in, need to sign in temporarily
+          if (!firebaseUser) {
+            const password = document.getElementById("pwd").value.trim();
+            if (!password) {
+              showError('Please enter your password and try again.');
+              return;
+            }
+            const userCredential = await auth.signInWithEmailAndPassword(email, password);
+            firebaseUser = userCredential.user;
+          }
+
+          // Send verification email
+          await firebaseUser.sendEmailVerification({
+            url: `${window.location.origin}${window.location.pathname}`,
+            handleCodeInApp: false
+          });
+
+          // Sign out
+          await auth.signOut();
+
+          showSuccess('Verification email sent! Please check your inbox.');
+        } catch (error) {
+          console.error('Resend verification error:', error);
+          showError('Failed to resend verification email. Please try again.');
+        }
+      }
 
       // Check if already logged in
       if (isLoggedIn()) {

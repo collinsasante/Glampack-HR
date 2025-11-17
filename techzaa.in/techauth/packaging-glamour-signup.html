@@ -30,6 +30,13 @@
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+
+    <!-- Firebase Configuration -->
+    <script src="firebase-config.js"></script>
+
     <!-- Configuration Script - Load FIRST -->
     <script src="config-worker.js?v=2"></script>
     <!-- Authentication Script -->
@@ -303,6 +310,11 @@
     </div>
 
     <script>
+      // Initialize Firebase on page load
+      window.addEventListener('load', function() {
+        setTimeout(initializeFirebase, 100);
+      });
+
       // Toggle password visibility
       function togglePasswordVisibility(inputId, iconId) {
         const input = document.getElementById(inputId);
@@ -391,22 +403,90 @@
             return;
           }
 
-          const success = await signup(
-            fullName,
-            email,
-            status,
-            password,
-            selectedRole
-          );
+          // Get submit button
+          const submitBtn = e.target.querySelector('button[type="submit"]');
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Creating Account...';
 
-          if (success) {
-            showSuccess(
-              "Account created successfully! Redirecting..."
+          try {
+            // Step 1: Create Firebase user account for authentication
+            if (!auth) {
+              initializeFirebase();
+            }
+
+            if (!auth) {
+              throw new Error('Authentication service not initialized');
+            }
+
+            // Create user in Firebase
+            const userCredential = await auth.createUserWithEmailAndPassword(email, password);
+            const firebaseUser = userCredential.user;
+
+            // Step 2: Send email verification
+            await firebaseUser.sendEmailVerification({
+              url: `${window.location.origin}${window.location.pathname.replace('packaging-glamour-signup.html', 'packaging-glamour-signin.html')}`,
+              handleCodeInApp: false
+            });
+
+            // Step 3: Create user record in Airtable
+            const success = await signup(
+              fullName,
+              email,
+              status,
+              password,
+              selectedRole
             );
-            setTimeout(() => {
-              // New signups always go to employee dashboard
-              window.location.href = "dashboard.html";
-            }, 1500);
+
+            if (success) {
+              // Show success message with email verification notice
+              showSuccess(
+                "Account created successfully! Please check your email to verify your account before signing in."
+              );
+
+              // Sign out from Firebase (they need to verify email first)
+              await auth.signOut();
+
+              // Clear session storage (created by signup function)
+              sessionStorage.removeItem('currentUser');
+
+              // Redirect to sign-in page after 4 seconds
+              setTimeout(() => {
+                window.location.href = "packaging-glamour-signin.html";
+              }, 4000);
+            } else {
+              // If Airtable creation failed, delete Firebase user
+              await firebaseUser.delete();
+              throw new Error('Failed to create account in database');
+            }
+          } catch (error) {
+            console.error('Signup error:', error);
+
+            // Handle specific Firebase errors
+            let errorMessage = 'Signup failed. Please try again.';
+            if (error.code) {
+              switch (error.code) {
+                case 'auth/email-already-in-use':
+                  errorMessage = 'An account with this email already exists. Please sign in.';
+                  break;
+                case 'auth/invalid-email':
+                  errorMessage = 'Invalid email address.';
+                  break;
+                case 'auth/operation-not-allowed':
+                  errorMessage = 'Email/password accounts are not enabled. Please contact support.';
+                  break;
+                case 'auth/weak-password':
+                  errorMessage = 'Password is too weak. Please use a stronger password.';
+                  break;
+                default:
+                  errorMessage = error.message || errorMessage;
+              }
+            } else if (error.message) {
+              errorMessage = error.message;
+            }
+
+            showError(errorMessage);
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = 'Create Account';
           }
         });
 
