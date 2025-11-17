@@ -326,21 +326,35 @@
       async function loadTodayStatus() {
         try {
           const today = new Date().toISOString().split("T")[0];
-          const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
 
-          console.log('Loading today status for:', currentUser.name, 'Date:', today);
+          console.log('=== LOAD TODAY STATUS ===');
+          console.log('Looking for date:', today);
           console.log('Employee ID:', currentUser.id);
-          console.log('Filter formula:', filterFormula);
+          console.log('Employee Name:', currentUser.name);
+
+          // First, get ALL attendance records for this employee to see what dates exist
+          const allRecordsFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
+          const allData = await getAttendance(allRecordsFormula);
+
+          console.log('Total attendance records for this employee:', allData.records?.length || 0);
+          if (allData.records && allData.records.length > 0) {
+            const dates = allData.records.map(r => r.fields.Date).filter(d => d);
+            console.log('All attendance dates found:', dates);
+            console.log('Most recent 5 dates:', dates.slice(-5));
+          }
+
+          // Now look for today's specific record
+          const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
           const data = await getAttendance(filterFormula);
-          console.log('Attendance records found:', data.records?.length || 0);
-          console.log('Full response:', data);
+
+          console.log('Records for today:', data.records?.length || 0);
 
           if (data.records && data.records.length > 0) {
             const record = data.records[0];
             const checkIn = record.fields["Check In"];
             const checkOut = record.fields["Check Out"];
 
-            console.log('Check In:', checkIn, 'Check Out:', checkOut);
+            console.log('Today record - Check In:', checkIn, 'Check Out:', checkOut);
 
             if (checkOut) {
               document.getElementById("todayStatus").textContent =
@@ -358,6 +372,7 @@
                 "No record today";
             }
           } else {
+            console.log('No attendance record found for today. Please check in at attendance-tracker.html');
             document.getElementById("todayStatus").textContent =
               "Not Checked In";
             document.getElementById("checkInTime").textContent =
