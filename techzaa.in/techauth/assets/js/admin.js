@@ -140,10 +140,16 @@ async function loadEmployees() {
 function displayEmployees(employees) {
     const tbody = document.getElementById('employeesTableBody');
 
+    // Update total employee count
+    const totalCountElement = document.getElementById('totalEmployeesCount');
+    if (totalCountElement) {
+        totalCountElement.textContent = employees.length;
+    }
+
     if (employees.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="5" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
                     No employees found
                 </td>
             </tr>
@@ -170,14 +176,16 @@ function displayEmployees(employees) {
             <tr class="hover:bg-gray-50">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">${fields['Full Name'] || '--'}</div>
+                    <div class="text-xs text-gray-500">${fields['Email'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Email'] || '--'}</div>
+                    <div class="text-sm text-gray-900">${fields['Job Title'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColors[fields['Status']] || 'bg-gray-100 text-gray-800'}">
-                        ${fields['Status'] || '--'}
-                    </span>
+                    <div class="text-sm text-gray-900">${fields['Department'] || '--'}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">${fields['Employment Type'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${roleColors[fields['Role']] || 'bg-gray-100 text-gray-800'}">
@@ -185,11 +193,14 @@ function displayEmployees(employees) {
                     </span>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                    <button onclick='editEmployee(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-edit"></i> Edit
+                    <button onclick='viewEmployeeDetails(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-900" title="View Full Profile">
+                        <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick="deleteEmployeeHandler('${emp.id}', '${fields['Full Name']}')" class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-trash"></i> Delete
+                    <button onclick='editEmployee(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900" title="Edit">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button onclick="deleteEmployeeHandler('${emp.id}', '${fields['Full Name']}')" class="text-red-600 hover:text-red-900" title="Delete">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </td>
             </tr>
@@ -247,6 +258,13 @@ function editEmployee(employee) {
     document.getElementById('empStatus').value = employee.fields['Status'] || '';
     document.getElementById('empRole').value = employee.fields['Role'] || 'Employee';
 
+    // Populate employment details
+    document.getElementById('empJobTitle').value = employee.fields['Job Title'] || '';
+    document.getElementById('empDepartment').value = employee.fields['Department'] || '';
+    document.getElementById('empEmploymentType').value = employee.fields['Employment Type'] || '';
+    document.getElementById('empJoiningDate').value = employee.fields['Joining Date'] || '';
+    document.getElementById('empSalary').value = employee.fields['Salary'] || '';
+
     // Hide password fields when editing (don't allow changing password from here)
     const passwordFields = document.querySelectorAll('#empPassword, #empConfirmPassword');
     passwordFields.forEach(field => {
@@ -259,6 +277,218 @@ function editEmployee(employee) {
 
 function closeEmployeeModal() {
     document.getElementById('employeeModal').classList.remove('active');
+}
+
+// View full employee details in a modal
+function viewEmployeeDetails(employee) {
+    const fields = employee.fields;
+
+    // Create modal HTML
+    const modalHTML = `
+        <div id="viewEmployeeModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+                <!-- Header -->
+                <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-t-2xl">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <h2 class="text-2xl font-bold">${fields['Full Name'] || 'N/A'}</h2>
+                            <p class="text-red-100 mt-1">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
+                        </div>
+                        <button onclick="closeViewEmployeeModal()" class="text-white hover:text-red-100 transition-colors">
+                            <i class="fas fa-times text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="p-6 space-y-6">
+                    <!-- Personal Information -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-user mr-2 text-red-600"></i>
+                            Personal Information
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-600">Full Name</p>
+                                <p class="font-medium text-gray-900">${fields['Full Name'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Email</p>
+                                <p class="font-medium text-gray-900">${fields['Email'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Phone Number</p>
+                                <p class="font-medium text-gray-900">${fields['Phone Number'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Date of Birth</p>
+                                <p class="font-medium text-gray-900">${fields['Date of Birth'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Ghana Card Number</p>
+                                <p class="font-medium text-gray-900">${fields['Ghana Card Number'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Address</p>
+                                <p class="font-medium text-gray-900">${fields['Address'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">City</p>
+                                <p class="font-medium text-gray-900">${fields['City'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Country</p>
+                                <p class="font-medium text-gray-900">${fields['Country'] || '--'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Employment Details -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-briefcase mr-2 text-red-600"></i>
+                            Employment Details
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-600">Job Title</p>
+                                <p class="font-medium text-gray-900">${fields['Job Title'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Department</p>
+                                <p class="font-medium text-gray-900">${fields['Department'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Employment Type</p>
+                                <p class="font-medium text-gray-900">${fields['Employment Type'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Status</p>
+                                <p class="font-medium text-gray-900">${fields['Status'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Role</p>
+                                <p class="font-medium text-gray-900">${fields['Role'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Joining Date</p>
+                                <p class="font-medium text-gray-900">${fields['Joining Date'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Monthly Salary</p>
+                                <p class="font-medium text-gray-900">${fields['Salary'] ? 'GH₵ ' + parseFloat(fields['Salary']).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '--'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bank Details -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-university mr-2 text-red-600"></i>
+                            Bank Details
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-600">Bank Name</p>
+                                <p class="font-medium text-gray-900">${fields['Bank Name'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Account Number</p>
+                                <p class="font-medium text-gray-900">${fields['Bank Account Number'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Bank Branch</p>
+                                <p class="font-medium text-gray-900">${fields['Bank Branch'] || '--'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Leave Balances -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-calendar-check mr-2 text-red-600"></i>
+                            Leave Balances
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-600">Annual Leave Balance</p>
+                                <p class="font-medium text-gray-900">${fields['Annual Leave Balance'] !== undefined ? fields['Annual Leave Balance'] + ' days' : '20 days'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Sick Leave Balance</p>
+                                <p class="font-medium text-gray-900">${fields['Sick Leave Balance'] !== undefined ? fields['Sick Leave Balance'] + ' days' : '10 days'}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contacts -->
+                    ${fields['Emergency Contact Name'] || fields['Emergency Contact Phone'] ? `
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
+                            <i class="fas fa-phone-alt mr-2 text-red-600"></i>
+                            Emergency Contacts
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                            <div>
+                                <p class="text-sm text-gray-600">Primary Contact Name</p>
+                                <p class="font-medium text-gray-900">${fields['Emergency Contact Name'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Primary Contact Phone</p>
+                                <p class="font-medium text-gray-900">${fields['Emergency Contact Phone'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Primary Contact Relationship</p>
+                                <p class="font-medium text-gray-900">${fields['Emergency Contact Relationship'] || '--'}</p>
+                            </div>
+                            ${fields['Secondary Contact Name'] ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Secondary Contact Name</p>
+                                <p class="font-medium text-gray-900">${fields['Secondary Contact Name'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Secondary Contact Phone</p>
+                                <p class="font-medium text-gray-900">${fields['Secondary Contact Phone'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Secondary Contact Relationship</p>
+                                <p class="font-medium text-gray-900">${fields['Secondary Contact Relationship'] || '--'}</p>
+                            </div>
+                            ` : ''}
+                        </div>
+                    </div>
+                    ` : ''}
+                </div>
+
+                <!-- Footer -->
+                <div class="bg-gray-50 px-6 py-4 rounded-b-2xl flex justify-end space-x-3">
+                    <button onclick="closeViewEmployeeModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
+                        Close
+                    </button>
+                    <button onclick="closeViewEmployeeModal(); editEmployee(${JSON.stringify(employee).replace(/'/g, "&#39;")})" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                        <i class="fas fa-edit mr-2"></i>Edit Employee
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    // Remove existing modal if any
+    const existingModal = document.getElementById('viewEmployeeModal');
+    if (existingModal) {
+        existingModal.remove();
+    }
+
+    // Add modal to body
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function closeViewEmployeeModal() {
+    const modal = document.getElementById('viewEmployeeModal');
+    if (modal) {
+        modal.remove();
+    }
 }
 
 document.getElementById('employeeForm').addEventListener('submit', async function(e) {
@@ -313,6 +543,29 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         'Annual Leave Balance': 20,
         'Sick Leave Balance': 10
     };
+
+    // Add employment details if provided
+    const jobTitleEl = document.getElementById('empJobTitle');
+    const departmentEl = document.getElementById('empDepartment');
+    const employmentTypeEl = document.getElementById('empEmploymentType');
+    const joiningDateEl = document.getElementById('empJoiningDate');
+    const salaryEl = document.getElementById('empSalary');
+
+    if (jobTitleEl && jobTitleEl.value) {
+        data['Job Title'] = jobTitleEl.value;
+    }
+    if (departmentEl && departmentEl.value) {
+        data['Department'] = departmentEl.value;
+    }
+    if (employmentTypeEl && employmentTypeEl.value) {
+        data['Employment Type'] = employmentTypeEl.value;
+    }
+    if (joiningDateEl && joiningDateEl.value) {
+        data['Joining Date'] = joiningDateEl.value;
+    }
+    if (salaryEl && salaryEl.value) {
+        data['Salary'] = parseFloat(salaryEl.value);
+    }
 
     try {
         if (employeeId) {
