@@ -66,13 +66,6 @@
             <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
           </a>
 
-          <a
-            href="admin-medical-claims.html"
-            class="text-gray-600 hover:text-red-600"
-          >
-            <i class="fas fa-notes-medical mr-1"></i> Medical Claims
-          </a>
-
           <button onclick="logout()" class="text-gray-600 hover:text-red-600">
             <i class="fas fa-sign-out-alt mr-1"></i> Logout
           </button>
@@ -124,7 +117,7 @@
             id="tab-leave"
             class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50"
           >
-            <i class="fas fa-calendar-check mr-2"></i> Leave Approvals
+            <i class="fas fa-calendar-check mr-2"></i> Leave Management
           </button>
           <button
             onclick="switchTab('attendance')"
@@ -265,8 +258,24 @@
       <div id="content-leave" class="tab-content hidden">
         <div class="bg-white rounded-lg shadow-lg p-6">
           <h3 class="text-xl font-bold text-gray-800 mb-6">
-            Pending Leave Requests
+            Leave Management
           </h3>
+
+          <!-- Filter Tabs for Leave Status -->
+          <div class="mb-6 flex space-x-2">
+            <button onclick="filterLeaveRequests('all')" id="leaveFilterAll" class="px-4 py-2 bg-red-600 text-white rounded-lg font-semibold">
+              All Leave
+            </button>
+            <button onclick="filterLeaveRequests('pending')" id="leaveFilterPending" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300">
+              Pending
+            </button>
+            <button onclick="filterLeaveRequests('approved')" id="leaveFilterApproved" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300">
+              Approved
+            </button>
+            <button onclick="filterLeaveRequests('rejected')" id="leaveFilterRejected" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300">
+              Rejected
+            </button>
+          </div>
 
           <!-- Leave Requests Table -->
           <div class="overflow-x-auto">

@@ -199,6 +199,9 @@ function displayEmployees(employees) {
                     <button onclick='editEmployee(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900" title="Edit">
                         <i class="fas fa-edit"></i>
                     </button>
+                    <button onclick="toggleEmployeeStatus('${emp.id}', '${fields['Full Name']}', '${fields['Account Status'] || 'Active'}')" class="${fields['Account Status'] === 'Inactive' ? 'text-green-600 hover:text-green-900' : 'text-orange-600 hover:text-orange-900'}" title="${fields['Account Status'] === 'Inactive' ? 'Activate Account' : 'Deactivate Account'}">
+                        <i class="fas fa-${fields['Account Status'] === 'Inactive' ? 'toggle-on' : 'toggle-off'}"></i>
+                    </button>
                     <button onclick="deleteEmployeeHandler('${emp.id}', '${fields['Full Name']}')" class="text-red-600 hover:text-red-900" title="Delete">
                         <i class="fas fa-trash"></i>
                     </button>
@@ -602,13 +605,36 @@ async function deleteEmployeeHandler(employeeId, employeeName) {
     }
 }
 
+async function toggleEmployeeStatus(employeeId, employeeName, currentStatus) {
+    const newStatus = currentStatus === 'Inactive' ? 'Active' : 'Inactive';
+    const action = newStatus === 'Active' ? 'activate' : 'deactivate';
+
+    if (!confirm(`Are you sure you want to ${action} ${employeeName}'s account?`)) {
+        return;
+    }
+
+    try {
+        await updateEmployee(employeeId, {
+            'Account Status': newStatus
+        });
+
+        alert(`Employee account ${action}d successfully!${newStatus === 'Inactive' ? ' They will not be able to log in.' : ' They can now log in.'}`);
+        loadEmployees();
+    } catch (error) {
+        console.error('Error toggling employee status:', error);
+        alert('Error updating employee status. Please try again.');
+    }
+}
+
 // ========================================
 // LEAVE APPROVALS
 // ========================================
+let currentLeaveFilter = 'all';
+
 async function loadLeaveRequests() {
     try {
-        const filterFormula = "{Status}='Pending'";
-        const data = await getLeaveRequests(filterFormula);
+        // Load all leave requests (no filter)
+        const data = await getLeaveRequests();
         allLeaveRequests = data.records || [];
 
         // Sort by Start Date descending (client-side)
@@ -618,7 +644,8 @@ async function loadLeaveRequests() {
             return dateB - dateA;
         });
 
-        displayLeaveRequests(allLeaveRequests);
+        // Apply current filter
+        filterLeaveRequests(currentLeaveFilter);
     } catch (error) {
         console.error('Error loading leave requests:', error);
         document.getElementById('leaveRequestsBody').innerHTML = `
@@ -629,6 +656,39 @@ async function loadLeaveRequests() {
             </tr>
         `;
     }
+}
+
+function filterLeaveRequests(status) {
+    currentLeaveFilter = status;
+
+    // Update button states
+    document.getElementById('leaveFilterAll').className = status === 'all'
+        ? 'px-4 py-2 bg-red-600 text-white rounded-lg font-semibold'
+        : 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300';
+    document.getElementById('leaveFilterPending').className = status === 'pending'
+        ? 'px-4 py-2 bg-red-600 text-white rounded-lg font-semibold'
+        : 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300';
+    document.getElementById('leaveFilterApproved').className = status === 'approved'
+        ? 'px-4 py-2 bg-red-600 text-white rounded-lg font-semibold'
+        : 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300';
+    document.getElementById('leaveFilterRejected').className = status === 'rejected'
+        ? 'px-4 py-2 bg-red-600 text-white rounded-lg font-semibold'
+        : 'px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-semibold hover:bg-gray-300';
+
+    // Filter requests
+    let filteredRequests = allLeaveRequests;
+    if (status !== 'all') {
+        const statusMap = {
+            'pending': 'Pending',
+            'approved': 'Approved',
+            'rejected': 'Rejected'
+        };
+        filteredRequests = allLeaveRequests.filter(req =>
+            req.fields['Status'] === statusMap[status]
+        );
+    }
+
+    displayLeaveRequests(filteredRequests);
 }
 
 async function displayLeaveRequests(requests) {
@@ -1365,9 +1425,9 @@ async function generatePayrollReport() {
 
             return [
                 employeeName,
-                `$${(fields['Gross Salary'] || 0).toFixed(2)}`,
-                `$${(fields['Total Deductions'] || 0).toFixed(2)}`,
-                `$${(fields['Net Salary'] || 0).toFixed(2)}`,
+                `GH₵${(fields['Gross Salary'] || 0).toFixed(2)}`,
+                `GH₵${(fields['Total Deductions'] || 0).toFixed(2)}`,
+                `GH₵${(fields['Net Salary'] || 0).toFixed(2)}`,
                 fields['Status'] || '--'
             ];
         }));
@@ -1379,9 +1439,9 @@ async function generatePayrollReport() {
 
         tableData.push([
             { content: 'TOTAL', styles: { fontStyle: 'bold' } },
-            { content: `$${totalGross.toFixed(2)}`, styles: { fontStyle: 'bold' } },
-            { content: `$${totalDeductions.toFixed(2)}`, styles: { fontStyle: 'bold' } },
-            { content: `$${totalNet.toFixed(2)}`, styles: { fontStyle: 'bold' } },
+            { content: `GH₵${totalGross.toFixed(2)}`, styles: { fontStyle: 'bold' } },
+            { content: `GH₵${totalDeductions.toFixed(2)}`, styles: { fontStyle: 'bold' } },
+            { content: `GH₵${totalNet.toFixed(2)}`, styles: { fontStyle: 'bold' } },
             ''
         ]);
 
@@ -1632,10 +1692,10 @@ function calculateNetSalary() {
     const netSalary = grossSalary - totalDeductions;
 
     // Update displays
-    document.getElementById('totalAllowancesDisplay').textContent = `$${totalAllowances.toFixed(2)}`;
-    document.getElementById('totalDeductionsDisplay').textContent = `$${totalDeductions.toFixed(2)}`;
-    document.getElementById('grossSalaryDisplay').textContent = `$${grossSalary.toFixed(2)}`;
-    document.getElementById('netSalaryDisplay').textContent = `$${netSalary.toFixed(2)}`;
+    document.getElementById('totalAllowancesDisplay').textContent = `GH₵${totalAllowances.toFixed(2)}`;
+    document.getElementById('totalDeductionsDisplay').textContent = `GH₵${totalDeductions.toFixed(2)}`;
+    document.getElementById('grossSalaryDisplay').textContent = `GH₵${grossSalary.toFixed(2)}`;
+    document.getElementById('netSalaryDisplay').textContent = `GH₵${netSalary.toFixed(2)}`;
 }
 
 // Custom Allowances Management
@@ -1685,7 +1745,7 @@ function updateCustomAllowancesList() {
 
     container.innerHTML = customAllowances.map((item, index) => `
         <div class="flex justify-between items-center p-2 bg-green-50 rounded border border-green-200">
-            <span class="text-sm">${item.name}: <strong>$${parseFloat(item.amount).toFixed(2)}</strong></span>
+            <span class="text-sm">${item.name}: <strong>GH₵${parseFloat(item.amount).toFixed(2)}</strong></span>
             <button onclick="removeCustomAllowance(${index})" class="text-red-600 hover:text-red-800 text-sm">
                 <i class="fas fa-times"></i>
             </button>
@@ -1770,7 +1830,7 @@ function updateCustomDeductionsList() {
     container.innerHTML = customDeductions.map((item, index) => `
         <div class="flex justify-between items-center p-2 bg-red-50 rounded border border-red-200">
             <div class="text-sm">
-                ${item.name}: <strong>$${parseFloat(item.amount).toFixed(2)}</strong>
+                ${item.name}: <strong>GH₵${parseFloat(item.amount).toFixed(2)}</strong>
                 ${item.recurring ? `<br><span class="text-xs text-gray-600">Recurring: ${item.monthsRemaining} of ${item.months} months remaining</span>` : ''}
             </div>
             <button onclick="removeCustomDeduction(${index})" class="text-red-600 hover:text-red-800 text-sm">

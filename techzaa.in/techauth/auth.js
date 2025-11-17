@@ -42,6 +42,14 @@ async function login(email, password) {
         // We only validate the user exists in Airtable and retrieve their profile
         // The packaging-glamour-signin.html page checks Firebase authentication first
 
+        // Check if account is active
+        const accountStatus = employee.fields['Account Status'];
+        if (accountStatus === 'Inactive') {
+            showError('Your account has been deactivated. Please contact your administrator.');
+            showLoading(false);
+            return false;
+        }
+
         // Store user session
         const userSession = {
             id: employee.id,
