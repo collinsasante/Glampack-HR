@@ -309,8 +309,11 @@
           const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
 
           console.log('Loading today status for:', currentUser.name, 'Date:', today);
+          console.log('Employee ID:', currentUser.id);
+          console.log('Filter formula:', filterFormula);
           const data = await getAttendance(filterFormula);
           console.log('Attendance records found:', data.records?.length || 0);
+          console.log('Full response:', data);
 
           if (data.records && data.records.length > 0) {
             const record = data.records[0];
