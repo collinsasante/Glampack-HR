@@ -915,20 +915,14 @@
 
             showNotification("Profile updated successfully!", "success");
 
-            // Reload employee data without toggling edit mode
+            // Reload employee data and repopulate the form
             const data = await getEmployee(currentUser.id);
             employeeData = data.fields;
 
-            // Update the display values while keeping the form populated
-            const name = employeeData["Full Name"] || "User";
-            const names = name.trim().split(/\s+/);
-            let initials = names[0][0].toUpperCase();
-            if (names.length > 1) {
-              initials += names[names.length - 1][0].toUpperCase();
-            }
-            document.getElementById("profileInitials").textContent = initials;
-            document.getElementById("sidebarName").textContent = name;
+            // Repopulate the form with fresh data from Airtable
+            populateProfile();
 
+            // Exit edit mode to show the saved values
             toggleEditProfile();
           } catch (error) {
             console.error("Error updating profile:", error);
