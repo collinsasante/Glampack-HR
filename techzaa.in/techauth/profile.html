@@ -709,16 +709,26 @@
       // Load and populate emergency contact from separate table
       async function loadEmergencyContact() {
         try {
-          // Search for emergency contact linked to this employee by name
-          const filterFormula = `{Emergency Contact Name} = '${currentUser.name}'`;
-          const data = await getEmergencyContacts(filterFormula);
+          // Get all emergency contacts and filter in JavaScript
+          const data = await getEmergencyContacts();
 
-          if (data.records && data.records.length > 0) {
-            emergencyContactRecord = data.records[0];
+          // Filter for this employee's emergency contact
+          const myContacts = (data.records || []).filter((record) => {
+            const employees = record.fields.Employee || record.fields.employee || [];
+            if (Array.isArray(employees)) {
+              return employees.includes(currentUser.id);
+            } else if (typeof employees === "string") {
+              return employees === currentUser.id;
+            }
+            return false;
+          });
+
+          if (myContacts.length > 0) {
+            emergencyContactRecord = myContacts[0];
             const fields = emergencyContactRecord.fields;
 
             document.getElementById("emergencyContactName").value =
-              fields["Emergency Contact Name"] || "";
+              fields["Name"] || fields["Emergency Contact Name"] || fields["Contact Name"] || "";
             document.getElementById("emergencyRelationship").value =
               fields["Relationship"] || "";
             document.getElementById("emergencyPhone").value =
@@ -904,8 +914,22 @@
             }
 
             showNotification("Profile updated successfully!", "success");
+
+            // Reload employee data without toggling edit mode
+            const data = await getEmployee(currentUser.id);
+            employeeData = data.fields;
+
+            // Update the display values while keeping the form populated
+            const name = employeeData["Full Name"] || "User";
+            const names = name.trim().split(/\s+/);
+            let initials = names[0][0].toUpperCase();
+            if (names.length > 1) {
+              initials += names[names.length - 1][0].toUpperCase();
+            }
+            document.getElementById("profileInitials").textContent = initials;
+            document.getElementById("sidebarName").textContent = name;
+
             toggleEditProfile();
-            await loadEmployeeData();
           } catch (error) {
             console.error("Error updating profile:", error);
             // More detailed error message
@@ -970,7 +994,7 @@
           try {
             // Build emergency contact data with correct field names
             const emergencyData = {
-              "Emergency Contact Name": document
+              Name: document
                 .getElementById("emergencyContactName")
                 .value.trim(),
               Relationship: document.getElementById("emergencyRelationship")
