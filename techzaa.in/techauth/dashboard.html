@@ -308,12 +308,16 @@
           const today = new Date().toISOString().split("T")[0];
           const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
 
+          console.log('Loading today status for:', currentUser.name, 'Date:', today);
           const data = await getAttendance(filterFormula);
+          console.log('Attendance records found:', data.records?.length || 0);
 
-          if (data.records.length > 0) {
+          if (data.records && data.records.length > 0) {
             const record = data.records[0];
             const checkIn = record.fields["Check In"];
             const checkOut = record.fields["Check Out"];
+
+            console.log('Check In:', checkIn, 'Check Out:', checkOut);
 
             if (checkOut) {
               document.getElementById("todayStatus").textContent =
@@ -324,6 +328,11 @@
               document.getElementById("todayStatus").textContent = "Checked In";
               document.getElementById("checkInTime").textContent =
                 `Since ${checkIn}`;
+            } else {
+              document.getElementById("todayStatus").textContent =
+                "Not Checked In";
+              document.getElementById("checkInTime").textContent =
+                "No record today";
             }
           } else {
             document.getElementById("todayStatus").textContent =
@@ -333,7 +342,9 @@
           }
         } catch (error) {
           console.error("Error loading today status:", error);
+          console.error("Error details:", error.message, error.stack);
           document.getElementById("todayStatus").textContent = "--";
+          document.getElementById("checkInTime").textContent = "Error loading status";
         }
       }
 
