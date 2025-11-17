@@ -8,6 +8,9 @@
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
+    <!-- Tailwind CSS CDN (Fallback) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
     <!-- Font Awesome -->
     <link
       rel="stylesheet"
@@ -16,6 +19,38 @@
 
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+      /* Ensure quick action colors are visible */
+      .quick-action-green {
+        background-color: #10b981 !important;
+        color: white !important;
+      }
+      .quick-action-green:hover {
+        background-color: #059669 !important;
+      }
+      .quick-action-blue {
+        background-color: #3b82f6 !important;
+        color: white !important;
+      }
+      .quick-action-blue:hover {
+        background-color: #2563eb !important;
+      }
+      .quick-action-purple {
+        background-color: #a855f7 !important;
+        color: white !important;
+      }
+      .quick-action-purple:hover {
+        background-color: #9333ea !important;
+      }
+      .quick-action-orange {
+        background-color: #f97316 !important;
+        color: white !important;
+      }
+      .quick-action-orange:hover {
+        background-color: #ea580c !important;
+      }
+    </style>
   </head>
   <body class="bg-gray-50">
     <!-- Navigation Header -->
@@ -221,28 +256,28 @@
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <a
             href="attendance-tracker.html"
-            class="flex flex-col items-center justify-center bg-green-500 hover:bg-green-600 text-white rounded-lg p-6 text-center transition-colors shadow-md"
+            class="quick-action-green flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
           >
             <i class="fas fa-sign-in-alt text-3xl mb-3 block"></i>
             <p class="font-semibold text-base">Check In/Out</p>
           </a>
           <a
             href="leave-request.html"
-            class="flex flex-col items-center justify-center bg-blue-500 hover:bg-blue-600 text-white rounded-lg p-6 text-center transition-colors shadow-md"
+            class="quick-action-blue flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
           >
             <i class="fas fa-calendar-plus text-3xl mb-3 block"></i>
             <p class="font-semibold text-base">Request Leave</p>
           </a>
           <a
             href="medical-claims.html"
-            class="flex flex-col items-center justify-center bg-purple-500 hover:bg-purple-600 text-white rounded-lg p-6 text-center transition-colors shadow-md"
+            class="quick-action-purple flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
           >
             <i class="fas fa-file-medical text-3xl mb-3 block"></i>
             <p class="font-semibold text-base">Medical Claim</p>
           </a>
           <a
             href="profile.html"
-            class="flex flex-col items-center justify-center bg-orange-500 hover:bg-orange-600 text-white rounded-lg p-6 text-center transition-colors shadow-md"
+            class="quick-action-orange flex flex-col items-center justify-center rounded-lg p-6 text-center transition-colors shadow-md"
           >
             <i class="fas fa-user-edit text-3xl mb-3 block"></i>
             <p class="font-semibold text-base">Update Profile</p>
@@ -373,6 +408,12 @@
       // ========================================
       async function loadTodayStatus() {
         try {
+          // Verify getAttendance function exists
+          if (typeof getAttendance === 'undefined') {
+            console.error('getAttendance function not found! Check if config-worker.js loaded properly.');
+            throw new Error('getAttendance function not defined');
+          }
+
           const today = new Date().toISOString().split("T")[0];
 
           console.log('=== LOAD TODAY STATUS ===');
@@ -542,9 +583,18 @@
       // ========================================
       async function loadMedicalClaimsCount() {
         try {
+          // Verify getMedicalClaims function exists
+          if (typeof getMedicalClaims === 'undefined') {
+            console.error('getMedicalClaims function not found! Check if config-worker.js loaded properly.');
+            throw new Error('getMedicalClaims function not defined');
+          }
+
           // Fetch medical claims for this employee
           const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
+          console.log('Loading medical claims with formula:', filterFormula);
+
           const data = await getMedicalClaims(filterFormula);
+          console.log('Medical claims data received:', data);
 
           // Count pending claims
           const pendingClaims = (data.records || []).filter((record) => {
@@ -552,10 +602,12 @@
             return status === 'Pending';
           });
 
+          console.log('Pending medical claims count:', pendingClaims.length);
           document.getElementById("medicalClaimsCount").textContent =
             pendingClaims.length;
         } catch (error) {
           console.error("Error loading medical claims count:", error);
+          console.error("Error details:", error.message, error.stack);
           document.getElementById("medicalClaimsCount").textContent = "0";
         }
       }
