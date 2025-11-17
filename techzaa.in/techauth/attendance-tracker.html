@@ -830,6 +830,12 @@
         const time = getCurrentTime();
         const datetime = getCurrentDateTime();
 
+        console.log('=== CHECK-IN DEBUG ===');
+        console.log('Employee ID:', EMPLOYEE_ID);
+        console.log('Employee Name:', currentUser.name);
+        console.log('Today Date:', today);
+        console.log('DateTime:', datetime);
+
         try {
           showMessage("Getting your location...", "info");
 
@@ -856,19 +862,26 @@
           }
 
           const existingRecord = await findTodayRecord();
+          console.log('Existing record found:', existingRecord);
 
           if (existingRecord) {
             // Update existing record
+            console.log('Updating existing record:', existingRecord.id);
             await updateRecord(existingRecord.id, fields);
             todayRecordId = existingRecord.id;
             setTodayRecordId(existingRecord.id);
           } else {
             // Create new record
-            const newRecord = await createRecord({
+            const recordData = {
               Date: today,
               Employee: [EMPLOYEE_ID],
               ...fields,
-            });
+            };
+            console.log('Creating new record with data:', recordData);
+            const newRecord = await createRecord(recordData);
+            console.log('New record created:', newRecord);
+            console.log('Record ID:', newRecord.id);
+            console.log('Record fields:', newRecord.fields);
             // Store the record ID for checkout in both memory and localStorage
             todayRecordId = newRecord.id;
             setTodayRecordId(newRecord.id);
@@ -967,16 +980,34 @@
       async function findTodayRecord() {
         const today = getTodayDate();
 
+        console.log('=== FIND TODAY RECORD DEBUG ===');
+        console.log('Looking for date:', today);
+        console.log('Employee ID:', EMPLOYEE_ID);
+
         // Get all records for this employee using Worker API
         const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+        console.log('Filter formula:', filterFormula);
+
         const data = await getAttendance(filterFormula);
+        console.log('Total records found for employee:', data.records?.length || 0);
+
+        if (data.records && data.records.length > 0) {
+          console.log('Sample record:', data.records[0]);
+          console.log('All record dates:', data.records.map(r => ({
+            id: r.id,
+            date: r.fields.Date,
+            employee: r.fields.Employee
+          })));
+        }
 
         // Filter in JavaScript to find today's record
         const todayRecord = data.records.find((record) => {
           const recordDate = record.fields.Date;
+          console.log(`Comparing: recordDate="${recordDate}" vs today="${today}"`);
           return recordDate === today;
         });
 
+        console.log('Today record found:', todayRecord ? todayRecord.id : 'null');
         return todayRecord || null;
       }
 
