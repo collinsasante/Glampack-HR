@@ -127,7 +127,7 @@
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <!-- Today's Status -->
         <div class="bg-white rounded-lg shadow-md p-6">
           <div class="flex items-center justify-between">
@@ -377,7 +377,6 @@
         await Promise.all([
           loadTodayStatus(),
           loadMonthlyHours(),
-          loadLeaveBalance(),
           loadPendingRequests(),
           loadMedicalClaimsCount(),
           loadAttendanceData(),
@@ -406,76 +405,44 @@
           console.log("Employee ID:", currentUser.id);
           console.log("Employee Name:", currentUser.name);
 
-          // First, get ALL attendance records (no filter) to see what exists
-          const allData = await getAttendance(); // No filter to see everything
+          // Fetch ALL attendance records (no filter) and filter in JavaScript
+          const allData = await getAttendance(); // No filter
 
           console.log(
             "Total attendance records in database:",
             allData.records?.length || 0
           );
-          if (allData.records && allData.records.length > 0) {
-            // DIAGNOSTIC: Show all field names from a sample record
-            if (allData.records[0]) {
-              console.log("=== ATTENDANCE FIELD NAMES (for debugging) ===");
-              console.log(
-                "Available fields in Attendance table:",
-                Object.keys(allData.records[0].fields)
-              );
-              console.log(
-                "Sample records (first 3):",
-                allData.records.slice(0, 3).map((r) => ({
-                  id: r.id,
-                  date: r.fields.Date,
-                  employee: r.fields.Employee,
-                  checkIn:
-                    r.fields["Check In"] ||
-                    r.fields["CheckIn"] ||
-                    r.fields["Check-In"],
-                  checkOut:
-                    r.fields["Check Out"] ||
-                    r.fields["CheckOut"] ||
-                    r.fields["Check-Out"],
-                }))
-              );
-            }
 
-            // Try to find records for this employee by checking all records
-            const myRecords = allData.records.filter((r) => {
-              const emp = r.fields.Employee;
-              console.log(
-                "Record employee field:",
-                emp,
-                "Type:",
-                typeof emp,
-                "Is Array:",
-                Array.isArray(emp)
-              );
-              // Handle different possible formats
-              if (Array.isArray(emp)) {
-                return emp.includes(currentUser.id);
-              } else if (typeof emp === "string") {
-                return emp === currentUser.id;
-              }
-              return false;
-            });
-
-            console.log("My attendance records found:", myRecords.length);
-            if (myRecords.length > 0) {
-              const dates = myRecords
-                .map((r) => r.fields.Date)
-                .filter((d) => d);
-              console.log("My attendance dates:", dates);
+          // Filter for this employee's records in JavaScript
+          const myRecords = (allData.records || []).filter((r) => {
+            const emp = r.fields.Employee || r.fields.employee || [];
+            // Handle different possible formats
+            if (Array.isArray(emp)) {
+              return emp.includes(currentUser.id);
+            } else if (typeof emp === "string") {
+              return emp === currentUser.id;
             }
+            return false;
+          });
+
+          console.log("My attendance records found:", myRecords.length);
+          if (myRecords.length > 0) {
+            const dates = myRecords
+              .map((r) => r.fields.Date || r.fields.date)
+              .filter((d) => d);
+            console.log("My attendance dates:", dates);
           }
 
-          // Now look for today's specific record
-          const filterFormula = `AND(SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0, {Date} = '${today}')`;
-          const data = await getAttendance(filterFormula);
+          // Find today's record from my records
+          const todayRecord = myRecords.find((r) => {
+            const recordDate = r.fields.Date || r.fields.date;
+            return recordDate === today;
+          });
 
-          console.log("Records for today:", data.records?.length || 0);
+          console.log("Today's record found:", todayRecord ? "YES" : "NO");
 
-          if (data.records && data.records.length > 0) {
-            const record = data.records[0];
+          if (todayRecord) {
+            const record = todayRecord;
             // Try multiple possible field name variations (camelCase vs space-separated)
             const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
             const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
@@ -544,39 +511,49 @@
 
           console.log("Loading monthly hours for:", yearMonth);
 
-          // Get all attendance records for this employee
-          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
-          const data = await getAttendance(filterFormula);
+          // Get ALL attendance records and filter in JavaScript
+          const allData = await getAttendance(); // No filter
 
           console.log(
-            "Total attendance records found:",
-            data.records?.length || 0
+            "Total attendance records in database:",
+            allData.records?.length || 0
           );
+
+          // Filter for this employee's records
+          const myRecords = (allData.records || []).filter((r) => {
+            const emp = r.fields.Employee || r.fields.employee || [];
+            if (Array.isArray(emp)) {
+              return emp.includes(currentUser.id);
+            } else if (typeof emp === "string") {
+              return emp === currentUser.id;
+            }
+            return false;
+          });
+
+          console.log("My attendance records found:", myRecords.length);
 
           let totalHours = 0;
           let recordsThisMonth = 0;
 
-          if (data.records) {
-            data.records.forEach((record) => {
-              const recordDate = record.fields["Date"];
+          myRecords.forEach((record) => {
+            const recordDate = record.fields["Date"] || record.fields["date"];
 
-              // Check if record is from current month
-              if (recordDate && recordDate.startsWith(yearMonth)) {
-                // Try multiple possible field name variations
-                const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
-                const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
+            // Check if record is from current month
+            if (recordDate && recordDate.startsWith(yearMonth)) {
+              // Try multiple possible field name variations
+              const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
+              const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
 
-                if (checkIn && checkOut) {
-                  const hours = calculateHoursFromTimestamps(checkIn, checkOut);
-                  totalHours += hours;
-                  recordsThisMonth++;
-                  console.log(
-                    `Record ${recordDate}: ${checkIn} - ${checkOut} = ${hours.toFixed(2)} hours`
-                  );
-                }
+              if (checkIn && checkOut) {
+                const hours = calculateHoursFromTimestamps(checkIn, checkOut);
+                totalHours += hours;
+                recordsThisMonth++;
+                console.log(
+                  `Record ${recordDate}: ${checkIn} - ${checkOut} = ${hours.toFixed(2)} hours`
+                );
               }
-            });
-          }
+            }
+          });
 
           console.log(
             `Total: ${recordsThisMonth} records, ${totalHours.toFixed(1)} hours`
@@ -615,23 +592,6 @@
         } catch (error) {
           console.error('Error calculating hours from timestamps:', error);
           return 0;
-        }
-      }
-
-      // ========================================
-      // LOAD LEAVE BALANCE
-      // ========================================
-      async function loadLeaveBalance() {
-        try {
-          const data = await getEmployee(currentUser.id);
-          const balance =
-            data.fields["Annual Leave Balance"] !== undefined
-              ? data.fields["Annual Leave Balance"]
-              : 20;
-          document.getElementById("leaveBalance").textContent = balance;
-        } catch (error) {
-          console.error("Error loading leave balance:", error);
-          document.getElementById("leaveBalance").textContent = "--";
         }
       }
 
@@ -711,10 +671,21 @@
       // ========================================
       async function loadAttendanceData() {
         try {
-          const filterFormula = `SEARCH('${currentUser.id}', ARRAYJOIN({Employee})) > 0`;
+          // Get ALL attendance records and filter in JavaScript
+          const allData = await getAttendance(); // No filter
 
-          const data = await getAttendance(filterFormula);
-          allAttendanceRecords = data.records;
+          // Filter for this employee's records
+          const myRecords = (allData.records || []).filter((r) => {
+            const emp = r.fields.Employee || r.fields.employee || [];
+            if (Array.isArray(emp)) {
+              return emp.includes(currentUser.id);
+            } else if (typeof emp === "string") {
+              return emp === currentUser.id;
+            }
+            return false;
+          });
+
+          allAttendanceRecords = myRecords;
 
           renderAttendanceChart(allAttendanceRecords);
         } catch (error) {
