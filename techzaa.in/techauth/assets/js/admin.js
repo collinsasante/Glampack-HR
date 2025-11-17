@@ -919,10 +919,17 @@ async function renderLeaveCalendar() {
     // Get calendar grid
     const grid = document.getElementById('leaveCalendarGrid');
 
-    // Clear existing dates (keep day headers)
-    while (grid.children.length > 7) {
-        grid.removeChild(grid.lastChild);
-    }
+    // Clear all existing content
+    grid.innerHTML = '';
+
+    // Add day headers
+    const dayHeaders = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    dayHeaders.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'text-center font-bold text-gray-700 py-4 bg-gray-100 border-b border-r border-gray-200';
+        header.textContent = day;
+        grid.appendChild(header);
+    });
 
     // Get first day of month and total days
     const firstDay = new Date(year, month, 1).getDay();
@@ -936,7 +943,7 @@ async function renderLeaveCalendar() {
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'border-r border-b border-gray-200 p-3 min-h-[100px] bg-gray-50';
+        emptyCell.className = 'border-r border-b border-gray-200 p-4 min-h-[120px] bg-gray-50';
         grid.appendChild(emptyCell);
     }
 
@@ -951,18 +958,37 @@ async function renderLeaveCalendar() {
         return startDate <= monthEnd && endDate >= monthStart;
     });
 
+    // Calculate statistics
+    const pendingCount = monthLeaves.filter(req => req.fields['Status'] === 'Pending').length;
+    const approvedCount = monthLeaves.filter(req => req.fields['Status'] === 'Approved').length;
+    const totalDays = monthLeaves.reduce((sum, req) => {
+        const days = req.fields['Days'] || req.fields['Number of Days'] || 0;
+        return sum + days;
+    }, 0);
+
+    // Update summary stats
+    document.getElementById('calendarPendingCount').textContent = pendingCount;
+    document.getElementById('calendarApprovedCount').textContent = approvedCount;
+    document.getElementById('calendarTotalDays').textContent = totalDays;
+
     // Create cells for each day
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         const isToday = isCurrentMonth && day === todayDate;
 
         const cell = document.createElement('div');
-        cell.className = `border-r border-b border-gray-200 p-3 min-h-[100px] ${isToday ? 'bg-blue-50 ring-2 ring-blue-400' : 'bg-white'} hover:bg-gray-50 transition-colors relative`;
+        cell.className = `border-r border-b border-gray-200 p-4 min-h-[120px] ${isToday ? 'bg-blue-50' : 'bg-white'} hover:bg-gray-100 transition-colors relative`;
 
-        // Day number with today indicator
+        // Day number
         const dayNum = document.createElement('div');
-        dayNum.className = `font-bold mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'}`;
-        dayNum.innerHTML = isToday ? `${day} <span class="text-xs font-normal">(Today)</span>` : day;
+        dayNum.className = `text-lg font-bold mb-3 ${isToday ? 'text-blue-600' : 'text-gray-800'}`;
+        dayNum.textContent = day;
+        if (isToday) {
+            const todayBadge = document.createElement('span');
+            todayBadge.className = 'ml-2 text-xs font-normal bg-blue-600 text-white px-2 py-0.5 rounded-full';
+            todayBadge.textContent = 'Today';
+            dayNum.appendChild(todayBadge);
+        }
         cell.appendChild(dayNum);
 
         // Find leaves on this day
@@ -972,36 +998,38 @@ async function renderLeaveCalendar() {
             return dateStr >= startDate && dateStr <= endDate;
         });
 
-        // Add leave count badge if there are leaves
+        // Display colored dots for each leave (grouped by status)
         if (dayLeaves.length > 0) {
-            const badge = document.createElement('div');
-            badge.className = 'absolute top-1 right-1 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center';
-            badge.textContent = dayLeaves.length;
-            badge.title = `${dayLeaves.length} leave request(s)`;
-            cell.appendChild(badge);
-        }
+            const dotsContainer = document.createElement('div');
+            dotsContainer.className = 'flex flex-wrap gap-1.5';
 
-        // Add leave indicators (max 3 visible)
-        const visibleLeaves = dayLeaves.slice(0, 3);
-        visibleLeaves.forEach(req => {
-            const status = req.fields['Status'] || 'Pending';
-            const colorClass = status === 'Approved' ? 'bg-green-200 border-green-400 text-green-900' :
-                              status === 'Rejected' ? 'bg-red-200 border-red-400 text-red-900' :
-                              'bg-yellow-200 border-yellow-400 text-yellow-900';
+            dayLeaves.forEach(req => {
+                const status = req.fields['Status'] || 'Pending';
+                let dotColor = '';
 
-            const indicator = document.createElement('div');
-            indicator.className = `text-xs px-2 py-1 rounded-md border-2 ${colorClass} mb-1 truncate font-medium shadow-sm`;
-            indicator.textContent = `${req.fields['Leave Type'] || 'Leave'}`;
-            indicator.title = `${req.fields['Leave Type']} - ${status}`;
-            cell.appendChild(indicator);
-        });
+                if (status === 'Approved') {
+                    dotColor = 'bg-green-500';
+                } else if (status === 'Rejected') {
+                    dotColor = 'bg-red-500';
+                } else {
+                    dotColor = 'bg-yellow-400';
+                }
 
-        // Show "more" indicator if there are more than 3 leaves
-        if (dayLeaves.length > 3) {
-            const moreIndicator = document.createElement('div');
-            moreIndicator.className = 'text-xs text-gray-600 font-semibold mt-1';
-            moreIndicator.textContent = `+${dayLeaves.length - 3} more`;
-            cell.appendChild(moreIndicator);
+                const dot = document.createElement('div');
+                dot.className = `w-3 h-3 ${dotColor} rounded-full shadow-sm cursor-pointer hover:scale-125 transition-transform`;
+                dot.title = `${req.fields['Leave Type'] || 'Leave'} - ${status}`;
+                dotsContainer.appendChild(dot);
+            });
+
+            cell.appendChild(dotsContainer);
+
+            // Show count if more than 6 dots
+            if (dayLeaves.length > 6) {
+                const countBadge = document.createElement('div');
+                countBadge.className = 'mt-2 text-xs text-gray-600 font-medium';
+                countBadge.textContent = `${dayLeaves.length} employees`;
+                cell.appendChild(countBadge);
+            }
         }
 
         grid.appendChild(cell);
