@@ -390,33 +390,18 @@
       // ========================================
       async function loadTodayStatus() {
         try {
-          // Verify getAttendance function exists
           if (typeof getAttendance === "undefined") {
-            console.error(
-              "getAttendance function not found! Check if config-worker.js loaded properly."
-            );
             throw new Error("getAttendance function not defined");
           }
 
           const today = new Date().toISOString().split("T")[0];
 
-          console.log("=== LOAD TODAY STATUS ===");
-          console.log("Looking for date:", today);
-          console.log("Employee ID:", currentUser.id);
-          console.log("Employee Name:", currentUser.name);
-
           // Fetch ALL attendance records (no filter) and filter in JavaScript
-          const allData = await getAttendance(); // No filter
-
-          console.log(
-            "Total attendance records in database:",
-            allData.records?.length || 0
-          );
+          const allData = await getAttendance();
 
           // Filter for this employee's records in JavaScript
           const myRecords = (allData.records || []).filter((r) => {
             const emp = r.fields.Employee || r.fields.employee || [];
-            // Handle different possible formats
             if (Array.isArray(emp)) {
               return emp.includes(currentUser.id);
             } else if (typeof emp === "string") {
@@ -425,44 +410,24 @@
             return false;
           });
 
-          console.log("My attendance records found:", myRecords.length);
-          if (myRecords.length > 0) {
-            const dates = myRecords
-              .map((r) => r.fields.Date || r.fields.date)
-              .filter((d) => d);
-            console.log("My attendance dates:", dates);
-          }
-
           // Find today's record from my records
           const todayRecord = myRecords.find((r) => {
             const recordDate = r.fields.Date || r.fields.date;
             return recordDate === today;
           });
 
-          console.log("Today's record found:", todayRecord ? "YES" : "NO");
-
           if (todayRecord) {
             const record = todayRecord;
-            // Try multiple possible field name variations (camelCase vs space-separated)
             const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
             const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
-
-            console.log(
-              "Today record - Check In:",
-              checkIn,
-              "Check Out:",
-              checkOut
-            );
 
             // Helper function to format time from timestamp
             const formatTime = (timestamp) => {
               if (!timestamp) return '';
-              // Handle ISO timestamp format (e.g., "2025-11-17T11:10:40.754Z")
               if (timestamp.includes('T')) {
                 const date = new Date(timestamp);
                 return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
               }
-              // Already in time format
               return timestamp;
             };
 
@@ -481,17 +446,12 @@
                 "No record today";
             }
           } else {
-            console.log(
-              "No attendance record found for today. Please check in at attendance-tracker.html"
-            );
             document.getElementById("todayStatus").textContent =
               "Not Checked In";
             document.getElementById("checkInTime").textContent =
               "No record today";
           }
         } catch (error) {
-          console.error("Error loading today status:", error);
-          console.error("Error details:", error.message, error.stack);
           document.getElementById("todayStatus").textContent = "--";
           document.getElementById("checkInTime").textContent =
             "Error loading status";
@@ -503,21 +463,13 @@
       // ========================================
       async function loadMonthlyHours() {
         try {
-          // Get first and last day of current month
           const now = new Date();
           const year = now.getFullYear();
-          const month = now.getMonth() + 1; // JavaScript months are 0-indexed
+          const month = now.getMonth() + 1;
           const yearMonth = `${year}-${month.toString().padStart(2, "0")}`;
 
-          console.log("Loading monthly hours for:", yearMonth);
-
           // Get ALL attendance records and filter in JavaScript
-          const allData = await getAttendance(); // No filter
-
-          console.log(
-            "Total attendance records in database:",
-            allData.records?.length || 0
-          );
+          const allData = await getAttendance();
 
           // Filter for this employee's records
           const myRecords = (allData.records || []).filter((r) => {
@@ -530,38 +482,25 @@
             return false;
           });
 
-          console.log("My attendance records found:", myRecords.length);
-
           let totalHours = 0;
-          let recordsThisMonth = 0;
 
           myRecords.forEach((record) => {
             const recordDate = record.fields["Date"] || record.fields["date"];
 
-            // Check if record is from current month
             if (recordDate && recordDate.startsWith(yearMonth)) {
-              // Try multiple possible field name variations
               const checkIn = record.fields["checkIn"] || record.fields["Check In"] || record.fields["CheckIn"];
               const checkOut = record.fields["checkOut"] || record.fields["Check Out"] || record.fields["CheckOut"];
 
               if (checkIn && checkOut) {
                 const hours = calculateHoursFromTimestamps(checkIn, checkOut);
                 totalHours += hours;
-                recordsThisMonth++;
-                console.log(
-                  `Record ${recordDate}: ${checkIn} - ${checkOut} = ${hours.toFixed(2)} hours`
-                );
               }
             }
           });
 
-          console.log(
-            `Total: ${recordsThisMonth} records, ${totalHours.toFixed(1)} hours`
-          );
           document.getElementById("monthlyHours").textContent =
             totalHours.toFixed(1);
         } catch (error) {
-          console.error("Error loading monthly hours:", error);
           document.getElementById("monthlyHours").textContent = "0";
         }
       }
@@ -623,31 +562,13 @@
       // ========================================
       async function loadMedicalClaimsCount() {
         try {
-          // Verify getMedicalClaims function exists
           if (typeof getMedicalClaims === "undefined") {
-            console.error(
-              "getMedicalClaims function not found! Check if config-worker.js loaded properly."
-            );
             throw new Error("getMedicalClaims function not defined");
           }
 
-          // Fetch ALL medical claims (no filter) to see structure
-          console.log("Loading all medical claims for employee:", currentUser.id);
-          const data = await getMedicalClaims(); // No filter
+          const data = await getMedicalClaims();
 
-          console.log("Total medical claims in database:", data.records?.length || 0);
-
-          // DIAGNOSTIC: Show all field names from a sample record
-          if (data.records && data.records.length > 0 && data.records[0]) {
-            console.log("=== MEDICAL CLAIMS FIELD NAMES (for debugging) ===");
-            console.log(
-              "Available fields in MedicalClaims table:",
-              Object.keys(data.records[0].fields)
-            );
-            console.log("Sample record data:", data.records[0].fields);
-          }
-
-          // Filter for this employee's pending claims (filter in JavaScript)
+          // Filter for this employee's pending claims
           const pendingClaims = (data.records || []).filter((record) => {
             const employees = record.fields.Employee || record.fields.employee || [];
             const status = record.fields.Status || record.fields.status || "Pending";
@@ -656,12 +577,9 @@
             return isThisEmployee && isPending;
           });
 
-          console.log("Pending medical claims for this employee:", pendingClaims.length);
           document.getElementById("medicalClaimsCount").textContent =
             pendingClaims.length;
         } catch (error) {
-          console.error("Error loading medical claims count:", error);
-          console.error("Error details:", error.message, error.stack);
           document.getElementById("medicalClaimsCount").textContent = "0";
         }
       }
@@ -671,8 +589,7 @@
       // ========================================
       async function loadAttendanceData() {
         try {
-          // Get ALL attendance records and filter in JavaScript
-          const allData = await getAttendance(); // No filter
+          const allData = await getAttendance();
 
           // Filter for this employee's records
           const myRecords = (allData.records || []).filter((r) => {
@@ -686,10 +603,9 @@
           });
 
           allAttendanceRecords = myRecords;
-
           renderAttendanceChart(allAttendanceRecords);
         } catch (error) {
-          console.error("Error loading attendance data:", error);
+          // Silently fail
         }
       }
 
