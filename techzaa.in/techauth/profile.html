@@ -654,6 +654,8 @@
 
       // Populate profile
       function populateProfile() {
+        console.log('DEBUG populateProfile: employeeData =', employeeData);
+
         const name = employeeData["Full Name"] || "User";
         // Better initials handling - take first letter of first and last name
         const names = name.trim().split(/\s+/);
@@ -666,18 +668,27 @@
         document.getElementById("sidebarRole").textContent =
           employeeData["Status"] || currentUser.role;
 
-        document.getElementById("fullName").value =
-          employeeData["Full Name"] || "";
-        document.getElementById("email").value = employeeData["Email"] || "";
-        document.getElementById("phoneNumber").value =
-          employeeData["Phone Number"] || "";
-        document.getElementById("dateOfBirth").value =
-          employeeData["Date of Birth"] || "";
-        document.getElementById("address").value =
-          employeeData["Address"] || "";
-        document.getElementById("city").value = employeeData["City"] || "";
-        document.getElementById("country").value =
-          employeeData["Country"] || "";
+        const fullName = employeeData["Full Name"] || "";
+        const email = employeeData["Email"] || "";
+        const phoneNumber = employeeData["Phone Number"] || "";
+        const dateOfBirth = employeeData["Date of Birth"] || "";
+        const address = employeeData["Address"] || "";
+        const city = employeeData["City"] || "";
+        const country = employeeData["Country"] || "";
+
+        console.log('DEBUG populateProfile: Setting values:', {
+          fullName, email, phoneNumber, dateOfBirth, address, city, country
+        });
+
+        document.getElementById("fullName").value = fullName;
+        document.getElementById("email").value = email;
+        document.getElementById("phoneNumber").value = phoneNumber;
+        document.getElementById("dateOfBirth").value = dateOfBirth;
+        document.getElementById("address").value = address;
+        document.getElementById("city").value = city;
+        document.getElementById("country").value = country;
+
+        console.log('DEBUG populateProfile: After setting, fullName input value =', document.getElementById("fullName").value);
       }
 
       // Populate employment
@@ -772,16 +783,22 @@
         );
         const isReadonly = inputs[0].hasAttribute("readonly");
 
+        console.log('DEBUG toggleEditProfile: isReadonly =', isReadonly);
+        console.log('DEBUG toggleEditProfile: number of inputs =', inputs.length);
+
         inputs.forEach((input) => {
           if (isReadonly) {
+            // Entering edit mode
             input.removeAttribute("readonly");
             input.classList.remove("bg-gray-50");
             input.classList.add("bg-white");
           } else {
+            // Exiting edit mode (back to readonly)
             input.setAttribute("readonly", true);
             input.classList.add("bg-gray-50");
             input.classList.remove("bg-white");
           }
+          console.log(`DEBUG: Input ${input.id} value after toggle:`, input.value);
         });
 
         document
