@@ -228,7 +228,38 @@
       // Initialize Firebase on page load
       window.addEventListener('load', function() {
         setTimeout(initializeFirebase, 100);
+
+        // Check if user just verified their email
+        checkEmailVerificationSuccess();
       });
+
+      // Check for email verification success or password reset success
+      function checkEmailVerificationSuccess() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const mode = urlParams.get('mode');
+        const oobCode = urlParams.get('oobCode');
+
+        // If this is a return from email verification
+        if (mode === 'verifyEmail' && oobCode) {
+          // Show success message
+          setTimeout(() => {
+            showSuccess('Email verified successfully! You can now sign in with your credentials.');
+          }, 500);
+
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+        // If this is a return from password reset
+        else if (mode === 'resetPassword') {
+          // Show success message
+          setTimeout(() => {
+            showSuccess('Password reset successfully! You can now sign in with your new password.');
+          }, 500);
+
+          // Clean up URL
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
 
       // Toggle password visibility
       function togglePasswordVisibility(inputId, iconId) {
@@ -353,7 +384,7 @@
               <i class="fas fa-exclamation-triangle mr-2"></i>
               <span class="font-semibold">Email Not Verified</span>
             </div>
-            <p class="text-sm">Please verify your email address before signing in. Check your inbox for the verification email.</p>
+            <p class="text-sm">Please verify your email address before signing in. Check your inbox (including spam/junk folder) for the verification email.</p>
             <button onclick="resendVerificationEmail('${email}')" class="mt-2 bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-1 rounded text-sm transition-colors">
               <i class="fas fa-envelope mr-1"></i> Resend Verification Email
             </button>
@@ -399,7 +430,7 @@
           // Sign out
           await auth.signOut();
 
-          showSuccess('Verification email sent! Please check your inbox.');
+          showSuccess('Verification email sent! Please check your inbox (including spam/junk folder).');
         } catch (error) {
           console.error('Resend verification error:', error);
           showError('Failed to resend verification email. Please try again.');
