@@ -469,7 +469,7 @@ function viewEmployeeDetails(employee) {
                     <button onclick="closeViewEmployeeModal()" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors">
                         Close
                     </button>
-                    <button onclick="closeViewEmployeeModal(); editEmployee(${JSON.stringify(employee).replace(/'/g, "&#39;")})" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
+                    <button onclick="closeViewEmployeeModal(); openEditEmployeeFromView('${employee.id}')" class="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
                         <i class="fas fa-edit mr-2"></i>Edit Employee
                     </button>
                 </div>
@@ -491,6 +491,15 @@ function closeViewEmployeeModal() {
     const modal = document.getElementById('viewEmployeeModal');
     if (modal) {
         modal.remove();
+    }
+}
+
+// Helper function to open edit modal from view modal
+function openEditEmployeeFromView(employeeId) {
+    // Find the employee from the allEmployees array
+    const employee = allEmployees.find(emp => emp.id === employeeId);
+    if (employee) {
+        editEmployee(employee);
     }
 }
 
@@ -862,6 +871,212 @@ async function rejectLeave(leaveId) {
         console.error('Error rejecting leave:', error);
         alert('Error rejecting leave. Please try again.');
     }
+}
+
+// ========================================
+// LEAVE CALENDAR VIEW
+// ========================================
+let currentCalendarMonth = new Date();
+
+function toggleLeaveView(view) {
+    const listView = document.getElementById('leaveListView');
+    const calendarView = document.getElementById('leaveCalendarView');
+    const listBtn = document.getElementById('leaveViewList');
+    const calendarBtn = document.getElementById('leaveViewCalendar');
+
+    if (view === 'list') {
+        listView.classList.remove('hidden');
+        calendarView.classList.add('hidden');
+        listBtn.classList.add('bg-white', 'text-red-600', 'shadow-sm');
+        listBtn.classList.remove('text-gray-700');
+        calendarBtn.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        calendarBtn.classList.add('text-gray-700');
+    } else {
+        listView.classList.add('hidden');
+        calendarView.classList.remove('hidden');
+        calendarBtn.classList.add('bg-white', 'text-red-600', 'shadow-sm');
+        calendarBtn.classList.remove('text-gray-700');
+        listBtn.classList.remove('bg-white', 'text-red-600', 'shadow-sm');
+        listBtn.classList.add('text-gray-700');
+        renderLeaveCalendar();
+    }
+}
+
+function changeLeaveMonth(direction) {
+    currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + direction);
+    renderLeaveCalendar();
+}
+
+async function renderLeaveCalendar() {
+    const year = currentCalendarMonth.getFullYear();
+    const month = currentCalendarMonth.getMonth();
+
+    // Update month header
+    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+                       'July', 'August', 'September', 'October', 'November', 'December'];
+    document.getElementById('leaveCalendarMonth').textContent = `${monthNames[month]} ${year}`;
+
+    // Get calendar grid
+    const grid = document.getElementById('leaveCalendarGrid');
+
+    // Clear existing dates (keep day headers)
+    while (grid.children.length > 7) {
+        grid.removeChild(grid.lastChild);
+    }
+
+    // Get first day of month and total days
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+    // Add empty cells for days before month starts
+    for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'border border-gray-200 rounded p-2 min-h-[80px] bg-gray-50';
+        grid.appendChild(emptyCell);
+    }
+
+    // Get leave requests for this month
+    const monthStart = `${year}-${String(month + 1).padStart(2, '0')}-01`;
+    const monthEnd = `${year}-${String(month + 1).padStart(2, '0')}-${daysInMonth}`;
+
+    // Filter leaves that fall within this month
+    const monthLeaves = allLeaveRequests.filter(req => {
+        const startDate = req.fields['Start Date'];
+        const endDate = req.fields['End Date'];
+        return startDate <= monthEnd && endDate >= monthStart;
+    });
+
+    // Create cells for each day
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const cell = document.createElement('div');
+        cell.className = 'border border-gray-200 rounded p-2 min-h-[80px] bg-white hover:bg-gray-50 transition-colors';
+
+        // Day number
+        const dayNum = document.createElement('div');
+        dayNum.className = 'font-semibold text-gray-700 mb-1';
+        dayNum.textContent = day;
+        cell.appendChild(dayNum);
+
+        // Find leaves on this day
+        const dayLeaves = monthLeaves.filter(req => {
+            const startDate = req.fields['Start Date'];
+            const endDate = req.fields['End Date'];
+            return dateStr >= startDate && dateStr <= endDate;
+        });
+
+        // Add leave indicators
+        dayLeaves.forEach(req => {
+            const status = req.fields['Status'] || 'Pending';
+            const colorClass = status === 'Approved' ? 'bg-green-200 border-green-400 text-green-800' :
+                              status === 'Rejected' ? 'bg-red-200 border-red-400 text-red-800' :
+                              'bg-yellow-200 border-yellow-400 text-yellow-800';
+
+            const indicator = document.createElement('div');
+            indicator.className = `text-xs px-1 py-0.5 rounded border ${colorClass} mb-1 truncate`;
+            indicator.textContent = `${req.fields['Leave Type'] || 'Leave'}`;
+            indicator.title = `${req.fields['Leave Type']} - ${status}`;
+            cell.appendChild(indicator);
+        });
+
+        grid.appendChild(cell);
+    }
+
+    // Render schedule list below calendar
+    renderLeaveScheduleList(monthLeaves);
+}
+
+async function renderLeaveScheduleList(monthLeaves) {
+    const listContainer = document.getElementById('leaveScheduleList');
+
+    if (monthLeaves.length === 0) {
+        listContainer.innerHTML = `
+            <div class="text-center text-gray-500 py-8">
+                <i class="fas fa-calendar-times text-3xl mb-2"></i>
+                <p>No leave scheduled for this month</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Sort by start date
+    monthLeaves.sort((a, b) => {
+        const dateA = new Date(a.fields['Start Date']);
+        const dateB = new Date(b.fields['Start Date']);
+        return dateA - dateB;
+    });
+
+    // Fetch employee names
+    const employeePromises = monthLeaves.map(async (req) => {
+        if (req.fields['Employee'] && req.fields['Employee'][0]) {
+            try {
+                const employee = await getEmployee(req.fields['Employee'][0]);
+                return { id: req.id, name: employee?.fields?.['Full Name'] || 'Unknown' };
+            } catch (error) {
+                return { id: req.id, name: 'Unknown' };
+            }
+        }
+        return { id: req.id, name: 'Unknown' };
+    });
+
+    const employeeNames = await Promise.all(employeePromises);
+    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
+
+    listContainer.innerHTML = monthLeaves.map(req => {
+        const fields = req.fields;
+        const status = fields['Status'] || 'Pending';
+        const employeeName = nameMap[req.id];
+
+        const statusClass = status === 'Approved' ? 'bg-green-100 text-green-800 border-green-300' :
+                           status === 'Rejected' ? 'bg-red-100 text-red-800 border-red-300' :
+                           'bg-yellow-100 text-yellow-800 border-yellow-300';
+
+        // Calculate days
+        let numberOfDays = fields['Days'] || fields['Number of Days'];
+        if (!numberOfDays && fields['Start Date'] && fields['End Date']) {
+            const start = new Date(fields['Start Date']);
+            const end = new Date(fields['End Date']);
+            numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        return `
+            <div class="border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow">
+                <div class="flex justify-between items-start">
+                    <div class="flex-1">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h5 class="font-semibold text-gray-900">${employeeName}</h5>
+                            <span class="px-2 py-1 text-xs font-semibold rounded border ${statusClass}">
+                                ${status}
+                            </span>
+                        </div>
+                        <div class="text-sm text-gray-600 space-y-1">
+                            <div><i class="fas fa-tag mr-2 text-red-600"></i>${fields['Leave Type'] || 'N/A'}</div>
+                            <div><i class="fas fa-calendar mr-2 text-red-600"></i>${fields['Start Date']} to ${fields['End Date']} (${numberOfDays} days)</div>
+                            ${fields['Reason'] ? `<div class="mt-2"><i class="fas fa-comment mr-2 text-red-600"></i>${fields['Reason']}</div>` : ''}
+                        </div>
+                    </div>
+                    ${status === 'Pending' ? `
+                    <div class="flex gap-2 ml-4">
+                        <button
+                            onclick="approveLeave('${req.id}')"
+                            class="px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-sm"
+                            title="Approve"
+                        >
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button
+                            onclick="rejectLeave('${req.id}')"
+                            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 text-sm"
+                            title="Reject"
+                        >
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
 }
 
 // ========================================
