@@ -366,57 +366,69 @@
 
           <!-- Calendar View -->
           <div id="leaveCalendarView" class="hidden">
-            <!-- Month Navigation -->
-            <div class="flex justify-between items-center mb-6">
-              <button
-                onclick="changeLeaveMonth(-1)"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                <i class="fas fa-chevron-left"></i> Previous
-              </button>
-              <h4 id="leaveCalendarMonth" class="text-xl font-semibold text-gray-800"></h4>
-              <button
-                onclick="changeLeaveMonth(1)"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
-              >
-                Next <i class="fas fa-chevron-right"></i>
-              </button>
+            <!-- Calendar Header with Month Navigation -->
+            <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-t-lg mb-6">
+              <div class="flex justify-between items-center">
+                <button
+                  onclick="changeLeaveMonth(-1)"
+                  class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all"
+                >
+                  <i class="fas fa-chevron-left"></i> Previous Month
+                </button>
+                <h4 id="leaveCalendarMonth" class="text-2xl font-bold"></h4>
+                <button
+                  onclick="changeLeaveMonth(1)"
+                  class="px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg transition-all"
+                >
+                  Next Month <i class="fas fa-chevron-right"></i>
+                </button>
+              </div>
             </div>
 
-            <!-- Legend -->
-            <div class="flex gap-4 mb-4 text-sm">
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-yellow-200 border border-yellow-400 rounded mr-2"></div>
-                <span>Pending</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-green-200 border border-green-400 rounded mr-2"></div>
-                <span>Approved</span>
-              </div>
-              <div class="flex items-center">
-                <div class="w-4 h-4 bg-red-200 border border-red-400 rounded mr-2"></div>
-                <span>Rejected</span>
+            <!-- Status Legend -->
+            <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 mb-6">
+              <h5 class="text-sm font-semibold text-gray-700 mb-3">
+                <i class="fas fa-info-circle mr-2 text-red-600"></i>Leave Status Legend
+              </h5>
+              <div class="flex flex-wrap gap-6 text-sm">
+                <div class="flex items-center">
+                  <div class="w-6 h-6 bg-yellow-200 border-2 border-yellow-400 rounded mr-2"></div>
+                  <span class="font-medium text-gray-700">Pending Approval</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-6 h-6 bg-green-200 border-2 border-green-400 rounded mr-2"></div>
+                  <span class="font-medium text-gray-700">Approved Leave</span>
+                </div>
+                <div class="flex items-center">
+                  <div class="w-6 h-6 bg-red-200 border-2 border-red-400 rounded mr-2"></div>
+                  <span class="font-medium text-gray-700">Rejected Leave</span>
+                </div>
               </div>
             </div>
 
             <!-- Calendar Grid -->
-            <div id="leaveCalendarGrid" class="grid grid-cols-7 gap-2">
-              <!-- Days of the week -->
-              <div class="text-center font-semibold text-gray-700 py-2">Sun</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Mon</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Tue</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Wed</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Thu</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Fri</div>
-              <div class="text-center font-semibold text-gray-700 py-2">Sat</div>
+            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden mb-6">
+              <div id="leaveCalendarGrid" class="grid grid-cols-7">
+                <!-- Days of the week header -->
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Sun</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Mon</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Tue</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Wed</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Thu</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-r border-gray-200">Fri</div>
+                <div class="text-center font-bold text-gray-700 py-3 bg-gray-100 border-b border-gray-200">Sat</div>
+              </div>
             </div>
 
             <!-- Leave Schedule List Below Calendar -->
-            <div class="mt-8">
-              <h4 class="text-lg font-semibold text-gray-800 mb-4">
-                <i class="fas fa-list mr-2 text-red-600"></i>Leave Schedule for This Month
-              </h4>
-              <div id="leaveScheduleList" class="space-y-3"></div>
+            <div class="mt-6">
+              <div class="bg-white border border-gray-200 rounded-lg p-6">
+                <h4 class="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                  <i class="fas fa-calendar-alt mr-2 text-red-600"></i>
+                  Detailed Leave Schedule for This Month
+                </h4>
+                <div id="leaveScheduleList" class="space-y-3"></div>
+              </div>
             </div>
           </div>
         </div>

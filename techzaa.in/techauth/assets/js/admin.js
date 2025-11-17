@@ -928,10 +928,15 @@ async function renderLeaveCalendar() {
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
+    // Get today's date for highlighting
+    const today = new Date();
+    const isCurrentMonth = today.getFullYear() === year && today.getMonth() === month;
+    const todayDate = today.getDate();
+
     // Add empty cells for days before month starts
     for (let i = 0; i < firstDay; i++) {
         const emptyCell = document.createElement('div');
-        emptyCell.className = 'border border-gray-200 rounded p-2 min-h-[80px] bg-gray-50';
+        emptyCell.className = 'border-r border-b border-gray-200 p-3 min-h-[100px] bg-gray-50';
         grid.appendChild(emptyCell);
     }
 
@@ -949,13 +954,15 @@ async function renderLeaveCalendar() {
     // Create cells for each day
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const cell = document.createElement('div');
-        cell.className = 'border border-gray-200 rounded p-2 min-h-[80px] bg-white hover:bg-gray-50 transition-colors';
+        const isToday = isCurrentMonth && day === todayDate;
 
-        // Day number
+        const cell = document.createElement('div');
+        cell.className = `border-r border-b border-gray-200 p-3 min-h-[100px] ${isToday ? 'bg-blue-50 ring-2 ring-blue-400' : 'bg-white'} hover:bg-gray-50 transition-colors relative`;
+
+        // Day number with today indicator
         const dayNum = document.createElement('div');
-        dayNum.className = 'font-semibold text-gray-700 mb-1';
-        dayNum.textContent = day;
+        dayNum.className = `font-bold mb-2 ${isToday ? 'text-blue-600' : 'text-gray-700'}`;
+        dayNum.innerHTML = isToday ? `${day} <span class="text-xs font-normal">(Today)</span>` : day;
         cell.appendChild(dayNum);
 
         // Find leaves on this day
@@ -965,19 +972,37 @@ async function renderLeaveCalendar() {
             return dateStr >= startDate && dateStr <= endDate;
         });
 
-        // Add leave indicators
-        dayLeaves.forEach(req => {
+        // Add leave count badge if there are leaves
+        if (dayLeaves.length > 0) {
+            const badge = document.createElement('div');
+            badge.className = 'absolute top-1 right-1 bg-red-600 text-white text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center';
+            badge.textContent = dayLeaves.length;
+            badge.title = `${dayLeaves.length} leave request(s)`;
+            cell.appendChild(badge);
+        }
+
+        // Add leave indicators (max 3 visible)
+        const visibleLeaves = dayLeaves.slice(0, 3);
+        visibleLeaves.forEach(req => {
             const status = req.fields['Status'] || 'Pending';
-            const colorClass = status === 'Approved' ? 'bg-green-200 border-green-400 text-green-800' :
-                              status === 'Rejected' ? 'bg-red-200 border-red-400 text-red-800' :
-                              'bg-yellow-200 border-yellow-400 text-yellow-800';
+            const colorClass = status === 'Approved' ? 'bg-green-200 border-green-400 text-green-900' :
+                              status === 'Rejected' ? 'bg-red-200 border-red-400 text-red-900' :
+                              'bg-yellow-200 border-yellow-400 text-yellow-900';
 
             const indicator = document.createElement('div');
-            indicator.className = `text-xs px-1 py-0.5 rounded border ${colorClass} mb-1 truncate`;
+            indicator.className = `text-xs px-2 py-1 rounded-md border-2 ${colorClass} mb-1 truncate font-medium shadow-sm`;
             indicator.textContent = `${req.fields['Leave Type'] || 'Leave'}`;
             indicator.title = `${req.fields['Leave Type']} - ${status}`;
             cell.appendChild(indicator);
         });
+
+        // Show "more" indicator if there are more than 3 leaves
+        if (dayLeaves.length > 3) {
+            const moreIndicator = document.createElement('div');
+            moreIndicator.className = 'text-xs text-gray-600 font-semibold mt-1';
+            moreIndicator.textContent = `+${dayLeaves.length - 3} more`;
+            cell.appendChild(moreIndicator);
+        }
 
         grid.appendChild(cell);
     }
@@ -1259,18 +1284,58 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 // ATTENDANCE RECORDS
 // ========================================
 async function loadAttendanceRecords() {
-    const date = document.getElementById('attendanceDate').value || new Date().toISOString().split('T')[0];
+    const dateRange = document.getElementById('attendanceDateRange').value;
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
+    const statusFilter = document.getElementById('attendanceStatusFilter').value;
 
     console.log('=== LOADING ATTENDANCE RECORDS ===');
-    console.log('Date:', date);
+    console.log('Date Range:', dateRange);
     console.log('Employee ID Filter:', employeeId);
+    console.log('Status Filter:', statusFilter);
 
     try {
-        let filterFormula = `{Date} = '${date}'`;
+        // Calculate date range
+        let startDate, endDate;
+        const today = new Date();
+
+        switch(dateRange) {
+            case 'today':
+                startDate = endDate = today.toISOString().split('T')[0];
+                break;
+            case 'week':
+                // Get start of week (Sunday)
+                const weekStart = new Date(today);
+                weekStart.setDate(today.getDate() - today.getDay());
+                startDate = weekStart.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+                break;
+            case 'month':
+                // Get start of month
+                const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+                startDate = monthStart.toISOString().split('T')[0];
+                endDate = today.toISOString().split('T')[0];
+                break;
+            case 'custom':
+                const customDate = document.getElementById('attendanceDate').value;
+                startDate = endDate = customDate || today.toISOString().split('T')[0];
+                break;
+            default:
+                startDate = endDate = today.toISOString().split('T')[0];
+        }
+
+        console.log('Date range:', startDate, 'to', endDate);
+
+        // Build filter formula
+        let filterFormula;
+        if (startDate === endDate) {
+            filterFormula = `{Date} = '${startDate}'`;
+        } else {
+            filterFormula = `AND(IS_AFTER({Date}, '${startDate}'), IS_BEFORE({Date}, DATEADD('${endDate}', 1, 'days')))`;
+        }
+
+        // Add employee filter if selected
         if (employeeId) {
-            // Employee field is a linked record (array), so we need to use FIND and ARRAYJOIN
-            filterFormula = `AND({Date} = '${date}', FIND('${employeeId}', ARRAYJOIN({Employee})))`;
+            filterFormula = `AND(${filterFormula}, FIND('${employeeId}', ARRAYJOIN({Employee})))`;
         }
 
         console.log('Filter formula:', filterFormula);
@@ -1279,7 +1344,29 @@ async function loadAttendanceRecords() {
         console.log('Attendance records fetched:', data.records?.length || 0);
 
         allAttendanceRecords = data.records || [];
-        await displayAttendanceRecords(allAttendanceRecords);
+
+        // Apply status filter on client side
+        let filteredRecords = allAttendanceRecords;
+        if (statusFilter) {
+            filteredRecords = allAttendanceRecords.filter(rec => {
+                const checkIn = rec.fields['Check In'];
+                if (!checkIn || checkIn === '--:--') {
+                    return statusFilter === 'incomplete';
+                }
+                const hour = parseInt(checkIn.split(':')[0]);
+                if (statusFilter === 'present') {
+                    return hour < 9;
+                } else if (statusFilter === 'late') {
+                    return hour >= 9;
+                } else if (statusFilter === 'incomplete') {
+                    return !rec.fields['Check Out'] || rec.fields['Check Out'] === '--:--';
+                }
+                return true;
+            });
+        }
+
+        await displayAttendanceRecords(filteredRecords);
+        updateAttendanceStats(filteredRecords);
     } catch (error) {
         console.error('Error loading attendance records:', error);
         document.getElementById('attendanceRecordsBody').innerHTML = `
@@ -1290,6 +1377,48 @@ async function loadAttendanceRecords() {
             </tr>
         `;
     }
+}
+
+// Update attendance statistics
+function updateAttendanceStats(records) {
+    const presentToday = records.filter(rec => {
+        const checkIn = rec.fields['Check In'];
+        return checkIn && checkIn !== '--:--' && parseInt(checkIn.split(':')[0]) < 9;
+    }).length;
+
+    const lateToday = records.filter(rec => {
+        const checkIn = rec.fields['Check In'];
+        return checkIn && checkIn !== '--:--' && parseInt(checkIn.split(':')[0]) >= 9;
+    }).length;
+
+    // Calculate average hours
+    let totalHours = 0;
+    let recordsWithCheckout = 0;
+    records.forEach(rec => {
+        const checkIn = rec.fields['Check In'];
+        const checkOut = rec.fields['Check Out'];
+        if (checkIn && checkOut && checkIn !== '--:--' && checkOut !== '--:--') {
+            const [inHour, inMin] = checkIn.split(':').map(Number);
+            const [outHour, outMin] = checkOut.split(':').map(Number);
+            const hours = (outHour + outMin/60) - (inHour + inMin/60);
+            if (hours > 0) {
+                totalHours += hours;
+                recordsWithCheckout++;
+            }
+        }
+    });
+    const avgHours = recordsWithCheckout > 0 ? (totalHours / recordsWithCheckout).toFixed(1) : 0;
+
+    // Attendance rate
+    const totalPresent = presentToday + lateToday;
+    const totalEmployees = allEmployees.length;
+    const attendanceRate = totalEmployees > 0 ? Math.round((totalPresent / totalEmployees) * 100) : 0;
+
+    // Update UI
+    document.getElementById('statPresentToday').textContent = presentToday;
+    document.getElementById('statLateToday').textContent = lateToday;
+    document.getElementById('statAvgHours').textContent = `${avgHours}h`;
+    document.getElementById('statAttendanceRate').textContent = `${attendanceRate}%`;
 }
 
 async function displayAttendanceRecords(records) {
@@ -2238,6 +2367,19 @@ document.addEventListener('visibilitychange', () => {
         stopAutoRefresh();
     } else {
         startAutoRefresh();
+    }
+});
+
+// ========================================
+// ATTENDANCE DATE RANGE HANDLER
+// ========================================
+// Show/hide custom date input based on date range selection
+document.getElementById('attendanceDateRange')?.addEventListener('change', function() {
+    const customDateContainer = document.getElementById('customDateContainer');
+    if (this.value === 'custom') {
+        customDateContainer.classList.remove('hidden');
+    } else {
+        customDateContainer.classList.add('hidden');
     }
 });
 
