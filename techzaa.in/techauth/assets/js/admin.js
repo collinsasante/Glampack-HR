@@ -1611,10 +1611,119 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 });
 
 // ========================================
+// AUTO-REFRESH DATA
+// ========================================
+let refreshInterval = null;
+
+function updateLastRefreshTime() {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    const timeElement = document.getElementById('lastRefreshTime');
+    if (timeElement) {
+        timeElement.textContent = `Last updated: ${timeString}`;
+    }
+}
+
+function startAutoRefresh() {
+    // Refresh data every 30 seconds
+    refreshInterval = setInterval(() => {
+        const activeTab = document.querySelector('[id^="tab-"].tab-active');
+        if (activeTab) {
+            const tabName = activeTab.id.replace('tab-', '');
+            refreshTabData(tabName);
+        }
+    }, 30000); // 30 seconds
+}
+
+async function refreshTabData(tabName) {
+    try {
+        switch(tabName) {
+            case 'employees':
+                await loadEmployees();
+                break;
+            case 'attendance':
+                await loadAttendanceRecords();
+                break;
+            case 'leave':
+                await loadLeaveRequests();
+                break;
+            case 'payroll':
+                await loadPayrollRecords();
+                break;
+            case 'announcements':
+                await loadAnnouncements();
+                break;
+        }
+        updateLastRefreshTime();
+    } catch (error) {
+        console.error('Error refreshing tab data:', error);
+    }
+}
+
+async function manualRefresh() {
+    const refreshBtn = document.getElementById('refreshBtn');
+    const icon = refreshBtn.querySelector('i');
+
+    // Disable button and add spinning animation
+    refreshBtn.disabled = true;
+    icon.classList.add('fa-spin');
+
+    try {
+        // Get active tab and refresh its data
+        const activeTab = document.querySelector('[id^="tab-"].tab-active');
+        if (activeTab) {
+            const tabName = activeTab.id.replace('tab-', '');
+            await refreshTabData(tabName);
+        }
+    } finally {
+        // Re-enable button after operation
+        setTimeout(() => {
+            refreshBtn.disabled = false;
+            icon.classList.remove('fa-spin');
+        }, 1000);
+    }
+}
+
+function stopAutoRefresh() {
+    if (refreshInterval) {
+        clearInterval(refreshInterval);
+        refreshInterval = null;
+    }
+}
+
+// Stop refresh when page is hidden
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        stopAutoRefresh();
+    } else {
+        startAutoRefresh();
+    }
+});
+
+// ========================================
 // INITIALIZE
 // ========================================
 checkAdminAccess().then(hasAccess => {
     if (hasAccess) {
-        loadEmployees();
+        // Load initial data for all tabs
+        Promise.all([
+            loadEmployees(),
+            loadLeaveRequests(),
+            loadAnnouncements(),
+            loadAttendanceRecords(),
+            loadPayrollRecords()
+        ]).then(() => {
+            // Update last refresh time after all data is loaded
+            updateLastRefreshTime();
+        }).catch(error => {
+            console.error('Error loading initial data:', error);
+        });
+
+        // Start auto-refresh
+        startAutoRefresh();
     }
 });
