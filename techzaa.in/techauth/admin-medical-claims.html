@@ -477,6 +477,9 @@
 
           showMessage(`Claim ${status.toLowerCase()} successfully!`, "success");
 
+          // Signal dashboard to refresh medical claims count
+          localStorage.setItem('medicalClaimsUpdated', Date.now().toString());
+
           // Reload claims
           await loadAllClaims();
 

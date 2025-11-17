@@ -528,6 +528,9 @@
               "success"
             );
 
+            // Signal dashboard to refresh medical claims count
+            localStorage.setItem('medicalClaimsUpdated', Date.now().toString());
+
             // Reset form and selected files
             e.target.reset();
             selectedFiles = [];

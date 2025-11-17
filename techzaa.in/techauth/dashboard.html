@@ -250,6 +250,54 @@
         </div>
       </div>
 
+      <!-- Policy Documents -->
+      <div class="bg-white rounded-lg shadow-md p-6 mb-8">
+        <h3 class="text-lg font-semibold text-gray-800 mb-4">
+          <i class="fas fa-file-alt mr-2"></i>Policy Documents
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <a
+            href="#"
+            onclick="alert('Staff Medical Policy document will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all"
+          >
+            <div class="bg-blue-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-heartbeat text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Staff Medical Policy</p>
+              <p class="text-xs text-gray-600">Healthcare guidelines</p>
+            </div>
+          </a>
+          <a
+            href="#"
+            onclick="alert('Employee Handbook will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border border-green-200 transition-all"
+          >
+            <div class="bg-green-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-book text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Employee Handbook</p>
+              <p class="text-xs text-gray-600">Company policies</p>
+            </div>
+          </a>
+          <a
+            href="#"
+            onclick="alert('Staff Welfare Guide will be available soon'); return false;"
+            class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 transition-all"
+          >
+            <div class="bg-purple-500 p-3 rounded-lg mr-4">
+              <i class="fas fa-hands-helping text-white text-xl"></i>
+            </div>
+            <div>
+              <p class="font-semibold text-gray-800">Staff Welfare Guide</p>
+              <p class="text-xs text-gray-600">Benefits & support</p>
+            </div>
+          </a>
+        </div>
+      </div>
+
       <!-- Announcements -->
       <div class="bg-white rounded-lg shadow-md p-6">
         <div class="flex items-center justify-between mb-4">
@@ -802,12 +850,17 @@
       // AUTO-REFRESH ON ATTENDANCE UPDATE
       // ========================================
       let lastAttendanceCheck = localStorage.getItem('attendanceUpdated') || '0';
+      let lastMedicalClaimsCheck = localStorage.getItem('medicalClaimsUpdated') || '0';
 
       // Listen for storage changes (works across tabs)
       window.addEventListener('storage', function(e) {
         if (e.key === 'attendanceUpdated' && e.newValue !== lastAttendanceCheck) {
           lastAttendanceCheck = e.newValue;
           refreshAttendanceData();
+        }
+        if (e.key === 'medicalClaimsUpdated' && e.newValue !== lastMedicalClaimsCheck) {
+          lastMedicalClaimsCheck = e.newValue;
+          refreshMedicalClaimsData();
         }
       });
 
@@ -817,6 +870,12 @@
         if (currentValue !== lastAttendanceCheck) {
           lastAttendanceCheck = currentValue;
           refreshAttendanceData();
+        }
+
+        const medicalClaimsValue = localStorage.getItem('medicalClaimsUpdated') || '0';
+        if (medicalClaimsValue !== lastMedicalClaimsCheck) {
+          lastMedicalClaimsCheck = medicalClaimsValue;
+          refreshMedicalClaimsData();
         }
       }, 3000);
 
@@ -828,6 +887,11 @@
           loadAttendanceData(),
           loadRecentActivity(),
         ]);
+      }
+
+      // Refresh medical claims data
+      async function refreshMedicalClaimsData() {
+        await loadMedicalClaimsCount();
       }
 
       // Initialize on page load
