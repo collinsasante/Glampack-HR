@@ -1448,6 +1448,49 @@
       document.getElementById("monthFilter").addEventListener("change", () => {
         loadAttendanceHistory();
       });
+
+      // ========================================
+      // MOBILE MENU TOGGLE
+      // ========================================
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+          mobileMenu.classList.toggle('hidden');
+        }
+      }
+
+      // ========================================
+      // CHECK IF USER IS ADMIN AND SHOW LINK
+      // ========================================
+      async function checkAndShowAdminLink() {
+        try {
+          const currentUser = getCurrentUser();
+          if (!currentUser || !currentUser.id) return;
+
+          const employee = await getEmployee(currentUser.id);
+          if (employee && employee.fields) {
+            const role = employee.fields['Role'] || '';
+            if (role === 'Admin' || role === 'HR') {
+              // Show desktop admin link
+              const adminLink = document.getElementById('adminLink');
+              if (adminLink) adminLink.style.display = '';
+
+              // Show mobile admin link
+              const adminLinkMobile = document.getElementById('adminLinkMobile');
+              if (adminLinkMobile) adminLinkMobile.style.display = '';
+            }
+          }
+        } catch (error) {
+          console.error('Error checking admin status:', error);
+        }
+      }
+
+      // Call on page load
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', checkAndShowAdminLink);
+      } else {
+        checkAndShowAdminLink();
+      }
     </script>
   </body>
 </html>
