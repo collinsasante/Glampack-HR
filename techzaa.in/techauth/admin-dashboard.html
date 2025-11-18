@@ -53,21 +53,43 @@
   </head>
   <body class="bg-gray-100 min-h-screen">
     <!-- Navigation Bar -->
-    <nav>
-      <div class="flex justify-between items-center px-6 py-3">
-        <!-- Logo -->
-        <div class="flex items-center space-x-3">
-          <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+    <nav class="bg-white shadow-md sticky top-0 z-50">
+      <div class="container mx-auto px-4 py-4">
+        <div class="flex justify-between items-center">
+          <!-- Logo -->
+          <div class="flex items-center space-x-3">
+            <img src="assets/images/logo_red.png" alt="Logo" class="h-10" />
+          </div>
+
+          <!-- Desktop Admin Menu -->
+          <div class="hidden md:flex items-center space-x-4">
+            <a href="admin-dashboard.html" class="text-red-600 font-semibold">
+              <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
+            </a>
+            <a href="dashboard.html" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-chart-line mr-1"></i> Employee View
+            </a>
+            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
+              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            </button>
+          </div>
+
+          <!-- Mobile Menu Button -->
+          <button onclick="toggleMobileMenu()" class="md:hidden text-gray-600 hover:text-red-600 focus:outline-none">
+            <i class="fas fa-bars text-2xl"></i>
+          </button>
         </div>
 
-        <!-- Admin Menu -->
-        <div class="flex items-center space-x-4">
-          <a href="admin-dashboard.html" class="text-red-600 font-semibold">
-            <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
+        <!-- Mobile Navigation Menu -->
+        <div id="mobileMenu" class="hidden md:hidden mt-4 pb-2 space-y-2">
+          <a href="admin-dashboard.html" class="block px-4 py-3 bg-red-100 text-red-600 font-semibold rounded-lg">
+            <i class="fas fa-user-shield mr-2"></i> Admin Dashboard
           </a>
-
-          <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-            <i class="fas fa-sign-out-alt mr-1"></i> Logout
+          <a href="dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+            <i class="fas fa-chart-line mr-2"></i> Employee View
+          </a>
+          <button onclick="logout()" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+            <i class="fas fa-sign-out-alt mr-2"></i> Logout
           </button>
         </div>
       </div>
@@ -1687,5 +1709,15 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script src="assets/js/admin.js"></script>
+
+    <script>
+      // Mobile menu toggle function
+      function toggleMobileMenu() {
+        const mobileMenu = document.getElementById('mobileMenu');
+        if (mobileMenu) {
+          mobileMenu.classList.toggle('hidden');
+        }
+      }
+    </script>
   </body>
 </html>
