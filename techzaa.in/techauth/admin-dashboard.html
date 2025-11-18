@@ -124,6 +124,54 @@
         </div>
       </div>
 
+      <!-- Tabs -->
+      <div class="bg-white rounded-lg shadow-lg mb-6">
+        <div class="flex border-b overflow-x-auto">
+          <button
+            onclick="switchTab('employees')"
+            id="tab-employees"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active whitespace-nowrap"
+          >
+            <i class="fas fa-users mr-2"></i> Employees
+          </button>
+          <button
+            onclick="switchTab('medical')"
+            id="tab-medical"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-notes-medical mr-2"></i> Medical Claims
+          </button>
+          <button
+            onclick="switchTab('leave')"
+            id="tab-leave"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-calendar-check mr-2"></i> Leave Management
+          </button>
+          <button
+            onclick="switchTab('attendance')"
+            id="tab-attendance"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-clock mr-2"></i> Attendance
+          </button>
+          <button
+            onclick="switchTab('announcements')"
+            id="tab-announcements"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-bullhorn mr-2"></i> Announcements
+          </button>
+          <button
+            onclick="switchTab('payroll')"
+            id="tab-payroll"
+            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+          >
+            <i class="fas fa-money-check-alt mr-2"></i> Payroll
+          </button>
+        </div>
+      </div>
+
       <!-- Employee Management Tab -->
       <div id="content-employees" class="tab-content">
         <div class="bg-white rounded-lg shadow-lg p-6">
