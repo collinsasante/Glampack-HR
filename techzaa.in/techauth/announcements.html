@@ -390,7 +390,7 @@
             }
           }
         } catch (error) {
-          console.error("Error checking admin status:", error);
+
         }
       }
 
@@ -432,7 +432,7 @@
             toggleCreateForm();
             loadAnnouncements();
           } catch (error) {
-            console.error("Error creating announcement:", error);
+
             alert("Error creating announcement. Please try again.");
           }
         });
@@ -473,7 +473,7 @@
 
           displayAnnouncements();
         } catch (error) {
-          console.error("Error loading announcements:", error);
+
           document.getElementById("announcementsList").innerHTML = `
                     <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
                         <p>Error loading announcements. Please refresh the page.</p>
@@ -647,7 +647,7 @@
                     alert('Failed to mark as read. Please try again.');
                 }
             } catch (error) {
-                console.error('Error marking as read:', error);
+
                 alert('Error marking as read. Please try again.');
             }
             */
@@ -774,7 +774,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 

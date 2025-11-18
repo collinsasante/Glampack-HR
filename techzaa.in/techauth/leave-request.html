@@ -386,7 +386,7 @@
               ? data.fields["Annual Leave Balance"]
               : 20;
         } catch (error) {
-          console.error("Error loading leave balances:", error);
+
           showError("Failed to load leave balances");
         }
       }
@@ -418,7 +418,7 @@
           // Render leave history
           renderLeaveHistory(allLeaveRequests);
         } catch (error) {
-          console.error("Error loading leave history:", error);
+
           const loadingStateEl = document.getElementById("loadingState");
           const emptyStateEl = document.getElementById("emptyState");
           if (loadingStateEl) loadingStateEl.classList.add("hidden");
@@ -435,11 +435,11 @@
 
         // Null checks for required elements
         if (!container) {
-          console.error("ERROR: pendingRequestsContainer element not found");
+
           return;
         }
         if (!noPendingState) {
-          console.error("ERROR: noPendingState element not found");
+
           return;
         }
 
@@ -505,15 +505,15 @@
 
         // Null checks for required elements
         if (!container) {
-          console.error("ERROR: leaveHistoryContainer element not found");
+
           return;
         }
         if (!loadingState) {
-          console.error("ERROR: loadingState element not found");
+
           return;
         }
         if (!emptyState) {
-          console.error("ERROR: emptyState element not found");
+
           return;
         }
 
@@ -817,7 +817,7 @@
 
           return { hasQuarterlyLeave: false, daysUsed: 0, quarter: quarter };
         } catch (error) {
-          console.error("Error checking quarterly usage:", error);
+
           return { hasQuarterlyLeave: false, daysUsed: 0 };
         }
       }
@@ -886,8 +886,7 @@
             await loadLeaveBalances();
             await loadLeaveHistory();
           } catch (error) {
-            console.error("Error submitting leave request:", error);
-            console.error("Error details:", error.message, error.stack);
+
             showError(
               `Failed to submit leave request: ${error.message || "Please try again."}`
             );
@@ -973,7 +972,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 

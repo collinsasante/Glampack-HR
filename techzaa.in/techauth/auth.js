@@ -70,7 +70,6 @@ async function login(email, password) {
         return true;
 
     } catch (error) {
-        console.error('Login error:', error);
         showError('Login failed. Please try again.');
         showLoading(false);
         return false;
@@ -130,7 +129,6 @@ async function signup(fullName, email, status, password, role = 'Employee') {
         return true;
 
     } catch (error) {
-        console.error('Signup error:', error);
         showError('Signup failed. Please try again.');
         showLoading(false);
         return false;
@@ -179,7 +177,6 @@ async function requestPasswordReset(email) {
         return true;
 
     } catch (error) {
-        console.error('Password reset request error:', error);
         showError('Failed to process password reset request. Please try again.');
         showLoading(false);
         return false;
@@ -349,7 +346,6 @@ function copyResetLink(link) {
     navigator.clipboard.writeText(link).then(() => {
         showSuccess('Reset link copied to clipboard!');
     }).catch(err => {
-        console.error('Failed to copy:', err);
         showError('Failed to copy link. Please copy manually.');
     });
 }

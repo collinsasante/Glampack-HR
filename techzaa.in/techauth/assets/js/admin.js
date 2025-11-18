@@ -44,7 +44,7 @@ async function checkAdminAccess() {
             throw new Error('Failed to fetch employee data');
         }
     } catch (error) {
-        console.error('Error checking admin access:', error);
+
         window.location.href = 'dashboard.html';
         return false;
     }
@@ -126,7 +126,7 @@ async function loadEmployees() {
         displayEmployees(allEmployees);
         populateEmployeeFilters();
     } catch (error) {
-        console.error('Error loading employees:', error);
+
         document.getElementById('employeesTableBody').innerHTML = `
             <tr>
                 <td colspan="6" class="px-6 py-4 text-center text-red-600">
@@ -517,7 +517,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
 
     // Validate required elements exist
     if (!fullNameEl || !emailEl || !statusEl || !roleEl || !employeeIdEl) {
-        console.error('Missing required form elements');
+
         alert('Error: Form fields not found. Please refresh the page.');
         return;
     }
@@ -594,7 +594,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         closeEmployeeModal();
         loadEmployees();
     } catch (error) {
-        console.error('Error saving employee:', error);
+
         alert('Error saving employee. Please try again.');
     }
 });
@@ -609,7 +609,7 @@ async function deleteEmployeeHandler(employeeId, employeeName) {
         alert('Employee deleted successfully!');
         loadEmployees();
     } catch (error) {
-        console.error('Error deleting employee:', error);
+
         alert('Error deleting employee. Please try again.');
     }
 }
@@ -630,7 +630,7 @@ async function toggleEmployeeStatus(employeeId, employeeName, currentStatus) {
         alert(`Employee account ${action}d successfully!${newStatus === 'Inactive' ? ' They will not be able to log in.' : ' They can now log in.'}`);
         loadEmployees();
     } catch (error) {
-        console.error('Error toggling employee status:', error);
+
         alert('Error updating employee status. Please try again.');
     }
 }
@@ -656,7 +656,7 @@ async function loadLeaveRequests() {
         // Apply current filter
         filterLeaveRequests(currentLeaveFilter);
     } catch (error) {
-        console.error('Error loading leave requests:', error);
+
         document.getElementById('leaveRequestsBody').innerHTML = `
             <tr>
                 <td colspan="7" class="px-6 py-4 text-center text-red-600">
@@ -723,7 +723,7 @@ async function displayLeaveRequests(requests) {
                     return { id: req.id, name: employee.fields['Full Name'] };
                 }
             } catch (error) {
-                console.error('Error fetching employee:', error);
+
             }
         }
         return { id: req.id, name: 'Unknown' };
@@ -824,20 +824,14 @@ async function approveLeave(leaveId) {
         const newBalance = Math.max(0, currentAnnualBalance - numberOfDays);
 
         // Update employee's annual leave balance
-        console.log('Attempting to update employee balance:', {
-            employeeId,
-            currentBalance: currentAnnualBalance,
-            days: numberOfDays,
-            newBalance
-        });
 
         try {
             const updateResult = await updateEmployee(employeeId, {
                 'Annual Leave Balance': newBalance
             });
-            console.log('Employee balance updated successfully:', updateResult);
+
         } catch (updateError) {
-            console.error('Failed to update employee balance:', updateError);
+
             alert(`Leave approved but failed to update balance. Error: ${updateError.message}`);
             loadLeaveRequests();
             return;
@@ -847,7 +841,7 @@ async function approveLeave(leaveId) {
 
         loadLeaveRequests();
     } catch (error) {
-        console.error('Error approving leave:', error);
+
         alert('Error approving leave. Please try again.');
     }
 }
@@ -868,7 +862,7 @@ async function rejectLeave(leaveId) {
         alert('Leave request rejected!');
         loadLeaveRequests();
     } catch (error) {
-        console.error('Error rejecting leave:', error);
+
         alert('Error rejecting leave. Please try again.');
     }
 }
@@ -1152,7 +1146,7 @@ async function loadAnnouncements() {
 
         displayAnnouncements(filteredAnnouncements);
     } catch (error) {
-        console.error('Error loading announcements:', error);
+
         document.getElementById('announcementsContainer').innerHTML = `
             <div class="text-center text-red-600 p-4">
                 Error loading announcements. Please try again.
@@ -1255,7 +1249,7 @@ async function deleteAnnouncement(announcementId) {
         alert('Announcement deleted successfully!');
         loadAnnouncements();
     } catch (error) {
-        console.error('Error deleting announcement:', error);
+
         alert('Error deleting announcement. Please try again.');
     }
 }
@@ -1270,12 +1264,12 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
     let authorName = 'Admin';
     try {
         const currentUser = getCurrentUser();
-        console.log('Current user:', currentUser);
+
         if (currentUser && currentUser.name) {
             authorName = currentUser.name;
         }
     } catch (error) {
-        console.error('Error getting current user:', error);
+
     }
 
     const data = {
@@ -1285,8 +1279,6 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         'Posted By': authorName
     };
 
-    console.log('Submitting announcement data:', data);
-
     try {
         if (announcementId) {
             // Update existing announcement
@@ -1295,15 +1287,14 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         } else {
             // Create new announcement
             const result = await createAnnouncement(data);
-            console.log('Announcement created:', result);
+
             alert('Announcement posted successfully!');
         }
 
         closeAnnouncementModal();
         loadAnnouncements();
     } catch (error) {
-        console.error('Error saving announcement:', error);
-        console.error('Error details:', error.message);
+
         alert(`Error saving announcement: ${error.message}`);
     }
 });
@@ -1315,11 +1306,6 @@ async function loadAttendanceRecords() {
     const dateRange = document.getElementById('attendanceDateRange').value;
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
     const statusFilter = document.getElementById('attendanceStatusFilter').value;
-
-    console.log('=== LOADING ATTENDANCE RECORDS ===');
-    console.log('Date Range:', dateRange);
-    console.log('Employee ID Filter:', employeeId);
-    console.log('Status Filter:', statusFilter);
 
     try {
         // Calculate date range
@@ -1351,8 +1337,6 @@ async function loadAttendanceRecords() {
                 startDate = endDate = today.toISOString().split('T')[0];
         }
 
-        console.log('Date range:', startDate, 'to', endDate);
-
         // Build filter formula
         let filterFormula;
         if (startDate === endDate) {
@@ -1367,10 +1351,7 @@ async function loadAttendanceRecords() {
             filterFormula = `AND(${filterFormula}, FIND('${employeeId}', ARRAYJOIN({Employee})))`;
         }
 
-        console.log('Filter formula:', filterFormula);
-
         const data = await getAttendance(filterFormula);
-        console.log('Attendance records fetched:', data.records?.length || 0);
 
         allAttendanceRecords = data.records || [];
 
@@ -1397,7 +1378,7 @@ async function loadAttendanceRecords() {
         await displayAttendanceRecords(filteredRecords);
         updateAttendanceStats(filteredRecords);
     } catch (error) {
-        console.error('Error loading attendance records:', error);
+
         document.getElementById('attendanceRecordsBody').innerHTML = `
             <tr>
                 <td colspan="6" class="px-6 py-4 text-center text-red-600">
@@ -1483,7 +1464,7 @@ async function displayAttendanceRecords(records) {
                     return { id: rec.id, name: employee.fields['Full Name'], empId: rec.fields['Employee'][0] };
                 }
             } catch (error) {
-                console.error('Error fetching employee:', error);
+
             }
         }
         return { id: rec.id, name: 'Unknown', empId: '' };
@@ -1570,7 +1551,7 @@ document.getElementById('attendanceForm').addEventListener('submit', async funct
         closeAttendanceModal();
         loadAttendanceRecords();
     } catch (error) {
-        console.error('Error updating attendance:', error);
+
         alert('Error updating attendance. Please try again.');
     }
 });
@@ -1639,7 +1620,7 @@ async function generateEmployeeReport() {
 
         doc.save(`Employee_Report_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
-        console.error('Error generating report:', error);
+
         alert('Error generating report. Please try again.');
     }
 }
@@ -1678,7 +1659,7 @@ async function generateAttendanceReport() {
                         employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
-                    console.error('Error fetching employee:', error);
+
                 }
             }
 
@@ -1701,7 +1682,7 @@ async function generateAttendanceReport() {
 
         doc.save(`Attendance_Report_${monthName.replace(' ', '_')}.pdf`);
     } catch (error) {
-        console.error('Error generating report:', error);
+
         alert('Error generating report. Please try again.');
     }
 }
@@ -1738,7 +1719,7 @@ async function generateLeaveReport() {
                         employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
-                    console.error('Error fetching employee:', error);
+
                 }
             }
 
@@ -1763,7 +1744,7 @@ async function generateLeaveReport() {
 
         doc.save(`Leave_Report_${year}.pdf`);
     } catch (error) {
-        console.error('Error generating report:', error);
+
         alert('Error generating report. Please try again.');
     }
 }
@@ -1802,7 +1783,7 @@ async function generatePayrollReport() {
                         employeeName = employee.fields['Full Name'];
                     }
                 } catch (error) {
-                    console.error('Error fetching employee:', error);
+
                 }
             }
 
@@ -1839,7 +1820,7 @@ async function generatePayrollReport() {
 
         doc.save(`Payroll_Report_${monthName.replace(' ', '_')}.pdf`);
     } catch (error) {
-        console.error('Error generating report:', error);
+
         alert('Error generating report. Please try again.');
     }
 }
@@ -1879,7 +1860,7 @@ async function loadPayrollRecords() {
 
         displayPayrollRecords();
     } catch (error) {
-        console.error('Error loading payroll:', error);
+
         document.getElementById('payrollTableBody').innerHTML = `
             <tr>
                 <td colspan="8" class="px-6 py-4 text-center text-red-600">
@@ -2013,7 +1994,7 @@ async function openAddPayrollModal() {
             select.appendChild(option);
         });
     } catch (error) {
-        console.error('Error loading employees:', error);
+
     }
 
     document.getElementById('payrollModal').classList.add('active');
@@ -2296,7 +2277,6 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         closePayrollModal();
         loadPayrollRecords();
     } catch (error) {
-        console.error('Error saving payroll:', error);
 
         // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
@@ -2365,7 +2345,7 @@ async function refreshTabData(tabName) {
         }
         updateLastRefreshTime();
     } catch (error) {
-        console.error('Error refreshing tab data:', error);
+
     }
 }
 
@@ -2438,7 +2418,7 @@ checkAdminAccess().then(hasAccess => {
             // Update last refresh time after all data is loaded
             updateLastRefreshTime();
         }).catch(error => {
-            console.error('Error loading initial data:', error);
+
         });
 
         // Start auto-refresh

@@ -733,7 +733,7 @@
           populateEmployment();
           await loadEmergencyContact(); // Load from separate table
         } catch (error) {
-          console.error("Error loading employee data:", error);
+
           showNotification(
             "Failed to load profile data. Please refresh the page.",
             "error"
@@ -743,7 +743,6 @@
 
       // Populate profile
       function populateProfile() {
-        console.log('DEBUG populateProfile: employeeData =', employeeData);
 
         const name = employeeData["Full Name"] || "User";
         // Better initials handling - take first letter of first and last name
@@ -765,10 +764,6 @@
         const city = employeeData["City"] || "";
         const country = employeeData["Country"] || "";
 
-        console.log('DEBUG populateProfile: Setting values:', {
-          fullName, email, phoneNumber, dateOfBirth, address, city, country
-        });
-
         const ghanaCardNumber = employeeData["Ghana Card Number"] || "";
         const bankName = employeeData["Bank Name"] || "";
         const bankAccountNumber = employeeData["Bank Account Number"] || "";
@@ -786,7 +781,7 @@
         document.getElementById("bankAccountNumber").value = bankAccountNumber;
         document.getElementById("bankBranch").value = bankBranch;
 
-        console.log('DEBUG populateProfile: After setting, fullName input value =', document.getElementById("fullName").value);
+        .value);
       }
 
       // Populate employment
@@ -856,7 +851,7 @@
             document.getElementById("emergencyAddress").value = "";
           }
         } catch (error) {
-          console.error("Error loading emergency contact:", error);
+
         }
       }
 
@@ -881,9 +876,6 @@
         );
         const isReadonly = inputs[0].hasAttribute("readonly");
 
-        console.log('DEBUG toggleEditProfile: isReadonly =', isReadonly);
-        console.log('DEBUG toggleEditProfile: number of inputs =', inputs.length);
-
         inputs.forEach((input) => {
           if (isReadonly) {
             // Entering edit mode
@@ -896,7 +888,7 @@
             input.classList.add("bg-gray-50");
             input.classList.remove("bg-white");
           }
-          console.log(`DEBUG: Input ${input.id} value after toggle:`, input.value);
+
         });
 
         document
@@ -1015,9 +1007,7 @@
                   .value.trim();
                 updateData[field.key] = value; // Send even if empty to allow clearing fields
               } else {
-                console.warn(
-                  `Field ${field.key} not found in Airtable - skipping`
-                );
+
               }
             });
             await updateEmployee(currentUser.id, updateData);
@@ -1040,7 +1030,7 @@
             // Then exit edit mode to show the updated readonly values
             toggleEditProfile();
           } catch (error) {
-            console.error("Error updating profile:", error);
+
             // More detailed error message
             let errorMsg = "Failed to update profile. ";
             try {
@@ -1146,7 +1136,7 @@
             toggleEditEmergency();
             await loadEmergencyContact();
           } catch (error) {
-            console.error("Error updating emergency contact:", error);
+
             // More detailed error message
             let errorMsg = "Failed to update emergency contact. ";
             try {
@@ -1242,7 +1232,7 @@
             document.getElementById("changePasswordForm").reset();
             await loadEmployeeData();
           } catch (error) {
-            console.error("Error updating password:", error);
+
             showNotification(
               "Failed to update password. Please try again.",
               "error"
@@ -1289,7 +1279,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 

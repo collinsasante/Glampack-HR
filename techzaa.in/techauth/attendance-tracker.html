@@ -767,7 +767,7 @@
             `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`
           );
         } catch (error) {
-          console.error("Error getting location name:", error);
+
           // Fallback to coordinates if reverse geocoding fails
           return `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
         }
@@ -866,12 +866,6 @@
         const time = getCurrentTime();
         const datetime = getCurrentDateTime();
 
-        console.log('=== CHECK-IN DEBUG ===');
-        console.log('Employee ID:', EMPLOYEE_ID);
-        console.log('Employee Name:', currentUser.name);
-        console.log('Today Date:', today);
-        console.log('DateTime:', datetime);
-
         try {
           showMessage("Getting your location...", "info");
 
@@ -883,7 +877,7 @@
             ipAddress = ipLocation.ip;
             locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
           } catch (locationError) {
-            console.error("Location error:", locationError);
+
           }
 
           const fields = {
@@ -898,11 +892,10 @@
           }
 
           const existingRecord = await findTodayRecord();
-          console.log('Existing record found:', existingRecord);
 
           if (existingRecord) {
             // Update existing record
-            console.log('Updating existing record:', existingRecord.id);
+
             await updateRecord(existingRecord.id, fields);
             todayRecordId = existingRecord.id;
             setTodayRecordId(existingRecord.id);
@@ -913,11 +906,9 @@
               Employee: [EMPLOYEE_ID],
               ...fields,
             };
-            console.log('Creating new record with data:', recordData);
+
             const newRecord = await createRecord(recordData);
-            console.log('New record created:', newRecord);
-            console.log('Record ID:', newRecord.id);
-            console.log('Record fields:', newRecord.fields);
+
             // Store the record ID for checkout in both memory and localStorage
             todayRecordId = newRecord.id;
             setTodayRecordId(newRecord.id);
@@ -931,7 +922,7 @@
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history
         } catch (error) {
-          console.error("Check-in error:", error);
+
           showMessage(`Error checking in: ${error.message}`, "error");
         }
       }
@@ -971,7 +962,7 @@
             ipAddress = ipLocation.ip;
             locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
           } catch (locationError) {
-            console.error("Location error:", locationError);
+
           }
 
           // Update record with check-out time and location
@@ -1005,7 +996,7 @@
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history with updated record
         } catch (error) {
-          console.error("Check-out error:", error);
+
           showMessage(`Error checking out: ${error.message}`, "error");
         }
       }
@@ -1016,16 +1007,12 @@
       async function findTodayRecord() {
         const today = getTodayDate();
 
-        console.log('=== FIND TODAY RECORD DEBUG ===');
-        console.log('Looking for date:', today);
-        console.log('Employee ID:', EMPLOYEE_ID);
-
         // TEMP DEBUG: Fetch ALL attendance records to see what exists
-        console.log('DEBUG: Fetching ALL attendance records to diagnose issue...');
+
         const allRecords = await getAttendance(); // No filter
-        console.log('Total attendance records in table:', allRecords.records?.length || 0);
+
         if (allRecords.records && allRecords.records.length > 0) {
-          console.log('Sample of first 3 records:', allRecords.records.slice(0, 3).map(r => ({
+          .map(r => ({
             id: r.id,
             date: r.fields.Date,
             employee: r.fields.Employee,
@@ -1035,28 +1022,21 @@
 
         // Get all records for this employee using Worker API
         const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
-        console.log('Filter formula:', filterFormula);
 
         const data = await getAttendance(filterFormula);
-        console.log('Total records found for employee:', data.records?.length || 0);
 
         if (data.records && data.records.length > 0) {
-          console.log('Sample record:', data.records[0]);
-          console.log('All record dates:', data.records.map(r => ({
-            id: r.id,
-            date: r.fields.Date,
-            employee: r.fields.Employee
-          })));
+
+          ));
         }
 
         // Filter in JavaScript to find today's record
         const todayRecord = data.records.find((record) => {
           const recordDate = record.fields.Date;
-          console.log(`Comparing: recordDate="${recordDate}" vs today="${today}"`);
+
           return recordDate === today;
         });
 
-        console.log('Today record found:', todayRecord ? todayRecord.id : 'null');
         return todayRecord || null;
       }
 
@@ -1162,7 +1142,7 @@
             }
           }
         } catch (error) {
-          console.error("Error loading today status:", error);
+
         }
       }
 
@@ -1405,7 +1385,7 @@
               "bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500";
           }
         } catch (error) {
-          console.error("Error loading attendance history:", error);
+
           loadingDiv.classList.add("hidden");
           emptyDiv.classList.remove("hidden");
 
@@ -1481,7 +1461,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 

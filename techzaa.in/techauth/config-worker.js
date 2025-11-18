@@ -49,13 +49,13 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
 
         if (!response.ok) {
             const error = await response.json();
-            console.error('API Error Details:', error);
+
             throw new Error(JSON.stringify(error.error || error) || `API request failed with status ${response.status}`);
         }
 
         return response.json();
     } catch (error) {
-        console.error('Worker API Error:', error);
+
         throw error;
     }
 }
@@ -371,7 +371,7 @@ async function getIPLocation() {
         }
         return response.json();
     } catch (error) {
-        console.error('IP Lookup Error:', error);
+
         throw error;
     }
 }
@@ -398,5 +398,3 @@ const AIRTABLE_CONFIG = {
     }
 };
 
-console.log('✅ Cloudflare Worker API Configuration Loaded');
-console.log('🔒 API credentials are secured in Cloudflare environment variables');

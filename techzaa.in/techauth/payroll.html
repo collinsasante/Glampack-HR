@@ -480,7 +480,7 @@
               formatCurrency(welfare + otherDeductions);
           }
         } catch (error) {
-          console.error("Error loading salary info:", error);
+
         }
       }
 
@@ -595,7 +595,7 @@
             })
             .join("");
         } catch (error) {
-          console.error("Error loading payment history:", error);
+
           tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-red-600">
@@ -677,7 +677,7 @@
             bankName = employee.fields["Bank Name"] || "N/A";
           }
         } catch (error) {
-          console.error("Error fetching employee bank details:", error);
+
         }
 
         const employeeData = {
@@ -716,7 +716,7 @@
           // Height of 18mm, width should be ~76mm, but we'll use 30mm to fit header
           doc.addImage(logoBase64, "PNG", 20, 12, 30, 7);
         } catch (error) {
-          console.error("Error loading logo:", error);
+
           // No logo placeholder - just skip it
         }
 
@@ -977,7 +977,7 @@
             }
           }
         } catch (error) {
-          console.error("Error checking admin status:", error);
+
         }
       }
 

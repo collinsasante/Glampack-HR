@@ -514,7 +514,7 @@
           const diffMs = checkOutTime - checkInTime;
           return diffMs / (1000 * 60 * 60); // Convert to hours
         } catch (error) {
-          console.error('Error calculating hours from timestamps:', error);
+
           return 0;
         }
       }
@@ -537,7 +537,7 @@
           document.getElementById("pendingRequests").textContent =
             pendingRequests.length;
         } catch (error) {
-          console.error("Error loading pending requests:", error);
+
           document.getElementById("pendingRequests").textContent = "0";
         }
       }
@@ -731,7 +731,7 @@
             )
             .join("");
         } catch (error) {
-          console.error("Error loading announcements:", error);
+
           document.getElementById("announcementsList").innerHTML = `
             <div class="text-center text-red-500 py-4">
               <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
@@ -843,7 +843,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 

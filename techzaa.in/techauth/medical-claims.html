@@ -423,7 +423,7 @@
               .classList.add("text-red-600");
           }
         } catch (error) {
-          console.error("Error loading medical balance:", error);
+
         }
       }
 
@@ -494,7 +494,7 @@
             })
             .join("");
         } catch (error) {
-          console.error("Error loading claims:", error);
+
           showMessage("Failed to load claims history", "error");
         }
       }
@@ -576,7 +576,7 @@
             await loadMedicalBalance();
             await loadClaimsHistory();
           } catch (error) {
-            console.error("Error submitting claim:", error);
+
             showMessage(
               error.message || "Failed to submit claim. Please try again.",
               "error"
@@ -639,7 +639,7 @@
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+
         }
       }
 
