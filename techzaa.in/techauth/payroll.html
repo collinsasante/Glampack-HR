@@ -101,38 +101,70 @@
           </div>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 hover:text-red-600 focus:outline-none">
+          <button
+            onclick="toggleMobileMenu()"
+            class="lg:hidden text-gray-600 hover:text-red-600 focus:outline-none"
+          >
             <i class="fas fa-bars text-2xl"></i>
           </button>
         </div>
 
         <!-- Mobile Navigation Menu (hidden by default) -->
         <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-2 space-y-2">
-          <a href="dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="dashboard.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-chart-line mr-2"></i> Dashboard
           </a>
-          <a href="attendance-tracker.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="attendance-tracker.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-clock mr-2"></i> Attendance
           </a>
-          <a href="leave-request.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="leave-request.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-calendar-alt mr-2"></i> Leave
           </a>
-          <a href="medical-claims.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="medical-claims.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-notes-medical mr-2"></i> Medical Claims
           </a>
-          <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="profile.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-user mr-2"></i> Profile
           </a>
-          <a href="announcements.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="announcements.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-bullhorn mr-2"></i> Announcements
           </a>
-          <a href="payroll.html" class="block px-4 py-3 bg-red-100 text-red-600 font-semibold rounded-lg">
+          <a
+            href="payroll.html"
+            class="block px-4 py-3 bg-red-100 text-red-600 font-semibold rounded-lg"
+          >
             <i class="fas fa-money-bill-wave mr-2"></i> Payroll
           </a>
-          <a href="admin-dashboard.html" id="adminLinkMobile" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg" style="display: none">
+          <a
+            href="admin-dashboard.html"
+            id="adminLinkMobile"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+            style="display: none"
+          >
             <i class="fas fa-user-shield mr-2"></i> Admin
           </a>
-          <button onclick="logout()" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+          <button
+            onclick="logout()"
+            class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg"
+          >
             <i class="fas fa-sign-out-alt mr-2"></i> Logout
           </button>
         </div>
@@ -301,32 +333,32 @@
             <thead class="bg-gray-50">
               <tr>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Month
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="hidden sm:table-cell px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Gross Salary
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="hidden lg:table-cell px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Deductions
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Net Salary
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="hidden md:table-cell px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Status
                 </th>
                 <th
-                  class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                  class="px-4 md:px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                 >
                   Actions
                 </th>
@@ -535,26 +567,27 @@
 
               return `
                         <tr class="hover:bg-gray-50">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-medium text-gray-900">${monthDisplay}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="hidden sm:table-cell px-4 md:px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">${formatCurrency(grossSalary)}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="hidden lg:table-cell px-4 md:px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm text-gray-900">${formatCurrency(deductions)}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-4 md:px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-semibold text-gray-900">${formatCurrency(netSalary)}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="hidden md:table-cell px-4 md:px-6 py-4 whitespace-nowrap">
                                 <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusColor}">
                                     ${status}
                                 </span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick='downloadPayslipFromRecord(${JSON.stringify(fields).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
-                                    <i class="fas fa-download mr-1"></i> Download
+                            <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                <button onclick='downloadPayslipFromRecord(${JSON.stringify(fields).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 flex items-center gap-1">
+                                    <i class="fas fa-download"></i>
+                                    <span class="hidden sm:inline">Download</span>
                                 </button>
                             </td>
                         </tr>
@@ -582,7 +615,9 @@
         // Structure payment data
         const basicSalary = parseFloat(fields["Basic Salary"] || 0);
         const housingAllowance = parseFloat(fields["Housing Allowance"] || 0);
-        const transportAllowance = parseFloat(fields["Transport Allowance"] || 0);
+        const transportAllowance = parseFloat(
+          fields["Transport Allowance"] || 0
+        );
         const benefits = parseFloat(fields["Benefits"] || 0);
         const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
 
@@ -595,7 +630,9 @@
         const totalAllowances = parseFloat(fields["Total Allowances"] || 0);
         const totalDeductions = parseFloat(fields["Total Deductions"] || 0);
         const grossSalary = parseFloat(fields["Gross Salary"] || 0);
-        const netSalary = parseFloat(fields["Net Pay"] || fields["Net Salary"] || 0);
+        const netSalary = parseFloat(
+          fields["Net Pay"] || fields["Net Salary"] || 0
+        );
 
         // Format period for display
         const monthValue = fields["Month"] || "";
@@ -613,28 +650,28 @@
           period: periodString,
           basicSalary: basicSalary,
           earnings: [
-            { label: "Housing A", amount: housingAllowance },
-            { label: "TRPT A", amount: transportAllowance },
+            { label: "Housing Allowance", amount: housingAllowance },
+            { label: "Transport Allowance", amount: transportAllowance },
             { label: "Benefits", amount: benefits },
-            { label: "Other A", amount: otherAllowances }
-          ].filter(item => item.amount > 0),
+            { label: "Other Allowances", amount: otherAllowances },
+          ].filter((item) => item.amount > 0),
           totalEarnings: totalAllowances,
           deductions: [
-            { label: "PAYE", amount: incomeTax },
-            { label: "SWF", amount: welfare },
-            { label: "SSNIT C", amount: socialSecurity },
-            { label: "Health Ins", amount: healthInsurance },
-            { label: "Other D", amount: otherDeductions }
-          ].filter(item => item.amount > 0),
+            { label: "Income Tax", amount: incomeTax },
+            { label: "Welfare", amount: welfare },
+            { label: "Social Security", amount: socialSecurity },
+            { label: "Health Insurance", amount: healthInsurance },
+            { label: "Other Deductions", amount: otherDeductions },
+          ].filter((item) => item.amount > 0),
           totalDeductions: totalDeductions,
-          netSalary: netSalary
+          netSalary: netSalary,
         };
 
         const employeeData = {
           name: currentUser.name || "N/A",
           nationalID: "N/A", // Not stored in session
           position: currentUser.jobTitle || "N/A",
-          department: currentUser.department || "N/A"
+          department: currentUser.department || "N/A",
         };
 
         await downloadPayslip(paymentData, employeeData);
@@ -651,7 +688,7 @@
 
         // Logo - Load from assets/images/logo_red.png (RGBA format works better with jsPDF)
         try {
-          const logoResponse = await fetch('assets/images/logo_red.png');
+          const logoResponse = await fetch("assets/images/logo_red.png");
           const logoBlob = await logoResponse.blob();
           const logoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -664,7 +701,7 @@
           // Height of 18mm, width should be ~76mm, but we'll use 30mm to fit header
           doc.addImage(logoBase64, "PNG", 20, 12, 30, 7);
         } catch (error) {
-          console.error('Error loading logo:', error);
+          console.error("Error loading logo:", error);
           // No logo placeholder - just skip it
         }
 
@@ -860,19 +897,22 @@
 
       // Format Currency (GH₵)
       function formatCurrency(amount) {
-        return "GH₵" + Number(amount).toLocaleString("en-GH", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        });
+        return (
+          "GH₵" +
+          Number(amount).toLocaleString("en-GH", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          })
+        );
       }
 
       // ========================================
       // MOBILE MENU TOGGLE
       // ========================================
       function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenu = document.getElementById("mobileMenu");
         if (mobileMenu) {
-          mobileMenu.classList.toggle('hidden');
+          mobileMenu.classList.toggle("hidden");
         }
       }
 
@@ -886,26 +926,27 @@
 
           const employee = await getEmployee(currentUser.id);
           if (employee && employee.fields) {
-            const role = employee.fields['Role'] || '';
-            if (role === 'Admin' || role === 'HR') {
+            const role = employee.fields["Role"] || "";
+            if (role === "Admin" || role === "HR") {
               // Show desktop admin link
-              const adminLink = document.getElementById('adminLink');
-              if (adminLink) adminLink.style.display = '';
+              const adminLink = document.getElementById("adminLink");
+              if (adminLink) adminLink.style.display = "";
 
               // Show mobile admin link
-              const adminLinkMobile = document.getElementById('adminLinkMobile');
-              if (adminLinkMobile) adminLinkMobile.style.display = '';
+              const adminLinkMobile =
+                document.getElementById("adminLinkMobile");
+              if (adminLinkMobile) adminLinkMobile.style.display = "";
             }
           }
         } catch (error) {
-          console.error('Error checking admin status:', error);
+          console.error("Error checking admin status:", error);
         }
       }
 
       // ========================================
       // INITIALIZE PAGE
       // ========================================
-      window.addEventListener('DOMContentLoaded', function() {
+      window.addEventListener("DOMContentLoaded", function () {
         loadSalaryInfo();
         loadPaymentHistory();
         checkAndShowAdminLink();

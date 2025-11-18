@@ -1358,7 +1358,8 @@ async function loadAttendanceRecords() {
         if (startDate === endDate) {
             filterFormula = `{Date} = '${startDate}'`;
         } else {
-            filterFormula = `AND(IS_AFTER({Date}, '${startDate}'), IS_BEFORE({Date}, DATEADD('${endDate}', 1, 'days')))`;
+            // Use proper Airtable date comparison
+            filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
         // Add employee filter if selected
