@@ -1382,11 +1382,11 @@ async function loadAttendanceRecords() {
                 if (!checkIn || checkIn === '--:--') {
                     return statusFilter === 'incomplete';
                 }
-                const hour = parseInt(checkIn.split(':')[0]);
+                const [hour, minute] = checkIn.split(':').map(Number);
                 if (statusFilter === 'present') {
-                    return hour < 9;
+                    return hour < 8 || (hour === 8 && minute <= 30);
                 } else if (statusFilter === 'late') {
-                    return hour >= 9;
+                    return hour > 8 || (hour === 8 && minute > 30);
                 } else if (statusFilter === 'incomplete') {
                     return !rec.fields['Check Out'] || rec.fields['Check Out'] === '--:--';
                 }
@@ -1419,15 +1419,15 @@ async function updateAttendanceStats(records) {
     const presentToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
         if (!checkIn || checkIn === '--:--') return false;
-        const hour = parseInt(checkIn.split(':')[0]);
-        return hour < 9;
+        const [hour, minute] = checkIn.split(':').map(Number);
+        return hour < 8 || (hour === 8 && minute <= 30);
     }).length;
 
     const lateToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
         if (!checkIn || checkIn === '--:--') return false;
-        const hour = parseInt(checkIn.split(':')[0]);
-        return hour >= 9;
+        const [hour, minute] = checkIn.split(':').map(Number);
+        return hour > 8 || (hour === 8 && minute > 30);
     }).length;
 
     // Calculate average hours from the currently displayed records (filtered view)
