@@ -667,11 +667,26 @@
           netSalary: netSalary,
         };
 
+        // Fetch employee bank account details
+        let bankAccountNumber = "N/A";
+        let bankName = "N/A";
+        try {
+          const employee = await getEmployee(currentUser.id);
+          if (employee && employee.fields) {
+            bankAccountNumber = employee.fields["Bank Account Number"] || "N/A";
+            bankName = employee.fields["Bank Name"] || "N/A";
+          }
+        } catch (error) {
+          console.error("Error fetching employee bank details:", error);
+        }
+
         const employeeData = {
           name: currentUser.name || "N/A",
           nationalID: "N/A", // Not stored in session
           position: currentUser.jobTitle || "N/A",
           department: currentUser.department || "N/A",
+          bankAccountNumber: bankAccountNumber,
+          bankName: bankName,
         };
 
         await downloadPayslip(paymentData, employeeData);
@@ -737,10 +752,11 @@
         // ============ EMPLOYEE INFO BOX ============
 
         doc.setFillColor(245, 245, 245);
-        doc.rect(20, 65, 170, 38, "F");
+        doc.rect(20, 65, 170, 50, "F");
 
         let y = 70;
 
+        // LEFT COLUMN
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
@@ -764,10 +780,21 @@
 
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
-        doc.text("Payment Method", 25, y);
+        doc.text("Bank Name", 25, y);
         doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
-        doc.text("Cash", 25, y + 4);
+        doc.setFontSize(9);
+        doc.text(employeeData.bankName, 25, y + 4);
+
+        y += 12;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Account Number", 25, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.bankAccountNumber, 25, y + 4);
 
         // RIGHT COLUMN
         y = 70;
@@ -784,11 +811,22 @@
         doc.setTextColor(120, 120, 120);
         doc.text("Department", 110, y);
         doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
         doc.text(employeeData.department || "-", 110, y + 4);
+
+        y += 12;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Payment Method", 110, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text("Bank Transfer", 110, y + 4);
 
         // ============ SALARY BREAKDOWN ============
 
-        y = 115;
+        y = 127;
 
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");

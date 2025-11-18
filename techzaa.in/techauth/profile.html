@@ -1034,11 +1034,11 @@
 
             showNotification("Profile updated successfully!", "success");
 
-            // Exit edit mode first
-            toggleEditProfile();
-
-            // Reload employee data from Airtable
+            // Reload employee data from Airtable FIRST
             await loadEmployeeData();
+
+            // Then exit edit mode to show the updated readonly values
+            toggleEditProfile();
           } catch (error) {
             console.error("Error updating profile:", error);
             // More detailed error message
