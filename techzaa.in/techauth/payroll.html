@@ -613,9 +613,9 @@
 
         // ============ HEADER – COMPANY INFO ============
 
-        // Logo - Load from assets/images/logo.png
+        // Logo - Load from assets/images/logo_red.png (RGBA format works better with jsPDF)
         try {
-          const logoResponse = await fetch('assets/images/logo.png');
+          const logoResponse = await fetch('assets/images/logo_red.png');
           const logoBlob = await logoResponse.blob();
           const logoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -623,8 +623,10 @@
             reader.readAsDataURL(logoBlob);
           });
 
-          // Add image to PDF
-          doc.addImage(logoBase64, "PNG", 20, 12, 18, 18);
+          // Add image to PDF - calculate aspect ratio for proper sizing
+          // logo_red.png is 1930x457, aspect ratio ~4.22:1
+          // Height of 18mm, width should be ~76mm, but we'll use 30mm to fit header
+          doc.addImage(logoBase64, "PNG", 20, 12, 30, 7);
         } catch (error) {
           console.error('Error loading logo:', error);
           // No logo placeholder - just skip it
