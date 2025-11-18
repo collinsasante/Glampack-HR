@@ -613,9 +613,9 @@
 
         // ============ HEADER – COMPANY INFO ============
 
-        // Logo - Load logo.png
+        // Logo - Load from assets/images/logo.png
         try {
-          const logoResponse = await fetch('logo.png');
+          const logoResponse = await fetch('assets/images/logo.png');
           const logoBlob = await logoResponse.blob();
           const logoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
