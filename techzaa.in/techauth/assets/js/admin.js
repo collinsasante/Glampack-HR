@@ -1409,18 +1409,28 @@ async function loadAttendanceRecords() {
 }
 
 // Update attendance statistics
-function updateAttendanceStats(records) {
-    const presentToday = records.filter(rec => {
+async function updateAttendanceStats(records) {
+    // Get today's date for "Present Today" and "Late Today" stats
+    const today = new Date().toISOString().split('T')[0];
+
+    // Filter records for today only for Present/Late counts
+    const todayRecords = allAttendanceRecords.filter(rec => rec.fields['Date'] === today);
+
+    const presentToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
-        return checkIn && checkIn !== '--:--' && parseInt(checkIn.split(':')[0]) < 9;
+        if (!checkIn || checkIn === '--:--') return false;
+        const hour = parseInt(checkIn.split(':')[0]);
+        return hour < 9;
     }).length;
 
-    const lateToday = records.filter(rec => {
+    const lateToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
-        return checkIn && checkIn !== '--:--' && parseInt(checkIn.split(':')[0]) >= 9;
+        if (!checkIn || checkIn === '--:--') return false;
+        const hour = parseInt(checkIn.split(':')[0]);
+        return hour >= 9;
     }).length;
 
-    // Calculate average hours
+    // Calculate average hours from the currently displayed records (filtered view)
     let totalHours = 0;
     let recordsWithCheckout = 0;
     records.forEach(rec => {
@@ -1430,15 +1440,15 @@ function updateAttendanceStats(records) {
             const [inHour, inMin] = checkIn.split(':').map(Number);
             const [outHour, outMin] = checkOut.split(':').map(Number);
             const hours = (outHour + outMin/60) - (inHour + inMin/60);
-            if (hours > 0) {
+            if (hours > 0 && hours < 24) { // Sanity check
                 totalHours += hours;
                 recordsWithCheckout++;
             }
         }
     });
-    const avgHours = recordsWithCheckout > 0 ? (totalHours / recordsWithCheckout).toFixed(1) : 0;
+    const avgHours = recordsWithCheckout > 0 ? (totalHours / recordsWithCheckout).toFixed(1) : '0.0';
 
-    // Attendance rate
+    // Attendance rate for today
     const totalPresent = presentToday + lateToday;
     const totalEmployees = allEmployees.length;
     const attendanceRate = totalEmployees > 0 ? Math.round((totalPresent / totalEmployees) * 100) : 0;
