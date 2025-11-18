@@ -613,9 +613,9 @@
 
         // ============ HEADER – COMPANY INFO ============
 
-        // Logo - Use logo_red.png instead of logo.png
+        // Logo - Load logo.png
         try {
-          const logoResponse = await fetch('assets/images/logo_red.png');
+          const logoResponse = await fetch('logo.png');
           const logoBlob = await logoResponse.blob();
           const logoBase64 = await new Promise((resolve) => {
             const reader = new FileReader();
@@ -627,20 +627,7 @@
           doc.addImage(logoBase64, "PNG", 20, 12, 18, 18);
         } catch (error) {
           console.error('Error loading logo:', error);
-          // If logo_red.png fails, try logo.png as fallback
-          try {
-            const logoResponse = await fetch('logo.png');
-            const logoBlob = await logoResponse.blob();
-            const logoBase64 = await new Promise((resolve) => {
-              const reader = new FileReader();
-              reader.onloadend = () => resolve(reader.result);
-              reader.readAsDataURL(logoBlob);
-            });
-            doc.addImage(logoBase64, "PNG", 20, 12, 18, 18);
-          } catch (fallbackError) {
-            console.error('Error loading fallback logo:', fallbackError);
-            // No logo placeholder - just skip it
-          }
+          // No logo placeholder - just skip it
         }
 
         // Company text (right aligned)
