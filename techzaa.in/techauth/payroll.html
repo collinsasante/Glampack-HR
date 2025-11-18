@@ -517,7 +517,7 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick='downloadPayslip(${JSON.stringify(fields).replace(/'/g, "&#39;")}, "${record.id}")' class="text-red-600 hover:text-red-900">
+                                <button onclick='downloadPayslipFromRecord(${JSON.stringify(fields).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
                                     <i class="fas fa-download mr-1"></i> Download
                                 </button>
                             </td>
@@ -537,6 +537,71 @@
                     </tr>
                 `;
         }
+      }
+
+      // ========================================
+      // DOWNLOAD PAYSLIP FROM RECORD (Wrapper)
+      // ========================================
+      async function downloadPayslipFromRecord(fields) {
+        // Structure payment data
+        const basicSalary = parseFloat(fields["Basic Salary"] || 0);
+        const housingAllowance = parseFloat(fields["Housing Allowance"] || 0);
+        const transportAllowance = parseFloat(fields["Transport Allowance"] || 0);
+        const benefits = parseFloat(fields["Benefits"] || 0);
+        const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
+
+        const incomeTax = parseFloat(fields["Income Tax"] || 0);
+        const welfare = parseFloat(fields["Welfare"] || 0);
+        const socialSecurity = parseFloat(fields["Social Security"] || 0);
+        const healthInsurance = parseFloat(fields["Health Insurance"] || 0);
+        const otherDeductions = parseFloat(fields["Other Deductions"] || 0);
+
+        const totalAllowances = parseFloat(fields["Total Allowances"] || 0);
+        const totalDeductions = parseFloat(fields["Total Deductions"] || 0);
+        const grossSalary = parseFloat(fields["Gross Salary"] || 0);
+        const netSalary = parseFloat(fields["Net Pay"] || fields["Net Salary"] || 0);
+
+        // Format period for display
+        const monthValue = fields["Month"] || "";
+        let periodString = monthValue;
+        if (monthValue.match(/^\d{4}-\d{2}$/)) {
+          const [y, m] = monthValue.split("-");
+          const date = new Date(parseInt(y), parseInt(m) - 1, 1);
+          periodString = date.toLocaleDateString("en-US", {
+            month: "short",
+            year: "numeric",
+          });
+        }
+
+        const paymentData = {
+          period: periodString,
+          basicSalary: basicSalary,
+          earnings: [
+            { label: "Housing A", amount: housingAllowance },
+            { label: "TRPT A", amount: transportAllowance },
+            { label: "Benefits", amount: benefits },
+            { label: "Other A", amount: otherAllowances }
+          ].filter(item => item.amount > 0),
+          totalEarnings: totalAllowances,
+          deductions: [
+            { label: "PAYE", amount: incomeTax },
+            { label: "SWF", amount: welfare },
+            { label: "SSNIT C", amount: socialSecurity },
+            { label: "Health Ins", amount: healthInsurance },
+            { label: "Other D", amount: otherDeductions }
+          ].filter(item => item.amount > 0),
+          totalDeductions: totalDeductions,
+          netSalary: netSalary
+        };
+
+        const employeeData = {
+          name: currentUser.name || "N/A",
+          nationalID: "N/A", // Not stored in session
+          position: currentUser.jobTitle || "N/A",
+          department: currentUser.department || "N/A"
+        };
+
+        await downloadPayslip(paymentData, employeeData);
       }
 
       // ========================================
@@ -770,6 +835,22 @@
           maximumFractionDigits: 2,
         });
       }
+
+      // Format Currency (GH₵)
+      function formatCurrency(amount) {
+        return "GH₵" + Number(amount).toLocaleString("en-GH", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        });
+      }
+
+      // ========================================
+      // INITIALIZE PAGE
+      // ========================================
+      window.addEventListener('DOMContentLoaded', function() {
+        loadSalaryInfo();
+        loadPaymentHistory();
+      });
     </script>
   </body>
 </html>
