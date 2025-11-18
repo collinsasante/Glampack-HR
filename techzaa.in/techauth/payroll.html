@@ -570,14 +570,23 @@
         doc.text("help@packglamour.com", 190, 33, { align: "right" });
         doc.text("Tel: 0308251169", 190, 37, { align: "right" });
 
-        // Logo placeholder (red box with 'P' - you can add actual logo later)
-        doc.setDrawColor(220, 38, 38);
-        doc.setFillColor(220, 38, 38);
-        doc.rect(20, 15, 15, 15, 'F');
-        doc.setTextColor(255, 255, 255);
-        doc.setFontSize(16);
-        doc.setFont(undefined, "bold");
-        doc.text("P", 27.5, 26, { align: "center" });
+        // Add company logo
+        try {
+          const logoImg = new Image();
+          logoImg.src = 'logo.png';
+          // Add logo at position (20, 15) with width 15 and height 15
+          doc.addImage(logoImg, 'PNG', 20, 15, 15, 15);
+        } catch (error) {
+          console.error('Error loading logo:', error);
+          // Fallback to red box if logo fails to load
+          doc.setDrawColor(220, 38, 38);
+          doc.setFillColor(220, 38, 38);
+          doc.rect(20, 15, 15, 15, 'F');
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(16);
+          doc.setFont(undefined, "bold");
+          doc.text("P", 27.5, 26, { align: "center" });
+        }
 
         // ===== TITLE SECTION =====
         doc.setTextColor(0, 0, 0);
@@ -690,7 +699,7 @@
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
         doc.text("Basic Salary", 25, y);
-        doc.text(formatCurrency(basicSalary).replace('GHS', '').trim(), 185, y, { align: "right" });
+        doc.text(formatAmount(basicSalary), 185, y, { align: "right" });
 
         // Earning section with collapsible indicator
         y += 7;
@@ -699,7 +708,7 @@
         doc.setTextColor(0, 0, 0);
         doc.text(`Earning (${earningsCount + 4})`, 32, y);
         const totalEarnings = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowances.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
-        doc.text(formatCurrency(totalEarnings).replace('GHS', '').trim(), 185, y, { align: "right" });
+        doc.text(formatAmount(totalEarnings), 185, y, { align: "right" });
 
         // Show earnings breakdown in lighter box
         y += 5;
@@ -713,32 +722,32 @@
 
         if (transportAllowance > 0) {
           doc.text("Transportation Allowance (TRPT A)", 35, y);
-          doc.text(formatCurrency(transportAllowance).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(transportAllowance), 180, y, { align: "right" });
           y += 7;
         }
 
         if (housingAllowance > 0) {
           doc.text("Housing Allowance", 35, y);
-          doc.text(formatCurrency(housingAllowance).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(housingAllowance), 180, y, { align: "right" });
           y += 7;
         }
 
         if (benefits > 0) {
           doc.text("Benefits", 35, y);
-          doc.text(formatCurrency(benefits).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(benefits), 180, y, { align: "right" });
           y += 7;
         }
 
         if (otherAllowances > 0) {
           doc.text("Other Allowances", 35, y);
-          doc.text(formatCurrency(otherAllowances).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(otherAllowances), 180, y, { align: "right" });
           y += 7;
         }
 
         // Add custom allowances
         customAllowances.forEach(allowance => {
           doc.text(allowance.name || "Custom Allowance", 35, y);
-          doc.text(formatCurrency(parseFloat(allowance.amount || 0)).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(parseFloat(allowance.amount || 0)), 180, y, { align: "right" });
           y += 7;
         });
 
@@ -750,7 +759,7 @@
         doc.setTextColor(0, 0, 0);
         doc.text(`Deduction (${deductionsCount + 5})`, 32, y);
         doc.setTextColor(220, 38, 38);
-        doc.text(`(${formatCurrency(totalDeductions).replace('GHS', '').trim()})`, 185, y, { align: "right" });
+        doc.text(`(${formatAmount(totalDeductions)})`, 185, y, { align: "right" });
 
         // Show deductions breakdown
         y += 5;
@@ -764,38 +773,38 @@
 
         if (incomeTax > 0) {
           doc.text("Pay As You Earn (PAYE)", 35, y);
-          doc.text(formatCurrency(incomeTax).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(incomeTax), 180, y, { align: "right" });
           y += 7;
         }
 
         if (otherDeductions > 0) {
           doc.text("Salary Advance (SADV)", 35, y);
-          doc.text(formatCurrency(otherDeductions).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(otherDeductions), 180, y, { align: "right" });
           y += 7;
         }
 
         if (socialSecurity > 0) {
           doc.text("Social Security Contribution Employee (SSNIT C)", 35, y);
-          doc.text(formatCurrency(socialSecurity).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(socialSecurity), 180, y, { align: "right" });
           y += 7;
         }
 
         if (welfare > 0) {
           doc.text("Staff Welfare Fund (SWF)", 35, y);
-          doc.text(formatCurrency(welfare).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(welfare), 180, y, { align: "right" });
           y += 7;
         }
 
         if (healthInsurance > 0) {
           doc.text("Health Insurance", 35, y);
-          doc.text(formatCurrency(healthInsurance).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(healthInsurance), 180, y, { align: "right" });
           y += 7;
         }
 
         // Add custom deductions
         customDeductions.forEach(deduction => {
           doc.text(deduction.name || "Custom Deduction", 35, y);
-          doc.text(formatCurrency(parseFloat(deduction.amount || 0)).replace('GHS', '').trim(), 180, y, { align: "right" });
+          doc.text(formatAmount(parseFloat(deduction.amount || 0)), 180, y, { align: "right" });
           y += 7;
         });
 
@@ -808,7 +817,7 @@
         doc.setFontSize(12);
         doc.setTextColor(0, 0, 0);
         doc.text("Net Salary", 25, y);
-        doc.text(formatCurrency(netSalary).replace('GHS', '').trim(), 185, y, { align: "right" });
+        doc.text(formatAmount(netSalary), 185, y, { align: "right" });
 
         // Footer
         doc.setFontSize(8);
@@ -833,6 +842,14 @@
         return new Intl.NumberFormat("en-GH", {
           style: "currency",
           currency: "GHS",
+        }).format(amount);
+      }
+
+      function formatAmount(amount) {
+        // Format number without currency symbol, just clean number with commas
+        return new Intl.NumberFormat("en-GH", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
         }).format(amount);
       }
 
