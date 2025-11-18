@@ -613,37 +613,34 @@
 
         // ============ HEADER – COMPANY INFO ============
 
-        // Logo - Load and convert to base64 for PDF
+        // Logo - Use logo_red.png instead of logo.png
         try {
-          const logoImg = new Image();
-          logoImg.crossOrigin = "anonymous";
-
-          // Wait for image to load
-          await new Promise((resolve, reject) => {
-            logoImg.onload = resolve;
-            logoImg.onerror = reject;
-            logoImg.src = "logo.png";
+          const logoResponse = await fetch('assets/images/logo_red.png');
+          const logoBlob = await logoResponse.blob();
+          const logoBase64 = await new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.readAsDataURL(logoBlob);
           });
 
-          // Create canvas to convert image to base64
-          const canvas = document.createElement('canvas');
-          canvas.width = logoImg.width;
-          canvas.height = logoImg.height;
-          const ctx = canvas.getContext('2d');
-          ctx.drawImage(logoImg, 0, 0);
-          const imgData = canvas.toDataURL('image/png');
-
           // Add image to PDF
-          doc.addImage(imgData, "PNG", 20, 12, 18, 18);
+          doc.addImage(logoBase64, "PNG", 20, 12, 18, 18);
         } catch (error) {
           console.error('Error loading logo:', error);
-          // Fallback to red box
-          doc.setFillColor(220, 38, 38);
-          doc.rect(20, 12, 18, 18, "F");
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(16);
-          doc.setFont("helvetica", "bold");
-          doc.text("P", 28, 25, { align: "center" });
+          // If logo_red.png fails, try logo.png as fallback
+          try {
+            const logoResponse = await fetch('logo.png');
+            const logoBlob = await logoResponse.blob();
+            const logoBase64 = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(logoBlob);
+            });
+            doc.addImage(logoBase64, "PNG", 20, 12, 18, 18);
+          } catch (fallbackError) {
+            console.error('Error loading fallback logo:', fallbackError);
+            // No logo placeholder - just skip it
+          }
         }
 
         // Company text (right aligned)
@@ -743,7 +740,7 @@
         y += 8;
         doc.setFontSize(10);
         doc.setTextColor(77, 124, 255);
-        doc.text("▲", 25, y);
+        doc.text("+", 25, y);
         doc.setTextColor(0, 0, 0);
         doc.text(`Earning (${paymentData.earnings.length})`, 32, y);
         doc.text(formatAmount(paymentData.totalEarnings), 185, y, {
@@ -769,7 +766,7 @@
         y += 3;
         doc.setFontSize(10);
         doc.setTextColor(77, 124, 255);
-        doc.text("▲", 25, y);
+        doc.text("-", 25, y);
         doc.setTextColor(0, 0, 0);
         doc.text(`Deduction (${paymentData.deductions.length})`, 32, y);
 
