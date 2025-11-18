@@ -401,168 +401,96 @@
 
           <!-- Calendar View -->
           <div id="leaveCalendarView" class="hidden">
-            <!-- Instructional Header -->
+            <!-- Header + Month Navigation -->
             <div
-              class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6 rounded-lg"
+              class="flex flex-col sm:flex-row items-center justify-between mb-4"
             >
-              <div class="flex items-start">
-                <i
-                  class="fas fa-info-circle text-blue-600 text-xl mt-0.5 mr-3"
-                ></i>
-                <div>
-                  <h5 class="text-blue-900 font-semibold mb-1">
-                    Leave Calendar Overview
-                  </h5>
-                  <p class="text-blue-800 text-sm">
-                    This calendar shows all employee leave requests for the
-                    selected month. Each colored dot on a date represents an
-                    employee on leave. Click the legend below to understand the
-                    status colors.
-                  </p>
-                </div>
-              </div>
-            </div>
+              <h3 class="text-2xl font-bold text-gray-900">Leave Calendar</h3>
 
-            <!-- Month Navigation Card -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-              <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 mt-3 sm:mt-0">
                 <button
                   onclick="changeLeaveMonth(-1)"
-                  class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                  class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
                 >
-                  <i class="fas fa-chevron-left"></i>
-                  <span>Previous</span>
+                  <i class="fas fa-chevron-left text-gray-600"></i>
                 </button>
 
-                <div class="text-center">
-                  <div class="text-sm text-gray-600 mb-1">Viewing</div>
-                  <h4
-                    id="leaveCalendarMonth"
-                    class="text-3xl font-bold text-gray-900"
-                  ></h4>
-                </div>
+                <h4
+                  id="leaveCalendarMonth"
+                  class="text-xl font-semibold text-gray-900"
+                ></h4>
 
                 <button
                   onclick="changeLeaveMonth(1)"
-                  class="flex items-center gap-2 px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium rounded-lg transition-colors"
+                  class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
                 >
-                  <span>Next</span>
-                  <i class="fas fa-chevron-right"></i>
+                  <i class="fas fa-chevron-right text-gray-600"></i>
                 </button>
               </div>
             </div>
 
-            <!-- Status Legend Card -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-              <h5
-                class="text-lg font-bold text-gray-900 mb-4 flex items-center"
-              >
-                <i class="fas fa-palette mr-2 text-red-600"></i>
-                Status Color Guide
-              </h5>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Legend -->
+            <div class="flex items-center gap-6 mb-4">
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
+                <span class="text-sm text-gray-700">Pending</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-green-500"></span>
+                <span class="text-sm text-gray-700">Approved</span>
+              </div>
+              <div class="flex items-center gap-2">
+                <span class="w-3 h-3 rounded-full bg-red-500"></span>
+                <span class="text-sm text-gray-700">Rejected</span>
+              </div>
+            </div>
+
+            <!-- Calendar Grid -->
+            <div class="bg-white rounded-xl shadow p-4">
+              <div id="leaveCalendarGrid" class="grid grid-cols-7 text-center">
+                <!-- JS will inject days + dates here -->
+              </div>
+            </div>
+
+            <!-- Monthly Summary -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
+              <div class="bg-white p-4 rounded-xl shadow">
+                <div class="text-sm font-semibold text-gray-600">Pending</div>
                 <div
-                  class="flex items-center p-3 bg-yellow-50 border-2 border-yellow-300 rounded-lg"
+                  id="calendarPendingCount"
+                  class="text-3xl font-bold text-yellow-600"
                 >
-                  <div
-                    class="w-4 h-4 bg-yellow-400 rounded-full mr-3 flex-shrink-0"
-                  ></div>
-                  <div>
-                    <div class="font-semibold text-yellow-900">Pending</div>
-                    <div class="text-xs text-yellow-700">Awaiting approval</div>
-                  </div>
+                  0
+                </div>
+              </div>
+
+              <div class="bg-white p-4 rounded-xl shadow">
+                <div class="text-sm font-semibold text-gray-600">Approved</div>
+                <div
+                  id="calendarApprovedCount"
+                  class="text-3xl font-bold text-green-600"
+                >
+                  0
+                </div>
+              </div>
+
+              <div class="bg-white p-4 rounded-xl shadow">
+                <div class="text-sm font-semibold text-gray-600">
+                  Total Leave Days
                 </div>
                 <div
-                  class="flex items-center p-3 bg-green-50 border-2 border-green-300 rounded-lg"
+                  id="calendarTotalDays"
+                  class="text-3xl font-bold text-blue-600"
                 >
-                  <div
-                    class="w-4 h-4 bg-green-500 rounded-full mr-3 flex-shrink-0"
-                  ></div>
-                  <div>
-                    <div class="font-semibold text-green-900">Approved</div>
-                    <div class="text-xs text-green-700">Leave confirmed</div>
-                  </div>
-                </div>
-                <div
-                  class="flex items-center p-3 bg-red-50 border-2 border-red-300 rounded-lg"
-                >
-                  <div
-                    class="w-4 h-4 bg-red-500 rounded-full mr-3 flex-shrink-0"
-                  ></div>
-                  <div>
-                    <div class="font-semibold text-red-900">Rejected</div>
-                    <div class="text-xs text-red-700">Request denied</div>
-                  </div>
+                  0
                 </div>
               </div>
             </div>
 
-            <!-- Calendar -->
-            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-6">
-              <div id="leaveCalendarGrid" class="grid grid-cols-7">
-                <!-- Days header will be added by JavaScript -->
-              </div>
-            </div>
-
-            <!-- Summary Stats -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-xs text-yellow-700 font-medium uppercase">
-                      Pending
-                    </div>
-                    <div
-                      id="calendarPendingCount"
-                      class="text-2xl font-bold text-yellow-900"
-                    >
-                      0
-                    </div>
-                  </div>
-                  <i class="fas fa-clock text-3xl text-yellow-400"></i>
-                </div>
-              </div>
-              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-xs text-green-700 font-medium uppercase">
-                      Approved
-                    </div>
-                    <div
-                      id="calendarApprovedCount"
-                      class="text-2xl font-bold text-green-900"
-                    >
-                      0
-                    </div>
-                  </div>
-                  <i class="fas fa-check-circle text-3xl text-green-500"></i>
-                </div>
-              </div>
-              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                <div class="flex items-center justify-between">
-                  <div>
-                    <div class="text-xs text-blue-700 font-medium uppercase">
-                      Total Leave Days
-                    </div>
-                    <div
-                      id="calendarTotalDays"
-                      class="text-2xl font-bold text-blue-900"
-                    >
-                      0
-                    </div>
-                  </div>
-                  <i class="fas fa-calendar-day text-3xl text-blue-400"></i>
-                </div>
-              </div>
-            </div>
-
-            <!-- Leave Details List -->
-            <div class="bg-white rounded-xl shadow-md p-6">
-              <h4
-                class="text-xl font-bold text-gray-900 mb-4 flex items-center"
-              >
-                <i class="fas fa-list-ul mr-2 text-red-600"></i>
-                Leave Details for This Month
+            <!-- Leave Details -->
+            <div class="bg-white rounded-xl shadow p-6 mt-6">
+              <h4 class="text-lg font-bold text-gray-900 mb-4">
+                Leave Details
               </h4>
               <div id="leaveScheduleList" class="space-y-3"></div>
             </div>
