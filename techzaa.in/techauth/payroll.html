@@ -540,324 +540,236 @@
       }
 
       // ========================================
-      // DOWNLOAD PAYSLIP AS PDF
+      // DOWNLOAD PAYSLIP AS PDF (Exact Screenshot Format)
       // ========================================
-      async function downloadPayslip(paymentData, recordId) {
+      async function downloadPayslip(paymentData, employeeData) {
         const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
+        const doc = new jsPDF("p", "mm", "a4");
 
-        // Fetch employee data for additional details
-        let employeeData = null;
+        // ============ HEADER – COMPANY INFO ============
+
+        // Logo - Load and convert to base64 for PDF
         try {
-          const empResponse = await getEmployee(currentUser.id);
-          employeeData = empResponse.fields;
+          const logoImg = new Image();
+          logoImg.crossOrigin = "anonymous";
+
+          // Wait for image to load
+          await new Promise((resolve, reject) => {
+            logoImg.onload = resolve;
+            logoImg.onerror = reject;
+            logoImg.src = "logo.png";
+          });
+
+          // Create canvas to convert image to base64
+          const canvas = document.createElement('canvas');
+          canvas.width = logoImg.width;
+          canvas.height = logoImg.height;
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(logoImg, 0, 0);
+          const imgData = canvas.toDataURL('image/png');
+
+          // Add image to PDF
+          doc.addImage(imgData, "PNG", 20, 12, 18, 18);
         } catch (error) {
-          console.error('Error fetching employee data:', error);
+          console.error('Error loading logo:', error);
+          // Fallback to red box
+          doc.setFillColor(220, 38, 38);
+          doc.rect(20, 12, 18, 18, "F");
+          doc.setTextColor(255, 255, 255);
+          doc.setFontSize(16);
+          doc.setFont("helvetica", "bold");
+          doc.text("P", 28, 25, { align: "center" });
         }
 
-        // ===== HEADER SECTION =====
-        // Company info on the right side
+        // Company text (right aligned)
         doc.setFontSize(10);
         doc.setTextColor(0, 0, 0);
-        doc.setFont(undefined, "bold");
-        doc.text("Packaging Glamour (BN491412019)", 190, 15, { align: "right" });
+        doc.setFont("helvetica", "bold");
+        doc.text("Packaging Glamour (BN491412019)", 190, 15, {
+          align: "right",
+        });
 
-        doc.setFont(undefined, "normal");
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
-        doc.text("off Oyarifa Road", 190, 20, { align: "right" });
+        doc.text("Off Oyarifa Road", 190, 20, { align: "right" });
         doc.text("Accra", 190, 24, { align: "right" });
         doc.text("https://packglamour.com", 190, 29, { align: "right" });
         doc.text("help@packglamour.com", 190, 33, { align: "right" });
         doc.text("Tel: 0308251169", 190, 37, { align: "right" });
 
-        // Add company logo
-        try {
-          const logoImg = new Image();
-          logoImg.src = 'logo.png';
-          // Add logo at position (20, 15) with width 15 and height 15
-          doc.addImage(logoImg, 'PNG', 20, 15, 15, 15);
-        } catch (error) {
-          console.error('Error loading logo:', error);
-          // Fallback to red box if logo fails to load
-          doc.setDrawColor(220, 38, 38);
-          doc.setFillColor(220, 38, 38);
-          doc.rect(20, 15, 15, 15, 'F');
-          doc.setTextColor(255, 255, 255);
-          doc.setFontSize(16);
-          doc.setFont(undefined, "bold");
-          doc.text("P", 27.5, 26, { align: "center" });
-        }
+        // ============ TITLE SECTION ============
 
-        // ===== TITLE SECTION =====
-        doc.setTextColor(0, 0, 0);
+        const periodString = paymentData.period || "Oct 2025";
         doc.setFontSize(14);
-        doc.setFont(undefined, "bold");
+        doc.setFont("helvetica", "bold");
+        doc.text(`Payslip for Period Ending ${periodString} (GHS)`, 105, 52, {
+          align: "center",
+        });
 
-        // Format period ending date
-        const periodEndDate = paymentData["Period End Date"];
-        const monthValue = paymentData["Month"] || "";
-        let periodEndingText = "";
-
-        if (periodEndDate) {
-          const endDate = new Date(periodEndDate);
-          periodEndingText = endDate.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-        } else if (monthValue.match(/^\d{4}-\d{2}$/)) {
-          const [y, m] = monthValue.split("-");
-          const date = new Date(parseInt(y), parseInt(m) - 1, 1);
-          periodEndingText = date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
-        }
-
-        const payslipTitle = paymentData["Payslip Title"] || `Payslip for Period Ending ${periodEndingText} (GHS)`;
-        doc.text(payslipTitle, 105, 50, { align: "center" });
-
-        // Pay cycle subtitle
-        const payCycle = paymentData["Pay Cycle"] || "monthly";
-        const cycleLabel = payCycle.charAt(0).toUpperCase() + payCycle.slice(1);
         doc.setFontSize(10);
-        doc.setFont(undefined, "normal");
-        doc.text(cycleLabel, 105, 56, { align: "center" });
+        doc.setFont("helvetica", "normal");
+        doc.text("Monthly", 105, 58, { align: "center" });
 
-        // ===== EMPLOYEE INFO BOX =====
-        let y = 65;
+        // ============ EMPLOYEE INFO BOX ============
 
-        // Draw light gray box
         doc.setFillColor(245, 245, 245);
-        doc.rect(20, y, 170, 40, 'F');
+        doc.rect(20, 65, 170, 38, "F");
 
-        // Employee details
+        let y = 70;
+
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.setFont(undefined, "normal");
-
-        y += 5;
+        doc.setTextColor(120, 120, 120);
         doc.text("Employee", 25, y);
-        doc.setFont(undefined, "bold");
-        doc.setTextColor(0, 0, 0);
         doc.setFontSize(9);
-        doc.text(currentUser.name || "N/A", 25, y + 4);
-
-        y += 10;
-        doc.setFont(undefined, "normal");
-        doc.setFontSize(8);
-        doc.setTextColor(100, 100, 100);
-        doc.text("National ID", 25, y);
-        doc.setFont(undefined, "normal");
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 0, 0);
-        doc.text(employeeData?.['Employee ID'] || employeeData?.['National ID'] || "N/A", 25, y + 4);
+        doc.text(employeeData.name, 25, y + 4);
 
-        y += 10;
-        doc.setTextColor(100, 100, 100);
+        y += 12;
+
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("National ID", 25, y);
+        doc.setFontSize(9);
+        doc.setTextColor(0, 0, 0);
+        doc.text(employeeData.nationalID, 25, y + 4);
+
+        y += 12;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
         doc.text("Payment Method", 25, y);
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
         doc.text("Cash", 25, y + 4);
 
-        // Right column
+        // RIGHT COLUMN
         y = 70;
-        doc.setTextColor(100, 100, 100);
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
         doc.text("Job Position", 110, y);
+        doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        doc.text(employeeData?.['Job Title'] || employeeData?.['Position'] || "N/A", 110, y + 4);
+        doc.text(employeeData.position, 110, y + 4);
 
-        y += 10;
-        doc.setTextColor(100, 100, 100);
+        y += 12;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
         doc.text("Department", 110, y);
         doc.setTextColor(0, 0, 0);
-        doc.text(employeeData?.['Department'] || "-", 110, y + 4);
+        doc.text(employeeData.department || "-", 110, y + 4);
 
-        // ===== SALARY BREAKDOWN =====
+        // ============ SALARY BREAKDOWN ============
+
         y = 115;
 
-        // Get all salary values
-        const basicSalary = parseFloat(paymentData["Basic Salary"] || 0);
-        const housingAllowance = parseFloat(paymentData["Housing Allowance"] || 0);
-        const transportAllowance = parseFloat(paymentData["Transport Allowance"] || 0);
-        const benefits = parseFloat(paymentData["Benefits"] || 0);
-        const otherAllowances = parseFloat(paymentData["Other Allowances"] || 0);
-        const incomeTax = parseFloat(paymentData["Income Tax"] || 0);
-        const welfare = parseFloat(paymentData["Welfare"] || 0);
-        const socialSecurity = parseFloat(paymentData["Social Security"] || 0);
-        const healthInsurance = parseFloat(paymentData["Health Insurance"] || 0);
-        const otherDeductions = parseFloat(paymentData["Other Deductions"] || 0);
-        const grossSalary = parseFloat(paymentData["Gross Salary"] || 0);
-        const totalDeductions = parseFloat(paymentData["Total Deductions"] || 0);
-        const netSalary = parseFloat(paymentData["Net Pay"] || paymentData["Net Salary"] || 0);
-
-        // Parse custom allowances and deductions
-        let customAllowances = [];
-        let customDeductions = [];
-        try {
-          customAllowances = JSON.parse(paymentData["Custom Allowances"] || "[]");
-          customDeductions = JSON.parse(paymentData["Custom Deductions"] || "[]");
-        } catch (e) {}
-
-        // Calculate total earnings count
-        const earningsCount = customAllowances.length;
-        const deductionsCount = customDeductions.length;
-
-        // Basic Salary
-        doc.setFont(undefined, "normal");
         doc.setFontSize(10);
+        doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
         doc.text("Basic Salary", 25, y);
-        doc.text(formatAmount(basicSalary), 185, y, { align: "right" });
+        doc.text(formatAmount(paymentData.basicSalary), 185, y, {
+          align: "right",
+        });
 
-        // Earning section with collapsible indicator
-        y += 7;
-        doc.setTextColor(70, 130, 180);
+        // Earnings Header
+        y += 8;
+        doc.setFontSize(10);
+        doc.setTextColor(77, 124, 255);
         doc.text("▲", 25, y);
         doc.setTextColor(0, 0, 0);
-        doc.text(`Earning (${earningsCount + 4})`, 32, y);
-        const totalEarnings = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowances.reduce((sum, item) => sum + parseFloat(item.amount || 0), 0);
-        doc.text(formatAmount(totalEarnings), 185, y, { align: "right" });
+        doc.text(`Earning (${paymentData.earnings.length})`, 32, y);
+        doc.text(formatAmount(paymentData.totalEarnings), 185, y, {
+          align: "right",
+        });
 
-        // Show earnings breakdown in lighter box
-        y += 5;
+        // Earnings Box
+        y += 4;
         doc.setFillColor(250, 250, 250);
-        const earningsBoxHeight = (earningsCount + 4) * 7;
-        doc.rect(30, y, 160, earningsBoxHeight, 'F');
+        doc.rect(30, y, 160, paymentData.earnings.length * 7, "F");
 
-        y += 5;
+        y += 6;
         doc.setFontSize(9);
         doc.setTextColor(80, 80, 80);
 
-        if (transportAllowance > 0) {
-          doc.text("Transportation Allowance (TRPT A)", 35, y);
-          doc.text(formatAmount(transportAllowance), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (housingAllowance > 0) {
-          doc.text("Housing Allowance", 35, y);
-          doc.text(formatAmount(housingAllowance), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (benefits > 0) {
-          doc.text("Benefits", 35, y);
-          doc.text(formatAmount(benefits), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (otherAllowances > 0) {
-          doc.text("Other Allowances", 35, y);
-          doc.text(formatAmount(otherAllowances), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        // Add custom allowances
-        customAllowances.forEach(allowance => {
-          doc.text(allowance.name || "Custom Allowance", 35, y);
-          doc.text(formatAmount(parseFloat(allowance.amount || 0)), 180, y, { align: "right" });
+        paymentData.earnings.forEach((item) => {
+          doc.text(item.label, 35, y);
+          doc.text(formatAmount(item.amount), 180, y, { align: "right" });
           y += 7;
         });
 
-        // Deduction section
+        // Deduction Header
         y += 3;
         doc.setFontSize(10);
-        doc.setTextColor(70, 130, 180);
+        doc.setTextColor(77, 124, 255);
         doc.text("▲", 25, y);
         doc.setTextColor(0, 0, 0);
-        doc.text(`Deduction (${deductionsCount + 5})`, 32, y);
+        doc.text(`Deduction (${paymentData.deductions.length})`, 32, y);
+
         doc.setTextColor(220, 38, 38);
-        doc.text(`(${formatAmount(totalDeductions)})`, 185, y, { align: "right" });
+        doc.text(
+          "(" + formatAmount(paymentData.totalDeductions) + ")",
+          185,
+          y,
+          { align: "right" }
+        );
 
-        // Show deductions breakdown
-        y += 5;
+        // Deductions Box
+        y += 4;
         doc.setFillColor(250, 250, 250);
-        const deductionsBoxHeight = (deductionsCount + 5) * 7;
-        doc.rect(30, y, 160, deductionsBoxHeight, 'F');
+        doc.rect(30, y, 160, paymentData.deductions.length * 7, "F");
 
-        y += 5;
+        y += 6;
         doc.setFontSize(9);
         doc.setTextColor(80, 80, 80);
 
-        if (incomeTax > 0) {
-          doc.text("Pay As You Earn (PAYE)", 35, y);
-          doc.text(formatAmount(incomeTax), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (otherDeductions > 0) {
-          doc.text("Salary Advance (SADV)", 35, y);
-          doc.text(formatAmount(otherDeductions), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (socialSecurity > 0) {
-          doc.text("Social Security Contribution Employee (SSNIT C)", 35, y);
-          doc.text(formatAmount(socialSecurity), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (welfare > 0) {
-          doc.text("Staff Welfare Fund (SWF)", 35, y);
-          doc.text(formatAmount(welfare), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        if (healthInsurance > 0) {
-          doc.text("Health Insurance", 35, y);
-          doc.text(formatAmount(healthInsurance), 180, y, { align: "right" });
-          y += 7;
-        }
-
-        // Add custom deductions
-        customDeductions.forEach(deduction => {
-          doc.text(deduction.name || "Custom Deduction", 35, y);
-          doc.text(formatAmount(parseFloat(deduction.amount || 0)), 180, y, { align: "right" });
+        paymentData.deductions.forEach((item) => {
+          doc.text(item.label, 35, y);
+          doc.text(formatAmount(item.amount), 180, y, { align: "right" });
           y += 7;
         });
 
-        // Net Salary (prominent)
-        y += 10;
-        doc.setDrawColor(220, 220, 220);
-        doc.line(20, y - 5, 190, y - 5);
+        // ============ NET SALARY ============
 
-        doc.setFont(undefined, "bold");
+        y += 8;
+        doc.setDrawColor(200, 200, 200);
+        doc.line(20, y, 190, y);
+
+        y += 7;
         doc.setFontSize(12);
+        doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 0, 0);
         doc.text("Net Salary", 25, y);
-        doc.text(formatAmount(netSalary), 185, y, { align: "right" });
+        doc.text(formatAmount(paymentData.netSalary), 185, y, {
+          align: "right",
+        });
 
-        // Footer
+        // ============ FOOTER ============
+
+        doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
-        doc.setFont(undefined, "normal");
-        doc.setTextColor(128, 128, 128);
+        doc.setTextColor(120, 120, 120);
         doc.text(
           "This is a computer-generated payslip and does not require a signature.",
           105,
-          280,
+          285,
           { align: "center" }
         );
 
-        // Save PDF
-        const pdfFilename = `Payslip_${periodEndingText.replace(/\s+/g, "_")}_${currentUser.name.replace(/\s+/g, "_")}.pdf`;
-        doc.save(pdfFilename);
+        // DOWNLOAD FILE
+        const fileName = `Payslip_${periodString}_${employeeData.name.replace(/\s+/g, "_")}.pdf`;
+        doc.save(fileName);
       }
 
-      // ========================================
-      // UTILITY FUNCTIONS
-      // ========================================
-      function formatCurrency(amount) {
-        return new Intl.NumberFormat("en-GH", {
-          style: "currency",
-          currency: "GHS",
-        }).format(amount);
-      }
-
+      // Utility Format
       function formatAmount(amount) {
-        // Format number without currency symbol, just clean number with commas
-        return new Intl.NumberFormat("en-GH", {
+        return Number(amount).toLocaleString("en-GH", {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
-        }).format(amount);
+        });
       }
-
-      // ========================================
-      // INITIALIZE
-      // ========================================
-      loadSalaryInfo();
-      loadPaymentHistory();
     </script>
   </body>
 </html>
