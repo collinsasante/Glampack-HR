@@ -1337,9 +1337,21 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
+    // Get new pay period fields
+    const payCycle = document.getElementById('payCycle')?.value || 'monthly';
+    const payslipTitle = document.getElementById('payslipTitle')?.value || '';
+    const periodStartDate = document.getElementById('periodStartDate')?.value || '';
+    const periodEndDate = document.getElementById('periodEndDate')?.value || '';
+    const paymentDate = document.getElementById('paymentDate')?.value || new Date().toISOString().split('T')[0];
+
     const payrollData = {
         'Employee': [document.getElementById('payrollEmployee').value],
         'Month': document.getElementById('payrollMonth').value,
+        'Pay Cycle': payCycle,
+        'Payslip Title': payslipTitle,
+        'Period Start Date': periodStartDate,
+        'Period End Date': periodEndDate,
+        'Payment Date': paymentDate,
         'Basic Salary': basicSalary,
         'Housing Allowance': housingAllowance,
         'Transport Allowance': transportAllowance,
@@ -1356,8 +1368,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Net Salary': netSalary,
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': 'Processed',
-        'Payment Date': new Date().toISOString().split('T')[0]
+        'Status': 'Processed'
     };
 
     try {

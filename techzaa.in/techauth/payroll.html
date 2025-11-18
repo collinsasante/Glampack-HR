@@ -548,36 +548,66 @@
 
         // Company Header
         doc.setFontSize(20);
-        doc.setTextColor(220, 38, 38); // Sky blue
+        doc.setTextColor(220, 38, 38); // Red color
         doc.text("HR Management System", 105, 20, { align: "center" });
 
+        // Use custom payslip title if available, otherwise default to "PAYSLIP"
+        const payslipTitle = paymentData["Payslip Title"] || "PAYSLIP";
         doc.setFontSize(16);
         doc.setTextColor(0, 0, 0);
-        doc.text("PAYSLIP", 105, 30, { align: "center" });
+        doc.text(payslipTitle.toUpperCase(), 105, 30, { align: "center" });
 
         // Employee Info
         doc.setFontSize(10);
         doc.text(`Employee: ${currentUser.name}`, 20, 45);
 
-        // Format month for display
+        // Format pay period display using new fields
+        let periodDisplay = "";
+        const periodStartDate = paymentData["Period Start Date"];
+        const periodEndDate = paymentData["Period End Date"];
+        const payCycle = paymentData["Pay Cycle"] || "monthly";
         const monthValue = paymentData["Month"] || "";
-        let monthDisplay = monthValue;
-        if (monthValue.match(/^\d{4}-\d{2}$/)) {
+
+        // If custom period dates are provided, use them
+        if (periodStartDate && periodEndDate) {
+          const startDate = new Date(periodStartDate);
+          const endDate = new Date(periodEndDate);
+          periodDisplay = `${startDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })} - ${endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`;
+        } else if (monthValue.match(/^\d{4}-\d{2}$/)) {
+          // Otherwise, use the month field
           const [y, m] = monthValue.split("-");
           const date = new Date(parseInt(y), parseInt(m) - 1, 1);
-          monthDisplay = date.toLocaleDateString("en-US", {
+          periodDisplay = date.toLocaleDateString("en-US", {
             month: "long",
             year: "numeric",
           });
+        } else {
+          periodDisplay = monthValue;
         }
-        doc.text(`Pay Period: ${monthDisplay}`, 20, 52);
+
+        let currentY = 52;
+        doc.text(`Pay Period: ${periodDisplay}`, 20, currentY);
+
+        // Show pay cycle if available
+        if (payCycle && payCycle !== 'monthly') {
+          const cycleLabel = payCycle.replace('-', ' ').split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+          currentY += 6;
+          doc.text(`Pay Cycle: ${cycleLabel}`, 20, currentY);
+        }
+
+        // Show payment date if available
+        const paymentDate = paymentData["Payment Date"];
+        if (paymentDate) {
+          const payDate = new Date(paymentDate);
+          doc.text(`Payment Date: ${payDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}`, 140, 52);
+        }
 
         // Draw line
         doc.setDrawColor(200, 200, 200);
-        doc.line(20, 58, 190, 58);
+        doc.line(20, currentY + 6, 190, currentY + 6);
 
-        // Earnings Section
-        let y = 70;
+        // Earnings Section (start below the header line)
+        let y = currentY + 18;
         doc.setFontSize(12);
         doc.setFont(undefined, "bold");
         doc.text("EARNINGS", 20, y);
