@@ -1007,19 +1007,6 @@
       async function findTodayRecord() {
         const today = getTodayDate();
 
-        // TEMP DEBUG: Fetch ALL attendance records to see what exists
-
-        const allRecords = await getAttendance(); // No filter
-
-        if (allRecords.records && allRecords.records.length > 0) {
-          .map(r => ({
-            id: r.id,
-            date: r.fields.Date,
-            employee: r.fields.Employee,
-            checkIn: r.fields['Check In']
-          })));
-        }
-
         // Get all records for this employee using Worker API
         const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
 
