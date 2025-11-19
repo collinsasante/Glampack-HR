@@ -1027,6 +1027,9 @@
 
             // Then exit edit mode to show the updated readonly values
             toggleEditProfile();
+
+            // Ensure values are populated after toggling to readonly
+            populateProfile();
           } catch (error) {
 
             // More detailed error message
