@@ -1489,17 +1489,19 @@ async function displayAttendanceRecords(records) {
         let hours = '--';
 
         if (checkIn !== '--:--') {
-            const [hour, minute] = checkIn.split(':').map(Number);
-            if (hour < 8 || (hour === 8 && minute <= 30)) {
-                status = 'On Time';
-                statusClass = 'bg-green-100 text-green-800';
-            } else {
-                status = 'Late';
-                statusClass = 'bg-yellow-100 text-yellow-800';
-            }
+            // Check if checkout exists first
+            if (checkOut !== '--:--' && checkOut) {
+                // Complete attendance - determine if on time or late
+                const [hour, minute] = checkIn.split(':').map(Number);
+                if (hour < 8 || (hour === 8 && minute <= 30)) {
+                    status = 'On Time';
+                    statusClass = 'bg-green-100 text-green-800';
+                } else {
+                    status = 'Late';
+                    statusClass = 'bg-yellow-100 text-yellow-800';
+                }
 
-            // Calculate hours if both check in and check out exist
-            if (checkOut !== '--:--') {
+                // Calculate hours
                 const [inHour, inMin] = checkIn.split(':').map(Number);
                 const [outHour, outMin] = checkOut.split(':').map(Number);
                 const totalHours = (outHour + outMin/60) - (inHour + inMin/60);
@@ -1507,6 +1509,7 @@ async function displayAttendanceRecords(records) {
                     hours = totalHours.toFixed(1) + 'h';
                 }
             } else {
+                // Checked in but not checked out yet
                 status = 'Incomplete';
                 statusClass = 'bg-gray-100 text-gray-800';
             }
