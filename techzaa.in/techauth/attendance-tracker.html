@@ -1012,11 +1012,6 @@
 
         const data = await getAttendance(filterFormula);
 
-        if (data.records && data.records.length > 0) {
-
-          ));
-        }
-
         // Filter in JavaScript to find today's record
         const todayRecord = data.records.find((record) => {
           const recordDate = record.fields.Date;
