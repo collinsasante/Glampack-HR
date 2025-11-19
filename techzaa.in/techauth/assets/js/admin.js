@@ -1063,7 +1063,7 @@ async function renderLeaveScheduleList(monthLeaves) {
         if (req.fields['Employee'] && req.fields['Employee'][0]) {
             try {
                 const employee = await getEmployee(req.fields['Employee'][0]);
-                return { id: req.id, name: employee?.fields?.['Full Name'] || 'Unknown' };
+                return { id: req.id, name: (employee && employee.fields && employee.fields['Full Name']) || 'Unknown' };
             } catch (error) {
                 return { id: req.id, name: 'Unknown' };
             }
@@ -2416,14 +2416,17 @@ document.addEventListener('visibilitychange', () => {
 // ATTENDANCE DATE RANGE HANDLER
 // ========================================
 // Show/hide custom date input based on date range selection
-document.getElementById('attendanceDateRange')?.addEventListener('change', function() {
-    const customDateContainer = document.getElementById('customDateContainer');
-    if (this.value === 'custom') {
-        customDateContainer.classList.remove('hidden');
-    } else {
-        customDateContainer.classList.add('hidden');
-    }
-});
+const attendanceDateRangeEl = document.getElementById('attendanceDateRange');
+if (attendanceDateRangeEl) {
+    attendanceDateRangeEl.addEventListener('change', function() {
+        const customDateContainer = document.getElementById('customDateContainer');
+        if (this.value === 'custom') {
+            customDateContainer.classList.remove('hidden');
+        } else {
+            customDateContainer.classList.add('hidden');
+        }
+    });
+}
 
 // ========================================
 // INITIALIZE
