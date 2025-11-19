@@ -1477,20 +1477,37 @@ async function displayAttendanceRecords(records) {
         const fields = rec.fields;
         const employeeInfo = nameMap[rec.id] || { name: 'Unknown', empId: '' };
         const checkIn = fields['Check In'] || '--:--';
+        const checkOut = fields['Check Out'] || '--:--';
 
         let status = 'Absent';
         let statusClass = 'bg-red-100 text-red-800';
+        let hours = '--';
 
         if (checkIn !== '--:--') {
-            const hour = parseInt(checkIn.split(':')[0]);
-            if (hour < 9) {
+            const [hour, minute] = checkIn.split(':').map(Number);
+            if (hour < 8 || (hour === 8 && minute <= 30)) {
                 status = 'On Time';
                 statusClass = 'bg-green-100 text-green-800';
             } else {
                 status = 'Late';
                 statusClass = 'bg-yellow-100 text-yellow-800';
             }
+
+            // Calculate hours if both check in and check out exist
+            if (checkOut !== '--:--') {
+                const [inHour, inMin] = checkIn.split(':').map(Number);
+                const [outHour, outMin] = checkOut.split(':').map(Number);
+                const totalHours = (outHour + outMin/60) - (inHour + inMin/60);
+                if (totalHours > 0 && totalHours < 24) {
+                    hours = totalHours.toFixed(1) + 'h';
+                }
+            } else {
+                status = 'Incomplete';
+                statusClass = 'bg-gray-100 text-gray-800';
+            }
         }
+
+        const location = fields['Check In Location'] || '--';
 
         return `
             <tr class="hover:bg-gray-50">
@@ -1504,17 +1521,18 @@ async function displayAttendanceRecords(records) {
                     <div class="text-sm text-gray-900">${checkIn}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    <div class="text-sm text-gray-900">${fields['Check Out'] || '--:--'}</div>
+                    <div class="text-sm text-gray-900">${checkOut}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm font-medium text-gray-900">${hours}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
                         ${status}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <button onclick='editAttendance(${JSON.stringify(rec).replace(/'/g, "&#39;")}, "${employeeInfo.name}")' class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-500">${location}</div>
                 </td>
             </tr>
         `;
