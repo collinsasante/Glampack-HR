@@ -101,7 +101,12 @@ function switchTab(tabName) {
     } else if (tabName === 'leave') {
         loadLeaveRequests();
     } else if (tabName === 'attendance') {
-        loadAttendanceRecords();
+        // Ensure employees are loaded first for the filter dropdown
+        if (allEmployees.length === 0) {
+            loadEmployees().then(() => loadAttendanceRecords());
+        } else {
+            loadAttendanceRecords();
+        }
     } else if (tabName === 'reports') {
         populateReportFilters();
     }
@@ -1381,7 +1386,7 @@ async function loadAttendanceRecords() {
 
         document.getElementById('attendanceRecordsBody').innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-4 text-center text-red-600">
+                <td colspan="7" class="px-6 py-4 text-center text-red-600">
                     Error loading attendance records. Please try again.
                 </td>
             </tr>
@@ -1447,8 +1452,8 @@ async function displayAttendanceRecords(records) {
     if (records.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="6" class="px-6 py-8 text-center text-gray-500">
-                    No attendance records found for selected date
+                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                    No attendance records found for selected filters
                 </td>
             </tr>
         `;
