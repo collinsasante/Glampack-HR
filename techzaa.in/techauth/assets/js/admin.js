@@ -1365,17 +1365,31 @@ async function loadAttendanceRecords() {
         if (statusFilter) {
             filteredRecords = allAttendanceRecords.filter(rec => {
                 const checkIn = rec.fields['Check In'];
+                const checkOut = rec.fields['Check Out'];
+
                 if (!checkIn || checkIn === '--:--') {
                     return statusFilter === 'incomplete';
                 }
+
+                // Check if they have checked out
+                const hasCheckOut = checkOut && checkOut !== '--:--';
+
+                if (statusFilter === 'incomplete') {
+                    return !hasCheckOut;
+                }
+
+                // For present/late filters, only show records with both check in and check out
+                if (!hasCheckOut) {
+                    return false; // Don't show incomplete records in present/late filters
+                }
+
                 const [hour, minute] = checkIn.split(':').map(Number);
                 if (statusFilter === 'present') {
                     return hour < 8 || (hour === 8 && minute <= 30);
                 } else if (statusFilter === 'late') {
                     return hour > 8 || (hour === 8 && minute > 30);
-                } else if (statusFilter === 'incomplete') {
-                    return !rec.fields['Check Out'] || rec.fields['Check Out'] === '--:--';
                 }
+
                 return true;
             });
         }
@@ -1404,14 +1418,18 @@ async function updateAttendanceStats(records) {
 
     const presentToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
-        if (!checkIn || checkIn === '--:--') return false;
+        const checkOut = rec.fields['Check Out'];
+        // Only count as present if they checked in AND checked out
+        if (!checkIn || checkIn === '--:--' || !checkOut || checkOut === '--:--') return false;
         const [hour, minute] = checkIn.split(':').map(Number);
         return hour < 8 || (hour === 8 && minute <= 30);
     }).length;
 
     const lateToday = todayRecords.filter(rec => {
         const checkIn = rec.fields['Check In'];
-        if (!checkIn || checkIn === '--:--') return false;
+        const checkOut = rec.fields['Check Out'];
+        // Only count as late if they checked in AND checked out
+        if (!checkIn || checkIn === '--:--' || !checkOut || checkOut === '--:--') return false;
         const [hour, minute] = checkIn.split(':').map(Number);
         return hour > 8 || (hour === 8 && minute > 30);
     }).length;
