@@ -330,13 +330,13 @@
       // Authentication check
       const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
       if (!currentUser) {
-        window.location.href = "index.html";
+        window.location.href = "packaging-glamour-signin.html";
       }
 
       // Logout function
       function logout() {
         sessionStorage.removeItem("currentUser");
-        window.location.href = "index.html";
+        window.location.href = "packaging-glamour-signin.html";
       }
 
       // Chart instance

@@ -226,7 +226,7 @@ function getCurrentUser() {
 // ========================================
 function requireAuth() {
     if (!isLoggedIn()) {
-        window.location.href = 'signin-2.html';
+        window.location.href = 'packaging-glamour-signin.html';
         return false;
     }
     return true;
