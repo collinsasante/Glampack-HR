@@ -308,16 +308,14 @@ function viewEmployeeDetails(employee) {
         <div id="viewEmployeeModal" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
                 <!-- Header -->
-                <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-t-2xl">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <h2 class="text-2xl font-bold text-white">${fields['Full Name'] || 'N/A'}</h2>
-                            <p class="text-gray-900 mt-1 font-medium">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
-                        </div>
-                        <button onclick="closeViewEmployeeModal()" class="text-white hover:text-red-100 transition-colors">
-                            <i class="fas fa-times text-2xl"></i>
-                        </button>
+                <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-t-2xl flex justify-between items-start">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white">${fields['Full Name'] || 'N/A'}</h2>
+                        <p class="text-gray-900 mt-1 font-medium">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
                     </div>
+                    <button onclick="closeViewEmployeeModal()" class="text-white hover:text-red-100 transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
                 </div>
 
                 <!-- Content -->
