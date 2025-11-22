@@ -443,19 +443,11 @@
 
           <!-- Leave Balances -->
           <div class="mt-6 bg-red-50 p-6 rounded-lg border border-red-200">
-            <h4 class="text-xl font-bold text-gray-800 mb-4">Leave Balances</h4>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <h4 class="text-xl font-bold text-gray-800 mb-4">Leave Balance</h4>
+            <div class="grid grid-cols-1 gap-4">
               <div class="bg-white p-4 rounded-lg shadow-sm">
                 <p class="text-sm text-gray-600 mb-2">Annual Leave</p>
                 <p class="text-3xl font-bold text-red-600" id="annualLeave">
-                  0
-                </p>
-                <p class="text-xs text-gray-500 mt-1">days remaining</p>
-              </div>
-
-              <div class="bg-white p-4 rounded-lg shadow-sm">
-                <p class="text-sm text-gray-600 mb-2">Sick Leave</p>
-                <p class="text-3xl font-bold text-green-600" id="sickLeave">
                   0
                 </p>
                 <p class="text-xs text-gray-500 mt-1">days remaining</p>
@@ -825,8 +817,6 @@
           employeeData["Annual Leave Balance"] !== undefined
             ? employeeData["Annual Leave Balance"]
             : 20;
-        document.getElementById("sickLeave").textContent =
-          employeeData["Sick Leave Balance"] || 0;
       }
 
       // Load and populate emergency contact from separate table

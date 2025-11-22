@@ -178,7 +178,7 @@ function displayEmployees(employees) {
         };
 
         return `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick='viewEmployeeDetails(${JSON.stringify(emp).replace(/'/g, "&#39;")})'>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">${fields['Full Name'] || '--'}</div>
                     <div class="text-xs text-gray-500">${fields['Email'] || '--'}</div>
@@ -197,7 +197,7 @@ function displayEmployees(employees) {
                         ${fields['Role'] || '--'}
                     </span>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
                     <button onclick='viewEmployeeDetails(${JSON.stringify(emp).replace(/'/g, "&#39;")})' class="text-blue-600 hover:text-blue-900" title="View Full Profile">
                         <i class="fas fa-eye"></i>
                     </button>
@@ -418,14 +418,10 @@ function viewEmployeeDetails(employee) {
                             <i class="fas fa-calendar-check mr-2 text-red-600"></i>
                             Leave Balances
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                        <div class="grid grid-cols-1 gap-4 bg-gray-50 p-4 rounded-lg">
                             <div>
                                 <p class="text-sm text-gray-600">Annual Leave Balance</p>
                                 <p class="font-medium text-gray-900">${fields['Annual Leave Balance'] !== undefined ? fields['Annual Leave Balance'] + ' days' : '20 days'}</p>
-                            </div>
-                            <div>
-                                <p class="text-sm text-gray-600">Sick Leave Balance</p>
-                                <p class="font-medium text-gray-900">${fields['Sick Leave Balance'] !== undefined ? fields['Sick Leave Balance'] + ' days' : '10 days'}</p>
                             </div>
                         </div>
                     </div>
@@ -557,8 +553,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         'Email': emailEl.value,
         'Status': statusEl.value,
         'Role': roleEl.value,
-        'Annual Leave Balance': 20,
-        'Sick Leave Balance': 10
+        'Annual Leave Balance': 20
     };
 
     // Add employment details if provided

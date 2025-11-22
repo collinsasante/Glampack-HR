@@ -114,7 +114,6 @@ The Airtable base requires these exact table/field names (case-sensitive):
 - `Status` (Single select: Permanent, Contract, Probation)
 - `Role` (Single select: Employee, Admin, HR)
 - `Annual Leave Balance` (Number, default: 20)
-- `Sick Leave Balance` (Number, default: 10)
 - `Salary` (Currency or Number)
 
 **2. Attendance Table**
@@ -127,7 +126,7 @@ The Airtable base requires these exact table/field names (case-sensitive):
 
 **3. Leave Requests Table**
 - `Employee` (Link to Employees)
-- `Leave Type` (Single select: Annual Leave, Sick Leave, Emergency Leave)
+- `Leave Type` (Single select: Annual Leave, Emergency Leave)
 - `Start Date` (Date)
 - `End Date` (Date)
 - `Number of Days` (Number)
@@ -260,7 +259,6 @@ await updateEmployee(recordId, data);
 
 **New Employees:**
 - Annual Leave Balance: 20 days
-- Sick Leave Balance: 10 days
 - Role: Employee (unless specified)
 - Status: Permanent (unless specified)
 

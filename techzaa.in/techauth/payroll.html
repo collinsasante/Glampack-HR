@@ -661,25 +661,31 @@
           netSalary: netSalary,
         };
 
-        // Fetch employee bank account details
-        let bankAccountNumber = "N/A";
-        let bankName = "N/A";
+        // Fetch full employee details from Airtable
+        let employeeData = {
+          name: currentUser.name || "--",
+          nationalID: "--",
+          position: currentUser.jobTitle || "--",
+          department: currentUser.department || "--",
+          bankAccountNumber: "--",
+          bankName: "--",
+        };
+
         try {
           const employee = await getEmployee(currentUser.id);
           if (employee && employee.fields) {
-            bankAccountNumber = employee.fields["Bank Account Number"] || "N/A";
-            bankName = employee.fields["Bank Name"] || "N/A";
+            employeeData = {
+              name: employee.fields["Full Name"] || currentUser.name || "--",
+              nationalID: employee.fields["National ID"] || employee.fields["Employee ID"] || currentUser.id.substring(0, 8).toUpperCase() || "--",
+              position: employee.fields["Job Title"] || currentUser.jobTitle || "--",
+              department: employee.fields["Department"] || currentUser.department || "--",
+              bankAccountNumber: employee.fields["Bank Account Number"] || "--",
+              bankName: employee.fields["Bank Name"] || "--",
+            };
           }
-        } catch (error) {}
-
-        const employeeData = {
-          name: currentUser.name || "N/A",
-          nationalID: "N/A", // Not stored in session
-          position: currentUser.jobTitle || "N/A",
-          department: currentUser.department || "N/A",
-          bankAccountNumber: bankAccountNumber,
-          bankName: bankName,
-        };
+        } catch (error) {
+          console.error("Error fetching employee details:", error);
+        }
 
         await downloadPayslip(paymentData, employeeData);
       }
