@@ -31,12 +31,20 @@ const API_CONFIG = {
  * @returns {Promise<object>} Response data
  */
 async function workerRequest(endpoint, method = 'GET', body = null, queryParams = '') {
-    const url = `${API_CONFIG.workerUrl}${endpoint}${queryParams}`;
+    // Add cache-busting parameter for GET requests
+    let url = `${API_CONFIG.workerUrl}${endpoint}${queryParams}`;
+
+    if (method === 'GET') {
+        const separator = url.includes('?') ? '&' : '?';
+        url += `${separator}_t=${Date.now()}`;
+    }
 
     const options = {
         method,
         headers: {
             'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
         },
     };
 
