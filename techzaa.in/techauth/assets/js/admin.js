@@ -1884,23 +1884,12 @@ let allPayrollRecords = [];
 let customAllowances = [];
 let customDeductions = [];
 
+let allPayrollData = []; // Store all payroll with employee names
+
 async function loadPayrollRecords() {
-    const employeeFilter = document.getElementById('payrollEmployeeFilter').value;
-    const monthFilter = document.getElementById('payrollMonthFilter').value;
-
     try {
-        // Build filter formula
-        let filters = [];
-        if (employeeFilter) {
-            filters.push(`FIND('${employeeFilter}', ARRAYJOIN({Employee}))`);
-        }
-        if (monthFilter) {
-            // Use 'Pay Month' field instead of 'Month'
-            filters.push(`{Pay Month} = '${monthFilter}'`);
-        }
-
-        const filterFormula = filters.length > 0 ? `AND(${filters.join(',')})` : null;
-        const data = await getPayroll(filterFormula);
+        // Load all payroll records
+        const data = await getPayroll();
         allPayrollRecords = data.records || [];
 
         // Sort by payment date descending (most recent first)
@@ -1909,6 +1898,25 @@ async function loadPayrollRecords() {
             const dateB = new Date(b.fields['Payment Date'] || 0);
             return dateB - dateA;
         });
+
+        // Fetch employee names and store
+        const employeePromises = allPayrollRecords.map(async (record) => {
+            if (record.fields['Employee'] && record.fields['Employee'][0]) {
+                try {
+                    const employee = await getEmployee(record.fields['Employee'][0]);
+                    return {
+                        record: record,
+                        employeeName: employee.fields['Full Name'] || 'Unknown',
+                        employeeId: record.fields['Employee'][0]
+                    };
+                } catch (error) {
+                    return { record: record, employeeName: 'Unknown', employeeId: '' };
+                }
+            }
+            return { record: record, employeeName: 'Unknown', employeeId: '' };
+        });
+
+        allPayrollData = await Promise.all(employeePromises);
 
         displayPayrollRecords();
     } catch (error) {
@@ -1923,10 +1931,52 @@ async function loadPayrollRecords() {
     }
 }
 
-async function displayPayrollRecords() {
-    const tbody = document.getElementById('payrollTableBody');
+// Filter payroll by employee search
+function filterPayrollByEmployee() {
+    applyPayrollFilters();
+}
 
-    if (allPayrollRecords.length === 0) {
+// Filter payroll by month
+function filterPayrollByMonth() {
+    applyPayrollFilters();
+}
+
+// Clear all payroll filters
+function clearPayrollFilters() {
+    document.getElementById('payrollEmployeeSearch').value = '';
+    document.getElementById('payrollMonthFilter').value = '';
+    applyPayrollFilters();
+}
+
+// Apply all filters
+function applyPayrollFilters() {
+    const searchTerm = document.getElementById('payrollEmployeeSearch').value.toLowerCase();
+    const monthFilter = document.getElementById('payrollMonthFilter').value;
+
+    let filteredData = allPayrollData;
+
+    // Filter by employee name
+    if (searchTerm) {
+        filteredData = filteredData.filter(item =>
+            item.employeeName.toLowerCase().includes(searchTerm)
+        );
+    }
+
+    // Filter by month
+    if (monthFilter) {
+        filteredData = filteredData.filter(item =>
+            item.record.fields['Month'] === monthFilter
+        );
+    }
+
+    displayPayrollRecords(filteredData);
+}
+
+async function displayPayrollRecords(filteredData = null) {
+    const tbody = document.getElementById('payrollTableBody');
+    const dataToDisplay = filteredData || allPayrollData;
+
+    if (dataToDisplay.length === 0) {
         tbody.innerHTML = `
             <tr>
                 <td colspan="8" class="px-6 py-12 text-center text-gray-500">
@@ -1938,25 +1988,10 @@ async function displayPayrollRecords() {
         return;
     }
 
-    // Fetch employee names
-    const employeePromises = allPayrollRecords.map(async (record) => {
-        if (record.fields['Employee'] && record.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(record.fields['Employee'][0]);
-                return { id: record.id, name: employee.fields['Full Name'] || 'Unknown' };
-            } catch (error) {
-                return { id: record.id, name: 'Unknown' };
-            }
-        }
-        return { id: record.id, name: 'Unknown' };
-    });
-
-    const employeeNames = await Promise.all(employeePromises);
-    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
-
-    tbody.innerHTML = allPayrollRecords.map(record => {
+    tbody.innerHTML = dataToDisplay.map(item => {
+        const record = item.record;
         const fields = record.fields;
-        const employeeName = nameMap[record.id];
+        const employeeName = item.employeeName;
 
         // Calculate values if not present (for calculated fields or manual calculation)
         const basicSalary = parseFloat(fields['Basic Salary'] || 0);

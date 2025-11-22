@@ -258,20 +258,20 @@
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Housing Allowance</span>
-              <span class="font-semibold" id="housingAllowance">GH₵0</span>
+              <span class="text-gray-700">Housing</span>
+              <span class="font-semibold" id="housing">GH₵0</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Transport Allowance</span>
-              <span class="font-semibold" id="transportAllowance">GH₵0</span>
+              <span class="text-gray-700">Transport</span>
+              <span class="font-semibold" id="transport">GH₵0</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Other Allowances</span>
-              <span class="font-semibold" id="otherAllowances">GH₵0</span>
+              <span class="text-gray-700">Other</span>
+              <span class="font-semibold" id="other">GH₵0</span>
             </div>
           </div>
         </div>
@@ -430,17 +430,13 @@
 
             // Update earnings
             const basicSalary = parseFloat(salary["Basic Salary"] || 0);
-            const housingAllowance = parseFloat(
-              salary["Housing Allowance"] || 0
-            );
-            const transportAllowance = parseFloat(
-              salary["Transport Allowance"] || 0
-            );
+            const housingAllowance = parseFloat(salary["Housing"] || 0);
+            const transportAllowance = parseFloat(salary["Transport"] || 0);
             const benefits = parseFloat(salary["Benefits"] || 0);
-            const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
+            const otherAllowances = parseFloat(salary["Other"] || 0);
 
             // Get calculated totals from Airtable
-            const totalAllowances = parseFloat(salary["Total Allowances"] || 0);
+            const totalAllowances = parseFloat(salary["Total Earnings"] || 0);
             const grossSalary = parseFloat(salary["Gross Salary"] || 0);
 
             // Update deductions
@@ -482,9 +478,7 @@
             document.getElementById("otherDeductions").textContent =
               formatCurrency(welfare + otherDeductions);
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       }
 
       // ========================================
@@ -598,7 +592,6 @@
             })
             .join("");
         } catch (error) {
-
           tbody.innerHTML = `
                     <tr>
                         <td colspan="6" class="px-6 py-4 text-center text-red-600">
@@ -617,12 +610,10 @@
       async function downloadPayslipFromRecord(fields) {
         // Structure payment data
         const basicSalary = parseFloat(fields["Basic Salary"] || 0);
-        const housingAllowance = parseFloat(fields["Housing Allowance"] || 0);
-        const transportAllowance = parseFloat(
-          fields["Transport Allowance"] || 0
-        );
+        const housingAllowance = parseFloat(fields["Housing"] || 0);
+        const transportAllowance = parseFloat(fields["Transport"] || 0);
         const benefits = parseFloat(fields["Benefits"] || 0);
-        const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
+        const otherAllowances = parseFloat(fields["Other"] || 0);
 
         const incomeTax = parseFloat(fields["Income Tax"] || 0);
         const welfare = parseFloat(fields["Welfare"] || 0);
@@ -630,7 +621,7 @@
         const healthInsurance = parseFloat(fields["Health Insurance"] || 0);
         const otherDeductions = parseFloat(fields["Other Deductions"] || 0);
 
-        const totalAllowances = parseFloat(fields["Total Allowances"] || 0);
+        const totalAllowances = parseFloat(fields["Total Earnings"] || 0);
         const totalDeductions = parseFloat(fields["Total Deductions"] || 0);
         const grossSalary = parseFloat(fields["Gross Salary"] || 0);
         const netSalary = parseFloat(
@@ -653,10 +644,10 @@
           period: periodString,
           basicSalary: basicSalary,
           earnings: [
-            { label: "Housing Allowance", amount: housingAllowance },
-            { label: "Transport Allowance", amount: transportAllowance },
+            { label: "Housing", amount: housingAllowance },
+            { label: "Transport", amount: transportAllowance },
             { label: "Benefits", amount: benefits },
-            { label: "Other Allowances", amount: otherAllowances },
+            { label: "Other", amount: otherAllowances },
           ].filter((item) => item.amount > 0),
           totalEarnings: totalAllowances,
           deductions: [
@@ -679,9 +670,7 @@
             bankAccountNumber = employee.fields["Bank Account Number"] || "N/A";
             bankName = employee.fields["Bank Name"] || "N/A";
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
 
         const employeeData = {
           name: currentUser.name || "N/A",
@@ -719,7 +708,6 @@
           // Height of 18mm, width should be ~76mm, but we'll use 30mm to fit header
           doc.addImage(logoBase64, "PNG", 20, 12, 30, 7);
         } catch (error) {
-
           // No logo placeholder - just skip it
         }
 
@@ -979,9 +967,7 @@
               if (adminLinkMobile) adminLinkMobile.style.display = "";
             }
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       }
 
       // ========================================
