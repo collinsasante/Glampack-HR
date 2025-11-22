@@ -901,12 +901,10 @@ function toggleLeaveView(view) {
     }
 }
 
-function changeLeaveMonth(direction) {
-    currentCalendarMonth.setMonth(currentCalendarMonth.getMonth() + direction);
-    renderLeaveCalendar();
-}
+// Removed old calendar month navigation functions
 
 async function renderLeaveCalendar() {
+    // Now renders upcoming leaves instead of calendar grid
     const year = currentCalendarMonth.getFullYear();
     const month = currentCalendarMonth.getMonth();
 

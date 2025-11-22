@@ -399,100 +399,53 @@
             </div>
           </div>
 
-          <!-- Calendar View -->
+          <!-- Upcoming Leaves View -->
           <div id="leaveCalendarView" class="hidden">
-            <!-- Header + Month Navigation -->
-            <div
-              class="flex flex-col sm:flex-row items-center justify-between mb-4"
-            >
-              <h3 class="text-2xl font-bold text-gray-900">Leave Calendar</h3>
-
-              <div class="flex items-center gap-3 mt-3 sm:mt-0">
-                <button
-                  onclick="changeLeaveMonth(-1)"
-                  class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-                >
-                  <i class="fas fa-chevron-left text-gray-600"></i>
-                </button>
-
-                <h4
-                  id="leaveCalendarMonth"
-                  class="text-xl font-semibold text-gray-900"
-                ></h4>
-
-                <button
-                  onclick="changeLeaveMonth(1)"
-                  class="p-2 rounded-lg bg-gray-100 hover:bg-gray-200 transition"
-                >
-                  <i class="fas fa-chevron-right text-gray-600"></i>
-                </button>
-              </div>
+            <!-- Header -->
+            <div class="mb-6">
+              <h3 class="text-2xl font-bold text-gray-900">Upcoming Leaves</h3>
+              <p class="text-gray-600 mt-1">Approved leaves scheduled for the next 30 days</p>
             </div>
 
-            <!-- Legend -->
-            <div class="flex items-center gap-6 mb-4">
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-                <span class="text-sm text-gray-700">Pending</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-green-500"></span>
-                <span class="text-sm text-gray-700">Approved</span>
-              </div>
-              <div class="flex items-center gap-2">
-                <span class="w-3 h-3 rounded-full bg-red-500"></span>
-                <span class="text-sm text-gray-700">Rejected</span>
-              </div>
-            </div>
-
-            <!-- Calendar Grid -->
-            <div class="bg-white rounded-xl shadow-md p-6 mb-6">
-              <div id="leaveCalendarGrid" class="grid grid-cols-7 text-center">
-                <!-- JS will inject days + dates here -->
-              </div>
-            </div>
-
-            <!-- Monthly Summary -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-6">
-              <div class="bg-white p-4 rounded-xl shadow">
-                <div class="text-sm font-semibold text-gray-600">Pending</div>
-                <div
-                  id="calendarPendingCount"
-                  class="text-3xl font-bold text-yellow-600"
-                >
-                  0
+            <!-- Summary Stats -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-blue-700 font-medium">On Leave Today</p>
+                    <p id="onLeaveToday" class="text-3xl font-bold text-blue-900">0</p>
+                  </div>
+                  <i class="fas fa-calendar-day text-3xl text-blue-400"></i>
                 </div>
               </div>
-
-              <div class="bg-white p-4 rounded-xl shadow">
-                <div class="text-sm font-semibold text-gray-600">Approved</div>
-                <div
-                  id="calendarApprovedCount"
-                  class="text-3xl font-bold text-green-600"
-                >
-                  0
+              <div class="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-green-700 font-medium">Next 7 Days</p>
+                    <p id="onLeaveWeek" class="text-3xl font-bold text-green-900">0</p>
+                  </div>
+                  <i class="fas fa-calendar-week text-3xl text-green-400"></i>
                 </div>
               </div>
-
-              <div class="bg-white p-4 rounded-xl shadow">
-                <div class="text-sm font-semibold text-gray-600">
-                  Total Leave Days
-                </div>
-                <div
-                  id="calendarTotalDays"
-                  class="text-3xl font-bold text-blue-600"
-                >
-                  0
+              <div class="bg-purple-50 border border-purple-200 rounded-lg p-4">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <p class="text-sm text-purple-700 font-medium">Next 30 Days</p>
+                    <p id="onLeaveMonth" class="text-3xl font-bold text-purple-900">0</p>
+                  </div>
+                  <i class="fas fa-calendar-alt text-3xl text-purple-400"></i>
                 </div>
               </div>
             </div>
 
-            <!-- Leave Details -->
-            <div class="bg-white rounded-xl shadow p-6 mt-6">
-              <h4 class="text-lg font-bold text-gray-900 mb-4">
-                Leave Details
-              </h4>
-              <div id="leaveScheduleList" class="space-y-3"></div>
+            <!-- Upcoming Leaves List -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+              <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
+                <h4 class="text-lg font-bold text-gray-900">Leave Schedule</h4>
+              </div>
+              <div id="upcomingLeavesList" class="divide-y divide-gray-200">
+                <!-- JavaScript will populate this -->
+              </div>
             </div>
           </div>
         </div>
@@ -1703,6 +1656,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script src="assets/js/admin.js?v=3"></script>
+    <script src="upcoming-leaves.js?v=1"></script>
 
     <script>
       // Mobile menu toggle function
