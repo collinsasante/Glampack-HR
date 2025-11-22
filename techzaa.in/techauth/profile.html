@@ -1045,13 +1045,13 @@
             // Wait a moment for Airtable to process the update
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Reload employee data from Airtable to get fresh data
+            // Exit edit mode FIRST (switch to readonly)
+            toggleEditProfile();
+
+            // Then reload employee data from Airtable to get fresh data
             await loadEmployeeData();
 
             showNotification("Profile updated successfully!", "success");
-
-            // Exit edit mode to show the updated readonly values
-            toggleEditProfile();
           } catch (error) {
 
             // More detailed error message
