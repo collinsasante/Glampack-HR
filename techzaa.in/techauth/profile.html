@@ -988,6 +988,7 @@
         .getElementById("profileForm")
         .addEventListener("submit", async function (e) {
           e.preventDefault();
+          e.stopPropagation();
 
           if (isSubmitting) return;
           if (!validateProfileForm()) return;
@@ -1070,6 +1071,8 @@
             saveBtn.disabled = false;
             saveBtn.innerHTML = '<i class="fas fa-save mr-2"></i> Save Changes';
           }
+
+          return false;
         });
 
       // Validate emergency contact
