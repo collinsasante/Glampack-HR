@@ -283,6 +283,7 @@ function editEmployee(employee) {
     document.getElementById('empDateOfBirth').value = employee.fields['Date of Birth'] || '';
     document.getElementById('empGhanaCardNumber').value = employee.fields['Ghana Card Number'] || '';
     document.getElementById('empCity').value = employee.fields['City'] || '';
+    document.getElementById('empCountry').value = employee.fields['Country'] || '';
     document.getElementById('empAddress').value = employee.fields['Address'] || '';
 
     // Hide password fields when editing (don't allow changing password from here)
@@ -313,8 +314,8 @@ function viewEmployeeDetails(employee) {
                         <h2 class="text-2xl font-bold text-white">${fields['Full Name'] || 'N/A'}</h2>
                         <p class="text-gray-900 mt-1 font-medium">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
                     </div>
-                    <button onclick="closeViewEmployeeModal()" class="text-white hover:text-red-100 transition-colors">
-                        <i class="fas fa-times text-2xl"></i>
+                    <button onclick="closeViewEmployeeModal()" class="text-red-600 hover:text-red-800 bg-white rounded-full p-2 transition-colors">
+                        <i class="fas fa-times text-xl"></i>
                     </button>
                 </div>
 
@@ -622,6 +623,10 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     }
     if (cityEl && cityEl.value) {
         data['City'] = cityEl.value;
+    }
+    const countryEl = document.getElementById('empCountry');
+    if (countryEl && countryEl.value) {
+        data['Country'] = countryEl.value;
     }
     if (addressEl && addressEl.value) {
         data['Address'] = addressEl.value;
@@ -2315,11 +2320,16 @@ function calculateNetSalary() {
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Update displays
-    document.getElementById('totalAllowancesDisplay').textContent = `GH₵${totalAllowances.toFixed(2)}`;
-    document.getElementById('totalDeductionsDisplay').textContent = `GH₵${totalDeductions.toFixed(2)}`;
-    document.getElementById('grossSalaryDisplay').textContent = `GH₵${grossSalary.toFixed(2)}`;
-    document.getElementById('netSalaryDisplay').textContent = `GH₵${netSalary.toFixed(2)}`;
+    // Update displays (check if elements exist first)
+    const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
+    const totalDeductionsEl = document.getElementById('totalDeductionsDisplay');
+    const grossSalaryEl = document.getElementById('grossSalaryDisplay');
+    const netSalaryEl = document.getElementById('netSalaryDisplay');
+
+    if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
+    if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
+    if (grossSalaryEl) grossSalaryEl.textContent = `GH₵${grossSalary.toFixed(2)}`;
+    if (netSalaryEl) netSalaryEl.textContent = `GH₵${netSalary.toFixed(2)}`;
 }
 
 // Custom Allowances Management
