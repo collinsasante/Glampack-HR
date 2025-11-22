@@ -1500,16 +1500,23 @@ async function displayAttendanceRecords(records) {
     tbody.innerHTML = records.map(rec => {
         const fields = rec.fields;
         const employeeInfo = nameMap[rec.id] || { name: 'Unknown', empId: '' };
-        const checkIn = fields['Check In'] || '--:--';
-        const checkOut = fields['Check Out'] || '--:--';
+
+        // Trim and normalize check in/out values
+        const checkInRaw = fields['Check In'];
+        const checkOutRaw = fields['Check Out'];
+        const checkIn = (checkInRaw && checkInRaw.trim()) || '--:--';
+        const checkOut = (checkOutRaw && checkOutRaw.trim()) || '--:--';
 
         let status = 'Absent';
         let statusClass = 'bg-red-100 text-red-800';
         let hours = '--';
 
-        if (checkIn !== '--:--') {
-            // Check if checkout exists first
-            if (checkOut !== '--:--' && checkOut) {
+        // Check if there's a valid check-in
+        if (checkIn && checkIn !== '--:--' && checkIn !== '') {
+            // Check if there's a valid checkout
+            const hasValidCheckout = checkOut && checkOut !== '--:--' && checkOut !== '' && checkOut !== null && checkOut !== 'null';
+
+            if (hasValidCheckout) {
                 // Complete attendance - determine if on time or late
                 const [hour, minute] = checkIn.split(':').map(Number);
                 if (hour < 8 || (hour === 8 && minute <= 30)) {
