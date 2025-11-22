@@ -724,6 +724,20 @@
         if (currentUser.role === "Admin" && adminLink) {
           adminLink.style.display = "inline-block";
         }
+
+        // Try to load from cache first for instant display
+        const cachedData = sessionStorage.getItem('employeeData');
+        if (cachedData) {
+          try {
+            employeeData = JSON.parse(cachedData);
+            populateProfile();
+            populateEmployment();
+          } catch (e) {
+            // Cache corrupted, will load fresh
+          }
+        }
+
+        // Always fetch fresh data from server
         await loadEmployeeData();
       }
 
@@ -732,6 +746,10 @@
         try {
           const data = await getEmployee(currentUser.id);
           employeeData = data.fields;
+
+          // Cache employee data in sessionStorage for faster loading and persistence
+          sessionStorage.setItem('employeeData', JSON.stringify(employeeData));
+
           populateProfile();
           populateEmployment();
           await loadEmergencyContact(); // Load from separate table
@@ -1011,6 +1029,7 @@
 
               }
             });
+            // Update the employee record
             await updateEmployee(currentUser.id, updateData);
 
             // Update session if name changed
@@ -1023,16 +1042,16 @@
               );
             }
 
-            showNotification("Profile updated successfully!", "success");
+            // Wait a moment for Airtable to process the update
+            await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Reload employee data from Airtable FIRST
+            // Reload employee data from Airtable to get fresh data
             await loadEmployeeData();
 
-            // Then exit edit mode to show the updated readonly values
-            toggleEditProfile();
+            showNotification("Profile updated successfully!", "success");
 
-            // Ensure values are populated after toggling to readonly
-            populateProfile();
+            // Exit edit mode to show the updated readonly values
+            toggleEditProfile();
           } catch (error) {
 
             // More detailed error message
