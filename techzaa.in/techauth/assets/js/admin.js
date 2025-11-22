@@ -1397,6 +1397,7 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
+        // Add cache-busting to ensure fresh data
         const data = await getAttendance(filterFormula);
 
         allAttendanceRecords = data.records || [];
@@ -1555,19 +1556,33 @@ async function displayAttendanceRecords(records) {
         const checkIn = (checkInRaw && checkInRaw.trim()) || '--:--';
         const checkOut = (checkOutRaw && checkOutRaw.trim()) || '--:--';
 
+        // Get day of week from date (0 = Sunday, 6 = Saturday)
+        const attendanceDate = fields['Date'] ? new Date(fields['Date']) : null;
+        const dayOfWeek = attendanceDate ? attendanceDate.getDay() : null;
+
         let status = 'Absent';
         let statusClass = 'bg-red-100 text-red-800';
         let hours = '--';
 
+        // Check if Sunday (non-working day)
+        if (dayOfWeek === 0) {
+            status = 'Non-Working Day';
+            statusClass = 'bg-gray-100 text-gray-800';
+        }
         // Check if there's a valid check-in
-        if (checkIn && checkIn !== '--:--' && checkIn !== '') {
+        else if (checkIn && checkIn !== '--:--' && checkIn !== '') {
             // Check if there's a valid checkout
             const hasValidCheckout = checkOut && checkOut !== '--:--' && checkOut !== '' && checkOut !== null && checkOut !== 'null';
 
             if (hasValidCheckout) {
                 // Complete attendance - determine if on time or late
                 const [hour, minute] = checkIn.split(':').map(Number);
-                if (hour < 8 || (hour === 8 && minute <= 30)) {
+
+                // Saturday is free for anytime attendance
+                if (dayOfWeek === 6) {
+                    status = 'On Time';
+                    statusClass = 'bg-green-100 text-green-800';
+                } else if (hour < 8 || (hour === 8 && minute <= 30)) {
                     status = 'On Time';
                     statusClass = 'bg-green-100 text-green-800';
                 } else {
