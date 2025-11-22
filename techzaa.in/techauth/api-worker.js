@@ -273,6 +273,9 @@ async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
         let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
         const params = [];
 
+        // Request 100 records per page (Airtable's maximum)
+        params.push(`pageSize=100`);
+
         if (filterFormula) {
           params.push(`filterByFormula=${encodeURIComponent(filterFormula)}`);
         }
