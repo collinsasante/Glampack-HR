@@ -2452,14 +2452,16 @@ if (attendanceDateRangeEl) {
 // ========================================
 checkAdminAccess().then(hasAccess => {
     if (hasAccess) {
-        // Load initial data for all tabs
-        Promise.all([
-            loadEmployees(),
-            loadLeaveRequests(),
-            loadAnnouncements(),
-            loadAttendanceRecords(),
-            loadPayrollRecords()
-        ]).then(() => {
+        // Load employees first to populate filter dropdowns
+        loadEmployees().then(() => {
+            // Then load other data that depends on employees being loaded
+            return Promise.all([
+                loadLeaveRequests(),
+                loadAnnouncements(),
+                loadAttendanceRecords(),
+                loadPayrollRecords()
+            ]);
+        }).then(() => {
             // Update last refresh time after all data is loaded
             updateLastRefreshTime();
         }).catch(error => {
