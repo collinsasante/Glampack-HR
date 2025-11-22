@@ -1340,7 +1340,7 @@ async function loadAttendanceRecords() {
                 startDate = endDate = today.toISOString().split('T')[0];
         }
 
-        // Build filter formula
+        // Build filter formula for date only
         let filterFormula;
         if (startDate === endDate) {
             filterFormula = `{Date} = '${startDate}'`;
@@ -1349,19 +1349,22 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
-        // Add employee filter if selected
-        if (employeeId) {
-            filterFormula = `AND(${filterFormula}, FIND('${employeeId}', ARRAYJOIN({Employee})))`;
-        }
-
         const data = await getAttendance(filterFormula);
 
         allAttendanceRecords = data.records || [];
 
-        // Apply status filter on client side
+        // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
+        if (employeeId) {
+            filteredRecords = filteredRecords.filter(rec => {
+                const empIds = rec.fields['Employee'];
+                return empIds && empIds.includes(employeeId);
+            });
+        }
+
+        // Apply status filter on client side
         if (statusFilter) {
-            filteredRecords = allAttendanceRecords.filter(rec => {
+            filteredRecords = filteredRecords.filter(rec => {
                 const checkIn = rec.fields['Check In'];
                 const checkOut = rec.fields['Check Out'];
 
@@ -2039,7 +2042,137 @@ async function openAddPayrollModal() {
 
     }
 
+    // Add event listener to auto-populate from previous payroll or employee salary
+    const payrollEmployeeSelect = document.getElementById('payrollEmployee');
+    const payrollMonthInput = document.getElementById('payrollMonth');
+
+    const autoPopulateHandler = async function() {
+        const employeeId = payrollEmployeeSelect.value;
+        const selectedMonth = payrollMonthInput.value;
+
+        if (!employeeId || !selectedMonth) return;
+
+        await autoPopulatePayrollData(employeeId, selectedMonth);
+    };
+
+    // Remove old listeners to prevent duplicates
+    payrollEmployeeSelect.removeEventListener('change', autoPopulateHandler);
+    payrollMonthInput.removeEventListener('change', autoPopulateHandler);
+
+    // Add new listeners
+    payrollEmployeeSelect.addEventListener('change', autoPopulateHandler);
+    payrollMonthInput.addEventListener('change', autoPopulateHandler);
+
     document.getElementById('payrollModal').classList.add('active');
+}
+
+// Auto-populate payroll data from previous month or employee salary
+async function autoPopulatePayrollData(employeeId, selectedMonth) {
+    try {
+        // Parse selected month
+        const [year, month] = selectedMonth.split('-').map(Number);
+
+        // Calculate previous month
+        let prevYear = year;
+        let prevMonth = month - 1;
+        if (prevMonth === 0) {
+            prevMonth = 12;
+            prevYear = year - 1;
+        }
+        const previousMonth = `${prevYear}-${String(prevMonth).padStart(2, '0')}`;
+
+        // Try to find payroll from previous month
+        const filterFormula = `AND({Month} = '${previousMonth}', FIND('${employeeId}', ARRAYJOIN({Employee})))`;
+        const payrollData = await getPayroll(filterFormula);
+
+        if (payrollData.records && payrollData.records.length > 0) {
+            // Found previous month's payroll - use it as template
+            const prevPayroll = payrollData.records[0].fields;
+
+            document.getElementById('basicSalary').value = prevPayroll['Basic Salary'] || 0;
+            document.getElementById('housingAllowance').value = prevPayroll['Housing Allowance'] || 0;
+            document.getElementById('transportAllowance').value = prevPayroll['Transport Allowance'] || 0;
+            document.getElementById('benefits').value = prevPayroll['Benefits'] || 0;
+            document.getElementById('otherAllowances').value = prevPayroll['Other Allowances'] || 0;
+            document.getElementById('incomeTax').value = prevPayroll['Income Tax'] || 0;
+            document.getElementById('welfare').value = prevPayroll['Welfare'] || 0;
+            document.getElementById('socialSecurity').value = prevPayroll['Social Security'] || 0;
+            document.getElementById('healthInsurance').value = prevPayroll['Health Insurance'] || 0;
+            document.getElementById('otherDeductions').value = prevPayroll['Other Deductions'] || 0;
+
+            // Populate custom allowances and deductions
+            if (prevPayroll['Custom Allowances']) {
+                try {
+                    customAllowances = JSON.parse(prevPayroll['Custom Allowances']);
+                    updateCustomAllowancesList();
+                } catch (e) {
+                    customAllowances = [];
+                }
+            }
+
+            if (prevPayroll['Custom Deductions']) {
+                try {
+                    customDeductions = JSON.parse(prevPayroll['Custom Deductions']);
+                    updateCustomDeductionsList();
+                } catch (e) {
+                    customDeductions = [];
+                }
+            }
+
+            calculateNetSalary();
+
+            // Show notification
+            showPayrollNotification(`Payroll data loaded from ${previousMonth}. You can now modify allowances and deductions.`, 'info');
+        } else {
+            // No previous payroll - use employee's base salary
+            const employee = await getEmployee(employeeId);
+            if (employee && employee.fields && employee.fields['Salary']) {
+                document.getElementById('basicSalary').value = employee.fields['Salary'];
+
+                // Set default allowances (can be customized)
+                document.getElementById('housingAllowance').value = 0;
+                document.getElementById('transportAllowance').value = 0;
+                document.getElementById('benefits').value = 0;
+                document.getElementById('otherAllowances').value = 0;
+
+                // Set default deductions (can be customized)
+                document.getElementById('incomeTax').value = 0;
+                document.getElementById('welfare').value = 0;
+                document.getElementById('socialSecurity').value = 0;
+                document.getElementById('healthInsurance').value = 0;
+                document.getElementById('otherDeductions').value = 0;
+
+                calculateNetSalary();
+
+                showPayrollNotification('Basic salary loaded from employee profile. Please add allowances and deductions.', 'info');
+            }
+        }
+    } catch (error) {
+
+    }
+}
+
+// Show notification in payroll modal
+function showPayrollNotification(message, type = 'success') {
+    // Create notification element
+    const notification = document.createElement('div');
+    notification.className = `p-4 mb-4 rounded-lg ${type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : type === 'error' ? 'bg-red-50 text-red-800 border border-red-200' : 'bg-blue-50 text-blue-800 border border-blue-200'}`;
+    notification.innerHTML = `
+        <div class="flex items-center">
+            <i class="fas fa-info-circle mr-2"></i>
+            <span>${message}</span>
+        </div>
+    `;
+
+    // Insert at the top of the form
+    const form = document.getElementById('payrollForm');
+    const firstChild = form.firstElementChild;
+    form.insertBefore(notification, firstChild);
+
+    // Remove after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
 }
 
 function closePayrollModal() {
