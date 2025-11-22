@@ -1492,6 +1492,22 @@ async function loadAttendanceRecords() {
             console.log('📋 After status filter:', filteredRecords.length, 'records');
         }
 
+        // Sort records by date (newest first) and check-in time
+        filteredRecords.sort((a, b) => {
+            const dateA = a.fields['Date'] || '';
+            const dateB = b.fields['Date'] || '';
+
+            // Sort by date first (newest first)
+            if (dateA !== dateB) {
+                return dateB.localeCompare(dateA);
+            }
+
+            // If same date, sort by check-in time (earliest first)
+            const checkInA = extractTimeFromValue(a.fields['Check In']) || '';
+            const checkInB = extractTimeFromValue(b.fields['Check In']) || '';
+            return checkInA.localeCompare(checkInB);
+        });
+
         console.log('✅ Final filtered records to display:', filteredRecords.length);
         console.log('📄 Records:', filteredRecords);
 
