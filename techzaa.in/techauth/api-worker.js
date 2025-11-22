@@ -308,7 +308,13 @@ async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
       console.log(`🎯 Total records collected: ${allRecords.length} from ${pageCount} page(s)`);
 
       return new Response(JSON.stringify({ records: allRecords }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'application/json',
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        },
         status: 200,
       });
     }
