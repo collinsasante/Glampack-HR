@@ -254,21 +254,54 @@ async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
     let airtableUrl;
     if (recordId) {
       airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+      const response = await airtableRequest(airtableUrl, apiKey);
+      const data = await response.json();
+
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: response.status,
+      });
     } else {
+      // Fetch all records with pagination support
       const filterFormula = url.searchParams.get('filterByFormula');
-      airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
-      if (filterFormula) {
-        airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
-      }
+      let allRecords = [];
+      let offset = null;
+
+      do {
+        let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+        const params = [];
+
+        if (filterFormula) {
+          params.push(`filterByFormula=${encodeURIComponent(filterFormula)}`);
+        }
+
+        if (offset) {
+          params.push(`offset=${offset}`);
+        }
+
+        if (params.length > 0) {
+          airtableUrl += `?${params.join('&')}`;
+        }
+
+        const response = await airtableRequest(airtableUrl, apiKey);
+        const data = await response.json();
+
+        if (!response.ok) {
+          return new Response(JSON.stringify(data), {
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: response.status,
+          });
+        }
+
+        allRecords = allRecords.concat(data.records || []);
+        offset = data.offset || null;
+      } while (offset);
+
+      return new Response(JSON.stringify({ records: allRecords }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
     }
-
-    const response = await airtableRequest(airtableUrl, apiKey);
-    const data = await response.json();
-
-    return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: response.status,
-    });
   } else if (request.method === 'POST') {
     const body = await request.json();
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
