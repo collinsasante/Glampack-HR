@@ -430,10 +430,10 @@
 
             // Update earnings
             const basicSalary = parseFloat(salary["Basic Salary"] || 0);
-            const housingAllowance = parseFloat(salary["Housing"] || 0);
-            const transportAllowance = parseFloat(salary["Transport"] || 0);
+            const housingAllowance = parseFloat(salary["Housing Allowance"] || 0);
+            const transportAllowance = parseFloat(salary["Transport Allowance"] || 0);
             const benefits = parseFloat(salary["Benefits"] || 0);
-            const otherAllowances = parseFloat(salary["Other"] || 0);
+            const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
 
             // Get calculated totals from Airtable
             const totalAllowances = parseFloat(salary["Total Earnings"] || 0);
@@ -610,10 +610,10 @@
       async function downloadPayslipFromRecord(fields) {
         // Structure payment data
         const basicSalary = parseFloat(fields["Basic Salary"] || 0);
-        const housingAllowance = parseFloat(fields["Housing"] || 0);
-        const transportAllowance = parseFloat(fields["Transport"] || 0);
+        const housingAllowance = parseFloat(fields["Housing Allowance"] || 0);
+        const transportAllowance = parseFloat(fields["Transport Allowance"] || 0);
         const benefits = parseFloat(fields["Benefits"] || 0);
-        const otherAllowances = parseFloat(fields["Other"] || 0);
+        const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
 
         const incomeTax = parseFloat(fields["Income Tax"] || 0);
         const welfare = parseFloat(fields["Welfare"] || 0);

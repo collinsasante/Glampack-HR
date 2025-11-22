@@ -273,6 +273,18 @@ function editEmployee(employee) {
     document.getElementById('empJoiningDate').value = employee.fields['Joining Date'] || '';
     document.getElementById('empSalary').value = employee.fields['Salary'] || '';
 
+    // Populate bank details
+    document.getElementById('empBankName').value = employee.fields['Bank Name'] || '';
+    document.getElementById('empBankAccountNumber').value = employee.fields['Bank Account Number'] || '';
+    document.getElementById('empBankBranch').value = employee.fields['Bank Branch'] || '';
+
+    // Populate personal details
+    document.getElementById('empPhoneNumber').value = employee.fields['Phone Number'] || '';
+    document.getElementById('empDateOfBirth').value = employee.fields['Date of Birth'] || '';
+    document.getElementById('empGhanaCardNumber').value = employee.fields['Ghana Card Number'] || '';
+    document.getElementById('empCity').value = employee.fields['City'] || '';
+    document.getElementById('empAddress').value = employee.fields['Address'] || '';
+
     // Hide password fields when editing (don't allow changing password from here)
     const passwordFields = document.querySelectorAll('#empPassword, #empConfirmPassword');
     passwordFields.forEach(field => {
@@ -299,8 +311,8 @@ function viewEmployeeDetails(employee) {
                 <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 rounded-t-2xl">
                     <div class="flex justify-between items-start">
                         <div>
-                            <h2 class="text-2xl font-bold">${fields['Full Name'] || 'N/A'}</h2>
-                            <p class="text-red-100 mt-1">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
+                            <h2 class="text-2xl font-bold text-white">${fields['Full Name'] || 'N/A'}</h2>
+                            <p class="text-gray-900 mt-1 font-medium">${fields['Job Title'] || 'N/A'} • ${fields['Department'] || 'N/A'}</p>
                         </div>
                         <button onclick="closeViewEmployeeModal()" class="text-white hover:text-red-100 transition-colors">
                             <i class="fas fa-times text-2xl"></i>
@@ -577,6 +589,44 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     }
     if (salaryEl && salaryEl.value) {
         data['Salary'] = parseFloat(salaryEl.value);
+    }
+
+    // Add bank details if provided
+    const bankNameEl = document.getElementById('empBankName');
+    const bankAccountNumberEl = document.getElementById('empBankAccountNumber');
+    const bankBranchEl = document.getElementById('empBankBranch');
+
+    if (bankNameEl && bankNameEl.value) {
+        data['Bank Name'] = bankNameEl.value;
+    }
+    if (bankAccountNumberEl && bankAccountNumberEl.value) {
+        data['Bank Account Number'] = bankAccountNumberEl.value;
+    }
+    if (bankBranchEl && bankBranchEl.value) {
+        data['Bank Branch'] = bankBranchEl.value;
+    }
+
+    // Add personal details if provided
+    const phoneNumberEl = document.getElementById('empPhoneNumber');
+    const dateOfBirthEl = document.getElementById('empDateOfBirth');
+    const ghanaCardNumberEl = document.getElementById('empGhanaCardNumber');
+    const cityEl = document.getElementById('empCity');
+    const addressEl = document.getElementById('empAddress');
+
+    if (phoneNumberEl && phoneNumberEl.value) {
+        data['Phone Number'] = phoneNumberEl.value;
+    }
+    if (dateOfBirthEl && dateOfBirthEl.value) {
+        data['Date of Birth'] = dateOfBirthEl.value;
+    }
+    if (ghanaCardNumberEl && ghanaCardNumberEl.value) {
+        data['Ghana Card Number'] = ghanaCardNumberEl.value;
+    }
+    if (cityEl && cityEl.value) {
+        data['City'] = cityEl.value;
+    }
+    if (addressEl && addressEl.value) {
+        data['Address'] = addressEl.value;
     }
 
     try {
