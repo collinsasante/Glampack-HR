@@ -1353,6 +1353,33 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 // ========================================
 // ATTENDANCE RECORDS
 // ========================================
+
+// Helper function to extract time from datetime or time string
+function extractTimeFromValue(value) {
+    if (!value || value === '' || value === 'null' || value === null) {
+        return '--:--';
+    }
+
+    const trimmed = String(value).trim();
+
+    // Check if it's an ISO datetime string (contains 'T' or 'Z')
+    if (trimmed.includes('T') || trimmed.includes('Z')) {
+        try {
+            const date = new Date(trimmed);
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            const seconds = String(date.getSeconds()).padStart(2, '0');
+            return `${hours}:${minutes}:${seconds}`;
+        } catch (e) {
+            console.error('Error parsing datetime:', trimmed, e);
+            return '--:--';
+        }
+    }
+
+    // Otherwise, it's already a time string
+    return trimmed;
+}
+
 async function loadAttendanceRecords() {
     const dateRange = document.getElementById('attendanceDateRange').value;
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
@@ -1430,8 +1457,12 @@ async function loadAttendanceRecords() {
         if (statusFilter) {
             console.log('📋 Filtering by status:', statusFilter);
             filteredRecords = filteredRecords.filter(rec => {
-                const checkIn = rec.fields['Check In'];
-                const checkOut = rec.fields['Check Out'];
+                const checkInRaw = rec.fields['Check In'];
+                const checkOutRaw = rec.fields['Check Out'];
+
+                // Extract time from datetime or time string
+                const checkIn = extractTimeFromValue(checkInRaw);
+                const checkOut = extractTimeFromValue(checkOutRaw);
 
                 if (!checkIn || checkIn === '--:--') {
                     return statusFilter === 'incomplete';
@@ -1573,11 +1604,11 @@ async function displayAttendanceRecords(records) {
         const fields = rec.fields;
         const employeeInfo = nameMap[rec.id] || { name: 'Unknown', empId: '' };
 
-        // Trim and normalize check in/out values
+        // Extract time from datetime or time string
         const checkInRaw = fields['Check In'];
         const checkOutRaw = fields['Check Out'];
-        const checkIn = (checkInRaw && checkInRaw.trim()) || '--:--';
-        const checkOut = (checkOutRaw && checkOutRaw.trim()) || '--:--';
+        const checkIn = extractTimeFromValue(checkInRaw);
+        const checkOut = extractTimeFromValue(checkOutRaw);
 
         // Get day of week from date (0 = Sunday, 6 = Saturday)
         const attendanceDate = fields['Date'] ? new Date(fields['Date']) : null;
