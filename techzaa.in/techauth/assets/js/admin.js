@@ -1423,22 +1423,35 @@ async function viewAnnouncementStats(announcementId) {
 
     // Load stats
     try {
+        console.log('=== ADMIN: Loading announcement stats for:', announcementId);
+
         // Fetch all reads and comments, filter client-side (Airtable filters don't work with linked arrays)
         const allReadsResponse = await getAnnouncementReads(null);
+        console.log('All reads fetched:', allReadsResponse.records?.length || 0);
+
         const reads = (allReadsResponse.records || []).filter(read => {
             const announcementField = read.fields['Announcement'];
-            return Array.isArray(announcementField) && announcementField.includes(announcementId);
+            const match = Array.isArray(announcementField) && announcementField.includes(announcementId);
+            if (match) console.log('Matched read:', read.id, announcementField);
+            return match;
         });
+        console.log('Filtered reads:', reads.length);
 
         const allCommentsResponse = await getAnnouncementComments(null);
+        console.log('All comments fetched:', allCommentsResponse.records?.length || 0);
+
         const comments = (allCommentsResponse.records || []).filter(comment => {
             const announcementField = comment.fields['Announcement'];
-            return Array.isArray(announcementField) && announcementField.includes(announcementId);
+            const match = Array.isArray(announcementField) && announcementField.includes(announcementId);
+            if (match) console.log('Matched comment:', comment.id, announcementField);
+            return match;
         });
+        console.log('Filtered comments:', comments.length);
 
         // Get total employees for engagement rate
         const allEmployeesResponse = await getEmployees();
         const totalEmployees = (allEmployeesResponse.records || []).length;
+        console.log('Total employees:', totalEmployees);
 
         // Update stats
         document.getElementById('statsViewCount').textContent = reads.length;
