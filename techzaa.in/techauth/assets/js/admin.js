@@ -3567,7 +3567,7 @@ async function autoGeneratePayroll() {
                 let payrollData;
 
                 if (previousPayroll) {
-                    // Copy from previous month
+                    // Copy from previous month (exclude computed fields)
                     payrollData = {
                         Employee: [employeeId],
                         Month: currentMonth,
@@ -3585,30 +3585,11 @@ async function autoGeneratePayroll() {
                         'Custom Deductions': previousPayroll.fields['Custom Deductions'] || '',
                         'Status': 'Draft'
                     };
-
-                    // Calculate totals
-                    const totalAllowances = (parseFloat(payrollData['Housing Allowance']) || 0) +
-                                          (parseFloat(payrollData['Transport Allowance']) || 0) +
-                                          (parseFloat(payrollData['Benefits']) || 0) +
-                                          (parseFloat(payrollData['Other Allowances']) || 0);
-
-                    const grossSalary = (parseFloat(payrollData['Basic Salary']) || 0) + totalAllowances;
-
-                    const totalDeductions = (parseFloat(payrollData['Income Tax']) || 0) +
-                                          (parseFloat(payrollData['Welfare']) || 0) +
-                                          (parseFloat(payrollData['Social Security']) || 0) +
-                                          (parseFloat(payrollData['Health Insurance']) || 0) +
-                                          (parseFloat(payrollData['Other Deductions']) || 0);
-
-                    const netSalary = grossSalary - totalDeductions;
-
-                    payrollData['Total Allowances'] = totalAllowances;
-                    payrollData['Gross Salary'] = grossSalary;
-                    payrollData['Total Deductions'] = totalDeductions;
-                    payrollData['Net Salary'] = netSalary;
+                    // Note: Total Allowances, Gross Salary, Total Deductions, and Net Salary
+                    // are computed fields in Airtable and will be calculated automatically
 
                 } else {
-                    // Use employee's base salary
+                    // Use employee's base salary (exclude computed fields)
                     const baseSalary = parseFloat(employee.fields['Salary']) || 0;
 
                     if (baseSalary === 0) {
@@ -3624,19 +3605,17 @@ async function autoGeneratePayroll() {
                         'Transport Allowance': 0,
                         'Benefits': 0,
                         'Other Allowances': 0,
-                        'Total Allowances': 0,
-                        'Gross Salary': baseSalary,
                         'Income Tax': 0,
                         'Welfare': 0,
                         'Social Security': 0,
                         'Health Insurance': 0,
                         'Other Deductions': 0,
-                        'Total Deductions': 0,
-                        'Net Salary': baseSalary,
                         'Custom Allowances': '',
                         'Custom Deductions': '',
                         'Status': 'Draft'
                     };
+                    // Note: Total Allowances, Gross Salary, Total Deductions, and Net Salary
+                    // are computed fields in Airtable and will be calculated automatically
                 }
 
                 // Create payroll record
