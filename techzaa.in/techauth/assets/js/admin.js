@@ -1497,7 +1497,7 @@ async function loadAttendanceRecords() {
 
         document.getElementById('attendanceRecordsBody').innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-4 text-center text-red-600">
+                <td colspan="8" class="px-6 py-4 text-center text-red-600">
                     Error loading attendance records. Please try again.
                 </td>
             </tr>
@@ -1582,7 +1582,7 @@ async function displayAttendanceRecords(records) {
     if (records.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="7" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
                     No attendance records found for selected filters
                 </td>
             </tr>
@@ -1666,6 +1666,7 @@ async function displayAttendanceRecords(records) {
         }
 
         const location = fields['Check In Location'] || '--';
+        const ipAddress = fields['IP Address'] || '--';
 
         return `
             <tr class="hover:bg-gray-50">
@@ -1688,6 +1689,9 @@ async function displayAttendanceRecords(records) {
                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
                         ${status}
                     </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-700 font-mono">${ipAddress}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-500">${location}</div>
