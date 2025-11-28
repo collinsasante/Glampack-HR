@@ -13,6 +13,7 @@ const API_CONFIG = {
         leaveRequests: '/api/leave-requests',
         announcements: '/api/announcements',
         announcementComments: '/api/announcement-comments',
+        announcementReads: '/api/announcement-reads',
         payroll: '/api/payroll',
         medicalClaims: '/api/medical-claims',
         emergencyContacts: '/api/emergency-contacts'
@@ -273,6 +274,31 @@ async function createAnnouncementComment(fields) {
  */
 async function deleteAnnouncementComment(recordId) {
     return workerRequest(`${API_CONFIG.endpoints.announcementComments}/${recordId}`, 'DELETE');
+}
+
+// ========================================
+// ANNOUNCEMENT READS API
+// ========================================
+
+/**
+ * Get announcement reads (who viewed announcements)
+ * @param {string} filterFormula - Airtable filter formula (optional)
+ * @returns {Promise<object>} Announcement read records
+ */
+async function getAnnouncementReads(filterFormula = null) {
+    const queryParams = filterFormula
+        ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
+        : '';
+    return workerRequest(API_CONFIG.endpoints.announcementReads, 'GET', null, queryParams);
+}
+
+/**
+ * Create an announcement read record
+ * @param {object} fields - Read data
+ * @returns {Promise<object>} Created read record
+ */
+async function createAnnouncementRead(fields) {
+    return workerRequest(API_CONFIG.endpoints.announcementReads, 'POST', { fields });
 }
 
 // ========================================

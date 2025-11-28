@@ -1345,6 +1345,9 @@ function displayAnnouncements(announcements) {
                         </div>
                     </div>
                     <div class="flex gap-2 ml-4">
+                        <button onclick="viewAnnouncementStats('${announcement.id}')" class="text-green-600 hover:text-green-800 p-2 hover:bg-green-50 rounded transition-colors" title="View Stats & Comments">
+                            <i class="fas fa-chart-bar"></i>
+                        </button>
                         <button onclick="editAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded transition-colors" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
@@ -1404,6 +1407,219 @@ async function deleteAnnouncement(announcementId) {
 
         showToast('error', 'Delete Failed', 'Error deleting announcement. Please try again.');
     }
+}
+
+// View announcement stats (views and comments)
+async function viewAnnouncementStats(announcementId) {
+    const announcement = allAnnouncements.find(a => a.id === announcementId);
+    if (!announcement) return;
+
+    // Set announcement details
+    document.getElementById('statsAnnouncementTitle').textContent = announcement.fields['Title'] || 'Untitled';
+    document.getElementById('statsAnnouncementMessage').textContent = announcement.fields['Message'] || '';
+
+    // Show modal
+    document.getElementById('announcementStatsModal').style.display = 'flex';
+
+    // Load stats
+    try {
+        // Fetch views
+        const filterFormula = `{Announcement} = '${announcementId}'`;
+        const readsResponse = await getAnnouncementReads(filterFormula);
+        const reads = readsResponse.records || [];
+
+        // Fetch comments
+        const commentsResponse = await getAnnouncementComments(filterFormula);
+        const comments = commentsResponse.records || [];
+
+        // Get total employees for engagement rate
+        const allEmployeesResponse = await getEmployees();
+        const totalEmployees = (allEmployeesResponse.records || []).length;
+
+        // Update stats
+        document.getElementById('statsViewCount').textContent = reads.length;
+        document.getElementById('statsCommentCount').textContent = comments.length;
+
+        const engagementRate = totalEmployees > 0 ? Math.round((reads.length / totalEmployees) * 100) : 0;
+        document.getElementById('statsEngagementRate').textContent = engagementRate + '%';
+
+        // Load views list
+        await loadViewsList(reads);
+
+        // Load comments list
+        await loadStatsCommentsList(comments);
+
+    } catch (error) {
+        console.error('Error loading announcement stats:', error);
+        showToast('error', 'Error', 'Failed to load announcement statistics');
+    }
+}
+
+// Load views list
+async function loadViewsList(reads) {
+    const viewsList = document.getElementById('viewsList');
+
+    if (reads.length === 0) {
+        viewsList.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-eye-slash mr-2"></i>No one has viewed this announcement yet</div>';
+        return;
+    }
+
+    // Fetch employee details for all reads
+    const employeePromises = reads.map(async (read) => {
+        if (read.fields['Employee'] && read.fields['Employee'][0]) {
+            try {
+                const employee = await getEmployee(read.fields['Employee'][0]);
+                return {
+                    name: employee?.fields?.['Full Name'] || 'Unknown',
+                    date: read.fields['Read Date'],
+                    department: employee?.fields?.['Department'] || 'N/A'
+                };
+            } catch (error) {
+                return {
+                    name: 'Unknown',
+                    date: read.fields['Read Date'],
+                    department: 'N/A'
+                };
+            }
+        }
+        return null;
+    });
+
+    const employeeData = await Promise.all(employeePromises);
+    const validReads = employeeData.filter(e => e !== null);
+
+    // Sort by date (newest first)
+    validReads.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    viewsList.innerHTML = validReads.map(read => {
+        const readDate = new Date(read.date);
+        const formattedDate = readDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        return `
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition-colors">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-600 font-bold text-sm">${read.name.charAt(0)}</span>
+                    </div>
+                    <div>
+                        <p class="font-semibold text-gray-900">${read.name}</p>
+                        <p class="text-xs text-gray-500">${read.department}</p>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm text-gray-600">${formattedDate}</p>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Load comments list for stats modal
+async function loadStatsCommentsList(comments) {
+    const commentsList = document.getElementById('statsCommentsList');
+
+    if (comments.length === 0) {
+        commentsList.innerHTML = '<div class="text-center py-8 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet</div>';
+        return;
+    }
+
+    // Sort by date (newest first)
+    comments.sort((a, b) => {
+        const dateA = new Date(a.fields['Date']);
+        const dateB = new Date(b.fields['Date']);
+        return dateB - dateA;
+    });
+
+    // Fetch employee names for all comments
+    const employeePromises = comments.map(async (comment) => {
+        if (comment.fields['Employee'] && comment.fields['Employee'][0]) {
+            try {
+                const employee = await getEmployee(comment.fields['Employee'][0]);
+                return {
+                    id: comment.id,
+                    name: employee?.fields?.['Full Name'] || 'Unknown',
+                    comment: comment.fields['Comment'],
+                    date: comment.fields['Date']
+                };
+            } catch (error) {
+                return {
+                    id: comment.id,
+                    name: 'Unknown',
+                    comment: comment.fields['Comment'],
+                    date: comment.fields['Date']
+                };
+            }
+        }
+        return null;
+    });
+
+    const commentData = await Promise.all(employeePromises);
+    const validComments = commentData.filter(c => c !== null);
+
+    commentsList.innerHTML = validComments.map(comment => {
+        const commentDate = new Date(comment.date);
+        const formattedDate = commentDate.toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+
+        return `
+            <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0">
+                        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                            <span class="text-green-600 font-bold text-sm">${comment.name.charAt(0)}</span>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between mb-1">
+                            <h5 class="font-semibold text-gray-900">${comment.name}</h5>
+                            <span class="text-xs text-gray-500">${formattedDate}</span>
+                        </div>
+                        <p class="text-sm text-gray-700 whitespace-pre-wrap">${comment.comment}</p>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+// Switch tabs in stats modal
+function switchStatsTab(tab) {
+    const viewsTab = document.getElementById('viewsTab');
+    const commentsTab = document.getElementById('commentsTab');
+    const viewsContent = document.getElementById('viewsContent');
+    const commentsContent = document.getElementById('commentsContent');
+
+    if (tab === 'views') {
+        viewsTab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
+        viewsTab.classList.remove('text-gray-600');
+        commentsTab.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600');
+        commentsTab.classList.add('text-gray-600');
+        viewsContent.classList.remove('hidden');
+        commentsContent.classList.add('hidden');
+    } else {
+        commentsTab.classList.add('border-b-2', 'border-blue-600', 'text-blue-600');
+        commentsTab.classList.remove('text-gray-600');
+        viewsTab.classList.remove('border-b-2', 'border-blue-600', 'text-blue-600');
+        viewsTab.classList.add('text-gray-600');
+        commentsContent.classList.remove('hidden');
+        viewsContent.classList.add('hidden');
+    }
+}
+
+// Close announcement stats modal
+function closeAnnouncementStatsModal() {
+    document.getElementById('announcementStatsModal').style.display = 'none';
 }
 
 // Handle announcement form submission

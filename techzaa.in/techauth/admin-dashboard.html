@@ -1846,6 +1846,99 @@
       </div>
     </div>
 
+    <!-- Announcement Stats Modal -->
+    <div id="announcementStatsModal" class="modal">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+        <div class="flex justify-between items-center p-6 border-b">
+          <h3 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-chart-bar text-green-600 mr-2"></i>
+            Announcement Analytics
+          </h3>
+          <button onclick="closeAnnouncementStatsModal()" class="text-gray-500 hover:text-gray-700">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+        <div class="p-6">
+          <!-- Announcement Info -->
+          <div class="mb-6 p-4 bg-gray-50 rounded-lg">
+            <h4 id="statsAnnouncementTitle" class="text-xl font-bold text-gray-800 mb-2"></h4>
+            <p id="statsAnnouncementMessage" class="text-sm text-gray-600 whitespace-pre-wrap"></p>
+          </div>
+
+          <!-- Statistics Summary -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+            <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-blue-600 font-medium">Total Views</p>
+                  <p id="statsViewCount" class="text-3xl font-bold text-blue-700">0</p>
+                </div>
+                <i class="fas fa-eye text-blue-400 text-3xl"></i>
+              </div>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-green-600 font-medium">Total Comments</p>
+                  <p id="statsCommentCount" class="text-3xl font-bold text-green-700">0</p>
+                </div>
+                <i class="fas fa-comments text-green-400 text-3xl"></i>
+              </div>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-purple-600 font-medium">Engagement Rate</p>
+                  <p id="statsEngagementRate" class="text-3xl font-bold text-purple-700">0%</p>
+                </div>
+                <i class="fas fa-chart-line text-purple-400 text-3xl"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tabs -->
+          <div class="border-b mb-4">
+            <div class="flex space-x-4">
+              <button
+                id="viewsTab"
+                onclick="switchStatsTab('views')"
+                class="px-4 py-2 font-semibold border-b-2 border-blue-600 text-blue-600"
+              >
+                <i class="fas fa-eye mr-2"></i>Views
+              </button>
+              <button
+                id="commentsTab"
+                onclick="switchStatsTab('comments')"
+                class="px-4 py-2 font-semibold text-gray-600 hover:text-gray-800"
+              >
+                <i class="fas fa-comments mr-2"></i>Comments
+              </button>
+            </div>
+          </div>
+
+          <!-- Views List -->
+          <div id="viewsContent">
+            <h5 class="font-bold text-gray-800 mb-3">
+              <i class="fas fa-users mr-2"></i>Employees Who Viewed
+            </h5>
+            <div id="viewsList" class="space-y-2 max-h-96 overflow-y-auto">
+              <!-- Views will be loaded here -->
+            </div>
+          </div>
+
+          <!-- Comments List -->
+          <div id="commentsContent" class="hidden">
+            <h5 class="font-bold text-gray-800 mb-3">
+              <i class="fas fa-comment-dots mr-2"></i>All Comments
+            </h5>
+            <div id="statsCommentsList" class="space-y-3 max-h-96 overflow-y-auto">
+              <!-- Comments will be loaded here -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Add/Edit Payroll Modal -->
     <div id="payrollModal" class="modal">
       <div
