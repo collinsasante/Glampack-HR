@@ -288,24 +288,19 @@ async function handleAttendance(request, env, apiKey, baseId, corsHeaders) {
           airtableUrl += `?${params.join('&')}`;
         }
 
-        console.log(`📄 Fetching page ${pageCount} from Airtable...`);
         const response = await airtableRequest(airtableUrl, apiKey);
         const data = await response.json();
 
         if (!response.ok) {
-          console.error('❌ Airtable API error:', data);
           return new Response(JSON.stringify(data), {
             headers: { ...corsHeaders, 'Content-Type': 'application/json' },
             status: response.status,
           });
         }
 
-        console.log(`✅ Page ${pageCount}: ${data.records?.length || 0} records, offset: ${data.offset || 'none'}`);
         allRecords = allRecords.concat(data.records || []);
         offset = data.offset || null;
       } while (offset);
-
-      console.log(`🎯 Total records collected: ${allRecords.length} from ${pageCount} page(s)`);
 
       return new Response(JSON.stringify({ records: allRecords }), {
         headers: {

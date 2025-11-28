@@ -1385,11 +1385,6 @@ async function loadAttendanceRecords() {
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
     const statusFilter = document.getElementById('attendanceStatusFilter').value;
 
-    console.log('🔍 Loading attendance records...');
-    console.log('Date Range:', dateRange);
-    console.log('Employee Filter:', employeeId);
-    console.log('Status Filter:', statusFilter);
-
     try {
         // Calculate date range
         let startDate, endDate;
@@ -1420,8 +1415,6 @@ async function loadAttendanceRecords() {
                 startDate = endDate = today.toISOString().split('T')[0];
         }
 
-        console.log('📅 Date filter:', { startDate, endDate });
-
         // Build filter formula for date only
         let filterFormula;
         if (startDate === endDate) {
@@ -1431,31 +1424,22 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
-        console.log('🔎 Filter formula:', filterFormula);
-
         // Add cache-busting to ensure fresh data
         const data = await getAttendance(filterFormula);
 
-        console.log('📦 Raw data from API:', data);
-        console.log('📊 Total records received:', data.records?.length || 0);
-
         allAttendanceRecords = data.records || [];
-        console.log('💾 Stored in allAttendanceRecords:', allAttendanceRecords.length, 'records');
 
         // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
         if (employeeId) {
-            console.log('👤 Filtering by employee ID:', employeeId);
             filteredRecords = filteredRecords.filter(rec => {
                 const empIds = rec.fields['Employee'];
                 return empIds && empIds.includes(employeeId);
             });
-            console.log('👤 After employee filter:', filteredRecords.length, 'records');
         }
 
         // Apply status filter on client side
         if (statusFilter) {
-            console.log('📋 Filtering by status:', statusFilter);
             filteredRecords = filteredRecords.filter(rec => {
                 const checkInRaw = rec.fields['Check In'];
                 const checkOutRaw = rec.fields['Check Out'];
@@ -1489,7 +1473,6 @@ async function loadAttendanceRecords() {
 
                 return true;
             });
-            console.log('📋 After status filter:', filteredRecords.length, 'records');
         }
 
         // Sort records by date (newest first) and check-in time
@@ -1507,9 +1490,6 @@ async function loadAttendanceRecords() {
             const checkInB = extractTimeFromValue(b.fields['Check In']) || '';
             return checkInA.localeCompare(checkInB);
         });
-
-        console.log('✅ Final filtered records to display:', filteredRecords.length);
-        console.log('📄 Records:', filteredRecords);
 
         await displayAttendanceRecords(filteredRecords);
         updateAttendanceStats(filteredRecords);
@@ -1534,8 +1514,13 @@ async function updateAttendanceStats(records) {
     const todayRecords = allAttendanceRecords.filter(rec => rec.fields['Date'] === today);
 
     const presentToday = todayRecords.filter(rec => {
-        const checkIn = rec.fields['Check In'];
-        const checkOut = rec.fields['Check Out'];
+        const checkInRaw = rec.fields['Check In'];
+        const checkOutRaw = rec.fields['Check Out'];
+
+        // Extract time from datetime or time string
+        const checkIn = extractTimeFromValue(checkInRaw);
+        const checkOut = extractTimeFromValue(checkOutRaw);
+
         // Only count as present if they checked in AND checked out
         if (!checkIn || checkIn === '--:--' || !checkOut || checkOut === '--:--') return false;
         const [hour, minute] = checkIn.split(':').map(Number);
@@ -1543,8 +1528,13 @@ async function updateAttendanceStats(records) {
     }).length;
 
     const lateToday = todayRecords.filter(rec => {
-        const checkIn = rec.fields['Check In'];
-        const checkOut = rec.fields['Check Out'];
+        const checkInRaw = rec.fields['Check In'];
+        const checkOutRaw = rec.fields['Check Out'];
+
+        // Extract time from datetime or time string
+        const checkIn = extractTimeFromValue(checkInRaw);
+        const checkOut = extractTimeFromValue(checkOutRaw);
+
         // Only count as late if they checked in AND checked out
         if (!checkIn || checkIn === '--:--' || !checkOut || checkOut === '--:--') return false;
         const [hour, minute] = checkIn.split(':').map(Number);
@@ -1555,8 +1545,13 @@ async function updateAttendanceStats(records) {
     let totalHours = 0;
     let recordsWithCheckout = 0;
     records.forEach(rec => {
-        const checkIn = rec.fields['Check In'];
-        const checkOut = rec.fields['Check Out'];
+        const checkInRaw = rec.fields['Check In'];
+        const checkOutRaw = rec.fields['Check Out'];
+
+        // Extract time from datetime or time string
+        const checkIn = extractTimeFromValue(checkInRaw);
+        const checkOut = extractTimeFromValue(checkOutRaw);
+
         if (checkIn && checkOut && checkIn !== '--:--' && checkOut !== '--:--') {
             const [inHour, inMin] = checkIn.split(':').map(Number);
             const [outHour, outMin] = checkOut.split(':').map(Number);
@@ -1582,11 +1577,9 @@ async function updateAttendanceStats(records) {
 }
 
 async function displayAttendanceRecords(records) {
-    console.log('🎨 displayAttendanceRecords called with', records.length, 'records');
     const tbody = document.getElementById('attendanceRecordsBody');
 
     if (records.length === 0) {
-        console.log('⚠️ No records to display');
         tbody.innerHTML = `
             <tr>
                 <td colspan="7" class="px-6 py-8 text-center text-gray-500">
@@ -1596,8 +1589,6 @@ async function displayAttendanceRecords(records) {
         `;
         return;
     }
-
-    console.log('👥 Fetching employee names for records...');
     // Fetch employee names using Worker API
     const employeePromises = records.map(async (rec) => {
         if (rec.fields['Employee'] && rec.fields['Employee'][0]) {
@@ -1704,8 +1695,6 @@ async function displayAttendanceRecords(records) {
             </tr>
         `;
     }).join('');
-
-    console.log('✨ Attendance records rendered to table');
 }
 
 function editAttendance(record, employeeName) {

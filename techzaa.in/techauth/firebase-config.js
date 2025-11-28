@@ -30,14 +30,11 @@ function initializeFirebase() {
       // Configure action code settings for password reset
       auth.languageCode = "en";
 
-      console.log("✅ Firebase initialized successfully");
       return true;
     } else {
-      console.warn("⚠️ Firebase SDK not loaded yet");
       return false;
     }
   } catch (error) {
-    console.error("❌ Firebase initialization error:", error);
     return false;
   }
 }
@@ -65,7 +62,6 @@ async function sendPasswordResetEmail(email) {
 
     return true;
   } catch (error) {
-    console.error("Firebase password reset error:", error);
     throw error;
   }
 }
@@ -83,5 +79,3 @@ function getFirebaseErrorMessage(error) {
 
   return errorMessages[error.code] || error.message || "An error occurred";
 }
-
-console.log("📧 Firebase Email Service Configuration Loaded");
