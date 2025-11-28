@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Button Styles -->
-    <link rel="stylesheet" href="assets/css/button-styles.css?v=4" />
+    <link rel="stylesheet" href="assets/css/button-styles.css?v=5" />
 
     <!-- Google Fonts -->
     <link
@@ -421,6 +421,12 @@
         background: transparent;
         font-weight: 600;
         white-space: nowrap;
+      }
+
+      /* Small button variant */
+      .button-sm {
+        padding: 6px 12px;
+        font-size: 12px;
       }
 
       .button:before {
@@ -1224,9 +1230,9 @@
             <div class="flex items-end">
               <button
                 onclick="clearPayrollFilters()"
-                class="button button-red"
+                class="button button-red button-sm"
               >
-                <i class="fas fa-times mr-2"></i> Clear Filters
+                <i class="fas fa-times mr-1"></i> Clear
               </button>
             </div>
           </div>

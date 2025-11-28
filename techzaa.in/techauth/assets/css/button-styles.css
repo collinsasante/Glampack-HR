@@ -17,6 +17,12 @@
   white-space: nowrap;
 }
 
+/* Small button variant */
+.button-sm {
+  padding: 6px 12px;
+  font-size: 12px;
+}
+
 .button:before {
   content: "";
   position: absolute;
