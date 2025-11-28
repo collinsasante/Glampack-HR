@@ -3208,3 +3208,225 @@ async function showPayrollDetails(record) {
 
     openDetailsModal('Payroll Details', content);
 }
+
+// ========================================
+// EXPORT ATTENDANCE REPORT TO PDF
+// ========================================
+async function exportAttendanceReport() {
+    try {
+        // Get the current filter settings
+        const dateRange = document.getElementById('attendanceDateRange').value;
+        const employeeFilter = document.getElementById('attendanceEmployeeFilter').value;
+        const statusFilter = document.getElementById('attendanceStatusFilter').value;
+
+        // Calculate date range for title
+        let dateRangeText = 'All Time';
+        const today = new Date();
+
+        switch(dateRange) {
+            case 'today':
+                dateRangeText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                break;
+            case 'week':
+                dateRangeText = 'This Week';
+                break;
+            case 'month':
+                dateRangeText = today.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+                break;
+            case 'custom':
+                const customDate = document.getElementById('attendanceDate').value;
+                if (customDate) {
+                    dateRangeText = new Date(customDate).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+                }
+                break;
+        }
+
+        // Filter records based on current filters
+        let records = allAttendanceRecords;
+
+        if (employeeFilter) {
+            records = records.filter(rec => {
+                const empIds = rec.fields['Employee'];
+                return empIds && empIds.includes(employeeFilter);
+            });
+        }
+
+        if (statusFilter) {
+            records = records.filter(rec => {
+                const checkInRaw = rec.fields['Check In'];
+                const checkOutRaw = rec.fields['Check Out'];
+                const checkIn = extractTimeFromValue(checkInRaw);
+                const checkOut = extractTimeFromValue(checkOutRaw);
+
+                if (!checkIn || checkIn === '--:--') {
+                    return statusFilter === 'incomplete';
+                }
+
+                const hasCheckOut = checkOut && checkOut !== '--:--';
+                if (statusFilter === 'incomplete') {
+                    return !hasCheckOut;
+                }
+
+                if (!hasCheckOut) {
+                    return false;
+                }
+
+                const [hour, minute] = checkIn.split(':').map(Number);
+                if (statusFilter === 'present') {
+                    return hour < 8 || (hour === 8 && minute <= 30);
+                } else if (statusFilter === 'late') {
+                    return hour > 8 || (hour === 8 && minute > 30);
+                }
+
+                return true;
+            });
+        }
+
+        if (records.length === 0) {
+            alert('No attendance records to export with current filters.');
+            return;
+        }
+
+        // Fetch employee names for the records
+        const employeePromises = records.map(async (rec) => {
+            if (rec.fields['Employee'] && rec.fields['Employee'][0]) {
+                try {
+                    const employee = await getEmployee(rec.fields['Employee'][0]);
+                    if (employee && employee.fields) {
+                        return { id: rec.id, name: employee.fields['Full Name'] || 'Unknown' };
+                    }
+                } catch (error) {
+                    return { id: rec.id, name: 'Unknown' };
+                }
+            }
+            return { id: rec.id, name: 'Unknown' };
+        });
+
+        const employeeNames = await Promise.all(employeePromises);
+        const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
+
+        // Create PDF using jsPDF
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF('landscape');
+
+        // Add title
+        doc.setFontSize(18);
+        doc.setTextColor(220, 38, 38); // Red color
+        doc.text('Attendance Report', 14, 20);
+
+        // Add date range
+        doc.setFontSize(12);
+        doc.setTextColor(100, 100, 100);
+        doc.text(`Period: ${dateRangeText}`, 14, 28);
+
+        // Add generation date
+        doc.setFontSize(10);
+        doc.text(`Generated: ${new Date().toLocaleString()}`, 14, 34);
+
+        // Prepare table data
+        const tableData = records.map(rec => {
+            const fields = rec.fields;
+            const employeeName = nameMap[rec.id] || 'Unknown';
+
+            const checkInRaw = fields['Check In'];
+            const checkOutRaw = fields['Check Out'];
+            const checkIn = extractTimeFromValue(checkInRaw);
+            const checkOut = extractTimeFromValue(checkOutRaw);
+
+            // Calculate hours
+            let hours = '--';
+            let status = 'Incomplete';
+
+            if (checkIn && checkOut && checkIn !== '--:--' && checkOut !== '--:--') {
+                const [inHour, inMin] = checkIn.split(':').map(Number);
+                const [outHour, outMin] = checkOut.split(':').map(Number);
+                const totalHours = (outHour + outMin/60) - (inHour + inMin/60);
+                if (totalHours > 0 && totalHours < 24) {
+                    hours = totalHours.toFixed(1) + 'h';
+                }
+
+                // Determine status
+                if (inHour < 8 || (inHour === 8 && inMin <= 30)) {
+                    status = 'On Time';
+                } else {
+                    status = 'Late';
+                }
+            } else if (checkIn && checkIn !== '--:--') {
+                status = 'Checked In';
+            }
+
+            return [
+                employeeName,
+                fields['Date'] || '--',
+                checkIn || '--',
+                checkOut || '--',
+                hours,
+                status,
+                fields['IP Address'] || '--'
+            ];
+        });
+
+        // Add table
+        doc.autoTable({
+            startY: 40,
+            head: [['Employee', 'Date', 'Check In', 'Check Out', 'Hours', 'Status', 'IP Address']],
+            body: tableData,
+            theme: 'striped',
+            headStyles: {
+                fillColor: [220, 38, 38], // Red
+                textColor: 255,
+                fontStyle: 'bold'
+            },
+            alternateRowStyles: {
+                fillColor: [245, 245, 245]
+            },
+            styles: {
+                fontSize: 9,
+                cellPadding: 3
+            },
+            columnStyles: {
+                0: { cellWidth: 40 }, // Employee name
+                1: { cellWidth: 30 }, // Date
+                2: { cellWidth: 25 }, // Check In
+                3: { cellWidth: 25 }, // Check Out
+                4: { cellWidth: 20 }, // Hours
+                5: { cellWidth: 25 }, // Status
+                6: { cellWidth: 35 }  // IP Address
+            }
+        });
+
+        // Add summary statistics at the bottom
+        const finalY = doc.lastAutoTable.finalY + 10;
+
+        // Calculate statistics
+        const presentCount = records.filter(rec => {
+            const checkInRaw = rec.fields['Check In'];
+            const checkIn = extractTimeFromValue(checkInRaw);
+            if (!checkIn || checkIn === '--:--') return false;
+            const [hour, minute] = checkIn.split(':').map(Number);
+            return hour < 8 || (hour === 8 && minute <= 30);
+        }).length;
+
+        const lateCount = records.filter(rec => {
+            const checkInRaw = rec.fields['Check In'];
+            const checkIn = extractTimeFromValue(checkInRaw);
+            if (!checkIn || checkIn === '--:--') return false;
+            const [hour, minute] = checkIn.split(':').map(Number);
+            return hour > 8 || (hour === 8 && minute > 30);
+        }).length;
+
+        doc.setFontSize(10);
+        doc.setTextColor(60, 60, 60);
+        doc.text(`Summary:`, 14, finalY);
+        doc.text(`Total Records: ${records.length}`, 14, finalY + 6);
+        doc.text(`On Time: ${presentCount}`, 14, finalY + 12);
+        doc.text(`Late Arrivals: ${lateCount}`, 14, finalY + 18);
+
+        // Save the PDF
+        const fileName = `Attendance_Report_${dateRange}_${new Date().toISOString().split('T')[0]}.pdf`;
+        doc.save(fileName);
+
+    } catch (error) {
+        alert('Error generating attendance report: ' + error.message);
+    }
+}
