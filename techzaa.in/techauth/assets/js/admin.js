@@ -302,6 +302,10 @@ function closeEmployeeModal() {
 
 // View full employee details in a modal
 function viewEmployeeDetails(employee) {
+    showEmployeeDetails(employee);
+}
+
+function viewEmployeeDetails_OLD(employee) {
     const fields = employee.fields;
 
     // Create modal HTML
@@ -797,8 +801,12 @@ async function displayLeaveRequests(requests) {
             numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
         }
 
+        // Store record in a global map for click handler access
+        window.leaveRequestsMap = window.leaveRequestsMap || {};
+        window.leaveRequestsMap[req.id] = req;
+
         return `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="showLeaveDetails(leaveRequestsMap['${req.id}'])">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">${employeeName}</div>
                 </td>
@@ -817,7 +825,7 @@ async function displayLeaveRequests(requests) {
                 <td class="px-6 py-4">
                     <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Notes'] || fields['Reason'] || '--'}</div>
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
                     <button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
                         <i class="fas fa-check"></i> Approve
                     </button>
@@ -1668,8 +1676,12 @@ async function displayAttendanceRecords(records) {
         const location = fields['Check In Location'] || '--';
         const ipAddress = fields['IP Address'] || '--';
 
+        // Store record in a global map for click handler access
+        window.attendanceRecordsMap = window.attendanceRecordsMap || {};
+        window.attendanceRecordsMap[rec.id] = rec;
+
         return `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="showAttendanceDetails(attendanceRecordsMap['${rec.id}'])">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm font-medium text-gray-900">${employeeInfo.name}</div>
                 </td>
@@ -2154,8 +2166,12 @@ async function displayPayrollRecords(filteredData = null) {
         // Use 'Pay Month' field instead of 'Month'
         const monthDisplay = fields['Pay Month'] || fields['Month'] || '--';
 
+        // Store record in a global map for click handler access
+        window.payrollRecordsMap = window.payrollRecordsMap || {};
+        window.payrollRecordsMap[record.id] = record;
+
         return `
-            <tr class="hover:bg-gray-50">
+            <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="showPayrollDetails(payrollRecordsMap['${record.id}'])">
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employeeName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${monthDisplay}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${basicSalary.toFixed(2)}</td>
@@ -2163,7 +2179,7 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${totalDeductions.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">GH₵${grossSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
                     <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
                         <i class="fas fa-edit"></i> Edit
                     </button>
@@ -2780,3 +2796,415 @@ checkAdminAccess().then(hasAccess => {
         startAutoRefresh();
     }
 });
+
+// ========================================
+// DETAILS MODAL FUNCTIONS
+// ========================================
+function openDetailsModal(title, content) {
+    document.getElementById('detailsModalTitle').textContent = title;
+    document.getElementById('detailsModalContent').innerHTML = content;
+    document.getElementById('detailsModal').classList.add('active');
+}
+
+function closeDetailsModal() {
+    document.getElementById('detailsModal').classList.remove('active');
+}
+
+// Format field label
+function formatLabel(key) {
+    return key
+        .replace(/([A-Z])/g, ' $1')
+        .replace(/_/g, ' ')
+        .replace(/^./, str => str.toUpperCase())
+        .trim();
+}
+
+// Format value display
+function formatValue(value) {
+    if (value === null || value === undefined || value === '') {
+        return '<span class="text-gray-400">Not set</span>';
+    }
+    if (Array.isArray(value)) {
+        return value.join(', ') || '<span class="text-gray-400">None</span>';
+    }
+    if (typeof value === 'boolean') {
+        return value ? '<span class="text-green-600">Yes</span>' : '<span class="text-red-600">No</span>';
+    }
+    return String(value);
+}
+
+// Show attendance details
+function showAttendanceDetails(record) {
+    const fields = record.fields;
+    const employeeId = fields['Employee'] ? fields['Employee'][0] : null;
+
+    let employeeName = 'Loading...';
+    if (employeeId) {
+        getEmployee(employeeId).then(emp => {
+            if (emp && emp.fields) {
+                document.getElementById('attendanceEmployeeName').textContent = emp.fields['Full Name'] || 'Unknown';
+            }
+        });
+    }
+
+    const checkInRaw = fields['Check In'];
+    const checkOutRaw = fields['Check Out'];
+    const checkIn = extractTimeFromValue(checkInRaw);
+    const checkOut = extractTimeFromValue(checkOutRaw);
+
+    let hours = '--';
+    if (checkIn && checkOut && checkIn !== '--:--' && checkOut !== '--:--') {
+        const [inHour, inMin] = checkIn.split(':').map(Number);
+        const [outHour, outMin] = checkOut.split(':').map(Number);
+        const totalHours = (outHour + outMin/60) - (inHour + inMin/60);
+        if (totalHours > 0 && totalHours < 24) {
+            hours = totalHours.toFixed(1) + 'h';
+        }
+    }
+
+    const content = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Employee Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Name:</span>
+                        <p class="font-medium" id="attendanceEmployeeName">${employeeName}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Date:</span>
+                        <p class="font-medium">${fields['Date'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Time Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Check In:</span>
+                        <p class="font-medium">${checkIn || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Check Out:</span>
+                        <p class="font-medium">${checkOut || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Total Hours:</span>
+                        <p class="font-medium text-lg text-blue-600">${hours}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Location Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Check In Location:</span>
+                        <p class="text-sm">${fields['Check In Location'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Check Out Location:</span>
+                        <p class="text-sm">${fields['Check Out Location'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Network Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">IP Address:</span>
+                        <p class="font-mono text-sm">${fields['IP Address'] || '--'}</p>
+                    </div>
+                    ${fields['Late Reason'] ? `
+                    <div class="mt-3 p-3 bg-yellow-100 rounded border-l-4 border-yellow-500">
+                        <span class="text-xs font-semibold text-yellow-700">Late Arrival Reason:</span>
+                        <p class="text-sm text-yellow-900 mt-1">${fields['Late Reason']}</p>
+                    </div>
+                    ` : ''}
+                </div>
+            </div>
+        </div>
+    `;
+
+    openDetailsModal('Attendance Details', content);
+}
+
+// Show employee details
+function showEmployeeDetails(record) {
+    const fields = record.fields;
+
+    const content = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Personal Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Full Name:</span>
+                        <p class="font-medium text-lg">${fields['Full Name'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Email:</span>
+                        <p class="font-mono text-sm">${fields['Email'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Phone:</span>
+                        <p class="font-medium">${fields['Phone'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Employment Details</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Department:</span>
+                        <p class="font-medium">${fields['Department'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Job Title:</span>
+                        <p class="font-medium">${fields['Job Title'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Status:</span>
+                        <p class="font-medium">${fields['Status'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Role:</span>
+                        <p class="font-medium">${fields['Role'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Leave & Salary</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Annual Leave Balance:</span>
+                        <p class="font-medium text-lg text-purple-600">${fields['Annual Leave Balance'] !== undefined ? fields['Annual Leave Balance'] + ' days' : '20 days'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Salary:</span>
+                        <p class="font-medium text-lg text-green-600">${fields['Salary'] ? 'GH₵ ' + parseFloat(fields['Salary']).toLocaleString() : '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Additional Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Emergency Contact:</span>
+                        <p class="text-sm">${fields['Emergency Contact Name'] || '--'}</p>
+                        <p class="text-sm font-mono">${fields['Emergency Contact Phone'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+
+    openDetailsModal('Employee Details', content);
+}
+
+// Show leave request details
+async function showLeaveDetails(record) {
+    const fields = record.fields;
+    const employeeId = fields['Employee'] ? fields['Employee'][0] : null;
+
+    let employeeName = 'Loading...';
+    if (employeeId) {
+        const emp = await getEmployee(employeeId);
+        if (emp && emp.fields) {
+            employeeName = emp.fields['Full Name'] || 'Unknown';
+        }
+    }
+
+    const statusColors = {
+        'Pending': 'bg-yellow-100 text-yellow-800',
+        'Approved': 'bg-green-100 text-green-800',
+        'Rejected': 'bg-red-100 text-red-800'
+    };
+    const statusClass = statusColors[fields['Status']] || 'bg-gray-100 text-gray-800';
+
+    const content = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Employee Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Employee:</span>
+                        <p class="font-medium">${employeeName}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Leave Type:</span>
+                        <p class="font-medium">${fields['Leave Type'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Date Information</h4>
+                <div class="space-y-2">
+                    <div>
+                        <span class="text-xs text-gray-500">Start Date:</span>
+                        <p class="font-medium">${fields['Start Date'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">End Date:</span>
+                        <p class="font-medium">${fields['End Date'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Number of Days:</span>
+                        <p class="font-medium text-lg text-green-600">${fields['Number of Days'] || '--'} days</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-span-1 md:col-span-2 bg-gray-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Reason</h4>
+                <p class="text-sm">${fields['Reason'] || '--'}</p>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Status</h4>
+                <span class="px-3 py-1 inline-flex text-sm leading-5 font-semibold rounded-full ${statusClass}">
+                    ${fields['Status'] || 'Pending'}
+                </span>
+            </div>
+
+            ${fields['Admin Comments'] ? `
+            <div class="bg-yellow-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Admin Comments</h4>
+                <p class="text-sm">${fields['Admin Comments']}</p>
+            </div>
+            ` : ''}
+        </div>
+    `;
+
+    openDetailsModal('Leave Request Details', content);
+}
+
+// Show payroll details
+async function showPayrollDetails(record) {
+    const fields = record.fields;
+    const employeeId = fields['Employee'] ? fields['Employee'][0] : null;
+
+    let employeeName = 'Loading...';
+    if (employeeId) {
+        const emp = await getEmployee(employeeId);
+        if (emp && emp.fields) {
+            employeeName = emp.fields['Full Name'] || 'Unknown';
+        }
+    }
+
+    const formatCurrency = (amount) => {
+        return amount !== undefined && amount !== null ? 'GH₵ ' + parseFloat(amount).toLocaleString('en-GH', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : 'GH₵ 0.00';
+    };
+
+    const content = `
+        <div class="space-y-4">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h4 class="text-sm font-semibold text-gray-600 mb-3">Employee & Period</h4>
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <span class="text-xs text-gray-500">Employee:</span>
+                        <p class="font-medium">${employeeName}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Month:</span>
+                        <p class="font-medium">${fields['Month'] || '--'}</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-600 mb-3">Earnings</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Basic Salary:</span>
+                            <span class="font-medium">${formatCurrency(fields['Basic Salary'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Housing Allowance:</span>
+                            <span class="font-medium">${formatCurrency(fields['Housing Allowance'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Transport Allowance:</span>
+                            <span class="font-medium">${formatCurrency(fields['Transport Allowance'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Benefits:</span>
+                            <span class="font-medium">${formatCurrency(fields['Benefits'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Other Allowances:</span>
+                            <span class="font-medium">${formatCurrency(fields['Other Allowances'])}</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between font-semibold text-green-700">
+                            <span>Total Allowances:</span>
+                            <span>${formatCurrency(fields['Total Allowances'])}</span>
+                        </div>
+                        <div class="flex justify-between font-bold text-lg text-green-600">
+                            <span>Gross Salary:</span>
+                            <span>${formatCurrency(fields['Gross Salary'])}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-red-50 p-4 rounded-lg">
+                    <h4 class="text-sm font-semibold text-gray-600 mb-3">Deductions</h4>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Income Tax:</span>
+                            <span class="font-medium">${formatCurrency(fields['Income Tax'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Welfare:</span>
+                            <span class="font-medium">${formatCurrency(fields['Welfare'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Social Security:</span>
+                            <span class="font-medium">${formatCurrency(fields['Social Security'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Health Insurance:</span>
+                            <span class="font-medium">${formatCurrency(fields['Health Insurance'])}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-xs text-gray-600">Other Deductions:</span>
+                            <span class="font-medium">${formatCurrency(fields['Other Deductions'])}</span>
+                        </div>
+                        <hr class="my-2">
+                        <div class="flex justify-between font-semibold text-red-700">
+                            <span>Total Deductions:</span>
+                            <span>${formatCurrency(fields['Total Deductions'])}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-purple-50 p-4 rounded-lg border-2 border-purple-200">
+                <div class="flex justify-between items-center">
+                    <span class="text-lg font-bold text-gray-700">Net Salary:</span>
+                    <span class="text-2xl font-bold text-purple-600">${formatCurrency(fields['Net Salary'])}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <span class="text-xs text-gray-500">Status:</span>
+                    <p class="font-medium">${fields['Status'] || 'Pending'}</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <span class="text-xs text-gray-500">Payment Date:</span>
+                    <p class="font-medium">${fields['Payment Date'] || 'Not set'}</p>
+                </div>
+            </div>
+        </div>
+    `;
+
+    openDetailsModal('Payroll Details', content);
+}
