@@ -306,6 +306,7 @@ function editEmployee(employee) {
     document.getElementById('modalTitle').textContent = 'Edit Employee';
     document.getElementById('employeeId').value = employee.id;
     document.getElementById('empFullName').value = employee.fields['Full Name'] || '';
+    document.getElementById('empEmployeeId').value = employee.fields['Employee ID'] || '';
     document.getElementById('empEmail').value = employee.fields['Email'] || '';
     document.getElementById('empStatus').value = employee.fields['Status'] || '';
     document.getElementById('empRole').value = employee.fields['Role'] || 'Employee';
@@ -607,6 +608,9 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         }
     }
 
+    // Get Employee ID field
+    const employeeIdFieldEl = document.getElementById('empEmployeeId');
+
     const data = {
         'Full Name': fullNameEl.value,
         'Email': emailEl.value,
@@ -614,6 +618,11 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         'Role': roleEl.value,
         'Annual Leave Balance': 20
     };
+
+    // Add Employee ID if provided
+    if (employeeIdFieldEl && employeeIdFieldEl.value) {
+        data['Employee ID'] = employeeIdFieldEl.value;
+    }
 
     // Add employment details if provided
     const jobTitleEl = document.getElementById('empJobTitle');

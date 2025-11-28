@@ -832,7 +832,7 @@
         doc.setFont("helvetica", "normal");
         doc.setTextColor(0, 0, 0);
         doc.text("Basic Salary", 25, y);
-        doc.text(formatAmount(paymentData.basicSalary), 185, y, {
+        doc.text(formatCurrency(paymentData.basicSalary), 185, y, {
           align: "right",
         });
 
@@ -843,7 +843,7 @@
         doc.text("+", 25, y);
         doc.setTextColor(0, 0, 0);
         doc.text(`Earning (${paymentData.earnings.length})`, 32, y);
-        doc.text(formatAmount(paymentData.totalEarnings), 185, y, {
+        doc.text(formatCurrency(paymentData.totalEarnings), 185, y, {
           align: "right",
         });
 
@@ -858,7 +858,7 @@
 
         paymentData.earnings.forEach((item) => {
           doc.text(item.label, 35, y);
-          doc.text(formatAmount(item.amount), 180, y, { align: "right" });
+          doc.text(formatCurrency(item.amount), 180, y, { align: "right" });
           y += 7;
         });
 
@@ -872,7 +872,7 @@
 
         doc.setTextColor(220, 38, 38);
         doc.text(
-          "(" + formatAmount(paymentData.totalDeductions) + ")",
+          "(" + formatCurrency(paymentData.totalDeductions) + ")",
           185,
           y,
           { align: "right" }
@@ -889,7 +889,7 @@
 
         paymentData.deductions.forEach((item) => {
           doc.text(item.label, 35, y);
-          doc.text(formatAmount(item.amount), 180, y, { align: "right" });
+          doc.text(formatCurrency(item.amount), 180, y, { align: "right" });
           y += 7;
         });
 
@@ -904,7 +904,7 @@
         doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 0, 0);
         doc.text("Net Salary", 25, y);
-        doc.text(formatAmount(paymentData.netSalary), 185, y, {
+        doc.text(formatCurrency(paymentData.netSalary), 185, y, {
           align: "right",
         });
 
