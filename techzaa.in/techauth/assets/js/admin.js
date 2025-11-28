@@ -3791,12 +3791,15 @@ async function copyFromPreviousMonth() {
             } catch (e) {}
         }
 
-        showToast('success', 'Data Copied', 'Data copied successfully! Review and make any necessary changes.');
+        // Trigger calculation
+        calculatePayroll();
+
+        alert('Data copied successfully! Review and make any necessary changes.');
 
         // Reset dropdown
         document.getElementById('copyFromMonth').value = '';
 
     } catch (error) {
-        showToast('error', 'Copy Failed', 'Error copying payroll data: ' + error.message);
+        alert('Error copying payroll data: ' + error.message);
     }
 }
