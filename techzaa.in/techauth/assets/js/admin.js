@@ -2253,9 +2253,10 @@ async function openAddPayrollModal() {
     updateCustomAllowancesList();
     updateCustomDeductionsList();
 
-    // Set default month to current month
+    // Set default month to filtered month or current month
+    const filterMonth = document.getElementById('payrollMonthFilter').value;
     const now = new Date();
-    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonth = filterMonth || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     document.getElementById('payrollMonth').value = currentMonth;
 
     // Populate employee dropdown
@@ -2424,7 +2425,12 @@ function editPayroll(record) {
 
     const fields = record.fields;
     document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
-    document.getElementById('payrollMonth').value = fields['Month'] || '';
+
+    // Use the month from the record, or fall back to filtered month if available
+    const recordMonth = fields['Month'] || '';
+    const filterMonth = document.getElementById('payrollMonthFilter').value;
+    document.getElementById('payrollMonth').value = recordMonth || filterMonth || '';
+
     document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
     document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
     document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
@@ -3514,9 +3520,10 @@ async function autoGeneratePayroll() {
         `;
         document.body.appendChild(loadingMsg);
 
-        // Get current month for payroll generation
+        // Get selected month from filter, or use current month
+        const filterMonth = document.getElementById('payrollMonthFilter').value;
         const now = new Date();
-        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        const currentMonth = filterMonth || `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
 
         // Get all employees
         const employeesData = await getEmployees();
