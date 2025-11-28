@@ -2134,10 +2134,16 @@ function filterPayrollByMonth() {
     applyPayrollFilters();
 }
 
+// Filter payroll by status
+function filterPayrollByStatus() {
+    applyPayrollFilters();
+}
+
 // Clear all payroll filters
 function clearPayrollFilters() {
     document.getElementById('payrollEmployeeSearch').value = '';
     document.getElementById('payrollMonthFilter').value = '';
+    document.getElementById('payrollStatusFilter').value = '';
     applyPayrollFilters();
 }
 
@@ -2145,6 +2151,7 @@ function clearPayrollFilters() {
 function applyPayrollFilters() {
     const searchTerm = document.getElementById('payrollEmployeeSearch').value.toLowerCase();
     const monthFilter = document.getElementById('payrollMonthFilter').value;
+    const statusFilter = document.getElementById('payrollStatusFilter').value;
 
     let filteredData = allPayrollData;
 
@@ -2159,6 +2166,13 @@ function applyPayrollFilters() {
     if (monthFilter) {
         filteredData = filteredData.filter(item =>
             item.record.fields['Month'] === monthFilter
+        );
+    }
+
+    // Filter by status
+    if (statusFilter) {
+        filteredData = filteredData.filter(item =>
+            item.record.fields['Status'] === statusFilter
         );
     }
 
