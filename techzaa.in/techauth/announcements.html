@@ -98,8 +98,12 @@
             >
               <i class="fas fa-user-shield mr-1"></i> Admin
             </a>
-            <button onclick="logout()" class="text-gray-600 hover:text-red-600">
-              <i class="fas fa-sign-out-alt mr-1"></i> Logout
+            <button
+              onclick="logout()"
+              class="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-all duration-200 font-medium shadow-sm hover:shadow-md"
+            >
+              <i class="fas fa-sign-out-alt"></i>
+              <span>Sign Out</span>
             </button>
           </div>
 
@@ -135,8 +139,12 @@
           <a href="admin-dashboard.html" id="adminLinkMobile" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg" style="display: none">
             <i class="fas fa-user-shield mr-2"></i> Admin
           </a>
-          <button onclick="logout()" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
-            <i class="fas fa-sign-out-alt mr-2"></i> Logout
+          <button
+            onclick="logout()"
+            class="w-full flex items-center gap-2 px-4 py-3 bg-red-600 text-white hover:bg-red-700 rounded-lg font-medium transition-colors"
+          >
+            <i class="fas fa-sign-out-alt"></i>
+            <span>Sign Out</span>
           </button>
         </div>
       </div>
@@ -584,29 +592,34 @@
               priorityColors[priority] || "bg-gray-100 text-gray-800";
             const priorityIcon = priorityIcons[priority] || "fa-info-circle";
 
+            // Create summary (first 150 characters)
+            const summary = message.length > 150 ? message.substring(0, 150) + '...' : message;
+            const hasMore = message.length > 150;
+
             return `
                     <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isRead ? "unread" : ""} cursor-pointer hover:shadow-lg transition-shadow" data-id="${announcement.id}" onclick="showAnnouncementDetail('${announcement.id}')">
                         <div class="flex justify-between items-start mb-3">
-                            <div class="flex items-center space-x-3">
+                            <div class="flex items-center space-x-2">
                                 <span class="px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}">
-                                    <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
+                                    <i class="fas ${priorityIcon} mr-1"></i> ${priority}
                                 </span>
-                                ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ""}
+                                ${!isRead ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ""}
                             </div>
                             <div class="text-sm text-gray-500">
                                 <i class="fas fa-calendar mr-1"></i> ${formattedDate}
                             </div>
                         </div>
                         <h3 class="text-xl font-bold text-gray-800 mb-2">${title}</h3>
-                        <p class="text-gray-600 mb-4 whitespace-pre-line">${message}</p>
-                        <div class="flex justify-between items-center">
+                        <p class="text-gray-600 mb-3 whitespace-pre-line">${summary}</p>
+                        ${hasMore ? '<p class="text-red-600 text-sm font-semibold mb-3"><i class="fas fa-arrow-right mr-1"></i> Click to read full announcement</p>' : ''}
+                        <div class="flex justify-between items-center pt-3 border-t border-gray-200">
                             <div class="text-sm text-gray-500">
-                                <i class="fas fa-user mr-1"></i> Posted by ${author}
+                                <i class="fas fa-user mr-1"></i> ${author}
                             </div>
                             ${
                               !isRead
                                 ? `
-                                <button onclick="markAsRead('${announcement.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">
+                                <button onclick="event.stopPropagation(); markAsRead('${announcement.id}')" class="text-red-600 hover:text-red-700 text-sm font-medium">
                                     <i class="fas fa-check mr-1"></i> Mark as Read
                                 </button>
                             `
