@@ -3375,24 +3375,28 @@ async function exportAttendanceReport() {
             headStyles: {
                 fillColor: [220, 38, 38], // Red
                 textColor: 255,
-                fontStyle: 'bold'
+                fontStyle: 'bold',
+                fontSize: 8
             },
             alternateRowStyles: {
                 fillColor: [245, 245, 245]
             },
             styles: {
-                fontSize: 9,
-                cellPadding: 3
+                fontSize: 8,
+                cellPadding: 2,
+                overflow: 'linebreak',
+                cellWidth: 'wrap'
             },
             columnStyles: {
-                0: { cellWidth: 40 }, // Employee name
-                1: { cellWidth: 30 }, // Date
-                2: { cellWidth: 25 }, // Check In
-                3: { cellWidth: 25 }, // Check Out
-                4: { cellWidth: 20 }, // Hours
-                5: { cellWidth: 25 }, // Status
-                6: { cellWidth: 35 }  // IP Address
-            }
+                0: { cellWidth: 35 }, // Employee name
+                1: { cellWidth: 25 }, // Date
+                2: { cellWidth: 20 }, // Check In
+                3: { cellWidth: 20 }, // Check Out
+                4: { cellWidth: 15 }, // Hours
+                5: { cellWidth: 20 }, // Status
+                6: { cellWidth: 30 }  // IP Address
+            },
+            margin: { left: 10, right: 10 }
         });
 
         // Add summary statistics at the bottom
