@@ -330,8 +330,38 @@
             <div id="modalMeta" class="text-sm text-gray-500 mb-4"></div>
             <div
               id="modalMessage"
-              class="text-gray-700 whitespace-pre-line"
+              class="text-gray-700 whitespace-pre-line mb-6"
             ></div>
+
+            <!-- Comments Section -->
+            <div class="border-t pt-6">
+              <h4 class="text-lg font-bold text-gray-800 mb-4">
+                <i class="fas fa-comments mr-2 text-red-600"></i>Comments
+              </h4>
+
+              <!-- Comment Form -->
+              <div class="mb-6">
+                <textarea
+                  id="commentInput"
+                  rows="3"
+                  placeholder="Write a comment..."
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
+                ></textarea>
+                <div class="flex justify-end mt-2">
+                  <button
+                    onclick="submitComment()"
+                    class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+                  >
+                    <i class="fas fa-paper-plane mr-2"></i>Post Comment
+                  </button>
+                </div>
+              </div>
+
+              <!-- Comments List -->
+              <div id="commentsList" class="space-y-4">
+                <!-- Comments will be loaded here -->
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -715,8 +745,14 @@
             `;
         document.getElementById("modalMessage").textContent = message;
 
+        // Set current announcement for comments
+        currentAnnouncementId = announcementId;
+
         // Mark as read when viewing
         markAsRead(announcementId);
+
+        // Load comments
+        loadComments(announcementId);
 
         // Show modal
         document.getElementById("announcementModal").classList.remove("hidden");
@@ -727,6 +763,163 @@
       function closeAnnouncementModal() {
         document.getElementById("announcementModal").classList.add("hidden");
         document.getElementById("announcementModal").classList.remove("flex");
+      }
+
+      // ========================================
+      // COMMENT FUNCTIONALITY
+      // ========================================
+      let currentAnnouncementId = null;
+
+      async function submitComment() {
+        const commentInput = document.getElementById('commentInput');
+        const commentText = commentInput.value.trim();
+
+        if (!commentText) {
+          showNotification('Please enter a comment', 'error');
+          return;
+        }
+
+        if (!currentAnnouncementId) {
+          showNotification('No announcement selected', 'error');
+          return;
+        }
+
+        try {
+          const currentUser = getCurrentUser();
+          if (!currentUser || !currentUser.id) {
+            showNotification('You must be logged in to comment', 'error');
+            return;
+          }
+
+          // Create comment record
+          const commentData = {
+            fields: {
+              'Announcement': [currentAnnouncementId],
+              'Employee': [currentUser.id],
+              'Comment': commentText,
+              'Date': new Date().toISOString()
+            }
+          };
+
+          await createAnnouncementComment(commentData);
+
+          // Clear textarea
+          commentInput.value = '';
+
+          // Reload comments
+          await loadComments(currentAnnouncementId);
+
+          showNotification('Comment posted successfully', 'success');
+        } catch (error) {
+          console.error('Error posting comment:', error);
+          showNotification('Failed to post comment', 'error');
+        }
+      }
+
+      async function loadComments(announcementId) {
+        const commentsList = document.getElementById('commentsList');
+        if (!commentsList) return;
+
+        try {
+          // Show loading state
+          commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading comments...</div>';
+
+          // Fetch comments for this announcement
+          const filterFormula = `{Announcement} = '${announcementId}'`;
+          const comments = await getAnnouncementComments(filterFormula);
+
+          if (!comments || comments.length === 0) {
+            commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
+            return;
+          }
+
+          // Sort by date (newest first)
+          comments.sort((a, b) => {
+            const dateA = new Date(a.fields['Date']);
+            const dateB = new Date(b.fields['Date']);
+            return dateB - dateA;
+          });
+
+          // Fetch employee names for all comments
+          const employeePromises = comments.map(async (comment) => {
+            if (comment.fields['Employee'] && comment.fields['Employee'][0]) {
+              try {
+                const employee = await getEmployee(comment.fields['Employee'][0]);
+                return {
+                  id: comment.id,
+                  name: employee?.fields?.['Full Name'] || 'Unknown',
+                  comment: comment.fields['Comment'],
+                  date: comment.fields['Date']
+                };
+              } catch (error) {
+                return {
+                  id: comment.id,
+                  name: 'Unknown',
+                  comment: comment.fields['Comment'],
+                  date: comment.fields['Date']
+                };
+              }
+            }
+            return null;
+          });
+
+          const commentData = await Promise.all(employeePromises);
+          const validComments = commentData.filter(c => c !== null);
+
+          // Render comments
+          commentsList.innerHTML = validComments.map(comment => {
+            const commentDate = new Date(comment.date);
+            const timeAgo = formatTimeAgo(commentDate);
+
+            return `
+              <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
+                <div class="flex items-start gap-3">
+                  <div class="flex-shrink-0">
+                    <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center">
+                      <span class="text-red-600 font-bold text-sm">${comment.name.charAt(0)}</span>
+                    </div>
+                  </div>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between mb-1">
+                      <h5 class="font-semibold text-gray-900">${comment.name}</h5>
+                      <span class="text-xs text-gray-500">${timeAgo}</span>
+                    </div>
+                    <p class="text-sm text-gray-700 whitespace-pre-wrap">${comment.comment}</p>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('');
+
+        } catch (error) {
+          console.error('Error loading comments:', error);
+          commentsList.innerHTML = '<div class="text-center py-4 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Failed to load comments</div>';
+        }
+      }
+
+      function formatTimeAgo(date) {
+        const now = new Date();
+        const seconds = Math.floor((now - date) / 1000);
+
+        if (seconds < 60) return 'just now';
+
+        const minutes = Math.floor(seconds / 60);
+        if (minutes < 60) return `${minutes} minute${minutes > 1 ? 's' : ''} ago`;
+
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours} hour${hours > 1 ? 's' : ''} ago`;
+
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days} day${days > 1 ? 's' : ''} ago`;
+
+        const weeks = Math.floor(days / 7);
+        if (weeks < 4) return `${weeks} week${weeks > 1 ? 's' : ''} ago`;
+
+        const months = Math.floor(days / 30);
+        if (months < 12) return `${months} month${months > 1 ? 's' : ''} ago`;
+
+        const years = Math.floor(days / 365);
+        return `${years} year${years > 1 ? 's' : ''} ago`;
       }
 
       // ========================================

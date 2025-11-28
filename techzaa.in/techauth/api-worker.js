@@ -45,6 +45,8 @@ export default {
         return handleLeaveRequests(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/announcements')) {
         return handleAnnouncements(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
+      } else if (path.startsWith('/api/announcement-comments')) {
+        return handleAnnouncementComments(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/payroll')) {
         return handlePayroll(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/medical-claims')) {
@@ -417,6 +419,52 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
 
     const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'DELETE') {
+    const recordId = pathParts[3];
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  }
+}
+
+// Announcement Comments API handler
+async function handleAnnouncementComments(request, env, apiKey, baseId, corsHeaders) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const tableName = 'AnnouncementComments';
+
+  if (request.method === 'GET') {
+    const filterFormula = url.searchParams.get('filterByFormula');
+    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    if (filterFormula) {
+      airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+    }
+
+    const response = await airtableRequest(airtableUrl, apiKey);
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'POST') {
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
     const data = await response.json();
 
     return new Response(JSON.stringify(data), {

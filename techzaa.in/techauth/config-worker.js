@@ -12,6 +12,7 @@ const API_CONFIG = {
         attendance: '/api/attendance',
         leaveRequests: '/api/leave-requests',
         announcements: '/api/announcements',
+        announcementComments: '/api/announcement-comments',
         payroll: '/api/payroll',
         medicalClaims: '/api/medical-claims',
         emergencyContacts: '/api/emergency-contacts'
@@ -238,6 +239,40 @@ async function updateAnnouncement(recordId, fields) {
  */
 async function deleteAnnouncementRecord(recordId) {
     return workerRequest(`${API_CONFIG.endpoints.announcements}/${recordId}`, 'DELETE');
+}
+
+// ========================================
+// ANNOUNCEMENT COMMENTS API
+// ========================================
+
+/**
+ * Get announcement comments
+ * @param {string} filterFormula - Airtable filter formula (optional)
+ * @returns {Promise<object>} Announcement comment records
+ */
+async function getAnnouncementComments(filterFormula = null) {
+    const queryParams = filterFormula
+        ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
+        : '';
+    return workerRequest(API_CONFIG.endpoints.announcementComments, 'GET', null, queryParams);
+}
+
+/**
+ * Create an announcement comment
+ * @param {object} fields - Comment data
+ * @returns {Promise<object>} Created comment record
+ */
+async function createAnnouncementComment(fields) {
+    return workerRequest(API_CONFIG.endpoints.announcementComments, 'POST', { fields });
+}
+
+/**
+ * Delete an announcement comment
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Deleted comment record
+ */
+async function deleteAnnouncementComment(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.announcementComments}/${recordId}`, 'DELETE');
 }
 
 // ========================================
