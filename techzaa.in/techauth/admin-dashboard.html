@@ -31,7 +31,10 @@
     <style>
       body {
         font-family: "Montserrat", sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
       }
+
+      /* Modal Styles */
       .modal {
         display: none;
         position: fixed;
@@ -41,16 +44,180 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        animation: fadeIn 0.2s ease-in-out;
       }
       .modal.active {
         display: flex;
         align-items: center;
         justify-content: center;
       }
+
+      /* Tab Styles */
       .tab-active {
-        border-bottom: 3px solid #dc2626;
+        border-bottom: 4px solid #dc2626;
         color: #dc2626;
+        background: linear-gradient(to bottom, rgba(220, 38, 38, 0.05), transparent);
+        font-weight: 600;
+      }
+
+      /* Enhanced Card Shadows */
+      .card-elevated {
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                    0 2px 4px -1px rgba(0, 0, 0, 0.06),
+                    0 0 0 1px rgba(0, 0, 0, 0.05);
+        transition: all 0.3s ease;
+      }
+      .card-elevated:hover {
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
+                    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        transform: translateY(-2px);
+      }
+
+      /* Gradient Buttons */
+      .btn-gradient-red {
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-gradient-red:hover {
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+      }
+
+      .btn-gradient-green {
+        background: linear-gradient(135deg, #16a34a 0%, #15803d 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-gradient-green:hover {
+        background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);
+      }
+
+      .btn-gradient-blue {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        transition: all 0.3s ease;
+      }
+      .btn-gradient-blue:hover {
+        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4);
+      }
+
+      /* Statistics Card Gradients */
+      .stat-card-red {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        border-left: 4px solid #dc2626;
+      }
+      .stat-card-green {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        border-left: 4px solid #16a34a;
+      }
+      .stat-card-blue {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        border-left: 4px solid #2563eb;
+      }
+      .stat-card-yellow {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+      }
+      .stat-card-purple {
+        background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+        border-left: 4px solid #9333ea;
+      }
+
+      /* Table Row Hover */
+      .table-row-hover {
+        transition: all 0.2s ease;
+      }
+      .table-row-hover:hover {
+        background-color: #f9fafb !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        transform: scale(1.01);
+      }
+
+      /* Badge Styles */
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+      .badge:hover {
+        transform: scale(1.05);
+      }
+
+      /* Loading Animation */
+      @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+      .animate-spin {
+        animation: spin 1s linear infinite;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+      }
+
+      @keyframes slideUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .slide-up {
+        animation: slideUp 0.4s ease-out;
+      }
+
+      /* Input Focus Styles */
+      input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #dc2626;
+        ring: 2px;
+        ring-color: rgba(220, 38, 38, 0.2);
+        box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+      }
+
+      /* Scrollbar Styles */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
+
+      /* Navbar Enhancement */
+      nav {
+        background: linear-gradient(to right, #ffffff 0%, #fafafa 100%);
+        border-bottom: 2px solid #e5e7eb;
+      }
+
+      /* Page Header */
+      .page-header {
+        background: linear-gradient(135deg, #ffffff 0%, #f9fafb 100%);
+        border-left: 5px solid #dc2626;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
     </style>
   </head>
@@ -89,89 +256,101 @@
 
     <div class="container mx-auto px-4 py-8">
       <!-- Header -->
-      <div class="mb-6 flex items-center justify-between">
-        <div>
-          <h2 class="text-3xl font-bold text-gray-800">Admin Dashboard</h2>
-          <p class="text-gray-600 mt-1">
-            Manage employees, attendance, and system settings
-          </p>
-        </div>
-        <div class="flex items-center space-x-3">
-          <span class="text-sm text-gray-500" id="lastRefreshTime">--</span>
-          <button
-            onclick="manualRefresh()"
-            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition duration-200 flex items-center space-x-2"
-            id="refreshBtn"
-          >
-            <i class="fas fa-sync-alt"></i>
-            <span>Refresh</span>
-          </button>
+      <div class="mb-8 page-header rounded-xl p-6 slide-up">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div>
+            <h2 class="text-4xl font-bold text-gray-800 mb-2">
+              <i class="fas fa-tachometer-alt text-red-600 mr-3"></i>Admin Dashboard
+            </h2>
+            <p class="text-gray-600 text-lg">
+              Manage employees, attendance, payroll, and system settings
+            </p>
+          </div>
+          <div class="flex items-center space-x-4">
+            <div class="text-right">
+              <p class="text-xs text-gray-500 uppercase tracking-wide">Last Updated</p>
+              <span class="text-sm font-semibold text-gray-700" id="lastRefreshTime">--</span>
+            </div>
+            <button
+              onclick="manualRefresh()"
+              class="px-6 py-3 btn-gradient-blue text-white rounded-xl font-semibold flex items-center space-x-2 shadow-lg"
+              id="refreshBtn"
+            >
+              <i class="fas fa-sync-alt"></i>
+              <span>Refresh Data</span>
+            </button>
+          </div>
         </div>
       </div>
 
       <!-- Tabs -->
-      <div class="bg-white rounded-lg shadow-lg mb-6">
-        <div class="flex border-b overflow-x-auto">
+      <div class="bg-white rounded-xl shadow-xl mb-6 card-elevated">
+        <div class="flex border-b border-gray-200 overflow-x-auto">
           <button
             onclick="switchTab('employees')"
             id="tab-employees"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 tab-active whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-users mr-2"></i> Employees
+            <i class="fas fa-users mr-2 text-lg"></i> Employees
           </button>
           <button
             onclick="switchTab('medical')"
             id="tab-medical"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-notes-medical mr-2"></i> Medical Claims
+            <i class="fas fa-notes-medical mr-2 text-lg"></i> Medical Claims
           </button>
           <button
             onclick="switchTab('leave')"
             id="tab-leave"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-calendar-check mr-2"></i> Leave Management
+            <i class="fas fa-calendar-check mr-2 text-lg"></i> Leave Management
           </button>
           <button
             onclick="switchTab('attendance')"
             id="tab-attendance"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-clock mr-2"></i> Attendance
+            <i class="fas fa-clock mr-2 text-lg"></i> Attendance
           </button>
           <button
             onclick="switchTab('announcements')"
             id="tab-announcements"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-bullhorn mr-2"></i> Announcements
+            <i class="fas fa-bullhorn mr-2 text-lg"></i> Announcements
           </button>
           <button
             onclick="switchTab('payroll')"
             id="tab-payroll"
-            class="flex-1 py-4 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap"
+            class="flex-1 py-5 px-6 font-semibold text-gray-700 hover:bg-gray-50 whitespace-nowrap transition-all duration-200"
           >
-            <i class="fas fa-money-check-alt mr-2"></i> Payroll
+            <i class="fas fa-money-check-alt mr-2 text-lg"></i> Payroll
           </button>
         </div>
       </div>
 
       <!-- Employee Management Tab -->
-      <div id="content-employees" class="tab-content">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <div class="flex justify-between items-center mb-6">
+      <div id="content-employees" class="tab-content slide-up">
+        <div class="bg-white rounded-xl shadow-xl p-8 card-elevated">
+          <div class="flex justify-between items-center mb-8">
             <div>
-              <h3 class="text-xl font-bold text-gray-800">All Employees</h3>
-              <p class="text-sm text-gray-600 mt-1">
-                <span id="totalEmployeesCount">0</span> total employees
+              <h3 class="text-2xl font-bold text-gray-800 flex items-center">
+                <i class="fas fa-users text-red-600 mr-3"></i>
+                All Employees
+              </h3>
+              <p class="text-sm text-gray-600 mt-2">
+                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold">
+                  <span id="totalEmployeesCount">0</span> Total
+                </span>
               </p>
             </div>
             <button
               onclick="openAddEmployeeModal()"
-              class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+              class="btn-gradient-red text-white font-semibold py-3 px-8 rounded-xl shadow-lg"
             >
-              <i class="fas fa-plus mr-2"></i> Add Employee
+              <i class="fas fa-user-plus mr-2"></i> Add Employee
             </button>
           </div>
 
@@ -680,24 +859,28 @@
       </div>
 
       <!-- Payroll Management Tab -->
-      <div id="content-payroll" class="tab-content hidden">
-        <div class="bg-white rounded-lg shadow-lg p-6">
-          <div class="flex justify-between items-center mb-6">
-            <h3 class="text-xl font-bold text-gray-800">Payroll Records</h3>
+      <div id="content-payroll" class="tab-content hidden slide-up">
+        <div class="bg-white rounded-xl shadow-xl p-8 card-elevated">
+          <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+            <h3 class="text-2xl font-bold text-gray-800 flex items-center">
+              <i class="fas fa-money-check-alt text-red-600 mr-3"></i>
+              Payroll Records
+            </h3>
             <div class="flex gap-3">
               <button
                 onclick="autoGeneratePayroll()"
-                class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+                class="btn-gradient-green text-white font-semibold py-3 px-8 rounded-xl shadow-lg"
                 title="Auto-generate payroll for all employees based on previous month"
               >
                 <i class="fas fa-magic mr-2"></i> Auto-Generate
               </button>
               <button
                 onclick="openAddPayrollModal()"
-                class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded-lg transition duration-200"
+                class="btn-gradient-red text-white font-semibold py-3 px-8 rounded-xl shadow-lg"
             >
               <i class="fas fa-plus mr-2"></i> Create Payroll
             </button>
+          </div>
           </div>
 
           <!-- Filters -->
@@ -1847,7 +2030,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <script src="assets/js/admin.js?v=11"></script>
+    <script src="assets/js/admin.js?v=12"></script>
     <script src="upcoming-leaves.js?v=1"></script>
 
     <script>
