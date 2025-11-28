@@ -793,12 +793,10 @@
 
           // Create comment record
           const commentData = {
-            fields: {
-              'Announcement': [currentAnnouncementId],
-              'Employee': [currentUser.id],
-              'Comment': commentText,
-              'Date': new Date().toISOString()
-            }
+            'Announcement': [currentAnnouncementId],
+            'Employee': [currentUser.id],
+            'Comment': commentText,
+            'Date': new Date().toISOString()
           };
 
           await createAnnouncementComment(commentData);
