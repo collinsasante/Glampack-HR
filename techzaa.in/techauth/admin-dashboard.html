@@ -12,7 +12,7 @@
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
     <!-- Button Styles -->
-    <link rel="stylesheet" href="assets/css/button-styles.css?v=1" />
+    <link rel="stylesheet" href="assets/css/button-styles.css?v=2" />
 
     <!-- Google Fonts -->
     <link
@@ -37,24 +37,48 @@
         background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
       }
 
-      /* Modal Styles */
+      /* Modal Styles - Bootstrap-inspired */
       .modal {
         display: none;
         position: fixed;
-        z-index: 50;
+        z-index: 1050;
         left: 0;
         top: 0;
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0, 0, 0, 0.6);
-        backdrop-filter: blur(4px);
-        animation: fadeIn 0.2s ease-in-out;
+        background-color: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(2px);
+        animation: fadeIn 0.15s ease-in-out;
       }
       .modal.active {
         display: flex;
         align-items: center;
         justify-content: center;
+      }
+      .modal-dialog {
+        position: relative;
+        width: auto;
+        margin: 1.75rem auto;
+        pointer-events: none;
+      }
+      .modal-dialog-centered {
+        display: flex;
+        align-items: center;
+        min-height: calc(100% - 3.5rem);
+      }
+      .modal-content {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        pointer-events: auto;
+        background-color: #fff;
+        background-clip: padding-box;
+        border: 1px solid rgba(0,0,0,.2);
+        border-radius: 0.5rem;
+        outline: 0;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
       }
 
       /* Tab Styles */
