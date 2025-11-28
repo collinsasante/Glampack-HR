@@ -802,7 +802,8 @@
             'Date': new Date().toISOString()
           };
 
-          await createAnnouncementComment(commentData);
+          const result = await createAnnouncementComment(commentData);
+          console.log('Comment created:', result);
 
           // Clear textarea
           commentInput.value = '';
