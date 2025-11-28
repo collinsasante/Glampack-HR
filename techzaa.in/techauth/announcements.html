@@ -795,15 +795,23 @@
           }
 
           // Create comment record
+          console.log('=== CREATING COMMENT ===');
+          console.log('Current Announcement ID:', currentAnnouncementId);
+          console.log('Current User ID:', currentUser.id);
+          console.log('Comment Text:', commentText);
+
           const commentData = {
             'Announcement': [currentAnnouncementId],
             'Employee': [currentUser.id],
             'Comment': commentText,
             'Date': new Date().toISOString()
           };
+          console.log('Comment Data to send:', commentData);
 
           const result = await createAnnouncementComment(commentData);
-          console.log('Comment created:', result);
+          console.log('Comment created - FULL RESULT:', result);
+          console.log('Created comment ID:', result.id);
+          console.log('Created comment fields:', result.fields);
 
           // Clear textarea
           commentInput.value = '';
@@ -830,19 +838,38 @@
           commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading comments...</div>';
 
           // Fetch comments for this announcement
+          console.log('=== LOADING COMMENTS ===');
+          console.log('Target Announcement ID:', announcementId);
+
           // First, fetch ALL comments to debug
           const allCommentsResponse = await getAnnouncementComments(null);
           console.log('ALL comments in table:', allCommentsResponse);
+          if (allCommentsResponse.records && allCommentsResponse.records.length > 0) {
+            console.log('Sample comment structure:', allCommentsResponse.records[0]);
+            console.log('Sample comment fields:', allCommentsResponse.records[0].fields);
+            console.log('Sample Announcement field:', allCommentsResponse.records[0].fields['Announcement']);
+          }
 
           const filterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
-          console.log('Loading comments for announcement:', announcementId);
           console.log('Filter formula:', filterFormula);
 
           const response = await getAnnouncementComments(filterFormula);
           console.log('Filtered comments response:', response);
 
           const comments = response.records || [];
-          console.log('Comments count:', comments.length);
+          console.log('Filtered comments count:', comments.length);
+
+          // Try alternative filter methods
+          console.log('=== TRYING ALTERNATIVE FILTERS ===');
+          const altFilter1 = `{Announcement} = "${announcementId}"`;
+          console.log('Trying filter 1:', altFilter1);
+          const alt1Response = await getAnnouncementComments(altFilter1);
+          console.log('Alt filter 1 count:', alt1Response.records?.length || 0);
+
+          const altFilter2 = `ARRAYJOIN({Announcement}) = "${announcementId}"`;
+          console.log('Trying filter 2:', altFilter2);
+          const alt2Response = await getAnnouncementComments(altFilter2);
+          console.log('Alt filter 2 count:', alt2Response.records?.length || 0);
 
           if (comments.length === 0) {
             commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
