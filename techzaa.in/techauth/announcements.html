@@ -871,20 +871,37 @@
           const alt2Response = await getAnnouncementComments(altFilter2);
           console.log('Alt filter 2 count:', alt2Response.records?.length || 0);
 
-          if (comments.length === 0) {
+          const altFilter3 = `FIND("${announcementId}", ARRAYJOIN({Announcement}))`;
+          console.log('Trying filter 3:', altFilter3);
+          const alt3Response = await getAnnouncementComments(altFilter3);
+          console.log('Alt filter 3 count:', alt3Response.records?.length || 0);
+
+          const altFilter4 = `SEARCH("${announcementId}", {Announcement}&"")`;
+          console.log('Trying filter 4:', altFilter4);
+          const alt4Response = await getAnnouncementComments(altFilter4);
+          console.log('Alt filter 4 count:', alt4Response.records?.length || 0);
+
+          // Use whichever filter worked
+          const workingComments = alt3Response.records?.length > 0 ? alt3Response.records :
+                                   alt2Response.records?.length > 0 ? alt2Response.records :
+                                   alt1Response.records?.length > 0 ? alt1Response.records : comments;
+
+          if (workingComments.length === 0) {
             commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
             return;
           }
 
+          console.log('Using workingComments, count:', workingComments.length);
+
           // Sort by date (newest first)
-          comments.sort((a, b) => {
+          workingComments.sort((a, b) => {
             const dateA = new Date(a.fields['Date']);
             const dateB = new Date(b.fields['Date']);
             return dateB - dateA;
           });
 
           // Fetch employee names for all comments
-          const employeePromises = comments.map(async (comment) => {
+          const employeePromises = workingComments.map(async (comment) => {
             if (comment.fields['Employee'] && comment.fields['Employee'][0]) {
               try {
                 const employee = await getEmployee(comment.fields['Employee'][0]);
