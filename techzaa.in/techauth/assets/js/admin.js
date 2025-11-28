@@ -3434,3 +3434,319 @@ async function exportAttendanceReport() {
         alert('Error generating attendance report: ' + error.message);
     }
 }
+
+// ========================================
+// SMART PAYROLL AUTO-GENERATION SYSTEM
+// ========================================
+
+// Auto-generate payroll for all employees
+async function autoGeneratePayroll() {
+    if (!confirm('This will auto-generate payroll for ALL employees based on their previous month data or base salary.\n\nPayrolls will be created as DRAFT status for your review.\n\nContinue?')) {
+        return;
+    }
+
+    try {
+        // Show loading indicator
+        const loadingMsg = document.createElement('div');
+        loadingMsg.id = 'autoGenLoading';
+        loadingMsg.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+        loadingMsg.innerHTML = `
+            <div class="bg-white rounded-lg p-8 max-w-md">
+                <div class="text-center">
+                    <i class="fas fa-spinner fa-spin text-4xl text-red-600 mb-4"></i>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">Generating Payroll...</h3>
+                    <p class="text-gray-600">Processing <span id="genProgress">0</span> of <span id="genTotal">0</span> employees</p>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(loadingMsg);
+
+        // Get current month for payroll generation
+        const now = new Date();
+        const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+
+        // Get all employees
+        const employeesData = await getEmployees();
+        const employees = employeesData.records || [];
+
+        document.getElementById('genTotal').textContent = employees.length;
+
+        // Get all existing payroll records
+        const payrollData = await getPayroll();
+        const allPayroll = payrollData.records || [];
+
+        let successCount = 0;
+        let skipCount = 0;
+        let errorCount = 0;
+        const errors = [];
+
+        // Process each employee
+        for (let i = 0; i < employees.length; i++) {
+            const employee = employees[i];
+            const employeeId = employee.id;
+            const employeeName = employee.fields['Full Name'] || 'Unknown';
+
+            document.getElementById('genProgress').textContent = i + 1;
+
+            try {
+                // Check if payroll already exists for this month
+                const existingPayroll = allPayroll.find(p => {
+                    const empIds = p.fields['Employee'];
+                    const month = p.fields['Month'];
+                    return empIds && empIds.includes(employeeId) && month === currentMonth;
+                });
+
+                if (existingPayroll) {
+                    skipCount++;
+                    continue; // Skip if already exists
+                }
+
+                // Find previous month's payroll for this employee
+                const previousPayroll = findPreviousMonthPayroll(allPayroll, employeeId, currentMonth);
+
+                let payrollData;
+
+                if (previousPayroll) {
+                    // Copy from previous month
+                    payrollData = {
+                        Employee: [employeeId],
+                        Month: currentMonth,
+                        'Basic Salary': previousPayroll.fields['Basic Salary'] || 0,
+                        'Housing Allowance': previousPayroll.fields['Housing Allowance'] || 0,
+                        'Transport Allowance': previousPayroll.fields['Transport Allowance'] || 0,
+                        'Benefits': previousPayroll.fields['Benefits'] || 0,
+                        'Other Allowances': previousPayroll.fields['Other Allowances'] || 0,
+                        'Income Tax': previousPayroll.fields['Income Tax'] || 0,
+                        'Welfare': previousPayroll.fields['Welfare'] || 0,
+                        'Social Security': previousPayroll.fields['Social Security'] || 0,
+                        'Health Insurance': previousPayroll.fields['Health Insurance'] || 0,
+                        'Other Deductions': previousPayroll.fields['Other Deductions'] || 0,
+                        'Custom Allowances': previousPayroll.fields['Custom Allowances'] || '',
+                        'Custom Deductions': previousPayroll.fields['Custom Deductions'] || '',
+                        'Status': 'Draft'
+                    };
+
+                    // Calculate totals
+                    const totalAllowances = (parseFloat(payrollData['Housing Allowance']) || 0) +
+                                          (parseFloat(payrollData['Transport Allowance']) || 0) +
+                                          (parseFloat(payrollData['Benefits']) || 0) +
+                                          (parseFloat(payrollData['Other Allowances']) || 0);
+
+                    const grossSalary = (parseFloat(payrollData['Basic Salary']) || 0) + totalAllowances;
+
+                    const totalDeductions = (parseFloat(payrollData['Income Tax']) || 0) +
+                                          (parseFloat(payrollData['Welfare']) || 0) +
+                                          (parseFloat(payrollData['Social Security']) || 0) +
+                                          (parseFloat(payrollData['Health Insurance']) || 0) +
+                                          (parseFloat(payrollData['Other Deductions']) || 0);
+
+                    const netSalary = grossSalary - totalDeductions;
+
+                    payrollData['Total Allowances'] = totalAllowances;
+                    payrollData['Gross Salary'] = grossSalary;
+                    payrollData['Total Deductions'] = totalDeductions;
+                    payrollData['Net Salary'] = netSalary;
+
+                } else {
+                    // Use employee's base salary
+                    const baseSalary = parseFloat(employee.fields['Salary']) || 0;
+
+                    if (baseSalary === 0) {
+                        skipCount++;
+                        continue; // Skip employees with no salary set
+                    }
+
+                    payrollData = {
+                        Employee: [employeeId],
+                        Month: currentMonth,
+                        'Basic Salary': baseSalary,
+                        'Housing Allowance': 0,
+                        'Transport Allowance': 0,
+                        'Benefits': 0,
+                        'Other Allowances': 0,
+                        'Total Allowances': 0,
+                        'Gross Salary': baseSalary,
+                        'Income Tax': 0,
+                        'Welfare': 0,
+                        'Social Security': 0,
+                        'Health Insurance': 0,
+                        'Other Deductions': 0,
+                        'Total Deductions': 0,
+                        'Net Salary': baseSalary,
+                        'Custom Allowances': '',
+                        'Custom Deductions': '',
+                        'Status': 'Draft'
+                    };
+                }
+
+                // Create payroll record
+                await createPayroll(payrollData);
+                successCount++;
+
+            } catch (error) {
+                errorCount++;
+                errors.push(`${employeeName}: ${error.message}`);
+            }
+        }
+
+        // Remove loading indicator
+        document.body.removeChild(loadingMsg);
+
+        // Show results
+        let message = `Payroll Auto-Generation Complete!\n\n`;
+        message += `✅ Generated: ${successCount}\n`;
+        message += `⏭️ Skipped (already exists): ${skipCount}\n`;
+        if (errorCount > 0) {
+            message += `❌ Errors: ${errorCount}\n\n`;
+            message += `Errors:\n${errors.join('\n')}`;
+        }
+
+        alert(message);
+
+        // Reload payroll records
+        await loadPayrollRecords();
+
+    } catch (error) {
+        const loadingEl = document.getElementById('autoGenLoading');
+        if (loadingEl) {
+            document.body.removeChild(loadingEl);
+        }
+        alert('Error auto-generating payroll: ' + error.message);
+    }
+}
+
+// Find previous month's payroll for an employee
+function findPreviousMonthPayroll(allPayroll, employeeId, currentMonth) {
+    // Get previous month
+    const [year, month] = currentMonth.split('-').map(Number);
+    const prevDate = new Date(year, month - 2, 1); // month - 2 because month is 1-indexed
+    const prevMonth = `${prevDate.getFullYear()}-${String(prevDate.getMonth() + 1).padStart(2, '0')}`;
+
+    // Find payroll for previous month
+    const previousPayroll = allPayroll.find(p => {
+        const empIds = p.fields['Employee'];
+        const month = p.fields['Month'];
+        return empIds && empIds.includes(employeeId) && month === prevMonth;
+    });
+
+    return previousPayroll || null;
+}
+
+// Load previous months for selected employee (for copy dropdown)
+async function loadPreviousMonthsForEmployee() {
+    const employeeId = document.getElementById('payrollEmployee').value;
+    const copyFromSelect = document.getElementById('copyFromMonth');
+
+    // Reset dropdown
+    copyFromSelect.innerHTML = '<option value="">-- Select to copy --</option>';
+
+    if (!employeeId) {
+        return;
+    }
+
+    try {
+        // Get all payroll records for this employee
+        const payrollData = await getPayroll();
+        const allPayroll = payrollData.records || [];
+
+        const employeePayrolls = allPayroll.filter(p => {
+            const empIds = p.fields['Employee'];
+            return empIds && empIds.includes(employeeId);
+        });
+
+        // Sort by month (newest first)
+        employeePayrolls.sort((a, b) => {
+            return (b.fields['Month'] || '').localeCompare(a.fields['Month'] || '');
+        });
+
+        // Populate dropdown
+        employeePayrolls.forEach(payroll => {
+            const month = payroll.fields['Month'];
+            if (month) {
+                const option = document.createElement('option');
+                option.value = payroll.id;
+                const date = new Date(month + '-01');
+                option.textContent = date.toLocaleDateString('en-US', { year: 'numeric', month: 'long' });
+                copyFromSelect.appendChild(option);
+            }
+        });
+
+        if (employeePayrolls.length === 0) {
+            const option = document.createElement('option');
+            option.value = '';
+            option.textContent = 'No previous payroll found';
+            option.disabled = true;
+            copyFromSelect.appendChild(option);
+        }
+
+    } catch (error) {
+        alert('Error loading previous months: ' + error.message);
+    }
+}
+
+// Copy data from previous month's payroll
+async function copyFromPreviousMonth() {
+    const payrollId = document.getElementById('copyFromMonth').value;
+
+    if (!payrollId) {
+        return;
+    }
+
+    if (!confirm('This will overwrite all current values with data from the selected month. Continue?')) {
+        document.getElementById('copyFromMonth').value = '';
+        return;
+    }
+
+    try {
+        // Fetch the payroll record
+        const payrollData = await getPayroll();
+        const allPayroll = payrollData.records || [];
+        const selectedPayroll = allPayroll.find(p => p.id === payrollId);
+
+        if (!selectedPayroll) {
+            alert('Payroll record not found');
+            return;
+        }
+
+        const fields = selectedPayroll.fields;
+
+        // Populate form fields
+        document.getElementById('basicSalary').value = fields['Basic Salary'] || '';
+        document.getElementById('housingAllowance').value = fields['Housing Allowance'] || '';
+        document.getElementById('transportAllowance').value = fields['Transport Allowance'] || '';
+        document.getElementById('benefits').value = fields['Benefits'] || '';
+        document.getElementById('otherAllowances').value = fields['Other Allowances'] || '';
+
+        document.getElementById('incomeTax').value = fields['Income Tax'] || '';
+        document.getElementById('welfare').value = fields['Welfare'] || '';
+        document.getElementById('socialSecurity').value = fields['Social Security'] || '';
+        document.getElementById('healthInsurance').value = fields['Health Insurance'] || '';
+        document.getElementById('otherDeductions').value = fields['Other Deductions'] || '';
+
+        // Restore custom allowances and deductions
+        if (fields['Custom Allowances']) {
+            try {
+                customAllowances = JSON.parse(fields['Custom Allowances']);
+                updateCustomAllowancesList();
+            } catch (e) {}
+        }
+
+        if (fields['Custom Deductions']) {
+            try {
+                customDeductions = JSON.parse(fields['Custom Deductions']);
+                updateCustomDeductionsList();
+            } catch (e) {}
+        }
+
+        // Trigger calculation
+        calculatePayroll();
+
+        alert('Data copied successfully! Review and make any necessary changes.');
+
+        // Reset dropdown
+        document.getElementById('copyFromMonth').value = '';
+
+    } catch (error) {
+        alert('Error copying payroll data: ' + error.message);
+    }
+}
