@@ -1423,15 +1423,18 @@ async function viewAnnouncementStats(announcementId) {
 
     // Load stats
     try {
-        // Fetch views
-        const readsFilterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
-        const readsResponse = await getAnnouncementReads(readsFilterFormula);
-        const reads = readsResponse.records || [];
+        // Fetch all reads and comments, filter client-side (Airtable filters don't work with linked arrays)
+        const allReadsResponse = await getAnnouncementReads(null);
+        const reads = (allReadsResponse.records || []).filter(read => {
+            const announcementField = read.fields['Announcement'];
+            return Array.isArray(announcementField) && announcementField.includes(announcementId);
+        });
 
-        // Fetch comments
-        const commentsFilterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
-        const commentsResponse = await getAnnouncementComments(commentsFilterFormula);
-        const comments = commentsResponse.records || [];
+        const allCommentsResponse = await getAnnouncementComments(null);
+        const comments = (allCommentsResponse.records || []).filter(comment => {
+            const announcementField = comment.fields['Announcement'];
+            return Array.isArray(announcementField) && announcementField.includes(announcementId);
+        });
 
         // Get total employees for engagement rate
         const allEmployeesResponse = await getEmployees();

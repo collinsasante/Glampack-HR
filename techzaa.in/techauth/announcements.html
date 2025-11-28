@@ -837,54 +837,27 @@
           // Show loading state
           commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading comments...</div>';
 
-          // Fetch comments for this announcement
-          console.log('=== LOADING COMMENTS ===');
+          // Fetch ALL comments and filter client-side
+          // Airtable filter formulas don't work reliably with linked record arrays
+          console.log('=== LOADING COMMENTS (CLIENT-SIDE FILTER) ===');
           console.log('Target Announcement ID:', announcementId);
 
-          // First, fetch ALL comments to debug
           const allCommentsResponse = await getAnnouncementComments(null);
-          console.log('ALL comments in table:', allCommentsResponse);
-          if (allCommentsResponse.records && allCommentsResponse.records.length > 0) {
-            console.log('Sample comment structure:', allCommentsResponse.records[0]);
-            console.log('Sample comment fields:', allCommentsResponse.records[0].fields);
-            console.log('Sample Announcement field:', allCommentsResponse.records[0].fields['Announcement']);
-          }
+          console.log('Fetched all comments:', allCommentsResponse.records?.length || 0);
 
-          const filterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
-          console.log('Filter formula:', filterFormula);
+          // Filter comments client-side
+          const workingComments = (allCommentsResponse.records || []).filter(comment => {
+            const announcementField = comment.fields['Announcement'];
+            // Check if the Announcement field is an array and contains our announcement ID
+            if (Array.isArray(announcementField)) {
+              const match = announcementField.includes(announcementId);
+              console.log('Comment', comment.id, 'Announcement field:', announcementField, 'Match:', match);
+              return match;
+            }
+            return false;
+          });
 
-          const response = await getAnnouncementComments(filterFormula);
-          console.log('Filtered comments response:', response);
-
-          const comments = response.records || [];
-          console.log('Filtered comments count:', comments.length);
-
-          // Try alternative filter methods
-          console.log('=== TRYING ALTERNATIVE FILTERS ===');
-          const altFilter1 = `{Announcement} = "${announcementId}"`;
-          console.log('Trying filter 1:', altFilter1);
-          const alt1Response = await getAnnouncementComments(altFilter1);
-          console.log('Alt filter 1 count:', alt1Response.records?.length || 0);
-
-          const altFilter2 = `ARRAYJOIN({Announcement}) = "${announcementId}"`;
-          console.log('Trying filter 2:', altFilter2);
-          const alt2Response = await getAnnouncementComments(altFilter2);
-          console.log('Alt filter 2 count:', alt2Response.records?.length || 0);
-
-          const altFilter3 = `FIND("${announcementId}", ARRAYJOIN({Announcement}))`;
-          console.log('Trying filter 3:', altFilter3);
-          const alt3Response = await getAnnouncementComments(altFilter3);
-          console.log('Alt filter 3 count:', alt3Response.records?.length || 0);
-
-          const altFilter4 = `SEARCH("${announcementId}", {Announcement}&"")`;
-          console.log('Trying filter 4:', altFilter4);
-          const alt4Response = await getAnnouncementComments(altFilter4);
-          console.log('Alt filter 4 count:', alt4Response.records?.length || 0);
-
-          // Use whichever filter worked
-          const workingComments = alt3Response.records?.length > 0 ? alt3Response.records :
-                                   alt2Response.records?.length > 0 ? alt2Response.records :
-                                   alt1Response.records?.length > 0 ? alt1Response.records : comments;
+          console.log('Filtered comments (client-side):', workingComments.length);
 
           if (workingComments.length === 0) {
             commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
