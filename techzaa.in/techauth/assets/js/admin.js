@@ -1291,6 +1291,10 @@ function displayAnnouncements(announcements) {
         const date = new Date(announcement.createdTime).toLocaleDateString();
         const author = announcement.fields['Posted By'] || 'Admin';
 
+        // Create summary (first 100 characters)
+        const summary = message.length > 100 ? message.substring(0, 100) + '...' : message;
+        const hasMore = message.length > 100;
+
         // Priority colors
         const priorityColors = {
             'High': 'bg-red-100 text-red-800 border-red-300',
@@ -1305,21 +1309,46 @@ function displayAnnouncements(announcements) {
         };
 
         return `
-            <div class="border ${priorityColors[priority]} rounded-lg p-4">
+            <div class="border ${priorityColors[priority]} rounded-lg p-4 hover:shadow-md transition-shadow">
                 <div class="flex justify-between items-start mb-2">
                     <div class="flex items-start gap-3 flex-1">
                         <i class="fas ${priorityIcons[priority]} text-2xl mt-1"></i>
                         <div class="flex-1">
                             <h4 class="font-bold text-lg">${title}</h4>
-                            <p class="text-sm opacity-75 mb-2">Posted by ${author} on ${date}</p>
-                            <p class="whitespace-pre-wrap">${message}</p>
+                            <p class="text-sm opacity-75 mb-2">
+                                <i class="fas fa-user mr-1"></i>${author}
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-calendar mr-1"></i>${date}
+                            </p>
+                            <div id="ann-preview-${announcement.id}">
+                                <p class="whitespace-pre-wrap text-sm">${summary}</p>
+                                ${hasMore ? `
+                                    <button
+                                        onclick="toggleAnnouncementDetails('${announcement.id}')"
+                                        class="text-blue-600 hover:text-blue-800 mt-2 text-sm font-semibold flex items-center gap-1"
+                                    >
+                                        <span>Read more</span>
+                                        <i class="fas fa-chevron-down"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                            <div id="ann-full-${announcement.id}" class="hidden">
+                                <p class="whitespace-pre-wrap text-sm">${message}</p>
+                                <button
+                                    onclick="toggleAnnouncementDetails('${announcement.id}')"
+                                    class="text-blue-600 hover:text-blue-800 mt-2 text-sm font-semibold flex items-center gap-1"
+                                >
+                                    <span>Show less</span>
+                                    <i class="fas fa-chevron-up"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div class="flex gap-2 ml-4">
-                        <button onclick="editAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800" title="Edit">
+                        <button onclick="editAnnouncement('${announcement.id}')" class="text-blue-600 hover:text-blue-800 p-2 hover:bg-blue-50 rounded transition-colors" title="Edit">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button onclick="deleteAnnouncement('${announcement.id}')" class="text-red-600 hover:text-red-800" title="Delete">
+                        <button onclick="deleteAnnouncement('${announcement.id}')" class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded transition-colors" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -1327,6 +1356,17 @@ function displayAnnouncements(announcements) {
             </div>
         `;
     }).join('');
+}
+
+// Toggle announcement full details
+function toggleAnnouncementDetails(announcementId) {
+    const preview = document.getElementById(`ann-preview-${announcementId}`);
+    const full = document.getElementById(`ann-full-${announcementId}`);
+
+    if (preview && full) {
+        preview.classList.toggle('hidden');
+        full.classList.toggle('hidden');
+    }
 }
 
 function openAddAnnouncementModal() {

@@ -1,24 +1,121 @@
 // Upcoming Leaves View Functions for Admin Dashboard
 
+// Toggle custom date range visibility
+function toggleCustomDateRange() {
+    const rangeFilter = document.getElementById('leaveDateRangeFilter');
+    const customStart = document.getElementById('customDateStart');
+    const customEnd = document.getElementById('customDateEnd');
+
+    if (rangeFilter && rangeFilter.value === 'custom') {
+        customStart.classList.remove('hidden');
+        customEnd.classList.add('hidden');
+        // Set default start date to today
+        document.getElementById('leaveStartDate').value = new Date().toISOString().split('T')[0];
+    } else if (customStart && customEnd) {
+        customStart.classList.add('hidden');
+        customEnd.classList.add('hidden');
+    }
+}
+
+// Update custom date end visibility
+function toggleCustomEndDate() {
+    const startDate = document.getElementById('leaveStartDate').value;
+    const customEnd = document.getElementById('customDateEnd');
+
+    if (startDate && customEnd) {
+        customEnd.classList.remove('hidden');
+        // Set min date for end date
+        const endDateInput = document.getElementById('leaveEndDate');
+        if (endDateInput) {
+            endDateInput.min = startDate;
+        }
+    }
+}
+
+// Add event listeners for custom date range
+document.addEventListener('DOMContentLoaded', function() {
+    const rangeFilter = document.getElementById('leaveDateRangeFilter');
+    const startDate = document.getElementById('leaveStartDate');
+
+    if (rangeFilter) {
+        rangeFilter.addEventListener('change', toggleCustomDateRange);
+    }
+
+    if (startDate) {
+        startDate.addEventListener('change', toggleCustomEndDate);
+    }
+});
+
+// Filter function
+async function filterUpcomingLeaves() {
+    await renderLeaveCalendar();
+}
+
 async function renderLeaveCalendar() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const todayStr = today.toISOString().split('T')[0];
+
+    // Get date range from filter
+    const rangeFilter = document.getElementById('leaveDateRangeFilter')?.value || '30';
+    let startFilterStr = todayStr;
+    let endDateStr;
+
+    if (rangeFilter === 'custom') {
+        const startDate = document.getElementById('leaveStartDate')?.value;
+        const endDate = document.getElementById('leaveEndDate')?.value;
+
+        if (!startDate || !endDate) {
+            // Default to 30 days if custom dates not set
+            const in30Days = new Date(today);
+            in30Days.setDate(today.getDate() + 30);
+            endDateStr = in30Days.toISOString().split('T')[0];
+        } else {
+            startFilterStr = startDate;
+            endDateStr = endDate;
+        }
+    } else {
+        const days = parseInt(rangeFilter);
+        const endDate = new Date(today);
+        endDate.setDate(today.getDate() + days);
+        endDateStr = endDate.toISOString().split('T')[0];
+    }
+
     const in7Days = new Date(today);
     in7Days.setDate(today.getDate() + 7);
     const in7DaysStr = in7Days.toISOString().split('T')[0];
 
-    const in30Days = new Date(today);
-    in30Days.setDate(today.getDate() + 30);
-    const in30DaysStr = in30Days.toISOString().split('T')[0];
+    // Get department filter
+    const departmentFilter = document.getElementById('leaveDepartmentFilter')?.value || '';
 
     // Filter only approved leaves that are upcoming or ongoing
-    const upcomingLeaves = allLeaveRequests.filter(req => {
+    let upcomingLeaves = allLeaveRequests.filter(req => {
         const endDate = req.fields['End Date'];
         const status = req.fields['Status'];
-        return status === 'Approved' && endDate >= todayStr && endDate <= in30DaysStr;
+        return status === 'Approved' && endDate >= todayStr && endDate <= endDateStr;
     });
+
+    // Filter by department if selected
+    if (departmentFilter) {
+        // Need to fetch employee data to filter by department
+        const leavesWithEmployees = await Promise.all(upcomingLeaves.map(async (req) => {
+            if (req.fields['Employee'] && req.fields['Employee'][0]) {
+                try {
+                    const employee = await getEmployee(req.fields['Employee'][0]);
+                    return { ...req, employeeData: employee };
+                } catch (error) {
+                    return { ...req, employeeData: null };
+                }
+            }
+            return { ...req, employeeData: null };
+        }));
+
+        upcomingLeaves = leavesWithEmployees.filter(req => {
+            return req.employeeData && req.employeeData.fields &&
+                   req.employeeData.fields['Department'] === departmentFilter;
+        });
+    }
 
     // Sort by start date
     upcomingLeaves.sort((a, b) => {
@@ -42,9 +139,13 @@ async function renderLeaveCalendar() {
     const onLeaveMonth = upcomingLeaves.length;
 
     // Update stats
-    document.getElementById('onLeaveToday').textContent = onLeaveToday;
-    document.getElementById('onLeaveWeek').textContent = onLeaveWeek;
-    document.getElementById('onLeaveMonth').textContent = onLeaveMonth;
+    const onLeaveTodayEl = document.getElementById('onLeaveToday');
+    const onLeaveWeekEl = document.getElementById('onLeaveWeek');
+    const onLeaveMonthEl = document.getElementById('onLeaveMonth');
+
+    if (onLeaveTodayEl) onLeaveTodayEl.textContent = onLeaveToday;
+    if (onLeaveWeekEl) onLeaveWeekEl.textContent = onLeaveWeek;
+    if (onLeaveMonthEl) onLeaveMonthEl.textContent = onLeaveMonth;
 
     // Render upcoming leaves list
     await renderUpcomingLeavesList(upcomingLeaves, todayStr);
@@ -53,12 +154,14 @@ async function renderLeaveCalendar() {
 async function renderUpcomingLeavesList(upcomingLeaves, todayStr) {
     const container = document.getElementById('upcomingLeavesList');
 
+    if (!container) return;
+
     if (upcomingLeaves.length === 0) {
         container.innerHTML = `
             <div class="px-6 py-12 text-center text-gray-500">
                 <i class="fas fa-calendar-check text-4xl mb-3"></i>
                 <p class="text-lg font-medium">No upcoming approved leaves</p>
-                <p class="text-sm text-gray-400 mt-1">for the next 30 days</p>
+                <p class="text-sm text-gray-400 mt-1">for the selected date range</p>
             </div>
         `;
         return;
@@ -66,6 +169,11 @@ async function renderUpcomingLeavesList(upcomingLeaves, todayStr) {
 
     // Fetch employee names
     const employeePromises = upcomingLeaves.map(async (req) => {
+        // Check if we already have employeeData from filtering
+        if (req.employeeData) {
+            return { id: req.id, name: (req.employeeData.fields && req.employeeData.fields['Full Name']) || 'Unknown' };
+        }
+
         if (req.fields['Employee'] && req.fields['Employee'][0]) {
             try {
                 const employee = await getEmployee(req.fields['Employee'][0]);
