@@ -830,12 +830,16 @@
           commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading comments...</div>';
 
           // Fetch comments for this announcement
+          // First, fetch ALL comments to debug
+          const allCommentsResponse = await getAnnouncementComments(null);
+          console.log('ALL comments in table:', allCommentsResponse);
+
           const filterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
           console.log('Loading comments for announcement:', announcementId);
           console.log('Filter formula:', filterFormula);
 
           const response = await getAnnouncementComments(filterFormula);
-          console.log('Comments response:', response);
+          console.log('Filtered comments response:', response);
 
           const comments = response.records || [];
           console.log('Comments count:', comments.length);
