@@ -807,6 +807,9 @@
           // Clear textarea
           commentInput.value = '';
 
+          // Wait a moment for Airtable to index the new comment
+          await new Promise(resolve => setTimeout(resolve, 500));
+
           // Reload comments
           await loadComments(currentAnnouncementId);
 
@@ -827,8 +830,14 @@
 
           // Fetch comments for this announcement
           const filterFormula = `{Announcement} = '${announcementId}'`;
+          console.log('Loading comments for announcement:', announcementId);
+          console.log('Filter formula:', filterFormula);
+
           const response = await getAnnouncementComments(filterFormula);
+          console.log('Comments response:', response);
+
           const comments = response.records || [];
+          console.log('Comments count:', comments.length);
 
           if (comments.length === 0) {
             commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
