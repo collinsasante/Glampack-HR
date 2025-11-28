@@ -1,4 +1,48 @@
 // ========================================
+// TOAST NOTIFICATION SYSTEM
+// ========================================
+function showToast(type, title, message, duration = 5000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+
+    // Icon based on type
+    const icons = {
+        success: 'fa-check-circle',
+        error: 'fa-exclamation-circle',
+        warning: 'fa-exclamation-triangle',
+        info: 'fa-info-circle'
+    };
+
+    toast.innerHTML = `
+        <div class="toast-icon">
+            <i class="fas ${icons[type] || icons.info}"></i>
+        </div>
+        <div class="toast-content">
+            <div class="toast-title">${title}</div>
+            <div class="toast-message">${message}</div>
+        </div>
+        <button class="toast-close" onclick="this.parentElement.remove()">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => toast.classList.add('show'), 10);
+
+    // Auto remove after duration
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, duration);
+}
+
+// ========================================
 // MOBILE MENU TOGGLE
 // ========================================
 function toggleMobileMenu() {
@@ -35,7 +79,7 @@ async function checkAdminAccess() {
         if (employee && employee.fields) {
             const role = employee.fields['Role'] || '';
             if (role !== 'Admin' && role !== 'HR') {
-                alert('Access denied. Admin privileges required.');
+                showToast('error', 'Access Denied', 'Admin privileges required.');
                 window.location.href = 'dashboard.html';
                 return false;
             }
@@ -534,7 +578,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     // Validate required elements exist
     if (!fullNameEl || !emailEl || !statusEl || !roleEl || !employeeIdEl) {
 
-        alert('Error: Form fields not found. Please refresh the page.');
+        showToast('error', 'Form Error', 'Form fields not found. Please refresh the page.');
         return;
     }
 
@@ -543,7 +587,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     // For new employees, validate passwords
     if (!employeeId) {
         if (!passwordEl || !confirmPasswordEl) {
-            alert('Error: Password fields not found. Please refresh the page.');
+            showToast('error', 'Form Error', 'Password fields not found. Please refresh the page.');
             return;
         }
 
@@ -552,13 +596,13 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
 
         // Validate passwords match
         if (password !== confirmPassword) {
-            alert('Passwords do not match. Please try again.');
+            showToast('error', 'Password Mismatch', 'Passwords do not match. Please try again.');
             return;
         }
 
         // Validate password strength (minimum 6 characters)
         if (password.length < 6) {
-            alert('Password must be at least 6 characters long.');
+            showToast('error', 'Weak Password', 'Password must be at least 6 characters long.');
             return;
         }
     }
@@ -640,19 +684,19 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
         if (employeeId) {
             // Update existing employee
             await updateEmployee(employeeId, data);
-            alert('Employee updated successfully!');
+            showToast('success', 'Employee Updated', 'Employee updated successfully!');
         } else {
             // Create new employee - add password
             data['Password'] = passwordEl.value;
             await createEmployee(data);
-            alert('Employee added successfully! They can now sign in with their email and password.');
+            showToast('success', 'Employee Added', 'Employee added successfully! They can now sign in with their email and password.');
         }
 
         closeEmployeeModal();
         loadEmployees();
     } catch (error) {
 
-        alert('Error saving employee. Please try again.');
+        showToast('error', 'Save Failed', 'Error saving employee. Please try again.');
     }
 });
 
@@ -663,11 +707,11 @@ async function deleteEmployeeHandler(employeeId, employeeName) {
 
     try {
         await deleteEmployee(employeeId);
-        alert('Employee deleted successfully!');
+        showToast('success', 'Employee Deleted', 'Employee deleted successfully!');
         loadEmployees();
     } catch (error) {
 
-        alert('Error deleting employee. Please try again.');
+        showToast('error', 'Delete Failed', 'Error deleting employee. Please try again.');
     }
 }
 
@@ -684,11 +728,11 @@ async function toggleEmployeeStatus(employeeId, employeeName, currentStatus) {
             'Account Status': newStatus
         });
 
-        alert(`Employee account ${action}d successfully!${newStatus === 'Inactive' ? ' They will not be able to log in.' : ' They can now log in.'}`);
+        showToast('success', 'Status Updated', `Employee account ${action}d successfully!${newStatus === 'Inactive' ? ' They will not be able to log in.' : ' They can now log in.'}`);
         loadEmployees();
     } catch (error) {
 
-        alert('Error updating employee status. Please try again.');
+        showToast('error', 'Update Failed', 'Error updating employee status. Please try again.');
     }
 }
 
@@ -845,21 +889,21 @@ async function approveLeave(leaveId) {
         // Get the leave request details
         const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
         if (!leaveRequest) {
-            alert('Leave request not found');
+            showToast('error', 'Not Found', 'Leave request not found');
             return;
         }
 
         // Get employee ID
         const employeeId = leaveRequest.fields['Employee'] && leaveRequest.fields['Employee'][0];
         if (!employeeId) {
-            alert('Employee information missing from leave request');
+            showToast('error', 'Missing Data', 'Employee information missing from leave request');
             return;
         }
 
         // Get employee details to get current balance
         const employee = await getEmployee(employeeId);
         if (!employee || !employee.fields) {
-            alert('Failed to fetch employee details');
+            showToast('error', 'Fetch Failed', 'Failed to fetch employee details');
             return;
         }
 
@@ -893,24 +937,24 @@ async function approveLeave(leaveId) {
 
         } catch (updateError) {
 
-            alert(`Leave approved but failed to update balance. Error: ${updateError.message}`);
+            showToast('warning', 'Partial Success', `Leave approved but failed to update balance. Error: ${updateError.message}`);
             loadLeaveRequests();
             return;
         }
 
-        alert(`Leave approved!\n\nLeave Type: ${leaveType}\nDays: ${numberOfDays}\n\nAnnual Leave Balance:\n${currentAnnualBalance} → ${newBalance} days remaining`);
+        showToast('success', 'Leave Approved', `Leave approved!\n\nLeave Type: ${leaveType}\nDays: ${numberOfDays}\n\nAnnual Leave Balance:\n${currentAnnualBalance} → ${newBalance} days remaining`);
 
         loadLeaveRequests();
     } catch (error) {
 
-        alert('Error approving leave. Please try again.');
+        showToast('error', 'Approval Failed', 'Error approving leave. Please try again.');
     }
 }
 
 async function rejectLeave(leaveId) {
     const comment = prompt('Reason for rejection:');
     if (!comment) {
-        alert('Please provide a reason for rejection.');
+        showToast('warning', 'Comment Required', 'Please provide a reason for rejection.');
         return;
     }
 
@@ -920,11 +964,11 @@ async function rejectLeave(leaveId) {
             'Admin Comments': comment
         });
 
-        alert('Leave request rejected!');
+        showToast('success', 'Leave Rejected', 'Leave request rejected!');
         loadLeaveRequests();
     } catch (error) {
 
-        alert('Error rejecting leave. Please try again.');
+        showToast('error', 'Rejection Failed', 'Error rejecting leave. Please try again.');
     }
 }
 
@@ -1305,11 +1349,11 @@ async function deleteAnnouncement(announcementId) {
 
     try {
         await deleteAnnouncementRecord(announcementId);
-        alert('Announcement deleted successfully!');
+        showToast('success', 'Announcement Deleted', 'Announcement deleted successfully!');
         loadAnnouncements();
     } catch (error) {
 
-        alert('Error deleting announcement. Please try again.');
+        showToast('error', 'Delete Failed', 'Error deleting announcement. Please try again.');
     }
 }
 
@@ -1342,19 +1386,19 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         if (announcementId) {
             // Update existing announcement
             await updateAnnouncement(announcementId, data);
-            alert('Announcement updated successfully!');
+            showToast('success', 'Announcement Updated', 'Announcement updated successfully!');
         } else {
             // Create new announcement
             const result = await createAnnouncement(data);
 
-            alert('Announcement posted successfully!');
+            showToast('success', 'Announcement Posted', 'Announcement posted successfully!');
         }
 
         closeAnnouncementModal();
         loadAnnouncements();
     } catch (error) {
 
-        alert(`Error saving announcement: ${error.message}`);
+        showToast('error', 'Save Failed', `Error saving announcement: ${error.message}`);
     }
 });
 
@@ -1739,12 +1783,12 @@ document.getElementById('attendanceForm').addEventListener('submit', async funct
             'Check Out': checkOut
         });
 
-        alert('Attendance record updated successfully!');
+        showToast('success', 'Attendance Updated', 'Attendance record updated successfully!');
         closeAttendanceModal();
         loadAttendanceRecords();
     } catch (error) {
 
-        alert('Error updating attendance. Please try again.');
+        showToast('error', 'Update Failed', 'Error updating attendance. Please try again.');
     }
 });
 
@@ -1813,7 +1857,7 @@ async function generateEmployeeReport() {
         doc.save(`Employee_Report_${new Date().toISOString().split('T')[0]}.pdf`);
     } catch (error) {
 
-        alert('Error generating report. Please try again.');
+        showToast('error', 'Report Failed', 'Error generating report. Please try again.');
     }
 }
 
@@ -1875,7 +1919,7 @@ async function generateAttendanceReport() {
         doc.save(`Attendance_Report_${monthName.replace(' ', '_')}.pdf`);
     } catch (error) {
 
-        alert('Error generating report. Please try again.');
+        showToast('error', 'Report Failed', 'Error generating report. Please try again.');
     }
 }
 
@@ -1937,7 +1981,7 @@ async function generateLeaveReport() {
         doc.save(`Leave_Report_${year}.pdf`);
     } catch (error) {
 
-        alert('Error generating report. Please try again.');
+        showToast('error', 'Report Failed', 'Error generating report. Please try again.');
     }
 }
 
@@ -2013,7 +2057,7 @@ async function generatePayrollReport() {
         doc.save(`Payroll_Report_${monthName.replace(' ', '_')}.pdf`);
     } catch (error) {
 
-        alert('Error generating report. Please try again.');
+        showToast('error', 'Report Failed', 'Error generating report. Please try again.');
     }
 }
 
@@ -2634,10 +2678,10 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     try {
         if (payrollId) {
             await updatePayroll(payrollId, payrollData);
-            alert('Payroll updated successfully!');
+            showToast('success', 'Payroll Updated', 'Payroll updated successfully!');
         } else {
             await createPayroll(payrollData);
-            alert('Payroll created successfully!');
+            showToast('success', 'Payroll Created', 'Payroll created successfully!');
         }
 
         closePayrollModal();
@@ -2650,14 +2694,14 @@ document.getElementById('payrollForm').addEventListener('submit', async function
             try {
                 const errorObj = JSON.parse(error.message);
                 if (errorObj.error && errorObj.error.message) {
-                    errorMessage = `Error: ${errorObj.error.message}`;
+                    errorMessage = `${errorObj.error.message}`;
                 }
             } catch (e) {
-                errorMessage = `Error: ${error.message}`;
+                errorMessage = error.message;
             }
         }
 
-        alert(errorMessage);
+        showToast('error', 'Payroll Save Failed', errorMessage);
     }
 });
 
@@ -3283,7 +3327,7 @@ async function exportAttendanceReport() {
         }
 
         if (records.length === 0) {
-            alert('No attendance records to export with current filters.');
+            showToast('info', 'No Records', 'No attendance records to export with current filters.');
             return;
         }
 
@@ -3431,7 +3475,7 @@ async function exportAttendanceReport() {
         doc.save(fileName);
 
     } catch (error) {
-        alert('Error generating attendance report: ' + error.message);
+        showToast('error', 'Export Failed', 'Error generating attendance report: ' + error.message);
     }
 }
 
@@ -3601,7 +3645,7 @@ async function autoGeneratePayroll() {
             message += `Errors:\n${errors.join('\n')}`;
         }
 
-        alert(message);
+        showToast(errorCount > 0 ? 'warning' : 'success', 'Auto-Generation Complete', message);
 
         // Reload payroll records
         await loadPayrollRecords();
@@ -3611,7 +3655,7 @@ async function autoGeneratePayroll() {
         if (loadingEl) {
             document.body.removeChild(loadingEl);
         }
-        alert('Error auto-generating payroll: ' + error.message);
+        showToast('error', 'Auto-Generation Failed', 'Error auto-generating payroll: ' + error.message);
     }
 }
 
@@ -3680,7 +3724,7 @@ async function loadPreviousMonthsForEmployee() {
         }
 
     } catch (error) {
-        alert('Error loading previous months: ' + error.message);
+        showToast('error', 'Load Failed', 'Error loading previous months: ' + error.message);
     }
 }
 
