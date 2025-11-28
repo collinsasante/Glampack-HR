@@ -478,7 +478,7 @@
             if (error.code) {
               switch (error.code) {
                 case 'auth/email-already-in-use':
-                  errorMessage = 'An account with this email already exists. Please sign in.';
+                  errorMessage = 'An account with this email already exists. <a href="packaging-glamour-signin.html" class="font-semibold underline text-red-700 hover:text-red-800">Please sign in instead</a>.';
                   break;
                 case 'auth/invalid-email':
                   errorMessage = 'Invalid email address.';
