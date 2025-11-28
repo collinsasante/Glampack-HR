@@ -11,6 +11,9 @@
     <!-- Tailwind CSS (Local) -->
     <link rel="stylesheet" href="assets/css/tailwind.css" />
 
+    <!-- Button Styles -->
+    <link rel="stylesheet" href="assets/css/button-styles.css?v=1" />
+
     <!-- Google Fonts -->
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
@@ -58,20 +61,26 @@
       .tab-active {
         border-bottom: 4px solid #dc2626;
         color: #dc2626;
-        background: linear-gradient(to bottom, rgba(220, 38, 38, 0.05), transparent);
+        background: linear-gradient(
+          to bottom,
+          rgba(220, 38, 38, 0.05),
+          transparent
+        );
         font-weight: 600;
       }
 
       /* Enhanced Card Shadows */
       .card-elevated {
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
-                    0 2px 4px -1px rgba(0, 0, 0, 0.06),
-                    0 0 0 1px rgba(0, 0, 0, 0.05);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06),
+          0 0 0 1px rgba(0, 0, 0, 0.05);
         transition: all 0.3s ease;
       }
       .card-elevated:hover {
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1),
-                    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        box-shadow:
+          0 10px 15px -3px rgba(0, 0, 0, 0.1),
+          0 4px 6px -2px rgba(0, 0, 0, 0.05);
         transform: translateY(-2px);
       }
 
@@ -154,16 +163,24 @@
 
       /* Loading Animation */
       @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
       }
       .animate-spin {
         animation: spin 1s linear infinite;
       }
 
       @keyframes fadeIn {
-        from { opacity: 0; }
-        to { opacity: 1; }
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
       }
 
       @keyframes slideUp {
@@ -182,7 +199,9 @@
       }
 
       /* Input Focus Styles */
-      input:focus, select:focus, textarea:focus {
+      input:focus,
+      select:focus,
+      textarea:focus {
         outline: none;
         border-color: #dc2626;
         box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
@@ -357,6 +376,114 @@
           min-width: auto;
         }
       }
+
+      /* New Button Styles with Ripple Effect */
+      .button {
+        display: inline-block;
+        padding: 12px 24px;
+        border: 1px solid #4f4f4f;
+        border-radius: 4px;
+        transition: all 0.2s ease-in;
+        position: relative;
+        overflow: hidden;
+        font-size: 19px;
+        cursor: pointer;
+        color: black;
+        z-index: 1;
+        background: transparent;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      .button:before {
+        content: "";
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%) scaleY(1) scaleX(1.25);
+        top: 100%;
+        width: 140%;
+        height: 180%;
+        background-color: rgba(0, 0, 0, 0.05);
+        border-radius: 50%;
+        display: block;
+        transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+        z-index: -1;
+      }
+
+      .button:after {
+        content: "";
+        position: absolute;
+        left: 55%;
+        transform: translateX(-50%) scaleY(1) scaleX(1.45);
+        top: 180%;
+        width: 160%;
+        height: 190%;
+        background-color: #39bda7;
+        border-radius: 50%;
+        display: block;
+        transition: all 0.5s 0.1s cubic-bezier(0.55, 0, 0.1, 1);
+        z-index: -1;
+      }
+
+      .button:hover {
+        color: #ffffff;
+        border: 1px solid #39bda7;
+      }
+
+      .button:hover:before {
+        top: -35%;
+        background-color: #39bda7;
+        transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+      }
+
+      .button:hover:after {
+        top: -45%;
+        background-color: #39bda7;
+        transform: translateX(-50%) scaleY(1.3) scaleX(0.8);
+      }
+
+      /* Button variants */
+      .button-red:after,
+      .button-red:before {
+        background-color: #dc2626;
+      }
+
+      .button-red:hover {
+        border-color: #dc2626;
+      }
+
+      .button-red:hover:before,
+      .button-red:hover:after {
+        background-color: #dc2626;
+      }
+
+      .button-green:after,
+      .button-green:before {
+        background-color: #16a34a;
+      }
+
+      .button-green:hover {
+        border-color: #16a34a;
+      }
+
+      .button-green:hover:before,
+      .button-green:hover:after {
+        background-color: #16a34a;
+      }
+
+      .button-blue:after,
+      .button-blue:before {
+        background-color: #2563eb;
+      }
+
+      .button-blue:hover {
+        border-color: #2563eb;
+      }
+
+      .button-blue:hover:before,
+      .button-blue:hover:after {
+        background-color: #2563eb;
+      }
     </style>
   </head>
   <body class="bg-gray-100 min-h-screen">
@@ -377,7 +504,10 @@
             <a href="admin-dashboard.html" class="text-red-600 font-semibold">
               <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
             </a>
-            <a href="dashboard.html" class="text-gray-600 hover:text-red-600 transition duration-200">
+            <a
+              href="dashboard.html"
+              class="text-gray-600 hover:text-red-600 transition duration-200"
+            >
               <i class="fas fa-chart-line mr-1"></i> Employee View
             </a>
             <button
@@ -414,7 +544,8 @@
         <div class="flex items-center justify-between flex-wrap gap-4">
           <div>
             <h2 class="text-4xl font-bold text-gray-800 mb-2">
-              <i class="fas fa-tachometer-alt text-red-600 mr-3"></i>Admin Dashboard
+              <i class="fas fa-tachometer-alt text-red-600 mr-3"></i>Admin
+              Dashboard
             </h2>
             <p class="text-gray-600 text-lg">
               Manage employees, attendance, payroll, and system settings
@@ -422,12 +553,18 @@
           </div>
           <div class="flex items-center space-x-4">
             <div class="text-right">
-              <p class="text-xs text-gray-500 uppercase tracking-wide">Last Updated</p>
-              <span class="text-sm font-semibold text-gray-700" id="lastRefreshTime">--</span>
+              <p class="text-xs text-gray-500 uppercase tracking-wide">
+                Last Updated
+              </p>
+              <span
+                class="text-sm font-semibold text-gray-700"
+                id="lastRefreshTime"
+                >--</span
+              >
             </div>
             <button
               onclick="manualRefresh()"
-              class="px-6 py-3 btn-gradient-blue text-white rounded-xl font-semibold flex items-center space-x-2 shadow-lg"
+              class="button button-blue flex items-center space-x-2"
               id="refreshBtn"
             >
               <i class="fas fa-sync-alt"></i>
@@ -495,16 +632,18 @@
                 All Employees
               </h3>
               <p class="text-sm text-gray-600 mt-2">
-                <span class="bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold">
+                <span
+                  class="bg-red-100 text-red-800 px-3 py-1 rounded-full font-semibold"
+                >
                   <span id="totalEmployeesCount">0</span> Total
                 </span>
               </p>
             </div>
             <button
               onclick="openAddEmployeeModal()"
-              class="btn-gradient-red text-white font-semibold py-3 px-8 rounded-xl shadow-lg whitespace-nowrap"
+              class="button button-red"
             >
-              <i class="fas fa-user-plus mr-2"></i> Add Employee
+              <i class="fas fa-user-plus mr-2"></i>Add Employee
             </button>
           </div>
 
@@ -1023,24 +1162,26 @@
             <div class="flex gap-3">
               <button
                 onclick="autoGeneratePayroll()"
-                class="btn-gradient-green text-white font-semibold py-3 px-8 rounded-xl shadow-lg whitespace-nowrap"
+                class="button button-green"
                 title="Auto-generate payroll for all employees based on previous month"
               >
                 <i class="fas fa-magic mr-2"></i> Auto-Generate
               </button>
               <button
                 onclick="openAddPayrollModal()"
-                class="btn-gradient-red text-white font-semibold py-3 px-8 rounded-xl shadow-lg whitespace-nowrap"
-            >
-              <i class="fas fa-plus mr-2"></i> Create Payroll
-            </button>
-          </div>
+                class="button button-red"
+              >
+                <i class="fas fa-plus mr-2"></i> Create Payroll
+              </button>
+            </div>
           </div>
 
           <!-- Filters -->
           <div class="mb-4 flex gap-4 flex-wrap">
             <div class="flex-1 min-w-[200px]">
-              <label class="block text-xs text-gray-600 mb-1">Search Employee</label>
+              <label class="block text-xs text-gray-600 mb-1"
+                >Search Employee</label
+              >
               <input
                 type="text"
                 id="payrollEmployeeSearch"
@@ -1900,7 +2041,8 @@
             <h4
               class="text-lg font-semibold text-gray-800 mb-4 flex items-center"
             >
-              <i class="fas fa-minus-circle text-red-600 mr-2"></i> Additional Deductions
+              <i class="fas fa-minus-circle text-red-600 mr-2"></i> Additional
+              Deductions
             </h4>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -2156,14 +2298,22 @@
 
     <!-- Details Modal -->
     <div id="detailsModal" class="modal">
-      <div class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-slideUp">
+      <div
+        class="bg-white rounded-2xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden flex flex-col animate-slideUp"
+      >
         <!-- Header with Gradient -->
-        <div class="sticky top-0 bg-gradient-to-r from-red-600 via-red-500 to-pink-500 px-8 py-6 flex justify-between items-center z-10 shadow-lg">
+        <div
+          class="sticky top-0 bg-gradient-to-r from-red-600 via-red-500 to-pink-500 px-8 py-6 flex justify-between items-center z-10 shadow-lg"
+        >
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm">
+            <div
+              class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm"
+            >
               <i class="fas fa-info-circle text-white text-lg"></i>
             </div>
-            <h3 class="text-2xl font-bold text-white" id="detailsModalTitle">Details</h3>
+            <h3 class="text-2xl font-bold text-white" id="detailsModalTitle">
+              Details
+            </h3>
           </div>
           <button
             onclick="closeDetailsModal()"
@@ -2174,15 +2324,20 @@
         </div>
 
         <!-- Scrollable Content Area -->
-        <div class="overflow-y-auto flex-1 px-8 py-6 bg-gray-50" id="detailsModalContent">
+        <div
+          class="overflow-y-auto flex-1 px-8 py-6 bg-gray-50"
+          id="detailsModalContent"
+        >
           <!-- Content will be dynamically inserted here -->
         </div>
 
         <!-- Footer with Actions -->
-        <div class="sticky bottom-0 bg-white px-8 py-5 flex justify-end border-t-2 border-gray-100 shadow-lg">
+        <div
+          class="sticky bottom-0 bg-white px-8 py-5 flex justify-end border-t-2 border-gray-100 shadow-lg"
+        >
           <button
             onclick="closeDetailsModal()"
-            class="btn-gradient-red text-white font-semibold px-8 py-3 rounded-xl shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 whitespace-nowrap"
+            class="button button-red"
           >
             <i class="fas fa-times mr-2"></i> Close
           </button>
