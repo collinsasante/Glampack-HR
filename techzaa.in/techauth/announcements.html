@@ -830,7 +830,7 @@
           commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-spinner fa-spin mr-2"></i>Loading comments...</div>';
 
           // Fetch comments for this announcement
-          const filterFormula = `{Announcement} = '${announcementId}'`;
+          const filterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
           console.log('Loading comments for announcement:', announcementId);
           console.log('Filter formula:', filterFormula);
 

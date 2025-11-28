@@ -1424,12 +1424,13 @@ async function viewAnnouncementStats(announcementId) {
     // Load stats
     try {
         // Fetch views
-        const filterFormula = `{Announcement} = '${announcementId}'`;
-        const readsResponse = await getAnnouncementReads(filterFormula);
+        const readsFilterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
+        const readsResponse = await getAnnouncementReads(readsFilterFormula);
         const reads = readsResponse.records || [];
 
         // Fetch comments
-        const commentsResponse = await getAnnouncementComments(filterFormula);
+        const commentsFilterFormula = `RECORD_ID({Announcement}) = '${announcementId}'`;
+        const commentsResponse = await getAnnouncementComments(commentsFilterFormula);
         const comments = commentsResponse.records || [];
 
         // Get total employees for engagement rate
