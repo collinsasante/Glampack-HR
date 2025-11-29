@@ -1763,30 +1763,20 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
-        // First, fetch ALL records to see what's in the table
-        console.log('=== DEBUGGING ATTENDANCE RECORDS ===');
-        const allData = await getAttendance(null);
-        console.log('ALL records (no filter):', allData);
-        console.log('Total records in table:', allData.records?.length || 0);
+        // Fetch ALL attendance records without filter
+        // We'll filter by date on the client side because Airtable's filterByFormula
+        // doesn't work reliably with Date field comparisons
+        const data = await getAttendance(null);
+        const allRecords = data.records || [];
 
-        if (allData.records && allData.records.length > 0) {
-            console.log('First record:', allData.records[0]);
-            console.log('First record fields:', allData.records[0].fields);
-            console.log('Field names:', Object.keys(allData.records[0].fields));
-            console.log('Date field value:', allData.records[0].fields['Date']);
-            console.log('Date field type:', typeof allData.records[0].fields['Date']);
-        }
+        // Filter by date range on client side
+        allAttendanceRecords = allRecords.filter(rec => {
+            const recordDate = rec.fields['Date'];
+            if (!recordDate) return false;
 
-        // Now apply filter
-        console.log('Filter being applied:', filterFormula);
-        console.log('Start date:', startDate);
-        console.log('End date:', endDate);
-
-        const data = await getAttendance(filterFormula);
-        console.log('Filtered data:', data);
-        console.log('Filtered records count:', data.records?.length || 0);
-
-        allAttendanceRecords = data.records || [];
+            // Compare dates as strings (format: YYYY-MM-DD)
+            return recordDate >= startDate && recordDate <= endDate;
+        });
 
         // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
