@@ -827,12 +827,12 @@
           // If already checked out, don't allow checking in again
           if (existingRecord.fields["Check Out"]) {
             showMessage(
-              "You have already completed your attendance for today (checked in and out). Please wait until tomorrow.",
+              "You have already completed your attendance for today (checked in and out). You can only clock in and out once in 24 hours. Please wait until tomorrow.",
               "error"
             );
             return;
           }
-          showMessage("You have already checked in today!", "error");
+          showMessage("You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.", "error");
           return;
         }
 
@@ -956,6 +956,13 @@
               showMessage("Please check in first!", "error");
               return;
             }
+          }
+
+          // Verify the record hasn't already been checked out
+          const currentRecord = await getAttendanceRecord(todayRecordId);
+          if (currentRecord && currentRecord.fields["Check Out"]) {
+            showMessage("You have already checked out today. You cannot check out more than once in 24 hours.", "error");
+            return;
           }
 
           showMessage("Getting your location...", "info");
