@@ -227,13 +227,6 @@
             <h3 class="text-2xl font-bold text-gray-800">
               Personal Information
             </h3>
-            <button
-              onclick="toggleEditProfile()"
-              id="editProfileBtn"
-              class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
-            >
-              <i class="fas fa-edit mr-2"></i> Edit
-            </button>
           </div>
 
           <form id="profileForm">
@@ -246,8 +239,7 @@
                   type="text"
                   id="fullName"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -275,8 +267,7 @@
                   type="tel"
                   id="phoneNumber"
                   pattern="[0-9+\s()-]*"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -287,8 +278,7 @@
                 <input
                   type="date"
                   id="dateOfBirth"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -299,8 +289,7 @@
                 <input
                   type="text"
                   id="city"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -311,8 +300,7 @@
                 <input
                   type="text"
                   id="country"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -325,8 +313,7 @@
                   id="ghanaCardNumber"
                   placeholder="GHA-XXXXXXXXX-X"
                   maxlength="17"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -338,8 +325,7 @@
                   type="text"
                   id="socialSecurityNumber"
                   placeholder="e.g., C123456789012"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -351,8 +337,7 @@
                   type="text"
                   id="bankName"
                   placeholder="e.g., Ecobank Ghana"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -364,8 +349,7 @@
                   type="text"
                   id="bankAccountNumber"
                   placeholder="XXXX XXXX XXXX"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -377,8 +361,7 @@
                   type="text"
                   id="bankBranch"
                   placeholder="e.g., Accra Main"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -389,26 +372,18 @@
                 <textarea
                   id="address"
                   rows="3"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 ></textarea>
               </div>
             </div>
 
-            <div id="profileFormButtons" class="mt-6 flex gap-3 hidden">
+            <div class="mt-6">
               <button
                 type="submit"
                 id="saveProfileBtn"
                 class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i class="fas fa-save mr-2"></i> Save Changes
-              </button>
-              <button
-                type="button"
-                onclick="cancelEditProfile()"
-                class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition"
-              >
-                <i class="fas fa-times mr-2"></i> Cancel
               </button>
             </div>
           </form>
@@ -552,13 +527,6 @@
         >
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-2xl font-bold text-gray-800">Emergency Contact</h3>
-            <button
-              onclick="toggleEditEmergency()"
-              id="editEmergencyBtn"
-              class="bg-red-600 hover:bg-red-700 text-white font-medium py-2 px-4 rounded-lg transition"
-            >
-              <i class="fas fa-edit mr-2"></i> Edit
-            </button>
           </div>
 
           <form id="emergencyForm">
@@ -571,8 +539,7 @@
                   type="text"
                   id="emergencyContactName"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -583,8 +550,7 @@
                 <select
                   id="emergencyRelationship"
                   required
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  disabled
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 >
                   <option value="">Select relationship</option>
                   <option value="Spouse">Spouse</option>
@@ -605,8 +571,7 @@
                   id="emergencyPhone"
                   required
                   pattern="[0-9+\s()-]*"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -617,8 +582,7 @@
                 <input
                   type="email"
                   id="emergencyEmail"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 />
               </div>
 
@@ -629,26 +593,18 @@
                 <textarea
                   id="emergencyAddress"
                   rows="3"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-gray-50"
-                  readonly
+                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent bg-white"
                 ></textarea>
               </div>
             </div>
 
-            <div id="emergencyFormButtons" class="mt-6 flex gap-3 hidden">
+            <div class="mt-6">
               <button
                 type="submit"
                 id="saveEmergencyBtn"
                 class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <i class="fas fa-save mr-2"></i> Save Changes
-              </button>
-              <button
-                type="button"
-                onclick="cancelEditEmergency()"
-                class="bg-gray-500 hover:bg-gray-600 text-white font-semibold py-2 px-6 rounded-lg transition"
-              >
-                <i class="fas fa-times mr-2"></i> Cancel
               </button>
             </div>
           </form>
@@ -1055,10 +1011,7 @@
             // Wait a moment for Airtable to process the update
             await new Promise(resolve => setTimeout(resolve, 500));
 
-            // Exit edit mode FIRST (switch to readonly)
-            toggleEditProfile();
-
-            // Then reload employee data from Airtable to get fresh data
+            // Reload employee data from Airtable to get fresh data
             await loadEmployeeData();
 
             showNotification("Profile updated successfully!", "success");
@@ -1168,7 +1121,6 @@
               "Emergency contact updated successfully!",
               "success"
             );
-            toggleEditEmergency();
             await loadEmergencyContact();
           } catch (error) {
 

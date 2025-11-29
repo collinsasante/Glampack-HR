@@ -454,21 +454,14 @@
             }
 
             if (airtableSuccess) {
-              // Show success message with email verification notice
-              showSuccess(
-                "Account created successfully! Please check your email (including spam/junk folder) to verify your account before signing in."
-              );
-
               // Sign out from Firebase (they need to verify email first)
               await auth.signOut();
 
               // Clear session storage (created by signup function if it was created)
               sessionStorage.removeItem('currentUser');
 
-              // Redirect to sign-in page after 3 seconds
-              setTimeout(() => {
-                window.location.href = "packaging-glamour-signin.html";
-              }, 3000);
+              // Redirect to verification pending page
+              window.location.href = `verify-email-pending.html?email=${encodeURIComponent(email)}`;
             }
           } catch (error) {
             console.error('Signup error:', error);
