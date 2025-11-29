@@ -290,7 +290,7 @@
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Payee</span>
+              <span class="text-gray-700">Paye</span>
               <span class="font-semibold" id="incomeTax">GH₵0</span>
             </div>
             <div
@@ -443,10 +443,6 @@
             const benefits = parseFloat(salary["Benefits"] || 0);
             const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
 
-            // Get calculated totals from Airtable
-            const totalAllowances = parseFloat(salary["Total Earnings"] || 0);
-            const grossSalary = parseFloat(salary["Gross Salary"] || 0);
-
             // Update deductions
             const incomeTax = parseFloat(salary["Income Tax"] || 0);
             const welfare = parseFloat(salary["Welfare"] || 0);
@@ -454,11 +450,11 @@
             const healthInsurance = parseFloat(salary["Health Insurance"] || 0);
             const otherDeductions = parseFloat(salary["Other Deductions"] || 0);
 
-            // Get calculated totals from Airtable (check both 'Net Salary' and 'Net Pay')
-            const totalDeductions = parseFloat(salary["Total Deductions"] || 0);
-            const netSalary = parseFloat(
-              salary["Net Pay"] || salary["Net Salary"] || 0
-            );
+            // Calculate totals from actual values
+            const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances;
+            const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions;
+            const grossSalary = basicSalary + totalAllowances;
+            const netSalary = grossSalary - totalDeductions;
 
             // Update UI
             document.getElementById("grossSalary").textContent =
@@ -632,10 +628,17 @@
         const otherDeductions = parseFloat(fields["Other Deductions"] || 0);
 
         // Calculate totals from actual values
-        const calculatedTotalEarnings = housingAllowance + transportAllowance + benefits + otherAllowances;
-        const calculatedTotalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions;
+        const calculatedTotalEarnings =
+          housingAllowance + transportAllowance + benefits + otherAllowances;
+        const calculatedTotalDeductions =
+          incomeTax +
+          welfare +
+          socialSecurity +
+          healthInsurance +
+          otherDeductions;
         const calculatedGrossSalary = basicSalary + calculatedTotalEarnings;
-        const calculatedNetSalary = calculatedGrossSalary - calculatedTotalDeductions;
+        const calculatedNetSalary =
+          calculatedGrossSalary - calculatedTotalDeductions;
 
         // Format period for display
         const monthValue = fields["Month"] || "";
