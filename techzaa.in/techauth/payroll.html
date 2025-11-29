@@ -290,7 +290,7 @@
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Income Tax</span>
+              <span class="text-gray-700">Payee</span>
               <span class="font-semibold" id="incomeTax">GH₵0</span>
             </div>
             <div
@@ -434,8 +434,12 @@
 
             // Update earnings
             const basicSalary = parseFloat(salary["Basic Salary"] || 0);
-            const housingAllowance = parseFloat(salary["Housing Allowance"] || 0);
-            const transportAllowance = parseFloat(salary["Transport Allowance"] || 0);
+            const housingAllowance = parseFloat(
+              salary["Housing Allowance"] || 0
+            );
+            const transportAllowance = parseFloat(
+              salary["Transport Allowance"] || 0
+            );
             const benefits = parseFloat(salary["Benefits"] || 0);
             const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
 
@@ -615,7 +619,9 @@
         // Structure payment data
         const basicSalary = parseFloat(fields["Basic Salary"] || 0);
         const housingAllowance = parseFloat(fields["Housing Allowance"] || 0);
-        const transportAllowance = parseFloat(fields["Transport Allowance"] || 0);
+        const transportAllowance = parseFloat(
+          fields["Transport Allowance"] || 0
+        );
         const benefits = parseFloat(fields["Benefits"] || 0);
         const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
 
@@ -694,20 +700,39 @@
               paymentDate = lastDay.toLocaleDateString("en-US", {
                 month: "short",
                 day: "numeric",
-                year: "numeric"
+                year: "numeric",
               });
             }
 
             employeeData = {
               name: employee.fields["Full Name"] || currentUser.name || "--",
-              telephone: employee.fields["Phone Number"] || employee.fields["Telephone"] || "--",
+              telephone:
+                employee.fields["Phone Number"] ||
+                employee.fields["Telephone"] ||
+                "--",
               email: employee.fields["Email"] || "--",
-              socialSecurityNumber: employee.fields["Social Security Number"] || employee.fields["SSNIT Number"] || "--",
-              ghanaCard: employee.fields["Ghana Card Number"] || employee.fields["GH Card"] || "--",
-              staffID: employee.fields["Employee ID"] || employee.fields["Staff ID"] || currentUser.id.substring(0, 8).toUpperCase() || "--",
-              nationalID: employee.fields["National ID"] || employee.fields["Employee ID"] || currentUser.id.substring(0, 8).toUpperCase() || "--",
-              position: employee.fields["Job Title"] || currentUser.jobTitle || "--",
-              department: employee.fields["Department"] || currentUser.department || "--",
+              socialSecurityNumber:
+                employee.fields["Social Security Number"] ||
+                employee.fields["SSNIT Number"] ||
+                "--",
+              ghanaCard:
+                employee.fields["Ghana Card Number"] ||
+                employee.fields["GH Card"] ||
+                "--",
+              staffID:
+                employee.fields["Employee ID"] ||
+                employee.fields["Staff ID"] ||
+                currentUser.id.substring(0, 8).toUpperCase() ||
+                "--",
+              nationalID:
+                employee.fields["National ID"] ||
+                employee.fields["Employee ID"] ||
+                currentUser.id.substring(0, 8).toUpperCase() ||
+                "--",
+              position:
+                employee.fields["Job Title"] || currentUser.jobTitle || "--",
+              department:
+                employee.fields["Department"] || currentUser.department || "--",
               location: employee.fields["Location"] || "Accra",
               bankAccountNumber: employee.fields["Bank Account Number"] || "--",
               bankName: employee.fields["Bank Name"] || "--",
