@@ -40,7 +40,9 @@
         </div>
 
         <!-- Heading -->
-        <h1 class="text-3xl font-bold text-gray-800 mb-3" id="pageHeading">Check Your Email</h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-3" id="pageHeading">
+          Check Your Email
+        </h1>
 
         <p class="text-gray-600 mb-6" id="pageDescription">
           We've sent a verification email to
@@ -57,7 +59,10 @@
             <i class="fas fa-info-circle mr-2"></i>
             Next Steps:
           </h2>
-          <ol class="text-sm text-blue-800 space-y-2 ml-6 list-decimal" id="instructionsList">
+          <ol
+            class="text-sm text-blue-800 space-y-2 ml-6 list-decimal"
+            id="instructionsList"
+          >
             <li>Open your email inbox</li>
             <li>Find the verification email from Glampack HR</li>
             <li>Click the verification link in the email</li>
@@ -115,7 +120,7 @@
         <a
           href="mailto:help@packglamour.com"
           class="text-red-600 hover:underline"
-          >support@glampack.com</a
+          >help@packglamour.com</a
         >
       </p>
     </div>
@@ -136,10 +141,12 @@
       }
 
       // Update page content based on type
-      if (emailType === 'reset') {
+      if (emailType === "reset") {
         // Password reset flow
-        document.getElementById("pageHeading").textContent = "Password Reset Email Sent";
-        document.getElementById("pageDescription").innerHTML = `We've sent a password reset link to <span class="font-semibold text-gray-800">${userEmail}</span>`;
+        document.getElementById("pageHeading").textContent =
+          "Password Reset Email Sent";
+        document.getElementById("pageDescription").innerHTML =
+          `We've sent a password reset link to <span class="font-semibold text-gray-800">${userEmail}</span>`;
 
         document.getElementById("instructionsList").innerHTML = `
           <li>Open your email inbox</li>
@@ -150,8 +157,8 @@
         `;
 
         // Hide resend button for password reset
-        document.getElementById("resendBtn").style.display = 'none';
-        document.getElementById("timerText").style.display = 'none';
+        document.getElementById("resendBtn").style.display = "none";
+        document.getElementById("timerText").style.display = "none";
       }
 
       // Resend functionality
@@ -182,9 +189,10 @@
               return;
             }
 
-            // Send verification email
+            // Send verification email with proper continue URL
+            const continueUrl = `${window.location.origin}${window.location.pathname.replace('verify-email-pending.html', 'packaging-glamour-signin.html')}`;
             await user.sendEmailVerification({
-              url: window.location.origin + "/packaging-glamour-signin.html",
+              url: continueUrl,
               handleCodeInApp: false,
             });
 
@@ -231,7 +239,7 @@
         });
 
       // Only check verification status for signup verification (not password reset)
-      if (emailType !== 'reset') {
+      if (emailType !== "reset") {
         // Check if user is already verified
         firebase.auth().onAuthStateChanged(async (user) => {
           if (user) {

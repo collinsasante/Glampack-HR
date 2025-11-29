@@ -422,9 +422,10 @@
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             const firebaseUser = userCredential.user;
 
-            // Step 2: Send email verification
+            // Step 2: Send email verification with continue URL to sign-in page
+            const continueUrl = window.location.origin + '/techzaa.in/techauth/packaging-glamour-signin.html';
             await firebaseUser.sendEmailVerification({
-              url: `${window.location.origin}${window.location.pathname.replace('packaging-glamour-signup.html', 'packaging-glamour-signin.html')}`,
+              url: continueUrl,
               handleCodeInApp: false
             });
 
