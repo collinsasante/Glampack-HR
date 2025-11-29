@@ -12,6 +12,11 @@ const firebaseConfig = {
   measurementId: "G-7GC8V4K75N",
 };
 
+// Initialize Firebase immediately
+if (typeof firebase !== "undefined" && !firebase.apps.length) {
+  firebase.initializeApp(firebaseConfig);
+}
+
 // Initialize Firebase (will be done after Firebase SDK is loaded)
 let auth = null;
 
