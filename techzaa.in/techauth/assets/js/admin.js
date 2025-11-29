@@ -1430,16 +1430,12 @@ async function viewAnnouncementStats(announcementId) {
     try {
         // Fetch all reads and comments, filter client-side (Airtable filters don't work with linked arrays)
         const allReadsResponse = await getAnnouncementReads(null);
-        console.log('All reads from Airtable:', allReadsResponse);
-        console.log('Total reads count:', allReadsResponse.records?.length || 0);
 
         const reads = (allReadsResponse.records || []).filter(read => {
             const announcementField = read.fields['Announcement'];
             const match = Array.isArray(announcementField) && announcementField.includes(announcementId);
-            console.log('Read record:', read.id, 'Announcement field:', announcementField, 'Looking for:', announcementId, 'Match:', match);
             return match;
         });
-        console.log('Filtered reads for announcement:', reads.length);
 
         const allCommentsResponse = await getAnnouncementComments(null);
 

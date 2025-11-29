@@ -678,16 +678,10 @@
                     'Read Date': new Date().toISOString()
                 };
 
-                console.log('Attempting to save announcement read:', readData);
-                const result = await createAnnouncementRead(readData);
-                console.log('Announcement read saved successfully:', result);
+                await createAnnouncementRead(readData);
             } catch (error) {
-                console.error('Error saving read to Airtable:', error);
-                console.error('Error details:', error.message);
                 // Don't show error to user, silently fail
             }
-        } else {
-            console.log('User already read this announcement, not creating duplicate read record');
         }
       }
 
