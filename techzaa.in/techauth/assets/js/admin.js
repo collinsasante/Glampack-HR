@@ -1724,11 +1724,6 @@ async function loadAttendanceRecords() {
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
     const statusFilter = document.getElementById('attendanceStatusFilter').value;
 
-    console.log('=== LOADING ATTENDANCE RECORDS ===');
-    console.log('Date Range:', dateRange);
-    console.log('Employee Filter:', employeeId);
-    console.log('Status Filter:', statusFilter);
-
     try {
         // Calculate date range
         let startDate, endDate;
@@ -1768,31 +1763,8 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
-        // First, try fetching ALL attendance records to see what's in the table
-        console.log('=== DEBUGGING: Fetching ALL attendance records first ===');
-        const allData = await getAttendance(null);
-        console.log('ALL attendance records (no filter):', allData);
-        console.log('Total records in table:', allData.records?.length || 0);
-
-        if (allData.records && allData.records.length > 0) {
-            console.log('Sample record structure:', allData.records[0]);
-            console.log('Sample record fields:', allData.records[0].fields);
-            console.log('Date field value:', allData.records[0].fields['Date']);
-            console.log('Date field type:', typeof allData.records[0].fields['Date']);
-        }
-
-        // Now try with filter
-        console.log('=== Applying filter ===');
-        console.log('Filter formula:', filterFormula);
-        console.log('Start date:', startDate);
-        console.log('End date:', endDate);
-
         const data = await getAttendance(filterFormula);
-        console.log('Filtered attendance data:', data);
-        console.log('Filtered records count:', data.records?.length || 0);
-
         allAttendanceRecords = data.records || [];
-        console.log('Setting allAttendanceRecords to:', allAttendanceRecords.length, 'records');
 
         // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
@@ -1945,10 +1917,23 @@ async function displayAttendanceRecords(records) {
     const tbody = document.getElementById('attendanceRecordsBody');
 
     if (records.length === 0) {
+        // Check if the entire table is empty (no records at all)
+        const isTableEmpty = allAttendanceRecords.length === 0;
+
         tbody.innerHTML = `
             <tr>
                 <td colspan="8" class="px-6 py-8 text-center text-gray-500">
-                    No attendance records found for selected filters
+                    <i class="fas fa-calendar-times text-4xl mb-3 opacity-50"></i>
+                    <div class="font-medium text-lg mb-2">
+                        ${isTableEmpty
+                            ? 'No attendance records yet'
+                            : 'No attendance records found for selected filters'}
+                    </div>
+                    <div class="text-sm">
+                        ${isTableEmpty
+                            ? 'Employees can check in using the Attendance Tracker page'
+                            : 'Try adjusting your date range or filters'}
+                    </div>
                 </td>
             </tr>
         `;
