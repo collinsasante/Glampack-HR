@@ -422,8 +422,8 @@
             const userCredential = await auth.createUserWithEmailAndPassword(email, password);
             const firebaseUser = userCredential.user;
 
-            // Step 2: Send email verification with continue URL to sign-in page
-            const continueUrl = window.location.origin + '/techzaa.in/techauth/packaging-glamour-signin.html';
+            // Step 2: Send email verification with continue URL to email action handler
+            const continueUrl = window.location.origin + '/techzaa.in/techauth/email-action-handler.html';
             await firebaseUser.sendEmailVerification({
               url: continueUrl,
               handleCodeInApp: false

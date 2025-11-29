@@ -52,8 +52,8 @@ async function sendPasswordResetEmail(email) {
 
     // Configure action code settings
     const actionCodeSettings = {
-      // URL you want to redirect back to after password reset
-      url: `${window.location.origin}${window.location.pathname.replace("packaging-glamour-forgot-password.html", "packaging-glamour-signin.html")}`,
+      // URL you want to redirect back to after password reset - use email action handler
+      url: `${window.location.origin}${window.location.pathname.replace("packaging-glamour-forgot-password.html", "email-action-handler.html")}`,
       handleCodeInApp: false,
     };
 

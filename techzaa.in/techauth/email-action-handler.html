@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Verifying - Glampack HR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+  </head>
+  <body
+    class="bg-gradient-to-br from-red-50 to-gray-100 min-h-screen flex items-center justify-center p-4"
+  >
+    <div class="max-w-md w-full">
+      <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
+        <!-- Loading Icon -->
+        <div class="mb-6">
+          <div
+            class="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full"
+          >
+            <i class="fas fa-spinner fa-spin text-5xl text-red-600"></i>
+          </div>
+        </div>
+
+        <h1 class="text-3xl font-bold text-gray-800 mb-3" id="statusHeading">
+          Processing...
+        </h1>
+
+        <p class="text-gray-600 mb-6" id="statusMessage">
+          Please wait while we verify your request.
+        </p>
+
+        <div
+          id="errorContainer"
+          class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6 hidden"
+        >
+          <div class="flex items-start">
+            <i class="fas fa-exclamation-circle text-red-600 mt-1 mr-3"></i>
+            <div class="text-left">
+              <h3 class="font-semibold text-red-900 mb-1">Error</h3>
+              <p class="text-sm text-red-800" id="errorMessage"></p>
+            </div>
+          </div>
+        </div>
+
+        <div id="redirectMessage" class="text-sm text-gray-500 hidden">
+          Redirecting to sign-in page in
+          <span id="countdown" class="font-semibold">3</span> seconds...
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+    <script src="config.js"></script>
+
+    <script>
+      // Get the action to complete from URL parameters
+      const urlParams = new URLSearchParams(window.location.search);
+      const mode = urlParams.get("mode"); // 'verifyEmail', 'resetPassword', 'recoverEmail'
+      const oobCode = urlParams.get("oobCode"); // One-time code from the email link
+      const continueUrl = urlParams.get("continueUrl");
+
+      async function handleEmailAction() {
+        const statusHeading = document.getElementById("statusHeading");
+        const statusMessage = document.getElementById("statusMessage");
+        const errorContainer = document.getElementById("errorContainer");
+        const errorMessage = document.getElementById("errorMessage");
+        const redirectMessage = document.getElementById("redirectMessage");
+
+        try {
+          if (!oobCode) {
+            throw new Error("Invalid or expired link");
+          }
+
+          switch (mode) {
+            case "verifyEmail":
+              statusHeading.textContent = "Verifying Email...";
+              statusMessage.textContent =
+                "We're verifying your email address.";
+
+              // Apply the email verification code
+              await firebase.auth().applyActionCode(oobCode);
+
+              // Success - show success message
+              statusHeading.textContent = "Email Verified!";
+              statusMessage.textContent =
+                "Your email has been successfully verified.";
+
+              // Update icon to success
+              document.querySelector(".fa-spinner").className =
+                "fas fa-check-circle text-5xl text-green-600";
+              document.querySelector(".bg-red-100").className =
+                "inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full";
+
+              // Show redirect message and countdown
+              redirectMessage.classList.remove("hidden");
+              startCountdown();
+              break;
+
+            case "resetPassword":
+              // For password reset, verify the code first
+              statusHeading.textContent = "Verifying Reset Link...";
+              statusMessage.textContent =
+                "We're verifying your password reset link.";
+
+              await firebase.auth().verifyPasswordResetCode(oobCode);
+
+              // Valid code - redirect to a password reset page with the code
+              window.location.href = `packaging-glamour-reset-password.html?oobCode=${oobCode}`;
+              break;
+
+            case "recoverEmail":
+              statusHeading.textContent = "Recovering Email...";
+              statusMessage.textContent = "We're recovering your email address.";
+
+              await firebase.auth().applyActionCode(oobCode);
+
+              statusHeading.textContent = "Email Recovered!";
+              statusMessage.textContent =
+                "Your email has been successfully recovered.";
+
+              // Update icon to success
+              document.querySelector(".fa-spinner").className =
+                "fas fa-check-circle text-5xl text-green-600";
+              document.querySelector(".bg-red-100").className =
+                "inline-flex items-center justify-center w-24 h-24 bg-green-100 rounded-full";
+
+              redirectMessage.classList.remove("hidden");
+              startCountdown();
+              break;
+
+            default:
+              throw new Error("Invalid action");
+          }
+        } catch (error) {
+          // Show error
+          statusHeading.textContent = "Verification Failed";
+          statusMessage.textContent = "";
+
+          // Update icon to error
+          document.querySelector(".fa-spinner").className =
+            "fas fa-times-circle text-5xl text-red-600";
+
+          // Show error message
+          errorContainer.classList.remove("hidden");
+          let errorMsg = "An error occurred. Please try again.";
+
+          if (error.code === "auth/expired-action-code") {
+            errorMsg =
+              "This link has expired. Please request a new verification email.";
+          } else if (error.code === "auth/invalid-action-code") {
+            errorMsg =
+              "This link is invalid or has already been used. Please request a new one.";
+          } else if (error.code === "auth/user-disabled") {
+            errorMsg = "This account has been disabled.";
+          } else if (error.code === "auth/user-not-found") {
+            errorMsg = "No account found with this email.";
+          }
+
+          errorMessage.textContent = errorMsg;
+
+          // Still redirect after showing error for a moment
+          setTimeout(() => {
+            redirectMessage.classList.remove("hidden");
+            startCountdown();
+          }, 3000);
+        }
+      }
+
+      function startCountdown() {
+        let seconds = 3;
+        const countdownElement = document.getElementById("countdown");
+
+        const interval = setInterval(() => {
+          seconds--;
+          countdownElement.textContent = seconds;
+
+          if (seconds <= 0) {
+            clearInterval(interval);
+            window.location.href = "packaging-glamour-signin.html";
+          }
+        }, 1000);
+      }
+
+      // Handle the action when page loads
+      if (mode && oobCode) {
+        handleEmailAction();
+      } else {
+        // No valid parameters, redirect to sign-in
+        document.getElementById("statusHeading").textContent = "Invalid Link";
+        document.getElementById("statusMessage").textContent =
+          "This link is not valid. Redirecting to sign-in page...";
+        document.querySelector(".fa-spinner").className =
+          "fas fa-times-circle text-5xl text-red-600";
+
+        setTimeout(() => {
+          window.location.href = "packaging-glamour-signin.html";
+        }, 2000);
+      }
+    </script>
+  </body>
+</html>

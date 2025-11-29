@@ -189,8 +189,8 @@
               return;
             }
 
-            // Send verification email with proper continue URL
-            const continueUrl = `${window.location.origin}${window.location.pathname.replace('verify-email-pending.html', 'packaging-glamour-signin.html')}`;
+            // Send verification email with proper continue URL to email action handler
+            const continueUrl = `${window.location.origin}${window.location.pathname.replace('verify-email-pending.html', 'email-action-handler.html')}`;
             await user.sendEmailVerification({
               url: continueUrl,
               handleCodeInApp: false,
