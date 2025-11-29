@@ -661,40 +661,30 @@
       // MARK ANNOUNCEMENT AS READ
       // ========================================
       async function markAsRead(announcementId) {
+        // Check if already read (to avoid duplicate Airtable records)
+        const alreadyRead = readAnnouncements.has(announcementId);
+
         // Add to read set and persist to localStorage
         readAnnouncements.add(announcementId);
         saveReadAnnouncements();
         displayAnnouncements();
 
-        /* Uncomment if you have AnnouncementReads table in Airtable
+        // Save to Airtable for admin analytics (only if not already read)
+        if (!alreadyRead) {
             try {
-                const url = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads`;
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        fields: {
-                            'Announcement': [announcementId],
-                            'Employee': [currentUser.id],
-                            'Read Date': new Date().toISOString().split('T')[0]
-                        }
-                    })
-                });
+                const readData = {
+                    'Announcement': [announcementId],
+                    'Employee': [currentUser.id],
+                    'Read Date': new Date().toISOString()
+                };
 
-                if (response.ok) {
-                    readAnnouncements.add(announcementId);
-                    displayAnnouncements();
-                } else {
-                    alert('Failed to mark as read. Please try again.');
-                }
+                await createAnnouncementRead(readData);
+                console.log('Announcement view tracked in Airtable for analytics');
             } catch (error) {
-
-                alert('Error marking as read. Please try again.');
+                console.error('Error saving read to Airtable:', error);
+                // Don't show error to user, silently fail
             }
-            */
+        }
       }
 
       // ========================================
