@@ -667,10 +667,10 @@
               class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
               <option value="">All Departments</option>
-              <option value="Administrator">Administrator</option>
+              <option value="Administration">Administration</option>
               <option value="Management">Management</option>
-              <option value="Promotion">Promotion</option>
-              <option value="Operation">Operation</option>
+              <option value="Production">Production</option>
+              <option value="Operations">Operations</option>
               <option value="Customer Service">Customer Service</option>
               <option value="Creative Design">Creative Design</option>
               <option value="Logistics">Logistics</option>
@@ -1448,7 +1448,6 @@
               >
                 <option value="Employee">Employee</option>
                 <option value="Admin">Admin</option>
-                <option value="HR">HR</option>
               </select>
             </div>
             <div>
@@ -1505,10 +1504,10 @@
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 >
                   <option value="">Select Department</option>
-                  <option value="Administrator">Administrator</option>
+                  <option value="Administration">Administration</option>
                   <option value="Management">Management</option>
-                  <option value="Promotion">Promotion</option>
-                  <option value="Operation">Operation</option>
+                  <option value="Production">Production</option>
+                  <option value="Operations">Operations</option>
                   <option value="Customer Service">Customer Service</option>
                   <option value="Creative Design">Creative Design</option>
                   <option value="Logistics">Logistics</option>
@@ -1554,7 +1553,6 @@
                   type="number"
                   id="empSalary"
                   step="0.01"
-                  min="0"
                   placeholder="0.00"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
                 />
@@ -1827,6 +1825,18 @@
               <option value="High">High</option>
             </select>
           </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >Image URL (Optional)</label
+            >
+            <input
+              type="url"
+              id="annImageUrl"
+              placeholder="https://example.com/image.jpg"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+            />
+            <p class="text-sm text-gray-500 mt-1">Enter the URL of an image to attach to this announcement</p>
+          </div>
           <div class="flex justify-end space-x-3 pt-4">
             <button
               type="button"
@@ -1848,21 +1858,32 @@
 
     <!-- Announcement Stats Modal -->
     <div id="announcementStatsModal" class="modal">
-      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+      <div
+        class="bg-white rounded-lg shadow-xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto"
+      >
         <div class="flex justify-between items-center p-6 border-b">
           <h3 class="text-2xl font-bold text-gray-800">
             <i class="fas fa-chart-bar text-green-600 mr-2"></i>
             Announcement Analytics
           </h3>
-          <button onclick="closeAnnouncementStatsModal()" class="text-gray-500 hover:text-gray-700">
+          <button
+            onclick="closeAnnouncementStatsModal()"
+            class="text-gray-500 hover:text-gray-700"
+          >
             <i class="fas fa-times text-2xl"></i>
           </button>
         </div>
         <div class="p-6">
           <!-- Announcement Info -->
           <div class="mb-6 p-4 bg-gray-50 rounded-lg">
-            <h4 id="statsAnnouncementTitle" class="text-xl font-bold text-gray-800 mb-2"></h4>
-            <p id="statsAnnouncementMessage" class="text-sm text-gray-600 whitespace-pre-wrap"></p>
+            <h4
+              id="statsAnnouncementTitle"
+              class="text-xl font-bold text-gray-800 mb-2"
+            ></h4>
+            <p
+              id="statsAnnouncementMessage"
+              class="text-sm text-gray-600 whitespace-pre-wrap"
+            ></p>
           </div>
 
           <!-- Statistics Summary -->
@@ -1871,7 +1892,12 @@
               <div class="flex items-center justify-between">
                 <div>
                   <p class="text-sm text-blue-600 font-medium">Total Views</p>
-                  <p id="statsViewCount" class="text-3xl font-bold text-blue-700">0</p>
+                  <p
+                    id="statsViewCount"
+                    class="text-3xl font-bold text-blue-700"
+                  >
+                    0
+                  </p>
                 </div>
                 <i class="fas fa-eye text-blue-400 text-3xl"></i>
               </div>
@@ -1879,8 +1905,15 @@
             <div class="bg-green-50 p-4 rounded-lg border border-green-200">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-green-600 font-medium">Total Comments</p>
-                  <p id="statsCommentCount" class="text-3xl font-bold text-green-700">0</p>
+                  <p class="text-sm text-green-600 font-medium">
+                    Total Comments
+                  </p>
+                  <p
+                    id="statsCommentCount"
+                    class="text-3xl font-bold text-green-700"
+                  >
+                    0
+                  </p>
                 </div>
                 <i class="fas fa-comments text-green-400 text-3xl"></i>
               </div>
@@ -1888,8 +1921,15 @@
             <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
               <div class="flex items-center justify-between">
                 <div>
-                  <p class="text-sm text-purple-600 font-medium">Engagement Rate</p>
-                  <p id="statsEngagementRate" class="text-3xl font-bold text-purple-700">0%</p>
+                  <p class="text-sm text-purple-600 font-medium">
+                    Engagement Rate
+                  </p>
+                  <p
+                    id="statsEngagementRate"
+                    class="text-3xl font-bold text-purple-700"
+                  >
+                    0%
+                  </p>
                 </div>
                 <i class="fas fa-chart-line text-purple-400 text-3xl"></i>
               </div>
@@ -1931,7 +1971,10 @@
             <h5 class="font-bold text-gray-800 mb-3">
               <i class="fas fa-comment-dots mr-2"></i>All Comments
             </h5>
-            <div id="statsCommentsList" class="space-y-3 max-h-96 overflow-y-auto">
+            <div
+              id="statsCommentsList"
+              class="space-y-3 max-h-96 overflow-y-auto"
+            >
               <!-- Comments will be loaded here -->
             </div>
           </div>
@@ -2560,7 +2603,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
-    <script src="assets/js/admin.js?v=31"></script>
+    <script src="assets/js/admin.js?v=32"></script>
     <script src="upcoming-leaves.js?v=1"></script>
 
     <script>

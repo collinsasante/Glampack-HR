@@ -1272,7 +1272,7 @@ async function loadAnnouncements() {
     }
 }
 
-function displayAnnouncements(announcements) {
+async function displayAnnouncements(announcements) {
     const container = document.getElementById('announcementsContainer');
 
     if (!announcements || announcements.length === 0) {
@@ -1289,12 +1289,32 @@ function displayAnnouncements(announcements) {
     // Sort by date (newest first)
     announcements.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
 
+    // Fetch all reads and comments for counting
+    const [allReadsResponse, allCommentsResponse] = await Promise.all([
+        getAnnouncementReads(null),
+        getAnnouncementComments(null)
+    ]);
+
+    const allReads = allReadsResponse.records || [];
+    const allComments = allCommentsResponse.records || [];
+
     container.innerHTML = announcements.map(announcement => {
         const priority = announcement.fields['Priority'] || 'Medium';
         const title = announcement.fields['Title'] || 'Untitled';
         const message = announcement.fields['Message'] || '';
         const date = new Date(announcement.createdTime).toLocaleDateString();
         const author = announcement.fields['Posted By'] || 'Admin';
+
+        // Count views and comments for this announcement
+        const viewCount = allReads.filter(read => {
+            const announcementField = read.fields['Announcement'];
+            return Array.isArray(announcementField) && announcementField.includes(announcement.id);
+        }).length;
+
+        const commentCount = allComments.filter(comment => {
+            const announcementField = comment.fields['Announcement'];
+            return Array.isArray(announcementField) && announcementField.includes(announcement.id);
+        }).length;
 
         // Create summary (first 100 characters)
         const summary = message.length > 100 ? message.substring(0, 100) + '...' : message;
@@ -1323,8 +1343,13 @@ function displayAnnouncements(announcements) {
                             <p class="text-sm opacity-75 mb-2">
                                 <i class="fas fa-user mr-1"></i>${author}
                                 <span class="mx-2">•</span>
-                                <i class="fas fa-calendar mr-1"></i>${date}
+                                ${date}
                             </p>
+                            ${announcement.fields['Image URL'] ? `
+                                <div class="my-3">
+                                    <img src="${announcement.fields['Image URL']}" alt="${title}" class="max-w-full h-auto rounded-lg border border-gray-300" onerror="this.style.display='none'" />
+                                </div>
+                            ` : ''}
                             <div id="ann-preview-${announcement.id}">
                                 <p class="whitespace-pre-wrap text-sm">${summary}</p>
                                 ${hasMore ? `
@@ -1359,6 +1384,12 @@ function displayAnnouncements(announcements) {
                         <button onclick="deleteAnnouncement('${announcement.id}')" class="text-red-600 hover:text-red-800 p-2 hover:bg-red-50 rounded transition-colors" title="Delete">
                             <i class="fas fa-trash"></i>
                         </button>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-gray-200 mt-3">
+                    <div class="flex gap-4 text-sm text-gray-600">
+                        <span><i class="fas fa-eye mr-1"></i>${viewCount} views</span>
+                        <span><i class="fas fa-comment mr-1"></i>${commentCount} comments</span>
                     </div>
                 </div>
             </div>
@@ -1653,12 +1684,19 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     }
 
+    const imageUrl = document.getElementById('annImageUrl').value.trim();
+
     const data = {
         'Title': document.getElementById('annTitle').value,
         'Message': document.getElementById('annMessage').value,
         'Priority': document.getElementById('annPriority').value,
         'Posted By': authorName
     };
+
+    // Add image URL if provided
+    if (imageUrl) {
+        data['Image URL'] = imageUrl;
+    }
 
     try {
         if (announcementId) {
