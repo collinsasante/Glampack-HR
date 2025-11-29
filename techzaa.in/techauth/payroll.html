@@ -631,12 +631,11 @@
         const healthInsurance = parseFloat(fields["Health Insurance"] || 0);
         const otherDeductions = parseFloat(fields["Other Deductions"] || 0);
 
-        const totalAllowances = parseFloat(fields["Total Earnings"] || 0);
-        const totalDeductions = parseFloat(fields["Total Deductions"] || 0);
-        const grossSalary = parseFloat(fields["Gross Salary"] || 0);
-        const netSalary = parseFloat(
-          fields["Net Pay"] || fields["Net Salary"] || 0
-        );
+        // Calculate totals from actual values
+        const calculatedTotalEarnings = housingAllowance + transportAllowance + benefits + otherAllowances;
+        const calculatedTotalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions;
+        const calculatedGrossSalary = basicSalary + calculatedTotalEarnings;
+        const calculatedNetSalary = calculatedGrossSalary - calculatedTotalDeductions;
 
         // Format period for display
         const monthValue = fields["Month"] || "";
@@ -659,7 +658,7 @@
             { label: "Benefits", amount: benefits },
             { label: "Other", amount: otherAllowances },
           ].filter((item) => item.amount > 0),
-          totalEarnings: totalAllowances,
+          totalEarnings: calculatedTotalEarnings,
           deductions: [
             { label: "PAYE", amount: incomeTax },
             { label: "Welfare", amount: welfare },
@@ -667,8 +666,9 @@
             { label: "Health Insurance", amount: healthInsurance },
             { label: "Other Deductions", amount: otherDeductions },
           ].filter((item) => item.amount > 0),
-          totalDeductions: totalDeductions,
-          netSalary: netSalary,
+          totalDeductions: calculatedTotalDeductions,
+          grossSalary: calculatedGrossSalary,
+          netSalary: calculatedNetSalary,
         };
 
         // Fetch full employee details from Airtable
