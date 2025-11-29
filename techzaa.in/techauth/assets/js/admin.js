@@ -327,6 +327,7 @@ function editEmployee(employee) {
     document.getElementById('empPhoneNumber').value = employee.fields['Phone Number'] || '';
     document.getElementById('empDateOfBirth').value = employee.fields['Date of Birth'] || '';
     document.getElementById('empGhanaCardNumber').value = employee.fields['Ghana Card Number'] || '';
+    document.getElementById('empSocialSecurityNumber').value = employee.fields['Social Security Number'] || '';
     document.getElementById('empCity').value = employee.fields['City'] || '';
     document.getElementById('empCountry').value = employee.fields['Country'] || '';
     document.getElementById('empAddress').value = employee.fields['Address'] || '';
@@ -396,6 +397,10 @@ function viewEmployeeDetails_OLD(employee) {
                             <div>
                                 <p class="text-sm text-gray-600">Ghana Card Number</p>
                                 <p class="font-medium text-gray-900">${fields['Ghana Card Number'] || '--'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Social Security Number</p>
+                                <p class="font-medium text-gray-900">${fields['Social Security Number'] || '--'}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Address</p>
@@ -666,6 +671,7 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     const phoneNumberEl = document.getElementById('empPhoneNumber');
     const dateOfBirthEl = document.getElementById('empDateOfBirth');
     const ghanaCardNumberEl = document.getElementById('empGhanaCardNumber');
+    const socialSecurityNumberEl = document.getElementById('empSocialSecurityNumber');
     const cityEl = document.getElementById('empCity');
     const addressEl = document.getElementById('empAddress');
 
@@ -677,6 +683,9 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     }
     if (ghanaCardNumberEl && ghanaCardNumberEl.value) {
         data['Ghana Card Number'] = ghanaCardNumberEl.value;
+    }
+    if (socialSecurityNumberEl && socialSecurityNumberEl.value) {
+        data['Social Security Number'] = socialSecurityNumberEl.value;
     }
     if (cityEl && cityEl.value) {
         data['City'] = cityEl.value;
