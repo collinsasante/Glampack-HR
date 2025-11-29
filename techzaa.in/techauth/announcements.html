@@ -762,6 +762,33 @@
       // COMMENT FUNCTIONALITY
       // ========================================
       let currentAnnouncementId = null;
+      let replyingToCommentId = null;
+
+      function replyToComment(commentId, authorName) {
+        replyingToCommentId = commentId;
+        const commentInput = document.getElementById('commentInput');
+        commentInput.placeholder = `Replying to ${authorName}...`;
+        commentInput.focus();
+
+        // Show cancel reply button
+        const commentForm = commentInput.parentElement;
+        let cancelBtn = document.getElementById('cancelReplyBtn');
+        if (!cancelBtn) {
+          cancelBtn = document.createElement('button');
+          cancelBtn.id = 'cancelReplyBtn';
+          cancelBtn.className = 'px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors font-medium mr-2';
+          cancelBtn.innerHTML = '<i class="fas fa-times mr-2"></i>Cancel Reply';
+          cancelBtn.onclick = cancelReply;
+          commentForm.querySelector('.flex').insertBefore(cancelBtn, commentForm.querySelector('.flex').firstChild);
+        }
+      }
+
+      function cancelReply() {
+        replyingToCommentId = null;
+        document.getElementById('commentInput').placeholder = 'Write a comment...';
+        const cancelBtn = document.getElementById('cancelReplyBtn');
+        if (cancelBtn) cancelBtn.remove();
+      }
 
       async function submitComment() {
         const commentInput = document.getElementById('commentInput');
@@ -796,6 +823,13 @@
             'Comment': commentText,
             'Date': new Date().toISOString()
           };
+
+          // Add parent comment if replying
+          if (replyingToCommentId) {
+            commentData['Parent Comment'] = [replyingToCommentId];
+            console.log('Replying to comment:', replyingToCommentId);
+          }
+
           console.log('Comment Data to send:', commentData);
 
           const result = await createAnnouncementComment(commentData);
@@ -803,8 +837,9 @@
           console.log('Created comment ID:', result.id);
           console.log('Created comment fields:', result.fields);
 
-          // Clear textarea
+          // Clear textarea and reply state
           commentInput.value = '';
+          cancelReply();
 
           // Wait a moment for Airtable to index the new comment
           await new Promise(resolve => setTimeout(resolve, 500));
@@ -812,7 +847,7 @@
           // Reload comments
           await loadComments(currentAnnouncementId);
 
-          showNotification('Comment posted successfully', 'success');
+          showNotification(replyingToCommentId ? 'Reply posted successfully' : 'Comment posted successfully', 'success');
         } catch (error) {
           console.error('Error posting comment:', error);
           showNotification('Failed to post comment', 'error');
@@ -868,18 +903,22 @@
             if (comment.fields['Employee'] && comment.fields['Employee'][0]) {
               try {
                 const employee = await getEmployee(comment.fields['Employee'][0]);
+                const parentCommentId = comment.fields['Parent Comment'] && comment.fields['Parent Comment'][0];
                 return {
                   id: comment.id,
                   name: employee?.fields?.['Full Name'] || 'Unknown',
                   comment: comment.fields['Comment'],
-                  date: comment.fields['Date']
+                  date: comment.fields['Date'],
+                  parentCommentId: parentCommentId
                 };
               } catch (error) {
+                const parentCommentId = comment.fields['Parent Comment'] && comment.fields['Parent Comment'][0];
                 return {
                   id: comment.id,
                   name: 'Unknown',
                   comment: comment.fields['Comment'],
-                  date: comment.fields['Date']
+                  date: comment.fields['Date'],
+                  parentCommentId: parentCommentId
                 };
               }
             }
@@ -889,10 +928,50 @@
           const commentData = await Promise.all(employeePromises);
           const validComments = commentData.filter(c => c !== null);
 
-          // Render comments
-          commentsList.innerHTML = validComments.map(comment => {
+          // Separate top-level comments and replies
+          const topLevelComments = validComments.filter(c => !c.parentCommentId);
+          const repliesMap = {};
+
+          validComments.forEach(c => {
+            if (c.parentCommentId) {
+              if (!repliesMap[c.parentCommentId]) {
+                repliesMap[c.parentCommentId] = [];
+              }
+              repliesMap[c.parentCommentId].push(c);
+            }
+          });
+
+          // Render comments with replies
+          commentsList.innerHTML = topLevelComments.map(comment => {
             const commentDate = new Date(comment.date);
             const timeAgo = formatTimeAgo(commentDate);
+            const replies = repliesMap[comment.id] || [];
+
+            const repliesHtml = replies.map(reply => {
+              const replyDate = new Date(reply.date);
+              const replyTimeAgo = formatTimeAgo(replyDate);
+              return `
+                <div class="bg-white rounded-lg p-3 border border-gray-200 ml-12 mt-2">
+                  <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0">
+                      <div class="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                        <span class="text-blue-600 font-bold text-xs">${reply.name.charAt(0)}</span>
+                      </div>
+                    </div>
+                    <div class="flex-1">
+                      <div class="flex items-center justify-between mb-1">
+                        <h5 class="font-semibold text-gray-900 text-sm">${reply.name}</h5>
+                        <span class="text-xs text-gray-500">${replyTimeAgo}</span>
+                      </div>
+                      <p class="text-sm text-gray-700 whitespace-pre-wrap">${reply.comment}</p>
+                      <button onclick="replyToComment('${reply.id}', '${reply.name}')" class="text-xs text-blue-600 hover:text-blue-800 mt-1">
+                        <i class="fas fa-reply mr-1"></i>Reply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              `;
+            }).join('');
 
             return `
               <div class="bg-gray-50 rounded-lg p-4 border border-gray-200">
@@ -908,8 +987,12 @@
                       <span class="text-xs text-gray-500">${timeAgo}</span>
                     </div>
                     <p class="text-sm text-gray-700 whitespace-pre-wrap">${comment.comment}</p>
+                    <button onclick="replyToComment('${comment.id}', '${comment.name}')" class="text-xs text-blue-600 hover:text-blue-800 mt-2">
+                      <i class="fas fa-reply mr-1"></i>Reply
+                    </button>
                   </div>
                 </div>
+                ${repliesHtml}
               </div>
             `;
           }).join('');
