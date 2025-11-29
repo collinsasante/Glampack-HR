@@ -1824,7 +1824,7 @@ async function loadAttendanceRecords() {
             });
         }
 
-        // Sort records by date (newest first) and check-in time
+        // Sort records by date (newest first) and check-in time (latest first)
         filteredRecords.sort((a, b) => {
             const dateA = a.fields['Date'] || '';
             const dateB = b.fields['Date'] || '';
@@ -1834,10 +1834,10 @@ async function loadAttendanceRecords() {
                 return dateB.localeCompare(dateA);
             }
 
-            // If same date, sort by check-in time (earliest first)
+            // If same date, sort by check-in time (latest first)
             const checkInA = extractTimeFromValue(a.fields['Check In']) || '';
             const checkInB = extractTimeFromValue(b.fields['Check In']) || '';
-            return checkInA.localeCompare(checkInB);
+            return checkInB.localeCompare(checkInA);
         });
 
         await displayAttendanceRecords(filteredRecords);
