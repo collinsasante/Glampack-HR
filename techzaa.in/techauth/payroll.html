@@ -263,19 +263,19 @@
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
               <span class="text-gray-700">Housing</span>
-              <span class="font-semibold" id="housing">GH₵0</span>
+              <span class="font-semibold" id="housingAllowance">GH₵0</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
               <span class="text-gray-700">Transport</span>
-              <span class="font-semibold" id="transport">GH₵0</span>
+              <span class="font-semibold" id="transportAllowance">GH₵0</span>
             </div>
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
               <span class="text-gray-700">Other</span>
-              <span class="font-semibold" id="other">GH₵0</span>
+              <span class="font-semibold" id="otherAllowances">GH₵0</span>
             </div>
           </div>
         </div>
@@ -290,7 +290,7 @@
             <div
               class="flex justify-between items-center p-3 bg-gray-50 rounded-lg"
             >
-              <span class="text-gray-700">Paye</span>
+              <span class="text-gray-700">PAYE</span>
               <span class="font-semibold" id="incomeTax">GH₵0</span>
             </div>
             <div
@@ -451,8 +451,17 @@
             const otherDeductions = parseFloat(salary["Other Deductions"] || 0);
 
             // Calculate totals from actual values
-            const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances;
-            const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions;
+            const totalAllowances =
+              housingAllowance +
+              transportAllowance +
+              benefits +
+              otherAllowances;
+            const totalDeductions =
+              incomeTax +
+              welfare +
+              socialSecurity +
+              healthInsurance +
+              otherDeductions;
             const grossSalary = basicSalary + totalAllowances;
             const netSalary = grossSalary - totalDeductions;
 

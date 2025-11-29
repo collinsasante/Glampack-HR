@@ -4172,7 +4172,7 @@ async function copyFromPreviousMonth() {
         }
 
         // Trigger calculation
-        calculatePayroll();
+        calculateNetSalary();
 
         alert('Data copied successfully! Review and make any necessary changes.');
 
