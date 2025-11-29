@@ -492,7 +492,7 @@ function viewEmployeeDetails_OLD(employee) {
                     </div>
 
                     <!-- Emergency Contacts -->
-                    ${fields['Emergency Contact Name'] || fields['Emergency Contact Phone'] ? `
+                    ${fields['Emergency Contact Name'] || fields['Emergency Contact'] || fields['Emergency Contact Phone'] || fields['Emergency Phone'] ? `
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 mb-4 flex items-center">
                             <i class="fas fa-phone-alt mr-2 text-red-600"></i>
@@ -501,11 +501,11 @@ function viewEmployeeDetails_OLD(employee) {
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
                             <div>
                                 <p class="text-sm text-gray-600">Primary Contact Name</p>
-                                <p class="font-medium text-gray-900">${fields['Emergency Contact Name'] || '--'}</p>
+                                <p class="font-medium text-gray-900">${fields['Emergency Contact Name'] || fields['Emergency Contact'] || '--'}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Primary Contact Phone</p>
-                                <p class="font-medium text-gray-900">${fields['Emergency Contact Phone'] || '--'}</p>
+                                <p class="font-medium text-gray-900">${fields['Emergency Contact Phone'] || fields['Emergency Phone'] || '--'}</p>
                             </div>
                             <div>
                                 <p class="text-sm text-gray-600">Primary Contact Relationship</p>
