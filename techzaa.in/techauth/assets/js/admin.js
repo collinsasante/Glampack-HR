@@ -3416,9 +3416,12 @@ function showEmployeeDetails(record) {
                 <h4 class="text-sm font-semibold text-gray-600 mb-3">Additional Information</h4>
                 <div class="space-y-2">
                     <div>
-                        <span class="text-xs text-gray-500">Emergency Contact:</span>
-                        <p class="text-sm">${fields['Emergency Contact Name'] || '--'}</p>
-                        <p class="text-sm font-mono">${fields['Emergency Contact Phone'] || '--'}</p>
+                        <span class="text-xs text-gray-500">Emergency Contact Name:</span>
+                        <p class="text-sm font-medium">${fields['Emergency Contact Name'] || fields['Emergency Contact'] || '--'}</p>
+                    </div>
+                    <div>
+                        <span class="text-xs text-gray-500">Phone:</span>
+                        <p class="text-sm font-medium font-mono">${fields['Emergency Contact Phone'] || fields['Emergency Phone'] || '--'}</p>
                     </div>
                 </div>
             </div>
