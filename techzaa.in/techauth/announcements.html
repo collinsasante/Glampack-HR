@@ -479,11 +479,21 @@
       // ========================================
       // LOAD ANNOUNCEMENTS
       // ========================================
+      let allReads = [];
+      let allComments = [];
+
       async function loadAnnouncements() {
         try {
-          // Load announcements using Worker API
-          const announcementsData = await getAnnouncements();
+          // Load announcements, reads, and comments using Worker API
+          const [announcementsData, readsData, commentsData] = await Promise.all([
+            getAnnouncements(),
+            getAnnouncementReads(null),
+            getAnnouncementComments(null)
+          ]);
+
           allAnnouncements = announcementsData.records || [];
+          allReads = readsData.records || [];
+          allComments = commentsData.records || [];
 
           // Sort by Date descending (client-side)
           allAnnouncements.sort((a, b) => {
@@ -491,24 +501,6 @@
             const dateB = new Date(b.fields["Date"] || 0);
             return dateB - dateA;
           });
-
-          // Read receipts feature disabled - requires AnnouncementReads table in Airtable
-          // Uncomment below if you want to track which announcements users have read
-          /*
-                const readsUrl = `https://api.airtable.com/v0/${AIRTABLE_CONFIG.baseId}/AnnouncementReads?filterByFormula={Employee}='${currentUser.id}'`;
-                const readsResponse = await fetch(readsUrl, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${AIRTABLE_CONFIG.apiKey}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (readsResponse.ok) {
-                    const readsData = await readsResponse.json();
-                    readAnnouncements = new Set(readsData.records.map(r => r.fields['Announcement'][0]));
-                }
-                */
 
           displayAnnouncements();
         } catch (error) {
@@ -600,6 +592,17 @@
               day: "numeric",
             });
 
+            // Count views and comments for this announcement
+            const viewCount = allReads.filter(read => {
+                const announcementField = read.fields['Announcement'];
+                return Array.isArray(announcementField) && announcementField.includes(announcement.id);
+            }).length;
+
+            const commentCount = allComments.filter(comment => {
+                const announcementField = comment.fields['Announcement'];
+                return Array.isArray(announcementField) && announcementField.includes(announcement.id);
+            }).length;
+
             // Priority badge colors
             const priorityColors = {
               High: "bg-red-100 text-red-800",
@@ -643,8 +646,9 @@
                         <p class="text-gray-600 mb-3 whitespace-pre-line">${summary}</p>
                         ${hasMore ? '<p class="text-red-600 text-sm font-semibold mb-3"><i class="fas fa-arrow-right mr-1"></i> Click to read full announcement</p>' : ''}
                         <div class="flex justify-between items-center pt-3 border-t border-gray-200">
-                            <div class="text-sm text-gray-500">
-                                <i class="fas fa-user mr-1"></i> ${author}
+                            <div class="flex gap-4 text-sm text-gray-600">
+                                <span><i class="fas fa-eye mr-1"></i>${viewCount} views</span>
+                                <span><i class="fas fa-comment mr-1"></i>${commentCount} comments</span>
                             </div>
                             ${
                               !isRead

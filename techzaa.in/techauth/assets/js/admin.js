@@ -1704,8 +1704,6 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
 
     }
 
-    const imageUrl = document.getElementById('annImageUrl').value.trim();
-
     const data = {
         'Title': document.getElementById('annTitle').value,
         'Message': document.getElementById('annMessage').value,
@@ -1713,27 +1711,33 @@ document.getElementById('announcementForm').addEventListener('submit', async fun
         'Posted By': authorName
     };
 
-    // Add image URL if provided
-    if (imageUrl) {
-        data['Image URL'] = imageUrl;
-    }
-
     try {
+        // Handle image upload if file is selected
+        const imageFile = document.getElementById('annImageFile').files[0];
+        if (imageFile) {
+            showToast('info', 'Uploading', 'Uploading image...');
+            try {
+                const uploadResult = await uploadToCloudinary(imageFile);
+                data['Image URL'] = uploadResult.secure_url;
+            } catch (uploadError) {
+                showToast('error', 'Upload Failed', `Image upload failed: ${uploadError.message}`);
+                return;
+            }
+        }
+
         if (announcementId) {
             // Update existing announcement
             await updateAnnouncement(announcementId, data);
             showToast('success', 'Announcement Updated', 'Announcement updated successfully!');
         } else {
             // Create new announcement
-            const result = await createAnnouncement(data);
-
+            await createAnnouncement(data);
             showToast('success', 'Announcement Posted', 'Announcement posted successfully!');
         }
 
         closeAnnouncementModal();
         loadAnnouncements();
     } catch (error) {
-
         showToast('error', 'Save Failed', `Error saving announcement: ${error.message}`);
     }
 });
