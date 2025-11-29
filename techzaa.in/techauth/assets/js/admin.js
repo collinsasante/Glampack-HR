@@ -1763,7 +1763,29 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
+        // First, fetch ALL records to see what's in the table
+        console.log('=== DEBUGGING ATTENDANCE RECORDS ===');
+        const allData = await getAttendance(null);
+        console.log('ALL records (no filter):', allData);
+        console.log('Total records in table:', allData.records?.length || 0);
+
+        if (allData.records && allData.records.length > 0) {
+            console.log('First record:', allData.records[0]);
+            console.log('First record fields:', allData.records[0].fields);
+            console.log('Field names:', Object.keys(allData.records[0].fields));
+            console.log('Date field value:', allData.records[0].fields['Date']);
+            console.log('Date field type:', typeof allData.records[0].fields['Date']);
+        }
+
+        // Now apply filter
+        console.log('Filter being applied:', filterFormula);
+        console.log('Start date:', startDate);
+        console.log('End date:', endDate);
+
         const data = await getAttendance(filterFormula);
+        console.log('Filtered data:', data);
+        console.log('Filtered records count:', data.records?.length || 0);
+
         allAttendanceRecords = data.records || [];
 
         // Apply employee filter on client side
