@@ -879,12 +879,17 @@ async function displayLeaveRequests(requests) {
                     <div class="text-sm text-gray-900 max-w-xs truncate">${fields['Notes'] || fields['Reason'] || '--'}</div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
-                    <button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
-                        <i class="fas fa-check"></i> Approve
-                    </button>
-                    <button onclick="rejectLeave('${req.id}')" class="text-red-600 hover:text-red-900">
-                        <i class="fas fa-times"></i> Reject
-                    </button>
+                    ${fields['Status'] === 'Approved'
+                        ? '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Approved</span>'
+                        : fields['Status'] === 'Rejected'
+                        ? '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i>Rejected</span>'
+                        : `<button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
+                            <i class="fas fa-check"></i> Approve
+                          </button>
+                          <button onclick="rejectLeave('${req.id}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-times"></i> Reject
+                          </button>`
+                    }
                 </td>
             </tr>
         `;
@@ -1719,6 +1724,11 @@ async function loadAttendanceRecords() {
     const employeeId = document.getElementById('attendanceEmployeeFilter').value;
     const statusFilter = document.getElementById('attendanceStatusFilter').value;
 
+    console.log('=== LOADING ATTENDANCE RECORDS ===');
+    console.log('Date Range:', dateRange);
+    console.log('Employee Filter:', employeeId);
+    console.log('Status Filter:', statusFilter);
+
     try {
         // Calculate date range
         let startDate, endDate;
@@ -1759,9 +1769,13 @@ async function loadAttendanceRecords() {
         }
 
         // Add cache-busting to ensure fresh data
+        console.log('Filter formula:', filterFormula);
         const data = await getAttendance(filterFormula);
+        console.log('Attendance data received:', data);
+        console.log('Records count:', data.records?.length || 0);
 
         allAttendanceRecords = data.records || [];
+        console.log('All attendance records:', allAttendanceRecords.length);
 
         // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
