@@ -1768,14 +1768,31 @@ async function loadAttendanceRecords() {
             filterFormula = `AND({Date} >= '${startDate}', {Date} <= '${endDate}')`;
         }
 
-        // Add cache-busting to ensure fresh data
+        // First, try fetching ALL attendance records to see what's in the table
+        console.log('=== DEBUGGING: Fetching ALL attendance records first ===');
+        const allData = await getAttendance(null);
+        console.log('ALL attendance records (no filter):', allData);
+        console.log('Total records in table:', allData.records?.length || 0);
+
+        if (allData.records && allData.records.length > 0) {
+            console.log('Sample record structure:', allData.records[0]);
+            console.log('Sample record fields:', allData.records[0].fields);
+            console.log('Date field value:', allData.records[0].fields['Date']);
+            console.log('Date field type:', typeof allData.records[0].fields['Date']);
+        }
+
+        // Now try with filter
+        console.log('=== Applying filter ===');
         console.log('Filter formula:', filterFormula);
+        console.log('Start date:', startDate);
+        console.log('End date:', endDate);
+
         const data = await getAttendance(filterFormula);
-        console.log('Attendance data received:', data);
-        console.log('Records count:', data.records?.length || 0);
+        console.log('Filtered attendance data:', data);
+        console.log('Filtered records count:', data.records?.length || 0);
 
         allAttendanceRecords = data.records || [];
-        console.log('All attendance records:', allAttendanceRecords.length);
+        console.log('Setting allAttendanceRecords to:', allAttendanceRecords.length, 'records');
 
         // Apply employee filter on client side
         let filteredRecords = allAttendanceRecords;
