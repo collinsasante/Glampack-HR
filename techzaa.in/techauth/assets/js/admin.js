@@ -1261,7 +1261,7 @@ async function loadAnnouncements() {
             filteredAnnouncements = allAnnouncements.filter(ann => ann.fields['Priority'] === filter);
         }
 
-        displayAnnouncements(filteredAnnouncements);
+        await displayAnnouncements(filteredAnnouncements);
     } catch (error) {
 
         document.getElementById('announcementsContainer').innerHTML = `
