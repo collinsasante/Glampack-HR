@@ -679,7 +679,6 @@
                 };
 
                 await createAnnouncementRead(readData);
-                console.log('Announcement view tracked in Airtable for analytics');
             } catch (error) {
                 console.error('Error saving read to Airtable:', error);
                 // Don't show error to user, silently fail
@@ -812,11 +811,6 @@
           }
 
           // Create comment record
-          console.log('=== CREATING COMMENT ===');
-          console.log('Current Announcement ID:', currentAnnouncementId);
-          console.log('Current User ID:', currentUser.id);
-          console.log('Comment Text:', commentText);
-
           const commentData = {
             'Announcement': [currentAnnouncementId],
             'Employee': [currentUser.id],
@@ -827,15 +821,9 @@
           // Add parent comment if replying
           if (replyingToCommentId) {
             commentData['Parent Comment'] = [replyingToCommentId];
-            console.log('Replying to comment:', replyingToCommentId);
           }
 
-          console.log('Comment Data to send:', commentData);
-
           const result = await createAnnouncementComment(commentData);
-          console.log('Comment created - FULL RESULT:', result);
-          console.log('Created comment ID:', result.id);
-          console.log('Created comment fields:', result.fields);
 
           // Clear textarea and reply state
           commentInput.value = '';
@@ -864,11 +852,7 @@
 
           // Fetch ALL comments and filter client-side
           // Airtable filter formulas don't work reliably with linked record arrays
-          console.log('=== LOADING COMMENTS (CLIENT-SIDE FILTER) ===');
-          console.log('Target Announcement ID:', announcementId);
-
           const allCommentsResponse = await getAnnouncementComments(null);
-          console.log('Fetched all comments:', allCommentsResponse.records?.length || 0);
 
           // Filter comments client-side
           const workingComments = (allCommentsResponse.records || []).filter(comment => {
@@ -876,20 +860,15 @@
             // Check if the Announcement field is an array and contains our announcement ID
             if (Array.isArray(announcementField)) {
               const match = announcementField.includes(announcementId);
-              console.log('Comment', comment.id, 'Announcement field:', announcementField, 'Match:', match);
               return match;
             }
             return false;
           });
 
-          console.log('Filtered comments (client-side):', workingComments.length);
-
           if (workingComments.length === 0) {
             commentsList.innerHTML = '<div class="text-center py-4 text-gray-500"><i class="fas fa-comment-slash mr-2"></i>No comments yet. Be the first to comment!</div>';
             return;
           }
-
-          console.log('Using workingComments, count:', workingComments.length);
 
           // Sort by date (newest first)
           workingComments.sort((a, b) => {
