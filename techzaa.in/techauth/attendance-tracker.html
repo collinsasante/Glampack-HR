@@ -987,9 +987,9 @@
 
           await updateRecord(todayRecordId, updateFields);
 
-          // Clear the session since checkout is complete
-          clearTodayRecordId();
-          todayRecordId = null;
+          // Keep the record ID in localStorage so the page can still find it on reload
+          // This ensures buttons stay disabled when user navigates away and comes back
+          // The record ID will be automatically cleared at midnight (next day)
 
           showMessage(`Successfully checked out at ${time}`, "success");
 
