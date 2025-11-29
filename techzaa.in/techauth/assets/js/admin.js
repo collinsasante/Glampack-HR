@@ -1282,13 +1282,9 @@ async function loadAnnouncements() {
 }
 
 async function displayAnnouncements(announcements) {
-    console.log('=== DISPLAY ANNOUNCEMENTS CALLED ===');
-    console.log('Announcements received:', announcements);
     const container = document.getElementById('announcementsContainer');
-    console.log('Container element:', container);
 
     if (!announcements || announcements.length === 0) {
-        console.log('No announcements to display');
         container.innerHTML = `
             <div class="text-center py-12 text-gray-500">
                 <i class="fas fa-bullhorn text-6xl mb-4 opacity-50"></i>
@@ -1299,30 +1295,19 @@ async function displayAnnouncements(announcements) {
         return;
     }
 
-    console.log('Sorting announcements...');
     // Sort by date (newest first)
     announcements.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
 
-    console.log('Fetching reads and comments...');
     // Fetch all reads and comments for counting
     const [allReadsResponse, allCommentsResponse] = await Promise.all([
         getAnnouncementReads(null),
         getAnnouncementComments(null)
     ]);
 
-    console.log('Reads response:', allReadsResponse);
-    console.log('Comments response:', allCommentsResponse);
-
     const allReads = allReadsResponse.records || [];
     const allComments = allCommentsResponse.records || [];
-    console.log('Total reads:', allReads.length);
-    console.log('Total comments:', allComments.length);
 
-    console.log('Building HTML for', announcements.length, 'announcements');
-
-    container.innerHTML = announcements.map((announcement, index) => {
-        console.log(`Processing announcement ${index + 1}:`, announcement.id, announcement.fields['Title']);
-
+    container.innerHTML = announcements.map((announcement) => {
         const priority = announcement.fields['Priority'] || 'Medium';
         const title = announcement.fields['Title'] || 'Untitled';
         const message = announcement.fields['Message'] || '';
@@ -1339,8 +1324,6 @@ async function displayAnnouncements(announcements) {
             const announcementField = comment.fields['Announcement'];
             return Array.isArray(announcementField) && announcementField.includes(announcement.id);
         }).length;
-
-        console.log(`Announcement ${announcement.id}: ${viewCount} views, ${commentCount} comments`);
 
         // Create summary (first 100 characters)
         const summary = message.length > 100 ? message.substring(0, 100) + '...' : message;
@@ -1421,9 +1404,6 @@ async function displayAnnouncements(announcements) {
             </div>
         `;
     }).join('');
-
-    console.log('=== ANNOUNCEMENTS RENDERED SUCCESSFULLY ===');
-    console.log('Container innerHTML length:', container.innerHTML.length);
 }
 
 // Toggle announcement full details
