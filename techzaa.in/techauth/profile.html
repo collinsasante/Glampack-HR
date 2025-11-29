@@ -700,82 +700,6 @@
         }, 4000);
       }
 
-      // Show update summary with changed values
-      function showUpdateSummary(updateData) {
-        // Remove existing summary
-        const existing = document.getElementById("updateSummary");
-        if (existing) existing.remove();
-
-        // Create summary panel
-        const summary = document.createElement("div");
-        summary.id = "updateSummary";
-        summary.className = "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4";
-
-        // Field labels for display
-        const fieldLabels = {
-          "Full Name": "Full Name",
-          "Phone Number": "Phone Number",
-          "Date of Birth": "Date of Birth",
-          "Address": "Address",
-          "City": "City",
-          "Country": "Country",
-          "Ghana Card Number": "Ghana Card Number",
-          "Social Security Number": "Social Security Number",
-          "Bank Name": "Bank Name",
-          "Bank Account Number": "Bank Account Number",
-          "Bank Branch": "Bank Branch"
-        };
-
-        // Build updated fields list
-        let fieldsHTML = '';
-        for (const [key, value] of Object.entries(updateData)) {
-          const label = fieldLabels[key] || key;
-          const displayValue = value || '<em class="text-gray-400">Not set</em>';
-          fieldsHTML += `
-            <div class="bg-gray-50 p-3 rounded-lg">
-              <p class="text-xs text-gray-600 mb-1">${label}</p>
-              <p class="text-sm font-medium text-gray-900">${displayValue}</p>
-            </div>
-          `;
-        }
-
-        summary.innerHTML = `
-          <div class="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div class="bg-green-600 text-white px-6 py-4 flex items-center gap-3">
-              <i class="fas fa-check-circle text-2xl"></i>
-              <div>
-                <h3 class="text-xl font-bold">Profile Updated Successfully!</h3>
-                <p class="text-green-100 text-sm">Here are your updated details:</p>
-              </div>
-            </div>
-
-            <div class="p-6">
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                ${fieldsHTML}
-              </div>
-
-              <div class="mt-6 flex justify-end">
-                <button
-                  onclick="document.getElementById('updateSummary').remove()"
-                  class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg transition"
-                >
-                  <i class="fas fa-check mr-2"></i> Got it!
-                </button>
-              </div>
-            </div>
-          </div>
-        `;
-
-        document.body.appendChild(summary);
-
-        // Auto-dismiss after 15 seconds
-        setTimeout(() => {
-          if (document.getElementById("updateSummary")) {
-            document.getElementById("updateSummary").remove();
-          }
-        }, 15000);
-      }
-
       // Show loading overlay
       function showLoadingOverlay(show) {
         let overlay = document.getElementById("loadingOverlay");
@@ -1136,9 +1060,6 @@
 
             // Then reload employee data from Airtable to get fresh data
             await loadEmployeeData();
-
-            // Show success message with updated values summary
-            showUpdateSummary(updateData);
 
             showNotification("Profile updated successfully!", "success");
           } catch (error) {
