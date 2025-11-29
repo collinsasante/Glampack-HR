@@ -767,6 +767,39 @@
         document.getElementById("bankName").value = bankName;
         document.getElementById("bankAccountNumber").value = bankAccountNumber;
         document.getElementById("bankBranch").value = bankBranch;
+
+        // Make fields read-only for non-admin users
+        const isAdmin = currentUser.role === "Admin";
+        const profileFields = [
+          "fullName", "email", "phoneNumber", "dateOfBirth", "address",
+          "city", "country", "ghanaCardNumber", "socialSecurityNumber",
+          "bankName", "bankAccountNumber", "bankBranch"
+        ];
+
+        profileFields.forEach(fieldId => {
+          const field = document.getElementById(fieldId);
+          if (field) {
+            if (!isAdmin) {
+              field.readOnly = true;
+              field.classList.add("bg-gray-100", "cursor-not-allowed");
+              field.classList.remove("bg-white");
+            } else {
+              field.readOnly = false;
+              field.classList.remove("bg-gray-100", "cursor-not-allowed");
+              field.classList.add("bg-white");
+            }
+          }
+        });
+
+        // Hide save button for non-admin users
+        const saveBtn = document.getElementById("saveProfileBtn");
+        if (saveBtn) {
+          if (!isAdmin) {
+            saveBtn.style.display = "none";
+          } else {
+            saveBtn.style.display = "inline-block";
+          }
+        }
       }
 
       // Populate employment
