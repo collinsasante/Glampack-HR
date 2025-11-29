@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -11,7 +11,8 @@
     />
     <style>
       @keyframes pulse-slow {
-        0%, 100% {
+        0%,
+        100% {
           opacity: 1;
         }
         50% {
@@ -23,33 +24,40 @@
       }
     </style>
   </head>
-  <body class="bg-gradient-to-br from-red-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+  <body
+    class="bg-gradient-to-br from-red-50 to-gray-100 min-h-screen flex items-center justify-center p-4"
+  >
     <div class="max-w-md w-full">
       <!-- Card -->
       <div class="bg-white rounded-2xl shadow-2xl p-8 text-center">
         <!-- Email Icon -->
         <div class="mb-6">
-          <div class="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full pulse-slow">
+          <div
+            class="inline-flex items-center justify-center w-24 h-24 bg-red-100 rounded-full pulse-slow"
+          >
             <i class="fas fa-envelope text-5xl text-red-600"></i>
           </div>
         </div>
 
         <!-- Heading -->
-        <h1 class="text-3xl font-bold text-gray-800 mb-3">
-          Check Your Email
-        </h1>
+        <h1 class="text-3xl font-bold text-gray-800 mb-3" id="pageHeading">Check Your Email</h1>
 
-        <p class="text-gray-600 mb-6">
-          We've sent a verification email to <span class="font-semibold text-gray-800" id="userEmail">your email address</span>
+        <p class="text-gray-600 mb-6" id="pageDescription">
+          We've sent a verification email to
+          <span class="font-semibold text-gray-800" id="userEmail"
+            >your email address</span
+          >
         </p>
 
         <!-- Instructions -->
-        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left">
+        <div
+          class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6 text-left"
+        >
           <h2 class="font-semibold text-blue-900 mb-2 flex items-center">
             <i class="fas fa-info-circle mr-2"></i>
             Next Steps:
           </h2>
-          <ol class="text-sm text-blue-800 space-y-2 ml-6 list-decimal">
+          <ol class="text-sm text-blue-800 space-y-2 ml-6 list-decimal" id="instructionsList">
             <li>Open your email inbox</li>
             <li>Find the verification email from Glampack HR</li>
             <li>Click the verification link in the email</li>
@@ -60,20 +68,23 @@
         <!-- Spam Warning -->
         <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
           <div class="flex items-start">
-            <i class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"></i>
+            <i
+              class="fas fa-exclamation-triangle text-yellow-600 mt-1 mr-3"
+            ></i>
             <div class="text-left">
               <h3 class="font-semibold text-yellow-900 mb-1">
                 Can't find the email?
               </h3>
               <p class="text-sm text-yellow-800">
-                Please check your <strong>spam</strong> or <strong>junk</strong> folder.
-                Sometimes verification emails end up there.
+                Please check your <strong>spam</strong> or
+                <strong>junk</strong> folder. Sometimes verification emails end
+                up there.
               </p>
             </div>
           </div>
         </div>
 
-        <!-- Resend Button -->
+        <!-- Resend Button (hidden for password reset) -->
         <button
           id="resendBtn"
           class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors mb-4 flex items-center justify-center"
@@ -84,7 +95,8 @@
 
         <!-- Timer text -->
         <p id="timerText" class="text-sm text-gray-500 mb-4 hidden">
-          You can resend in <span id="countdown" class="font-semibold">60</span> seconds
+          You can resend in
+          <span id="countdown" class="font-semibold">60</span> seconds
         </p>
 
         <!-- Back to Sign In -->
@@ -99,7 +111,12 @@
 
       <!-- Footer -->
       <p class="text-center text-gray-600 text-sm mt-6">
-        Need help? Contact <a href="mailto:support@glampack.com" class="text-red-600 hover:underline">support@glampack.com</a>
+        Need help? Contact
+        <a
+          href="mailto:help@packglamour.com"
+          class="text-red-600 hover:underline"
+          >support@glampack.com</a
+        >
       </p>
     </div>
 
@@ -109,106 +126,135 @@
     <script src="config.js"></script>
 
     <script>
-      // Get email from URL parameter
+      // Get email and type from URL parameters
       const urlParams = new URLSearchParams(window.location.search);
-      const userEmail = urlParams.get('email');
+      const userEmail = urlParams.get("email");
+      const emailType = urlParams.get("type"); // 'reset' for password reset, default is verification
 
       if (userEmail) {
-        document.getElementById('userEmail').textContent = userEmail;
+        document.getElementById("userEmail").textContent = userEmail;
+      }
+
+      // Update page content based on type
+      if (emailType === 'reset') {
+        // Password reset flow
+        document.getElementById("pageHeading").textContent = "Password Reset Email Sent";
+        document.getElementById("pageDescription").innerHTML = `We've sent a password reset link to <span class="font-semibold text-gray-800">${userEmail}</span>`;
+
+        document.getElementById("instructionsList").innerHTML = `
+          <li>Open your email inbox</li>
+          <li>Find the password reset email from Glampack HR</li>
+          <li>Click the reset link in the email</li>
+          <li>Create your new password</li>
+          <li>Sign in with your new password</li>
+        `;
+
+        // Hide resend button for password reset
+        document.getElementById("resendBtn").style.display = 'none';
+        document.getElementById("timerText").style.display = 'none';
       }
 
       // Resend functionality
       let canResend = true;
       let countdownInterval;
 
-      document.getElementById('resendBtn').addEventListener('click', async function() {
-        if (!canResend) return;
+      document
+        .getElementById("resendBtn")
+        .addEventListener("click", async function () {
+          if (!canResend) return;
 
-        const btn = this;
-        const timerText = document.getElementById('timerText');
-        const countdown = document.getElementById('countdown');
+          const btn = this;
+          const timerText = document.getElementById("timerText");
+          const countdown = document.getElementById("countdown");
 
-        try {
-          btn.disabled = true;
-          btn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
+          try {
+            btn.disabled = true;
+            btn.innerHTML =
+              '<i class="fas fa-spinner fa-spin mr-2"></i>Sending...';
 
-          // Get current user from Firebase
-          const user = firebase.auth().currentUser;
+            // Get current user from Firebase
+            const user = firebase.auth().currentUser;
 
-          if (!user) {
-            // If no current user, try to get from email
-            alert('Session expired. Please sign up again.');
-            window.location.href = 'packaging-glamour-signup.html';
-            return;
-          }
+            if (!user) {
+              // If no current user, try to get from email
+              alert("Session expired. Please sign up again.");
+              window.location.href = "packaging-glamour-signup.html";
+              return;
+            }
 
-          // Send verification email
-          await user.sendEmailVerification({
-            url: window.location.origin + '/packaging-glamour-signin.html',
-            handleCodeInApp: false
-          });
+            // Send verification email
+            await user.sendEmailVerification({
+              url: window.location.origin + "/packaging-glamour-signin.html",
+              handleCodeInApp: false,
+            });
 
-          btn.innerHTML = '<i class="fas fa-check mr-2"></i>Email Sent!';
-          btn.classList.remove('bg-red-600', 'hover:bg-red-700');
-          btn.classList.add('bg-green-600');
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Email Sent!';
+            btn.classList.remove("bg-red-600", "hover:bg-red-700");
+            btn.classList.add("bg-green-600");
 
-          // Start countdown
-          canResend = false;
-          let seconds = 60;
-          timerText.classList.remove('hidden');
-          countdown.textContent = seconds;
-
-          countdownInterval = setInterval(() => {
-            seconds--;
+            // Start countdown
+            canResend = false;
+            let seconds = 60;
+            timerText.classList.remove("hidden");
             countdown.textContent = seconds;
 
-            if (seconds <= 0) {
-              clearInterval(countdownInterval);
-              canResend = true;
-              timerText.classList.add('hidden');
-              btn.disabled = false;
-              btn.innerHTML = '<i class="fas fa-redo mr-2"></i>Resend Verification Email';
-              btn.classList.remove('bg-green-600');
-              btn.classList.add('bg-red-600', 'hover:bg-red-700');
+            countdownInterval = setInterval(() => {
+              seconds--;
+              countdown.textContent = seconds;
+
+              if (seconds <= 0) {
+                clearInterval(countdownInterval);
+                canResend = true;
+                timerText.classList.add("hidden");
+                btn.disabled = false;
+                btn.innerHTML =
+                  '<i class="fas fa-redo mr-2"></i>Resend Verification Email';
+                btn.classList.remove("bg-green-600");
+                btn.classList.add("bg-red-600", "hover:bg-red-700");
+              }
+            }, 1000);
+          } catch (error) {
+            console.error("Resend verification error:", error);
+            btn.disabled = false;
+            btn.innerHTML =
+              '<i class="fas fa-redo mr-2"></i>Resend Verification Email';
+
+            let errorMessage =
+              "Failed to send verification email. Please try again.";
+            if (error.code === "auth/too-many-requests") {
+              errorMessage =
+                "Too many requests. Please wait a few minutes and try again.";
             }
-          }, 1000);
 
-        } catch (error) {
-          console.error('Resend verification error:', error);
-          btn.disabled = false;
-          btn.innerHTML = '<i class="fas fa-redo mr-2"></i>Resend Verification Email';
-
-          let errorMessage = 'Failed to send verification email. Please try again.';
-          if (error.code === 'auth/too-many-requests') {
-            errorMessage = 'Too many requests. Please wait a few minutes and try again.';
+            alert(errorMessage);
           }
+        });
 
-          alert(errorMessage);
-        }
-      });
-
-      // Check if user is already verified
-      firebase.auth().onAuthStateChanged(async (user) => {
-        if (user) {
-          await user.reload();
-          if (user.emailVerified) {
-            // User is verified, redirect to sign in
-            window.location.href = 'packaging-glamour-signin.html';
+      // Only check verification status for signup verification (not password reset)
+      if (emailType !== 'reset') {
+        // Check if user is already verified
+        firebase.auth().onAuthStateChanged(async (user) => {
+          if (user) {
+            await user.reload();
+            if (user.emailVerified) {
+              // User is verified, redirect to sign in
+              window.location.href = "packaging-glamour-signin.html";
+            }
           }
-        }
-      });
+        });
 
-      // Auto-check verification status every 5 seconds
-      const verificationCheck = setInterval(async () => {
-        const user = firebase.auth().currentUser;
-        if (user) {
-          await user.reload();
-          if (user.emailVerified) {
-            clearInterval(verificationCheck);
-            window.location.href = 'packaging-glamour-signin.html';
+        // Auto-check verification status every 5 seconds
+        const verificationCheck = setInterval(async () => {
+          const user = firebase.auth().currentUser;
+          if (user) {
+            await user.reload();
+            if (user.emailVerified) {
+              clearInterval(verificationCheck);
+              window.location.href = "packaging-glamour-signin.html";
+            }
           }
-        }
-      }, 5000);
+        }, 5000);
+      }
     </script>
   </body>
 </html>
