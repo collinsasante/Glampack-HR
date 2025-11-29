@@ -655,9 +655,9 @@
           ].filter((item) => item.amount > 0),
           totalEarnings: totalAllowances,
           deductions: [
-            { label: "Income Tax", amount: incomeTax },
+            { label: "PAYE", amount: incomeTax },
             { label: "Welfare", amount: welfare },
-            { label: "Social Security", amount: socialSecurity },
+            { label: "Social Security Deductions", amount: socialSecurity },
             { label: "Health Insurance", amount: healthInsurance },
             { label: "Other Deductions", amount: otherDeductions },
           ].filter((item) => item.amount > 0),
@@ -668,23 +668,50 @@
         // Fetch full employee details from Airtable
         let employeeData = {
           name: currentUser.name || "--",
+          telephone: "--",
+          email: "--",
+          socialSecurityNumber: "--",
+          ghanaCard: "--",
+          staffID: "--",
           nationalID: "--",
           position: currentUser.jobTitle || "--",
           department: currentUser.department || "--",
+          location: "Accra",
           bankAccountNumber: "--",
           bankName: "--",
+          paymentDate: "--",
         };
 
         try {
           const employee = await getEmployee(currentUser.id);
           if (employee && employee.fields) {
+            // Get payment date from payroll record or use current month end
+            let paymentDate = fields["Payment Date"] || "";
+            if (!paymentDate && monthValue) {
+              // If no payment date, use last day of the month
+              const [y, m] = monthValue.split("-");
+              const lastDay = new Date(parseInt(y), parseInt(m), 0);
+              paymentDate = lastDay.toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric"
+              });
+            }
+
             employeeData = {
               name: employee.fields["Full Name"] || currentUser.name || "--",
+              telephone: employee.fields["Phone Number"] || employee.fields["Telephone"] || "--",
+              email: employee.fields["Email"] || "--",
+              socialSecurityNumber: employee.fields["Social Security Number"] || employee.fields["SSNIT Number"] || "--",
+              ghanaCard: employee.fields["Ghana Card Number"] || employee.fields["GH Card"] || "--",
+              staffID: employee.fields["Employee ID"] || employee.fields["Staff ID"] || currentUser.id.substring(0, 8).toUpperCase() || "--",
               nationalID: employee.fields["National ID"] || employee.fields["Employee ID"] || currentUser.id.substring(0, 8).toUpperCase() || "--",
               position: employee.fields["Job Title"] || currentUser.jobTitle || "--",
               department: employee.fields["Department"] || currentUser.department || "--",
+              location: employee.fields["Location"] || "Accra",
               bankAccountNumber: employee.fields["Bank Account Number"] || "--",
               bankName: employee.fields["Bank Name"] || "--",
+              paymentDate: paymentDate,
             };
           }
         } catch (error) {
@@ -753,7 +780,7 @@
         // ============ EMPLOYEE INFO BOX ============
 
         doc.setFillColor(245, 245, 245);
-        doc.rect(20, 65, 170, 50, "F");
+        doc.rect(20, 65, 170, 70, "F");
 
         let y = 70;
 
@@ -761,23 +788,53 @@
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
-        doc.text("Employee", 25, y);
+        doc.text("Employee Name", 25, y);
         doc.setFontSize(9);
         doc.setFont("helvetica", "bold");
         doc.setTextColor(0, 0, 0);
         doc.text(employeeData.name, 25, y + 4);
 
-        y += 12;
+        y += 10;
 
         doc.setFont("helvetica", "normal");
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
-        doc.text("National ID", 25, y);
+        doc.text("Telephone", 25, y);
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        doc.text(employeeData.nationalID, 25, y + 4);
+        doc.text(employeeData.telephone, 25, y + 4);
 
-        y += 12;
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Email", 25, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.email, 25, y + 4);
+
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Social Security Number", 25, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.socialSecurityNumber, 25, y + 4);
+
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("GH Card", 25, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.ghanaCard, 25, y + 4);
+
+        y += 10;
 
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
@@ -787,7 +844,7 @@
         doc.setFontSize(9);
         doc.text(employeeData.bankName, 25, y + 4);
 
-        y += 12;
+        y += 10;
 
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
@@ -801,21 +858,51 @@
         y = 70;
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
-        doc.text("Job Position", 110, y);
+        doc.text("STAFF ID", 110, y);
         doc.setFontSize(9);
         doc.setTextColor(0, 0, 0);
-        doc.text(employeeData.position, 110, y + 4);
+        doc.text(employeeData.staffID, 110, y + 4);
 
-        y += 12;
+        y += 10;
 
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
-        doc.text("Department", 110, y);
+        doc.text("Dept", 110, y);
         doc.setTextColor(0, 0, 0);
         doc.setFontSize(9);
         doc.text(employeeData.department || "-", 110, y + 4);
 
-        y += 12;
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Position", 110, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.position, 110, y + 4);
+
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Location", 110, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.location, 110, y + 4);
+
+        y += 10;
+
+        doc.setFontSize(8);
+        doc.setTextColor(120, 120, 120);
+        doc.text("Payment Date", 110, y);
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(0, 0, 0);
+        doc.setFontSize(9);
+        doc.text(employeeData.paymentDate || "Not specified", 110, y + 4);
+
+        y += 10;
 
         doc.setFontSize(8);
         doc.setTextColor(120, 120, 120);
@@ -827,7 +914,7 @@
 
         // ============ SALARY BREAKDOWN ============
 
-        y = 127;
+        y = 147;
 
         doc.setFontSize(10);
         doc.setFont("helvetica", "normal");
