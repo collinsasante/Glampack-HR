@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday Modal Test - Glampack HR</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+    <!-- Shared Modal System -->
+    <script src="shared-modal.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-2xl shadow-2xl p-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-6 text-center">
+            <i class="fas fa-birthday-cake text-red-600 mr-3"></i>
+            Birthday System Test
+        </h1>
+
+        <p class="text-gray-600 mb-8 text-center">
+            Click the buttons below to preview the birthday celebration modal
+        </p>
+
+        <div class="space-y-4">
+            <!-- Single Birthday Test -->
+            <button
+                onclick="testSingleBirthday()"
+                class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center"
+            >
+                <i class="fas fa-user text-2xl mr-3"></i>
+                <div class="text-left">
+                    <div class="font-bold">Single Birthday Celebration</div>
+                    <div class="text-sm text-red-100">Preview birthday modal for one employee</div>
+                </div>
+            </button>
+
+            <!-- Multiple Birthdays Test -->
+            <button
+                onclick="testMultipleBirthdays()"
+                class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center"
+            >
+                <i class="fas fa-users text-2xl mr-3"></i>
+                <div class="text-left">
+                    <div class="font-bold">Multiple Birthdays Celebration</div>
+                    <div class="text-sm text-purple-100">Preview birthday modal for multiple employees</div>
+                </div>
+            </button>
+
+            <!-- Custom Alert Test -->
+            <button
+                onclick="testCustomAlert()"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-6 rounded-lg transition-colors flex items-center justify-center"
+            >
+                <i class="fas fa-bell text-2xl mr-3"></i>
+                <div class="text-left">
+                    <div class="font-bold">Custom Alert Test</div>
+                    <div class="text-sm text-blue-100">Preview the custom alert modal</div>
+                </div>
+            </button>
+
+            <!-- Reset localStorage -->
+            <button
+                onclick="resetBirthdayStorage()"
+                class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+            >
+                <i class="fas fa-redo mr-2"></i>
+                Reset Birthday Storage (Clear "Already Shown Today" Flag)
+            </button>
+        </div>
+
+        <div class="mt-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-blue-900 mb-2 flex items-center">
+                <i class="fas fa-info-circle mr-2"></i>
+                How the Birthday System Works
+            </h3>
+            <ul class="text-sm text-blue-800 space-y-2">
+                <li><i class="fas fa-check text-green-600 mr-2"></i>Automatically checks all employees when they login</li>
+                <li><i class="fas fa-check text-green-600 mr-2"></i>Compares Date of Birth with today's date (month & day)</li>
+                <li><i class="fas fa-check text-green-600 mr-2"></i>Shows celebration modal with employee names & departments</li>
+                <li><i class="fas fa-check text-green-600 mr-2"></i>Uses localStorage to show only once per day</li>
+                <li><i class="fas fa-check text-green-600 mr-2"></i>Supports single or multiple birthday celebrants</li>
+            </ul>
+        </div>
+
+        <div class="mt-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+            <h3 class="font-semibold text-yellow-900 mb-2 flex items-center">
+                <i class="fas fa-database mr-2"></i>
+                Required Airtable Field
+            </h3>
+            <p class="text-sm text-yellow-800">
+                The system requires a <strong>"Date of Birth"</strong> field in the Employees table (type: Date).
+                Make sure employees have their birthdates entered in Airtable.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Test single birthday
+        function testSingleBirthday() {
+            const employees = [
+                {
+                    name: 'John Mensah',
+                    department: 'Operations'
+                }
+            ];
+            showBirthdayModal(employees);
+        }
+
+        // Test multiple birthdays
+        function testMultipleBirthdays() {
+            const employees = [
+                {
+                    name: 'John Mensah',
+                    department: 'Operations'
+                },
+                {
+                    name: 'Sarah Osei',
+                    department: 'HR'
+                },
+                {
+                    name: 'Kwame Asante',
+                    department: 'Finance'
+                }
+            ];
+            showBirthdayModal(employees);
+        }
+
+        // Test custom alert
+        async function testCustomAlert() {
+            await customAlert(
+                'This is what the new custom alert system looks like! No more browser default alerts.',
+                'Success',
+                'success'
+            );
+        }
+
+        // Reset localStorage
+        function resetBirthdayStorage() {
+            localStorage.removeItem('birthdayModalShown');
+            alert('Birthday storage cleared! The modal will show again when triggered.');
+        }
+    </script>
+</body>
+</html>
