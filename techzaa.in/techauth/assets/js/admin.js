@@ -2986,6 +2986,7 @@ function editPayroll(record) {
     const fields = record.fields;
     document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
     document.getElementById('payrollMonth').value = fields['Month'] || '';
+    document.getElementById('payrollStatus').value = fields['Status'] || 'Processed';
     document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
     document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
     document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
@@ -3255,6 +3256,9 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const monthValueEl = document.getElementById('payrollMonth');
     const monthValue = monthValueEl ? monthValueEl.value : '';
 
+    const statusEl = document.getElementById('payrollStatus');
+    const statusValue = statusEl ? statusEl.value : 'Processed';
+
     const payrollData = {
         'Employee': [document.getElementById('payrollEmployee').value],
         'Month': monthValue,  // Text field for YYYY-MM format
@@ -3272,7 +3276,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Net Salary': netSalary,  // This is a Number field, not Formula, so we can send it
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': 'Processed',  // Options: Processed, Pending
+        'Status': statusValue,  // Options: Processed, Pending - read from dropdown
         'Payment Date': new Date().toISOString().split('T')[0]
     };
 
