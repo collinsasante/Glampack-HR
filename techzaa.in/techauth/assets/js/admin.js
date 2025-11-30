@@ -111,24 +111,32 @@ updateUserInfo();
 // Restore last active tab on page load
 function restoreActiveTab() {
     const savedTab = localStorage.getItem('adminActiveTab');
-    // Default to 'employees' if no saved tab or if element doesn't exist
+    // Default to 'employees' if no saved tab
     const defaultTab = 'employees';
     const tabToShow = savedTab || defaultTab;
 
     // Verify the tab element exists before switching
     const tabElement = document.getElementById(`content-${tabToShow}`);
-    if (tabElement) {
+    const tabButton = document.getElementById(`tab-${tabToShow}`);
+
+    if (tabElement && tabButton) {
         switchTab(tabToShow);
+    } else if (savedTab) {
+        // Saved tab doesn't exist, clear it and use default
+        localStorage.removeItem('adminActiveTab');
+        switchTab(defaultTab);
     } else {
-        // Fallback to default if saved tab doesn't exist
         switchTab(defaultTab);
     }
 }
 
-// Initialize on page load
-window.addEventListener('DOMContentLoaded', () => {
+// Initialize on page load - use both DOMContentLoaded and load for reliability
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', restoreActiveTab);
+} else {
+    // DOM already loaded
     restoreActiveTab();
-});
+}
 
 // ========================================
 // AIRTABLE CONFIGURATION
@@ -1323,11 +1331,9 @@ async function displayAnnouncements(announcements) {
         return;
     }
 
-    // Sort by date (newest first) - use Date field or fallback to createdTime
+    // Sort by date and time (newest first) - use createdTime which includes timestamp
     announcements.sort((a, b) => {
-        const dateA = a.fields['Date'] || a.createdTime;
-        const dateB = b.fields['Date'] || b.createdTime;
-        return new Date(dateB) - new Date(dateA);
+        return new Date(b.createdTime) - new Date(a.createdTime);
     });
 
     // Fetch all reads and comments for counting
