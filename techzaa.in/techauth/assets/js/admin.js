@@ -3263,15 +3263,13 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        'Total Allowances': totalAllowances,
-        'Gross Salary': grossSalary,
+        // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': incomeTax,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        'Total Deductions': totalDeductions,
-        'Net Salary': netSalary,
+        'Net Salary': netSalary,  // This is a Number field, not Formula, so we can send it
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
         'Status': 'Processed',  // Options: Processed, Pending
