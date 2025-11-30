@@ -1373,7 +1373,8 @@ async function displayAnnouncements(announcements) {
 
         // Create summary (first 100 characters)
         const summary = message.length > 100 ? message.substring(0, 100) + '...' : message;
-        const hasMore = message.length > 100;
+        // Show "Read more" if message is long OR if there's an image
+        const hasMore = message.length > 100 || announcement.fields['Image URL'];
 
         // Priority colors
         const priorityColors = {
@@ -3250,16 +3251,12 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Convert month value (YYYY-MM) to month name for Pay Month dropdown
-    const monthValue = document.getElementById('payrollMonth').value;
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-                       'July', 'August', 'September', 'October', 'November', 'December'];
-    const monthIndex = parseInt(monthValue.split('-')[1]) - 1;
-    const payMonthName = monthNames[monthIndex];
+    // Get month value (YYYY-MM format)
+    const monthValueEl = document.getElementById('payrollMonth');
+    const monthValue = monthValueEl ? monthValueEl.value : '';
 
     const payrollData = {
         'Employee': [document.getElementById('payrollEmployee').value],
-        'Pay Month': payMonthName,  // Dropdown field for month name (January-December)
         'Month': monthValue,  // Text field for YYYY-MM format
         'Basic Salary': basicSalary,
         'Housing Allowance': housingAllowance,
@@ -3274,7 +3271,6 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
         // 'Total Deductions' - REMOVED (Formula field in Airtable, computed automatically)
-        'Deductions': totalDeductions,  // Use 'Deductions' field (non-formula) for total
         // 'Net Pay' - REMOVED (Formula field in Airtable, computed automatically)
         // 'Net Salary' - REMOVED (Formula field in Airtable, computed automatically)
         'Custom Allowances': JSON.stringify(customAllowances),
