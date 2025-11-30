@@ -1323,8 +1323,12 @@ async function displayAnnouncements(announcements) {
         return;
     }
 
-    // Sort by date (newest first)
-    announcements.sort((a, b) => new Date(b.createdTime) - new Date(a.createdTime));
+    // Sort by date (newest first) - use Date field or fallback to createdTime
+    announcements.sort((a, b) => {
+        const dateA = a.fields['Date'] || a.createdTime;
+        const dateB = b.fields['Date'] || b.createdTime;
+        return new Date(dateB) - new Date(dateA);
+    });
 
     // Fetch all reads and comments for counting
     const [allReadsResponse, allCommentsResponse] = await Promise.all([
@@ -1423,7 +1427,7 @@ async function displayAnnouncements(announcements) {
                         </button>
                     </div>
                 </div>
-                <div class="flex justify-between items-center pt-3 border-t border-gray-200 mt-3">
+                <div class="flex items-center pt-3 border-t border-gray-200 mt-3">
                     <div class="flex gap-4 text-sm text-gray-600">
                         <span><i class="fas fa-eye mr-1"></i>${viewCount} views</span>
                         <span><i class="fas fa-comment mr-1"></i>${commentCount} comments</span>
