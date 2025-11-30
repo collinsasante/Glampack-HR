@@ -3015,12 +3015,18 @@ async function deletePayrollHandler(payrollId, employeeName, month) {
 }
 
 function calculateNetSalary() {
-    // Get all allowances
-    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
-    const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
-    const benefits = parseFloat(document.getElementById('benefits').value) || 0;
-    const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
+    // Get all allowances - check if elements exist first
+    const basicSalaryEl = document.getElementById('basicSalary');
+    const housingAllowanceEl = document.getElementById('housingAllowance');
+    const transportAllowanceEl = document.getElementById('transportAllowance');
+    const benefitsEl = document.getElementById('benefits');
+    const otherAllowancesEl = document.getElementById('otherAllowances');
+
+    const basicSalary = basicSalaryEl ? parseFloat(basicSalaryEl.value) || 0 : 0;
+    const housingAllowance = housingAllowanceEl ? parseFloat(housingAllowanceEl.value) || 0 : 0;
+    const transportAllowance = transportAllowanceEl ? parseFloat(transportAllowanceEl.value) || 0 : 0;
+    const benefits = benefitsEl ? parseFloat(benefitsEl.value) || 0 : 0;
+    const otherAllowances = otherAllowancesEl ? parseFloat(otherAllowancesEl.value) || 0 : 0;
 
     // Add custom allowances
     const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -3029,12 +3035,18 @@ function calculateNetSalary() {
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
     const grossSalary = basicSalary + totalAllowances;
 
-    // Get all deductions
-    const incomeTax = parseFloat(document.getElementById('incomeTax').value) || 0;
-    const welfare = parseFloat(document.getElementById('welfare').value) || 0;
-    const socialSecurity = parseFloat(document.getElementById('socialSecurity').value) || 0;
-    const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
-    const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+    // Get all deductions - check if elements exist first
+    const incomeTaxEl = document.getElementById('incomeTax');
+    const welfareEl = document.getElementById('welfare');
+    const socialSecurityEl = document.getElementById('socialSecurity');
+    const healthInsuranceEl = document.getElementById('healthInsurance');
+    const otherDeductionsEl = document.getElementById('otherDeductions');
+
+    const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
+    const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
+    const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
+    const otherDeductions = otherDeductionsEl ? parseFloat(otherDeductionsEl.value) || 0 : 0;
 
     // Add custom deductions
     const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
@@ -3203,21 +3215,34 @@ function updateCustomDeductionsList() {
 document.getElementById('payrollForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
-    const payrollId = document.getElementById('payrollId').value;
+    const payrollIdEl = document.getElementById('payrollId');
+    const payrollId = payrollIdEl ? payrollIdEl.value : '';
 
-    // Calculate all values
-    const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
-    const housingAllowance = parseFloat(document.getElementById('housingAllowance').value) || 0;
-    const transportAllowance = parseFloat(document.getElementById('transportAllowance').value) || 0;
-    const benefits = parseFloat(document.getElementById('benefits').value) || 0;
-    const otherAllowances = parseFloat(document.getElementById('otherAllowances').value) || 0;
+    // Calculate all values - check if elements exist first
+    const basicSalaryEl = document.getElementById('basicSalary');
+    const housingAllowanceEl = document.getElementById('housingAllowance');
+    const transportAllowanceEl = document.getElementById('transportAllowance');
+    const benefitsEl = document.getElementById('benefits');
+    const otherAllowancesEl = document.getElementById('otherAllowances');
+
+    const basicSalary = basicSalaryEl ? parseFloat(basicSalaryEl.value) || 0 : 0;
+    const housingAllowance = housingAllowanceEl ? parseFloat(housingAllowanceEl.value) || 0 : 0;
+    const transportAllowance = transportAllowanceEl ? parseFloat(transportAllowanceEl.value) || 0 : 0;
+    const benefits = benefitsEl ? parseFloat(benefitsEl.value) || 0 : 0;
+    const otherAllowances = otherAllowancesEl ? parseFloat(otherAllowancesEl.value) || 0 : 0;
     const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
-    const incomeTax = parseFloat(document.getElementById('incomeTax').value) || 0;
-    const welfare = parseFloat(document.getElementById('welfare').value) || 0;
-    const socialSecurity = parseFloat(document.getElementById('socialSecurity').value) || 0;
-    const healthInsurance = parseFloat(document.getElementById('healthInsurance').value) || 0;
-    const otherDeductions = parseFloat(document.getElementById('otherDeductions').value) || 0;
+    const incomeTaxEl = document.getElementById('incomeTax');
+    const welfareEl = document.getElementById('welfare');
+    const socialSecurityEl = document.getElementById('socialSecurity');
+    const healthInsuranceEl = document.getElementById('healthInsurance');
+    const otherDeductionsEl = document.getElementById('otherDeductions');
+
+    const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
+    const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
+    const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
+    const otherDeductions = otherDeductionsEl ? parseFloat(otherDeductionsEl.value) || 0 : 0;
     const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
