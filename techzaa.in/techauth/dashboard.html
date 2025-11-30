@@ -257,7 +257,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <a
             href="#"
-            onclick="alert('Staff Medical Policy document will be available soon'); return false;"
+            onclick="customAlert('Staff Medical Policy document will be available soon', 'Coming Soon', 'info'); return false;"
             class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all"
           >
             <div class="bg-blue-500 p-3 rounded-lg mr-4">
@@ -270,7 +270,7 @@
           </a>
           <a
             href="#"
-            onclick="alert('Employee Handbook will be available soon'); return false;"
+            onclick="customAlert('Employee Handbook will be available soon', 'Coming Soon', 'info'); return false;"
             class="flex items-center p-4 bg-gradient-to-r from-green-50 to-green-100 hover:from-green-100 hover:to-green-200 rounded-lg border border-green-200 transition-all"
           >
             <div class="bg-green-500 p-3 rounded-lg mr-4">
@@ -283,7 +283,7 @@
           </a>
           <a
             href="#"
-            onclick="alert('Staff Welfare Guide will be available soon'); return false;"
+            onclick="customAlert('Staff Welfare Guide will be available soon', 'Coming Soon', 'info'); return false;"
             class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 transition-all"
           >
             <div class="bg-purple-500 p-3 rounded-lg mr-4">
@@ -334,6 +334,7 @@
 
     <!-- Scripts -->
     <script src="config-worker.js?v=2"></script>
+    <script src="shared-modal.js"></script>
     <script>
       // Authentication check
       const currentUser = JSON.parse(sessionStorage.getItem("currentUser"));
@@ -346,6 +347,12 @@
         sessionStorage.removeItem("currentUser");
         window.location.href = "packaging-glamour-signin.html";
       }
+
+      // Check for birthdays after page loads
+      window.addEventListener('DOMContentLoaded', function() {
+        // Wait a bit for other elements to load
+        setTimeout(checkBirthdays, 1000);
+      });
 
       // Chart instance
       let attendanceChart = null;

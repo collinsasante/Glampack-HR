@@ -130,6 +130,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
     <script src="firebase-config.js"></script>
 
+    <!-- Shared Modal System -->
+    <script src="shared-modal.js"></script>
+
     <script>
       // Get email and type from URL parameters
       const urlParams = new URLSearchParams(window.location.search);
@@ -184,7 +187,7 @@
 
             if (!user) {
               // If no current user, try to get from email
-              alert("Session expired. Please sign up again.");
+              await customAlert("Session expired. Please sign up again.", "Session Expired", "warning");
               window.location.href = "packaging-glamour-signup.html";
               return;
             }
@@ -233,7 +236,7 @@
                 "Too many requests. Please wait a few minutes and try again.";
             }
 
-            alert(errorMessage);
+            await customAlert(errorMessage, "Error", "error");
           }
         });
 

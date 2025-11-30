@@ -408,6 +408,8 @@ function showError(message) {
   // Use toast notification system if available
   if (typeof showToast === 'function') {
     showToast('error', 'Error', message);
+  } else if (typeof customAlert === 'function') {
+    customAlert(message, 'Error', 'error');
   } else {
     alert(message);
   }
@@ -417,6 +419,8 @@ function showSuccess(message) {
   // Use toast notification system if available
   if (typeof showToast === 'function') {
     showToast('success', 'Success', message);
+  } else if (typeof customAlert === 'function') {
+    customAlert(message, 'Success', 'success');
   } else {
     alert(message);
   }

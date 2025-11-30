@@ -4360,7 +4360,7 @@ async function copyFromPreviousMonth() {
         const selectedPayroll = allPayroll.find(p => p.id === payrollId);
 
         if (!selectedPayroll) {
-            alert('Payroll record not found');
+            await customAlert('Payroll record not found', 'Error', 'error');
             return;
         }
 
@@ -4397,12 +4397,12 @@ async function copyFromPreviousMonth() {
         // Trigger calculation
         calculateNetSalary();
 
-        alert('Data copied successfully! Review and make any necessary changes.');
+        await customAlert('Data copied successfully! Review and make any necessary changes.', 'Success', 'success');
 
         // Reset dropdown
         document.getElementById('copyFromMonth').value = '';
 
     } catch (error) {
-        alert('Error copying payroll data: ' + error.message);
+        await customAlert('Error copying payroll data: ' + error.message, 'Error', 'error');
     }
 }

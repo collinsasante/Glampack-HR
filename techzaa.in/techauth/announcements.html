@@ -32,6 +32,9 @@
     <!-- Worker API Configuration -->
     <script src="config-worker.js?v=3"></script>
 
+    <!-- Shared Modal System -->
+    <script src="shared-modal.js"></script>
+
     <!-- Authentication Script -->
     <script src="auth.js"></script>
 
@@ -466,13 +469,13 @@
               Date: new Date().toISOString().split("T")[0],
             });
 
-            alert("Announcement published successfully!");
+            await customAlert("Announcement published successfully!", "Success", "success");
             document.getElementById("announcementForm").reset();
             toggleCreateForm();
             loadAnnouncements();
           } catch (error) {
 
-            alert("Error creating announcement. Please try again.");
+            await customAlert("Error creating announcement. Please try again.", "Error", "error");
           }
         });
 
