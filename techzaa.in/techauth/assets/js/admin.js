@@ -3263,22 +3263,19 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        // 'Total Allowances' - REMOVED (Formula field in Airtable, computed automatically)
-        // 'Gross Salary' - REMOVED (Formula field in Airtable, computed automatically)
+        'Total Allowances': totalAllowances,
+        'Gross Salary': grossSalary,
         'Income Tax': incomeTax,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        // 'Total Deductions' - REMOVED (Formula field in Airtable, computed automatically)
-        // 'Net Pay' - REMOVED (Formula field in Airtable, computed automatically)
-        // 'Net Salary' - REMOVED (Formula field in Airtable, computed automatically)
+        'Total Deductions': totalDeductions,
+        'Net Salary': netSalary,
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
         'Status': 'Processed',  // Options: Processed, Pending
-        'Payment Date': new Date().toISOString().split('T')[0],
-        'Payment Method': 'Bank Transfer',  // Options: Bank Transfer, Cash, Mobile Money
-        'Bonus': 0  // Default to 0 (can be edited later)
+        'Payment Date': new Date().toISOString().split('T')[0]
     };
 
     try {
