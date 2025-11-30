@@ -336,6 +336,15 @@ async function updatePayroll(recordId, fields) {
     return workerRequest(`${API_CONFIG.endpoints.payroll}/${recordId}`, 'PATCH', { fields });
 }
 
+/**
+ * Delete a payroll record
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Deletion confirmation
+ */
+async function deletePayroll(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.payroll}/${recordId}`, 'DELETE');
+}
+
 // ========================================
 // MEDICAL CLAIMS API
 // ========================================

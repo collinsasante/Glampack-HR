@@ -108,6 +108,28 @@ function updateUserInfo() {
 }
 updateUserInfo();
 
+// Restore last active tab on page load
+function restoreActiveTab() {
+    const savedTab = localStorage.getItem('adminActiveTab');
+    // Default to 'employees' if no saved tab or if element doesn't exist
+    const defaultTab = 'employees';
+    const tabToShow = savedTab || defaultTab;
+
+    // Verify the tab element exists before switching
+    const tabElement = document.getElementById(`content-${tabToShow}`);
+    if (tabElement) {
+        switchTab(tabToShow);
+    } else {
+        // Fallback to default if saved tab doesn't exist
+        switchTab(defaultTab);
+    }
+}
+
+// Initialize on page load
+window.addEventListener('DOMContentLoaded', () => {
+    restoreActiveTab();
+});
+
 // ========================================
 // AIRTABLE CONFIGURATION
 // ========================================
@@ -139,6 +161,9 @@ function switchTab(tabName) {
     document.getElementById(`content-${tabName}`).classList.remove('hidden');
     document.getElementById(`tab-${tabName}`).classList.add('tab-active');
 
+    // Save current tab to localStorage for persistence
+    localStorage.setItem('adminActiveTab', tabName);
+
     // Load data based on tab
     if (tabName === 'employees') {
         loadEmployees();
@@ -153,6 +178,8 @@ function switchTab(tabName) {
         }
     } else if (tabName === 'reports') {
         populateReportFilters();
+    } else if (tabName === 'announcements') {
+        loadAnnouncements();
     }
 }
 
@@ -684,8 +711,9 @@ document.getElementById('employeeForm').addEventListener('submit', async functio
     if (ghanaCardNumberEl && ghanaCardNumberEl.value) {
         data['Ghana Card Number'] = ghanaCardNumberEl.value;
     }
-    if (socialSecurityNumberEl && socialSecurityNumberEl.value) {
-        data['Social Security Number'] = socialSecurityNumberEl.value;
+    // Always include Social Security Number if field exists (even if empty, to allow clearing)
+    if (socialSecurityNumberEl) {
+        data['Social Security Number'] = socialSecurityNumberEl.value || '';
     }
     if (cityEl && cityEl.value) {
         data['City'] = cityEl.value;
@@ -1427,6 +1455,11 @@ function openAddAnnouncementModal() {
 function closeAnnouncementModal() {
     document.getElementById('announcementModal').style.display = 'none';
     document.getElementById('announcementForm').reset();
+    // Hide image preview
+    const preview = document.getElementById('imagePreview');
+    if (preview) {
+        preview.classList.add('hidden');
+    }
 }
 
 async function editAnnouncement(announcementId) {
@@ -1438,6 +1471,18 @@ async function editAnnouncement(announcementId) {
     document.getElementById('annTitle').value = announcement.fields['Title'] || '';
     document.getElementById('annMessage').value = announcement.fields['Message'] || '';
     document.getElementById('annPriority').value = announcement.fields['Priority'] || 'Medium';
+
+    // Show existing image preview if available
+    const imageUrl = announcement.fields['Image URL'];
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    if (imageUrl && preview && previewImg) {
+        previewImg.src = imageUrl;
+        preview.classList.remove('hidden');
+    } else if (preview) {
+        preview.classList.add('hidden');
+    }
+
     document.getElementById('announcementModal').style.display = 'flex';
 }
 
@@ -1453,6 +1498,143 @@ async function deleteAnnouncement(announcementId) {
         showToast('error', 'Delete Failed', 'Error deleting announcement. Please try again.');
     }
 }
+
+// Handle announcement form submission
+async function saveAnnouncement(event) {
+    event.preventDefault();
+
+    const announcementId = document.getElementById('announcementId').value;
+    const title = document.getElementById('annTitle').value;
+    const message = document.getElementById('annMessage').value;
+    const priority = document.getElementById('annPriority').value;
+    const imageFile = document.getElementById('annImageFile').files[0];
+
+    try {
+        // Show loading state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Saving...';
+
+        let imageUrl = null;
+
+        // Upload image to Cloudinary if provided
+        if (imageFile) {
+            try {
+                // Show upload progress
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Uploading image...';
+
+                const uploadResult = await uploadToCloudinary(imageFile, (progress) => {
+                    submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Uploading ${Math.round(progress)}%`;
+                });
+
+                imageUrl = uploadResult.url;
+            } catch (uploadError) {
+                showToast('error', 'Upload Failed', uploadError.message);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnText;
+                return;
+            }
+        } else if (announcementId) {
+            // If editing and no new image, keep existing image
+            const existingAnnouncement = allAnnouncements.find(a => a.id === announcementId);
+            if (existingAnnouncement && existingAnnouncement.fields['Image URL']) {
+                imageUrl = existingAnnouncement.fields['Image URL'];
+            }
+        }
+
+        // Prepare announcement data
+        const announcementData = {
+            'Title': title,
+            'Message': message,
+            'Priority': priority,
+            'Posted By': currentUser.name
+        };
+
+        // Add image URL if available
+        if (imageUrl) {
+            announcementData['Image URL'] = imageUrl;
+        }
+
+        // Create or update announcement
+        if (announcementId) {
+            // Update existing announcement
+            await updateAnnouncement(announcementId, announcementData);
+            showToast('success', 'Updated', 'Announcement updated successfully!');
+        } else {
+            // Create new announcement
+            await createAnnouncement(announcementData);
+            showToast('success', 'Posted', 'Announcement posted successfully!');
+        }
+
+        // Reset form and close modal
+        closeAnnouncementModal();
+        loadAnnouncements();
+
+        // Reset button state
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+
+    } catch (error) {
+        showToast('error', 'Save Failed', error.message || 'Error saving announcement. Please try again.');
+
+        // Reset button state
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane mr-2"></i> Post Announcement';
+    }
+}
+
+// Preview image when selected
+function previewAnnouncementImage() {
+    const fileInput = document.getElementById('annImageFile');
+    const preview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+
+        // Validate file size (5MB max)
+        if (file.size > 5 * 1024 * 1024) {
+            showToast('error', 'File Too Large', 'Image must be less than 5MB');
+            fileInput.value = '';
+            preview.classList.add('hidden');
+            return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+            showToast('error', 'Invalid File', 'Please select an image file');
+            fileInput.value = '';
+            preview.classList.add('hidden');
+            return;
+        }
+
+        // Show preview
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            previewImg.src = e.target.result;
+            preview.classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    } else {
+        preview.classList.add('hidden');
+    }
+}
+
+// Initialize announcement form event listener
+document.addEventListener('DOMContentLoaded', () => {
+    const announcementForm = document.getElementById('announcementForm');
+    if (announcementForm) {
+        announcementForm.addEventListener('submit', saveAnnouncement);
+    }
+
+    // Add image preview listener
+    const imageInput = document.getElementById('annImageFile');
+    if (imageInput) {
+        imageInput.addEventListener('change', previewAnnouncementImage);
+    }
+});
 
 // View announcement stats (views and comments)
 async function viewAnnouncementStats(announcementId) {
@@ -2590,8 +2772,11 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">GH₵${grossSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
-                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900">
+                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 mr-3">
                         <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button onclick='deletePayrollHandler("${record.id}", "${employeeName}", "${monthDisplay}")' class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
             </tr>
@@ -2797,6 +2982,20 @@ function editPayroll(record) {
     document.getElementById('payrollModal').classList.add('active');
 }
 
+async function deletePayrollHandler(payrollId, employeeName, month) {
+    if (!confirm(`Are you sure you want to delete payroll record for ${employeeName} (${month})? This action cannot be undone.`)) {
+        return;
+    }
+
+    try {
+        await deletePayroll(payrollId);
+        showToast('success', 'Payroll Deleted', 'Payroll record deleted successfully!');
+        loadPayrollRecords();
+    } catch (error) {
+        showToast('error', 'Delete Failed', 'Error deleting payroll record. Please try again.');
+    }
+}
+
 function calculateNetSalary() {
     // Get all allowances
     const basicSalary = parseFloat(document.getElementById('basicSalary').value) || 0;
@@ -2829,11 +3028,13 @@ function calculateNetSalary() {
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
     const totalDeductionsEl = document.getElementById('totalDeductionsDisplay');
+    const totalDeductionsSummaryEl = document.getElementById('totalDeductionsSummary');
     const grossSalaryEl = document.getElementById('grossSalaryDisplay');
     const netSalaryEl = document.getElementById('netSalaryDisplay');
 
     if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
     if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
+    if (totalDeductionsSummaryEl) totalDeductionsSummaryEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
     if (grossSalaryEl) grossSalaryEl.textContent = `GH₵${grossSalary.toFixed(2)}`;
     if (netSalaryEl) netSalaryEl.textContent = `GH₵${netSalary.toFixed(2)}`;
 }
