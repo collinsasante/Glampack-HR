@@ -111,32 +111,40 @@ updateUserInfo();
 // Restore last active tab on page load
 function restoreActiveTab() {
     const savedTab = localStorage.getItem('adminActiveTab');
-    // Default to 'employees' if no saved tab
     const defaultTab = 'employees';
-    const tabToShow = savedTab || defaultTab;
 
-    // Verify the tab element exists before switching
-    const tabElement = document.getElementById(`content-${tabToShow}`);
-    const tabButton = document.getElementById(`tab-${tabToShow}`);
+    // If we have a saved tab, try to restore it
+    if (savedTab) {
+        const tabElement = document.getElementById(`content-${savedTab}`);
+        const tabButton = document.getElementById(`tab-${savedTab}`);
 
-    if (tabElement && tabButton) {
-        switchTab(tabToShow);
-    } else if (savedTab) {
-        // Saved tab doesn't exist, clear it and use default
-        localStorage.removeItem('adminActiveTab');
-        switchTab(defaultTab);
-    } else {
-        switchTab(defaultTab);
+        if (tabElement && tabButton) {
+            // Valid saved tab, restore it
+            switchTab(savedTab);
+            return;
+        } else {
+            // Invalid saved tab, clear it
+            localStorage.removeItem('adminActiveTab');
+        }
     }
+
+    // No saved tab or invalid saved tab, use default
+    switchTab(defaultTab);
 }
 
-// Initialize on page load - use both DOMContentLoaded and load for reliability
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', restoreActiveTab);
-} else {
-    // DOM already loaded
-    restoreActiveTab();
-}
+// Initialize on page load with multiple fallbacks for reliability
+window.addEventListener('DOMContentLoaded', restoreActiveTab);
+window.addEventListener('load', function() {
+    // Double-check on window load in case DOMContentLoaded fired before script loaded
+    const currentTab = localStorage.getItem('adminActiveTab');
+    if (currentTab) {
+        const tabElement = document.getElementById(`content-${currentTab}`);
+        if (tabElement && tabElement.classList.contains('hidden')) {
+            // Tab is not visible, restore it
+            restoreActiveTab();
+        }
+    }
+});
 
 // ========================================
 // AIRTABLE CONFIGURATION
@@ -1392,11 +1400,6 @@ async function displayAnnouncements(announcements) {
                                 <span class="mx-2">•</span>
                                 ${date}
                             </p>
-                            ${announcement.fields['Image URL'] ? `
-                                <div class="my-3">
-                                    <img src="${announcement.fields['Image URL']}" alt="${title}" class="max-w-full h-auto rounded-lg border border-gray-300" onerror="this.style.display='none'" />
-                                </div>
-                            ` : ''}
                             <div id="ann-preview-${announcement.id}">
                                 <p class="whitespace-pre-wrap text-sm">${summary}</p>
                                 ${hasMore ? `
@@ -1410,6 +1413,11 @@ async function displayAnnouncements(announcements) {
                                 ` : ''}
                             </div>
                             <div id="ann-full-${announcement.id}" class="hidden">
+                                ${announcement.fields['Image URL'] ? `
+                                    <div class="my-3">
+                                        <img src="${announcement.fields['Image URL']}" alt="${title}" class="max-w-full h-auto rounded-lg border border-gray-300" onerror="this.style.display='none'" />
+                                    </div>
+                                ` : ''}
                                 <p class="whitespace-pre-wrap text-sm">${message}</p>
                                 <button
                                     onclick="toggleAnnouncementDetails('${announcement.id}')"
