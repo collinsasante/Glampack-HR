@@ -638,11 +638,6 @@
                             </div>
                         </div>
                         <h3 class="text-xl font-bold text-gray-800 mb-2">${title}</h3>
-                        ${announcement.fields['Image URL'] ? `
-                            <div class="my-3">
-                                <img src="${announcement.fields['Image URL']}" alt="${title}" class="max-w-full h-auto rounded-lg border border-gray-300" onerror="this.style.display='none'" />
-                            </div>
-                        ` : ''}
                         <p class="text-gray-600 mb-3 whitespace-pre-line">${summary}</p>
                         ${hasMore ? '<p class="text-red-600 text-sm font-semibold mb-3"><i class="fas fa-arrow-right mr-1"></i> Click to read full announcement</p>' : ''}
                         <div class="flex justify-between items-center pt-3 border-t border-gray-200">
