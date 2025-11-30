@@ -3276,11 +3276,21 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Payment Date': new Date().toISOString().split('T')[0]
     };
 
+    // DEBUG: Log the payroll data being sent to API
+    console.log('=== PAYROLL DATA BEING SENT ===');
+    console.log('Full payrollData object:', JSON.stringify(payrollData, null, 2));
+    console.log('Employee ID:', payrollData['Employee']);
+    console.log('Month:', payrollData['Month']);
+    console.log('Status:', payrollData['Status']);
+    console.log('===============================');
+
     try {
         if (payrollId) {
+            console.log('Updating payroll with ID:', payrollId);
             await updatePayroll(payrollId, payrollData);
             showToast('success', 'Payroll Updated', 'Payroll updated successfully!');
         } else {
+            console.log('Creating new payroll record');
             await createPayroll(payrollData);
             showToast('success', 'Payroll Created', 'Payroll created successfully!');
         }
@@ -3288,12 +3298,19 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         closePayrollModal();
         loadPayrollRecords();
     } catch (error) {
+        // DEBUG: Log the full error
+        console.error('=== PAYROLL SAVE ERROR ===');
+        console.error('Error object:', error);
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('==========================');
 
         // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
         if (error.message) {
             try {
                 const errorObj = JSON.parse(error.message);
+                console.error('Parsed error object:', errorObj);
                 if (errorObj.error && errorObj.error.message) {
                     errorMessage = `${errorObj.error.message}`;
                 }
