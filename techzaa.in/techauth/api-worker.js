@@ -53,6 +53,8 @@ export default {
         return handlePayroll(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/medical-claims')) {
         return handleMedicalClaims(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
+      } else if (path.startsWith('/api/birthday-wishes')) {
+        return handleBirthdayWishes(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path.startsWith('/api/emergency-contacts')) {
         return handleEmergencyContacts(request, env, AIRTABLE_API_KEY, AIRTABLE_BASE_ID, corsHeaders);
       } else if (path === '/api/cloudinary/config') {
@@ -769,14 +771,62 @@ async function handleCloudinaryUpload(request, env, corsHeaders) {
 
   } catch (error) {
     return new Response(
-      JSON.stringify({ 
-        error: 'Upload failed', 
-        message: error.message 
+      JSON.stringify({
+        error: 'Upload failed',
+        message: error.message
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
+  }
+}
+
+// Birthday Wishes API handler
+async function handleBirthdayWishes(request, env, apiKey, baseId, corsHeaders) {
+  const url = new URL(request.url);
+  const pathParts = url.pathname.split('/');
+  const tableName = 'Birthday Wishes';
+
+  if (request.method === 'GET') {
+    const filterFormula = url.searchParams.get('filterByFormula');
+    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+    if (filterFormula) {
+      airtableUrl += `?filterByFormula=${filterFormula}`;
+    }
+
+    const response = await fetch(airtableUrl, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    const data = await response.json();
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  }
+
+  if (request.method === 'POST') {
+    const body = await request.json();
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
+
+    const response = await fetch(airtableUrl, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+
+    const data = await response.json();
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
   }
 }

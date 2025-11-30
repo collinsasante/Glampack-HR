@@ -460,6 +460,33 @@ async function getIPLocation() {
 // For legacy code that expects AIRTABLE_CONFIG object
 // This allows old code to work with the new Worker-based system
 
+// ========================================
+// BIRTHDAY WISHES API
+// ========================================
+
+/**
+ * Get birthday wishes
+ * @param {string} filterFormula - Airtable filter formula (optional)
+ * @returns {Promise<object>} Birthday wish records
+ */
+async function getBirthdayWishes(filterFormula = null) {
+    const endpoint = '/api/birthday-wishes';
+    const queryParams = filterFormula
+        ? `?filterByFormula=${encodeURIComponent(filterFormula)}`
+        : '';
+    return workerRequest(endpoint, 'GET', null, queryParams);
+}
+
+/**
+ * Create a birthday wish
+ * @param {object} fields - Birthday wish data
+ * @returns {Promise<object>} Created birthday wish record
+ */
+async function createBirthdayWish(fields) {
+    const endpoint = '/api/birthday-wishes';
+    return workerRequest(endpoint, 'POST', { fields });
+}
+
 const AIRTABLE_CONFIG = {
     // These are dummy values for backward compatibility
     // The actual API calls go through the Worker
@@ -472,7 +499,8 @@ const AIRTABLE_CONFIG = {
         leaveRequests: 'Leave Requests',
         announcements: 'Announcements',
         payroll: 'Payroll',
-        medicalClaims: 'Medical Claims'
+        medicalClaims: 'Medical Claims',
+        birthdayWishes: 'Birthday Wishes'
     }
 };
 
