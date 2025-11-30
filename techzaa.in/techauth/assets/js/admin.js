@@ -2777,6 +2777,12 @@ async function displayPayrollRecords(filteredData = null) {
         // Use 'Pay Month' field instead of 'Month'
         const monthDisplay = fields['Pay Month'] || fields['Month'] || '--';
 
+        // Get status and determine badge color
+        const status = fields['Status'] || 'Pending';
+        const statusBadge = status === 'Processed'
+            ? '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Processed</span>'
+            : '<span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">Pending</span>';
+
         // Store record in a global map for click handler access
         window.payrollRecordsMap = window.payrollRecordsMap || {};
         window.payrollRecordsMap[record.id] = record;
@@ -2790,6 +2796,7 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${totalDeductions.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-gray-900">GH₵${grossSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${statusBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
                     <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 mr-3">
                         <i class="fas fa-edit"></i> Edit
