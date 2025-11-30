@@ -3254,7 +3254,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         // 'Net Salary' - REMOVED (Formula field in Airtable, computed automatically)
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': 'Paid',  // Options: Paid or Pending
+        'Status': 'Processed',  // Options: Processed, Pending
         'Payment Date': new Date().toISOString().split('T')[0],
         'Payment Method': 'Bank Transfer',  // Options: Bank Transfer, Cash, Mobile Money
         'Bonus': 0  // Default to 0 (can be edited later)
