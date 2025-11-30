@@ -1413,12 +1413,12 @@ async function displayAnnouncements(announcements) {
                                 ` : ''}
                             </div>
                             <div id="ann-full-${announcement.id}" class="hidden">
+                                <p class="whitespace-pre-wrap text-sm">${message}</p>
                                 ${announcement.fields['Image URL'] ? `
                                     <div class="my-3">
                                         <img src="${announcement.fields['Image URL']}" alt="${title}" class="max-w-full h-auto rounded-lg border border-gray-300" onerror="this.style.display='none'" />
                                     </div>
                                 ` : ''}
-                                <p class="whitespace-pre-wrap text-sm">${message}</p>
                                 <button
                                     onclick="toggleAnnouncementDetails('${announcement.id}')"
                                     class="text-blue-600 hover:text-blue-800 mt-2 text-sm font-semibold flex items-center gap-1"
