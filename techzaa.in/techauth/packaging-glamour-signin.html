@@ -339,8 +339,6 @@
               submitBtn.innerHTML = 'Sign In';
             }
           } catch (error) {
-            console.error('Login error:', error);
-
             // Handle specific Firebase errors
             let errorMessage = 'Login failed. Please try again.';
             if (error.code) {
@@ -432,7 +430,6 @@
 
           showSuccess('Verification email sent! Please check your inbox (including spam/junk folder).');
         } catch (error) {
-          console.error('Resend verification error:', error);
           showError('Failed to resend verification email. Please try again.');
         }
       }

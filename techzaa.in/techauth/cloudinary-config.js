@@ -18,7 +18,6 @@ async function getCloudinaryConfig() {
     CLOUDINARY_CONFIG = await response.json();
     return CLOUDINARY_CONFIG;
   } catch (error) {
-    console.error('Error fetching Cloudinary config:', error);
     throw new Error('Unable to load upload configuration. Please try again later.');
   }
 }
@@ -120,7 +119,6 @@ async function uploadToCloudinary(file, onProgress = null) {
       xhr.send(formData);
     });
   } catch (error) {
-    console.error("Cloudinary upload error:", error);
     throw error;
   }
 }
@@ -134,7 +132,6 @@ async function uploadToCloudinary(file, onProgress = null) {
 async function deleteFromCloudinary(publicId) {
   // This needs to be implemented in your Cloudflare Worker
   // as it requires the API secret which should not be exposed to the browser
-  console.warn("File deletion should be implemented in the Cloudflare Worker");
 
   // Example: Call your worker endpoint
   // return workerRequest('/api/cloudinary/delete', 'DELETE', { publicId });

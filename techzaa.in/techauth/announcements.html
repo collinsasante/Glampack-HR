@@ -859,7 +859,6 @@
 
           showNotification(replyingToCommentId ? 'Reply posted successfully' : 'Comment posted successfully', 'success');
         } catch (error) {
-          console.error('Error posting comment:', error);
           showNotification('Failed to post comment', 'error');
         }
       }
@@ -999,7 +998,6 @@
           }).join('');
 
         } catch (error) {
-          console.error('Error loading comments:', error);
           commentsList.innerHTML = '<div class="text-center py-4 text-red-500"><i class="fas fa-exclamation-triangle mr-2"></i>Failed to load comments</div>';
         }
       }

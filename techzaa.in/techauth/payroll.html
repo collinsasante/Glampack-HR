@@ -752,7 +752,7 @@
             };
           }
         } catch (error) {
-          console.error("Error fetching employee details:", error);
+          // Silently handle error - use default employee data
         }
 
         await downloadPayslip(paymentData, employeeData);

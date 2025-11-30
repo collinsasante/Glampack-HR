@@ -25,7 +25,7 @@ function createNavigation(currentPage = '') {
                 return role === 'Admin' || role === 'HR';
             }
         } catch (error) {
-            console.error('Error checking admin status:', error);
+            // Silently handle error
         }
         return false;
     }

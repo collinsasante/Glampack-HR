@@ -441,8 +441,6 @@
               );
               airtableSuccess = success;
             } catch (airtableError) {
-              console.error('Airtable creation error:', airtableError);
-
               // Check if it's a duplicate email error
               if (airtableError.message && airtableError.message.includes('already exists')) {
                 // Account exists in Airtable but was created in Firebase - still allow sign-in
@@ -465,8 +463,6 @@
               window.location.href = `verify-email-pending.html?email=${encodeURIComponent(email)}`;
             }
           } catch (error) {
-            console.error('Signup error:', error);
-
             // Handle specific Firebase errors
             let errorMessage = 'Signup failed. Please try again.';
             if (error.code) {
