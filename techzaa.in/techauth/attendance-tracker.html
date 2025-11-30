@@ -204,6 +204,10 @@
               </h3>
               <div id="statusInfo" class="space-y-2 text-sm">
                 <div class="flex justify-between">
+                  <span class="text-gray-600">Shift:</span>
+                  <span id="todayShift" class="font-semibold">Not set</span>
+                </div>
+                <div class="flex justify-between">
                   <span class="text-gray-600">Check In:</span>
                   <span id="todayCheckIn" class="font-semibold">Not yet</span>
                 </div>
@@ -225,6 +229,28 @@
                 id="statusMessage"
                 class="hidden mb-6 p-4 rounded-lg text-center font-medium"
               ></div>
+
+              <!-- Shift Selection -->
+              <div class="mb-6">
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                  Select Your Shift *
+                </label>
+                <select
+                  id="shiftSelect"
+                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm"
+                  required
+                >
+                  <option value="">Choose your shift...</option>
+                  <option value="Morning Production (Day)">Morning Production (Day) - 8:00am to 6:00pm</option>
+                  <option value="Night Production">Night Production - 8:00pm to 6:00am</option>
+                  <option value="Straight Shift">Straight Shift - 8:00am to 5:00pm</option>
+                  <option value="Hybrid (Customer Service)">Hybrid (Customer Service) - 7:00am to 2:00pm / 2:00pm to 9:00pm</option>
+                </select>
+                <p class="text-xs text-gray-500 mt-2">
+                  <i class="fas fa-info-circle mr-1"></i>
+                  Select your assigned shift before checking in
+                </p>
+              </div>
 
               <!-- Check In Button -->
               <button
@@ -400,6 +426,11 @@
                       class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
                     >
                       Date
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
+                    >
+                      Shift
                     </th>
                     <th
                       class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase"
@@ -820,9 +851,48 @@
       }
 
       // ========================================
+      // SHIFT CONFIGURATION
+      // ========================================
+      const SHIFT_CONFIGS = {
+        "Morning Production (Day)": {
+          start: "08:00",
+          end: "18:00",
+          lateThreshold: "08:30"
+        },
+        "Night Production": {
+          start: "20:00",
+          end: "06:00", // Next day
+          lateThreshold: "20:30"
+        },
+        "Straight Shift": {
+          start: "08:00",
+          end: "17:00",
+          lateThreshold: "08:30"
+        },
+        "Hybrid (Customer Service)": {
+          start: "07:00",
+          end: "14:00", // First shift ends at 2pm, second shift 14:00-21:00
+          lateThreshold: "07:30",
+          secondShiftStart: "14:00",
+          secondShiftEnd: "21:00",
+          secondShiftLateThreshold: "14:30"
+        }
+      };
+
+      // ========================================
       // CHECK IN FUNCTION
       // ========================================
       async function checkIn() {
+        // Validate shift selection
+        const shiftSelect = document.getElementById("shiftSelect");
+        const selectedShift = shiftSelect.value;
+
+        if (!selectedShift) {
+          showMessage("Please select your shift before checking in!", "error");
+          shiftSelect.focus();
+          return;
+        }
+
         // Check if already checked in today FIRST
         const existingRecord = await findTodayRecord();
 
@@ -839,20 +909,63 @@
           return;
         }
 
-        // Check if late (after 8:30 AM)
+        // Check if late based on shift schedule
         const now = new Date();
-        const checkInHour = now.getHours();
-        const checkInMinute = now.getMinutes();
-        const isLate =
-          checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
+        const shiftConfig = SHIFT_CONFIGS[selectedShift];
+        const isLate = checkIfLate(now, shiftConfig, selectedShift);
 
         if (isLate) {
           // Show modal for late reason
           openLateReasonModal();
         } else {
           // Proceed with normal check-in
-          await performCheckIn(null);
+          await performCheckIn(null, selectedShift);
         }
+      }
+
+      // ========================================
+      // CHECK IF LATE FOR SHIFT
+      // ========================================
+      function checkIfLate(currentTime, shiftConfig, shiftName) {
+        const currentHour = currentTime.getHours();
+        const currentMinute = currentTime.getMinutes();
+        const currentTotalMinutes = currentHour * 60 + currentMinute;
+
+        // For Hybrid shift, check which period we're in
+        if (shiftName === "Hybrid (Customer Service)") {
+          const firstShiftLate = shiftConfig.lateThreshold.split(":");
+          const secondShiftLate = shiftConfig.secondShiftLateThreshold.split(":");
+          const firstLateMinutes = parseInt(firstShiftLate[0]) * 60 + parseInt(firstShiftLate[1]);
+          const secondLateMinutes = parseInt(secondShiftLate[0]) * 60 + parseInt(secondShiftLate[1]);
+
+          // If checking in during first shift window (7am-2pm)
+          if (currentHour < 14) {
+            return currentTotalMinutes > firstLateMinutes;
+          } else {
+            // Checking in during second shift window (2pm-9pm)
+            return currentTotalMinutes > secondLateMinutes;
+          }
+        }
+
+        // For night shift, handle midnight crossover
+        if (shiftName === "Night Production") {
+          const lateTime = shiftConfig.lateThreshold.split(":");
+          const lateMinutes = parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
+
+          // Night shift starts at 8pm (20:00)
+          // If current time is after 8pm, check against 20:30
+          if (currentHour >= 20) {
+            return currentTotalMinutes > lateMinutes;
+          }
+          // If current time is early morning (before 6am), they're checking in for night shift end
+          // This is normal, not late
+          return false;
+        }
+
+        // For day shifts (Morning Production and Straight Shift)
+        const lateTime = shiftConfig.lateThreshold.split(":");
+        const lateMinutes = parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
+        return currentTotalMinutes > lateMinutes;
       }
 
       // Handle late reason form submission
@@ -863,14 +976,15 @@
           const lateReason = document
             .getElementById("lateReasonInput")
             .value.trim();
+          const selectedShift = document.getElementById("shiftSelect").value;
           closeLateReasonModal();
-          await performCheckIn(lateReason);
+          await performCheckIn(lateReason, selectedShift);
         });
 
       // ========================================
-      // PERFORM CHECK IN (with optional late reason)
+      // PERFORM CHECK IN (with optional late reason and shift)
       // ========================================
-      async function performCheckIn(lateReason) {
+      async function performCheckIn(lateReason, selectedShift) {
         const today = getTodayDate();
         const time = getCurrentTime();
         const datetime = getCurrentDateTime();
@@ -893,6 +1007,7 @@
             "Check In": datetime,
             "Check In Location": locationString,
             "IP Address": ipAddress,
+            "Shift": selectedShift
           };
 
           // Add late reason if applicable
@@ -924,6 +1039,10 @@
           }
 
           showMessage(`Successfully checked in at ${time}`, "success");
+
+          // Disable shift selector after check-in
+          document.getElementById("shiftSelect").disabled = true;
+          document.getElementById("shiftSelect").classList.add("opacity-50", "cursor-not-allowed");
 
           // Signal dashboard to refresh
           localStorage.setItem('attendanceUpdated', Date.now().toString());
@@ -1090,6 +1209,7 @@
           if (todayRecord && todayRecord.fields) {
             const checkInRaw = todayRecord.fields["Check In"];
             const checkOutRaw = todayRecord.fields["Check Out"];
+            const shift = todayRecord.fields["Shift"] || "Not set";
 
             // Extract time from datetime
             const checkIn = checkInRaw
@@ -1103,8 +1223,17 @@
                 })
               : "Not yet";
 
+            document.getElementById("todayShift").textContent = shift;
             document.getElementById("todayCheckIn").textContent = checkIn;
             document.getElementById("todayCheckOut").textContent = checkOut;
+
+            // Set shift selector value if shift exists
+            if (shift && shift !== "Not set") {
+              const shiftSelect = document.getElementById("shiftSelect");
+              shiftSelect.value = shift;
+              shiftSelect.disabled = true;
+              shiftSelect.classList.add("opacity-50", "cursor-not-allowed");
+            }
 
             // Calculate hours
             if (checkIn !== "Not yet" && checkOut !== "Not yet") {
@@ -1263,6 +1392,7 @@
             const checkInRaw = fields["Check In"];
             const checkOutRaw = fields["Check Out"];
             const checkInLocation = fields["Check In Location"] || "";
+            const shift = fields["Shift"] || "-";
 
             // Extract time from datetime
             const checkIn = checkInRaw
@@ -1293,13 +1423,37 @@
               totalMinutes += h * 60 + m;
               daysWithHours++;
 
-              // Check if late (after 8:30 AM)
+              // Check if late based on shift
               const checkInHour = parseInt(checkIn.split(":")[0]);
               const checkInMinute = parseInt(checkIn.split(":")[1]);
-              if (
-                checkInHour > 8 ||
-                (checkInHour === 8 && checkInMinute > 30)
-              ) {
+              const shiftConfig = SHIFT_CONFIGS[shift];
+
+              let isLate = false;
+              if (shiftConfig) {
+                const lateTime = shiftConfig.lateThreshold.split(":");
+                const lateHour = parseInt(lateTime[0]);
+                const lateMinute = parseInt(lateTime[1]);
+
+                // For hybrid shift, check both time windows
+                if (shift === "Hybrid (Customer Service)") {
+                  const secondLateTime = shiftConfig.secondShiftLateThreshold.split(":");
+                  const secondLateHour = parseInt(secondLateTime[0]);
+                  const secondLateMinute = parseInt(secondLateTime[1]);
+
+                  if (checkInHour < 14) {
+                    isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
+                  } else {
+                    isLate = checkInHour > secondLateHour || (checkInHour === secondLateHour && checkInMinute > secondLateMinute);
+                  }
+                } else {
+                  isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
+                }
+              } else {
+                // Fallback to default 8:30 AM threshold if no shift config
+                isLate = checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
+              }
+
+              if (isLate) {
                 status = "Late";
                 statusClass = "bg-orange-100 text-orange-800";
                 lateCount++;
@@ -1312,10 +1466,22 @@
               statusClass = "bg-blue-100 text-blue-800";
             }
 
+            // Get short shift name for table display
+            let shortShift = shift;
+            if (shift === "Morning Production (Day)") shortShift = "Morning";
+            else if (shift === "Night Production") shortShift = "Night";
+            else if (shift === "Straight Shift") shortShift = "Straight";
+            else if (shift === "Hybrid (Customer Service)") shortShift = "Hybrid";
+
             const row = document.createElement("tr");
             row.className = "hover:bg-gray-50";
             row.innerHTML = `
                         <td class="px-4 py-3 text-sm text-gray-900">${formatDate(date)}</td>
+                        <td class="px-4 py-3 text-sm text-gray-700">
+                            <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-semibold">
+                                ${shortShift}
+                            </span>
+                        </td>
                         <td class="px-4 py-3 text-sm text-gray-700">${checkIn}</td>
                         <td class="px-4 py-3 text-sm text-gray-700">${checkOut}</td>
                         <td class="px-4 py-3 text-sm font-semibold text-gray-900">${hours}</td>
