@@ -70,7 +70,7 @@ function createNavigation(currentPage = '') {
         { name: 'Announcements', icon: 'fa-bullhorn', href: 'announcements.html', page: 'announcements' },
         { name: 'Payroll', icon: 'fa-money-bill-wave', href: 'payroll.html', page: 'payroll' },
         { name: 'Reports', icon: 'fa-chart-bar', href: 'monthly-summary.html', page: 'reports' },
-        { name: 'Settings', icon: 'fa-cog', href: 'settings.html', page: 'settings' }
+        { name: 'Policies', icon: 'fa-file-contract', href: 'company-policies.html', page: 'policies' }
     ];
 
     // Desktop Navigation

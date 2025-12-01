@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Company Policies - Glampack HR</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="assets/images/favicon.ico" />
+
+    <!-- Tailwind CSS (Local) -->
+    <link rel="stylesheet" href="assets/css/tailwind.css" />
+
+    <!-- Button Styles -->
+    <link rel="stylesheet" href="assets/css/button-styles.css?v=6" />
+
+    <!-- Tailwind CSS CDN (Fallback) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
+    <!-- Worker API Configuration -->
+    <script src="config-worker.js?v=2"></script>
+
+    <!-- Authentication Script -->
+    <script src="auth.js"></script>
+
+    <!-- Navigation Script -->
+    <script src="navigation.js"></script>
+
+    <style>
+      .policy-card {
+        transition: all 0.3s ease;
+      }
+      .policy-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+      .policy-content {
+        line-height: 1.8;
+      }
+      .policy-section {
+        margin-bottom: 2rem;
+      }
+      .policy-section h3 {
+        color: #dc2626;
+        font-weight: 700;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #dc2626;
+      }
+      .policy-section h4 {
+        color: #374151;
+        font-weight: 600;
+        font-size: 1.25rem;
+        margin-top: 1.5rem;
+        margin-bottom: 0.75rem;
+      }
+      .policy-section ul {
+        list-style-type: disc;
+        margin-left: 2rem;
+        margin-bottom: 1rem;
+      }
+      .policy-section li {
+        margin-bottom: 0.5rem;
+      }
+      .highlight-box {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        border-left: 4px solid #f59e0b;
+        padding: 1rem;
+        margin: 1.5rem 0;
+        border-radius: 0.5rem;
+      }
+    </style>
+  </head>
+  <body class="bg-gray-50">
+    <!-- Navigation Container -->
+    <div id="navigationContainer" data-current-page="policies"></div>
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          <i class="fas fa-file-contract text-red-600 mr-3"></i>Company Policies
+        </h1>
+        <p class="text-gray-600 text-lg">
+          Review important company policies and guidelines
+        </p>
+      </div>
+
+      <!-- Policy Cards Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        <!-- Medical Bill Policy Card -->
+        <div
+          class="policy-card bg-white rounded-xl shadow-lg p-6 cursor-pointer border-2 border-transparent hover:border-red-500"
+          onclick="showPolicy('medical')"
+        >
+          <div class="flex items-center justify-center w-16 h-16 bg-red-100 rounded-full mb-4">
+            <i class="fas fa-notes-medical text-3xl text-red-600"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Medical Bill Policy</h3>
+          <p class="text-gray-600 mb-4">
+            Guidelines for medical expense reimbursement and NHIS coverage
+          </p>
+          <div class="flex items-center text-red-600 font-semibold">
+            <span>View Policy</span>
+            <i class="fas fa-arrow-right ml-2"></i>
+          </div>
+        </div>
+
+        <!-- Welfare Fund Policy Card -->
+        <div
+          class="policy-card bg-white rounded-xl shadow-lg p-6 cursor-pointer border-2 border-transparent hover:border-red-500"
+          onclick="showPolicy('welfare')"
+        >
+          <div class="flex items-center justify-center w-16 h-16 bg-green-100 rounded-full mb-4">
+            <i class="fas fa-hand-holding-heart text-3xl text-green-600"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-800 mb-2">Welfare Fund Policy</h3>
+          <p class="text-gray-600 mb-4">
+            Rules and regulations for employee welfare fund contributions and benefits
+          </p>
+          <div class="flex items-center text-green-600 font-semibold">
+            <span>View Policy</span>
+            <i class="fas fa-arrow-right ml-2"></i>
+          </div>
+        </div>
+
+        <!-- Coming Soon Card -->
+        <div class="policy-card bg-gray-100 rounded-xl shadow-lg p-6 opacity-60">
+          <div class="flex items-center justify-center w-16 h-16 bg-gray-300 rounded-full mb-4">
+            <i class="fas fa-ellipsis-h text-3xl text-gray-500"></i>
+          </div>
+          <h3 class="text-xl font-bold text-gray-600 mb-2">More Policies</h3>
+          <p class="text-gray-500 mb-4">
+            Additional policies will be added here
+          </p>
+          <div class="flex items-center text-gray-500 font-semibold">
+            <span>Coming Soon</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policy Viewer Modal -->
+      <div id="policyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+          <!-- Modal Header -->
+          <div class="bg-gradient-to-r from-red-600 to-red-700 text-white p-6 flex justify-between items-center">
+            <h2 class="text-2xl font-bold" id="modalTitle">Policy Title</h2>
+            <button onclick="closePolicy()" class="text-white hover:text-gray-200 transition">
+              <i class="fas fa-times text-2xl"></i>
+            </button>
+          </div>
+
+          <!-- Modal Content -->
+          <div class="p-8 overflow-y-auto max-h-[calc(90vh-80px)]">
+            <div id="policyContent" class="policy-content"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Authentication check
+      if (!requireAuth()) {
+        // Will redirect automatically
+      }
+
+      const policies = {
+        medical: {
+          title: "Medical Bill Reimbursement Policy",
+          content: `
+            <div class="policy-section">
+              <h3>1. Purpose</h3>
+              <p>The purpose of this policy is to provide guidelines for the reimbursement of medical expenses incurred by employees, ensuring fair and consistent treatment while managing organizational costs.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>2. Eligibility</h3>
+              <p>All full-time employees who have completed their probationary period are eligible for reimbursement of medical expenses.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>3. Covered Expenses</h3>
+              <p>Reimbursement will be provided for medical expenses that are not covered by the National Health Insurance Scheme, including:</p>
+              <ul>
+                <li>Deductibles</li>
+                <li>Co-payments</li>
+                <li>Non-covered treatments</li>
+              </ul>
+            </div>
+
+            <div class="policy-section">
+              <h3>4. Submission of Claims</h3>
+              <div class="highlight-box">
+                <strong>⏰ Important Deadline:</strong> Employees must submit their medical bills and supporting documents within <strong>3 days</strong> of the date of treatment. Late submissions may not be eligible for reimbursement.
+              </div>
+            </div>
+
+            <div class="policy-section">
+              <h3>5. Maximum Payment Threshold</h3>
+              <div class="highlight-box">
+                <strong>💰 Annual Limit:</strong> The organization will reimburse up to a maximum of <strong>GH₵ 1,000</strong> per employee per calendar year for medical expenses not covered by the insurance plan. Once this threshold is reached, any further medical expenses will be the responsibility of the employee.
+              </div>
+            </div>
+
+            <div class="policy-section">
+              <h3>6. Approval Process</h3>
+              <p>All medical bill reimbursement requests will be reviewed. Approval will be based on the submission of complete and accurate documentation.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>7. Documentation Required</h3>
+              <p>Employees must submit the following documentation for reimbursement:</p>
+              <ul>
+                <li>Copy of the medical bill showing the treatment details and amount paid</li>
+                <li>Certified diagnosis and prescriptions from a qualified doctor or health professional</li>
+                <li>Receipts for any out-of-pocket payments</li>
+              </ul>
+            </div>
+
+            <div class="policy-section">
+              <h3>8. Reimbursement Timeline</h3>
+              <p>Upon approval, reimbursements will be processed within the next regular payroll cycle.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>9. Non-Eligible Expenses</h3>
+              <p>Expenses related to the following are <strong>not eligible</strong> for reimbursement:</p>
+              <ul>
+                <li>Cosmetic procedures</li>
+                <li>Non-prescription medications</li>
+                <li>Elective treatments</li>
+              </ul>
+            </div>
+
+            <div class="policy-section">
+              <h3>10. Discretionary Review</h3>
+              <p>In exceptional cases where medical expenses exceed the maximum payment threshold due to unforeseen circumstances, the department in charge may conduct a discretionary review for additional reimbursement.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>11. National Health Insurance Scheme</h3>
+              <p>The organization will seek to register and pay all insurance premiums on behalf of every employee in order to get them enrolled on the National Health Insurance Scheme.</p>
+            </div>
+          `
+        },
+        welfare: {
+          title: "Employee Welfare Fund Rules and Regulations",
+          content: `
+            <div class="policy-section">
+              <h3>1. Introduction</h3>
+              <p>This document outlines the rules and regulations governing Packaging Glamour welfare fund. The Fund is established to provide financial assistance to eligible employees facing hardship or unforeseen circumstances.</p>
+              <p>The Fund is established in accordance with the Company's philosophy of caring for its employees and providing support in times of need.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>2. Purpose</h3>
+              <p>The Fund aims to:</p>
+              <ul>
+                <li>Provide financial assistance to employees in need, including medical expenses, education expenses, personal emergencies, and other hardships</li>
+                <li>Promote employee well-being and quality of life</li>
+                <li>Foster a sense of community and social responsibility among employees</li>
+                <li>Offer financial support to employees experiencing financial difficulties due to illness, injury, disability, or death</li>
+                <li>Assist employees in meeting basic needs during emergencies or personal crises</li>
+              </ul>
+            </div>
+
+            <div class="policy-section">
+              <h3>3. Eligibility</h3>
+              <h4>Eligible Employees:</h4>
+              <ul>
+                <li>All permanent employees of Packaging Glamour who have completed at least <strong>6 months</strong> of continuous service</li>
+                <li>Employees who are actively working and have not been terminated or resigned from the company</li>
+                <li>Employees who have contributed to the fund as required</li>
+              </ul>
+
+              <h4>Non-Eligible Employees:</h4>
+              <ul>
+                <li>Employees on probation or temporary staff</li>
+                <li>Employees who have been terminated or resigned from the company</li>
+                <li>Employees who have not contributed to the fund as required</li>
+              </ul>
+
+              <div class="highlight-box">
+                <strong>📅 Maturity Clause:</strong> The welfare fund shall mature on <strong>December 30</strong>, at which point the funds shall be distributed to the eligible beneficiaries in accordance with the rules and regulations of the fund.
+              </div>
+            </div>
+
+            <div class="policy-section">
+              <h3>4. Fund Contributions</h3>
+              <div class="highlight-box">
+                <strong>💳 Monthly Contribution:</strong> Employees shall contribute <strong>GH₵ 50</strong> to the Fund on a monthly basis, which shall be deducted from their salaries.
+              </div>
+              <p>The Fund contributions shall be used solely for the purpose of providing financial assistance to eligible employees and covering the administrative expenses of the Fund.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>5. Application Process</h3>
+              <p>Eligible employees seeking financial assistance from the Fund shall:</p>
+              <ul>
+                <li>Submit an application to the Management Committee</li>
+                <li>Use the prescribed application form, available from the HR Department</li>
+                <li>Include personal and contact information, reason for request, amount requested, and supporting documentation</li>
+              </ul>
+              <div class="highlight-box">
+                <strong>⏱️ Review Timeline:</strong> The Management Committee shall review applications within <strong>3 working days</strong>.
+              </div>
+            </div>
+
+            <div class="policy-section">
+              <h3>6. Benefits</h3>
+              <h4>Medical Expenses</h4>
+              <p>Up to <strong>GH₵ 1,000</strong> per annum</p>
+
+              <h4>Personal Emergencies</h4>
+              <ul>
+                <li><strong>Funeral Support:</strong> Up to GH₵ 2,000 per annum</li>
+                <li><strong>Marriage Support:</strong> Up to GH₵ 1,500</li>
+                <li><strong>Christening Support:</strong> Up to GH₵ 1,000</li>
+                <li><strong>Other hardships:</strong> As determined by the Committee</li>
+              </ul>
+
+              <div class="highlight-box">
+                <strong>ℹ️ Note:</strong> The Committee's decision on benefits shall be final and binding. The Fund shall not be liable for any benefits beyond the available funds.
+              </div>
+            </div>
+
+            <div class="policy-section">
+              <h3>7. Benefit Disbursement</h3>
+              <p>Approved benefits will be disbursed directly to the employee or relevant vendor on behalf of the employee.</p>
+            </div>
+
+            <div class="policy-section">
+              <h3>8. Confidentiality</h3>
+              <p>The Management Committee and any other persons involved in the administration of the Fund shall maintain the confidentiality of all information and documents related to the Fund and its beneficiaries.</p>
+              <p><strong>Confidential information includes:</strong></p>
+              <ul>
+                <li>Personal information about employees and their families</li>
+                <li>Medical information and records</li>
+                <li>Financial information and records</li>
+                <li>Applications and supporting documents</li>
+              </ul>
+            </div>
+
+            <div class="policy-section">
+              <h3>9. Amendments</h3>
+              <p>The Company reserves the right to amend, modify or revise the rules and regulations of the Fund from time to time. Amendments shall be made in writing and shall be effective upon approval by the Company's management.</p>
+            </div>
+          `
+        }
+      };
+
+      function showPolicy(policyType) {
+        const policy = policies[policyType];
+        if (policy) {
+          document.getElementById('modalTitle').textContent = policy.title;
+          document.getElementById('policyContent').innerHTML = policy.content;
+          document.getElementById('policyModal').classList.remove('hidden');
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+      }
+
+      function closePolicy() {
+        document.getElementById('policyModal').classList.add('hidden');
+        document.body.style.overflow = ''; // Restore scrolling
+      }
+
+      // Close modal when clicking outside
+      document.getElementById('policyModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+          closePolicy();
+        }
+      });
+
+      // Close modal with ESC key
+      document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+          closePolicy();
+        }
+      });
+    </script>
+  </body>
+</html>
