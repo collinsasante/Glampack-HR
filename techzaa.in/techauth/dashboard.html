@@ -262,7 +262,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
           <a
             href="#"
-            onclick="customAlert('Staff Medical Policy document will be available soon', 'Coming Soon', 'info'); return false;"
+            onclick="showMedicalPolicy(); return false;"
             class="flex items-center p-4 bg-gradient-to-r from-blue-50 to-blue-100 hover:from-blue-100 hover:to-blue-200 rounded-lg border border-blue-200 transition-all"
           >
             <div class="bg-blue-500 p-3 rounded-lg mr-4">
@@ -333,6 +333,226 @@
               <p class="mt-2 text-sm sm:text-base">Loading announcements...</p>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Medical Policy Modal -->
+    <div id="medicalPolicyModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-6 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-heartbeat text-2xl"></i>
+            <h2 class="text-2xl font-bold">Staff Medical Bill Policy</h2>
+          </div>
+          <button onclick="closeMedicalPolicy()" class="text-white hover:text-gray-200 transition-colors">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <!-- Overview Section -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+              Overview
+            </h3>
+            <p class="text-gray-700 leading-relaxed">
+              This policy provides financial support for employees' medical expenses not fully covered by the company's health insurance plan.
+              The reimbursement program helps offset out-of-pocket costs for essential healthcare services.
+            </p>
+          </div>
+
+          <!-- Eligibility Section -->
+          <div class="mb-6 bg-blue-50 p-5 rounded-lg border border-blue-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-user-check text-blue-600 mr-2"></i>
+              Eligibility
+            </h3>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                <span>All full-time employees who have completed their probationary period</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                <span>Employees must be enrolled in the company's health insurance plan</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-green-600 mr-2 mt-1"></i>
+                <span>Contract employees are eligible after 6 months of continuous service</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Coverage Details Section -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-notes-medical text-blue-600 mr-2"></i>
+              Coverage Details
+            </h3>
+
+            <div class="bg-gradient-to-r from-green-50 to-green-100 p-5 rounded-lg border border-green-300 mb-4">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-sm text-gray-600 mb-1">Annual Reimbursement Limit</p>
+                  <p class="text-3xl font-bold text-green-700">GH₵ 1,000</p>
+                </div>
+                <i class="fas fa-coins text-green-600 text-4xl"></i>
+              </div>
+              <p class="text-sm text-gray-600 mt-2">Per employee, per calendar year</p>
+            </div>
+
+            <h4 class="font-semibold text-gray-800 mb-3 mt-4">Covered Medical Expenses:</h4>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Deductibles:</strong> Insurance plan deductibles for covered services</span>
+              </div>
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Co-payments:</strong> Out-of-pocket payments required by insurance</span>
+              </div>
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Prescriptions:</strong> Medications not covered by NHIS or insurance</span>
+              </div>
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Specialist Consultations:</strong> Out-of-network specialist visits</span>
+              </div>
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Diagnostic Tests:</strong> Lab tests, X-rays, MRI, CT scans</span>
+              </div>
+              <div class="flex items-start p-3 bg-gray-50 rounded-lg">
+                <i class="fas fa-check text-green-600 mr-2 mt-1"></i>
+                <span class="text-gray-700"><strong>Emergency Care:</strong> Emergency room visits and urgent care</span>
+              </div>
+            </div>
+
+            <h4 class="font-semibold text-gray-800 mb-3 mt-4">Non-Covered Expenses:</h4>
+            <div class="space-y-2">
+              <div class="flex items-start p-3 bg-red-50 rounded-lg border border-red-200">
+                <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                <span class="text-gray-700">Cosmetic procedures and elective surgeries</span>
+              </div>
+              <div class="flex items-start p-3 bg-red-50 rounded-lg border border-red-200">
+                <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                <span class="text-gray-700">Alternative medicine (unless prescribed by licensed physician)</span>
+              </div>
+              <div class="flex items-start p-3 bg-red-50 rounded-lg border border-red-200">
+                <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                <span class="text-gray-700">Over-the-counter medications without prescription</span>
+              </div>
+              <div class="flex items-start p-3 bg-red-50 rounded-lg border border-red-200">
+                <i class="fas fa-times text-red-600 mr-2 mt-1"></i>
+                <span class="text-gray-700">Expenses already reimbursed by insurance or other sources</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Claims Process Section -->
+          <div class="mb-6 bg-yellow-50 p-5 rounded-lg border border-yellow-300">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-clipboard-list text-yellow-600 mr-2"></i>
+              How to Submit a Claim
+            </h3>
+            <ol class="space-y-3">
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">1</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Obtain Treatment</p>
+                  <p class="text-sm text-gray-600">Receive medical treatment and pay any out-of-pocket expenses</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">2</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Gather Documentation</p>
+                  <p class="text-sm text-gray-600">Collect receipts, invoices, insurance statements (EOB), and prescription receipts</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">3</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Complete Claim Form</p>
+                  <p class="text-sm text-gray-600">Fill out the Medical Bill Reimbursement Form (available in HR portal or HR office)</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">4</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Submit to HR</p>
+                  <p class="text-sm text-gray-600">Submit completed form with all supporting documents to HR Department within <strong>3 days</strong> of treatment</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">5</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Review & Approval</p>
+                  <p class="text-sm text-gray-600">HR reviews claim for completeness and eligibility (2-3 business days)</p>
+                </div>
+              </li>
+              <li class="flex items-start">
+                <span class="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center font-bold mr-3">6</span>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-800">Reimbursement</p>
+                  <p class="text-sm text-gray-600">Approved claims processed in next payroll cycle or via direct bank transfer</p>
+                </div>
+              </li>
+            </ol>
+          </div>
+
+          <!-- Important Notes Section -->
+          <div class="mb-6 bg-red-50 p-5 rounded-lg border border-red-300">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
+              Important Notes
+            </h3>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-start">
+                <i class="fas fa-clock text-red-600 mr-2 mt-1"></i>
+                <span><strong>Submission Deadline:</strong> Claims must be submitted within 3 days of receiving treatment. Late submissions may be denied.</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-receipt text-red-600 mr-2 mt-1"></i>
+                <span><strong>Original Receipts Required:</strong> Only original receipts or certified copies accepted. Photocopies may be rejected.</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-calendar-alt text-red-600 mr-2 mt-1"></i>
+                <span><strong>Annual Reset:</strong> The GH₵ 1,000 limit resets on January 1st each year. Unused amounts do not roll over.</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-ban text-red-600 mr-2 mt-1"></i>
+                <span><strong>No Double Dipping:</strong> Expenses already reimbursed by insurance or other programs are not eligible.</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Contact Section -->
+          <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-5 rounded-lg">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <i class="fas fa-phone-alt mr-2"></i>
+              Need Help?
+            </h3>
+            <p class="mb-3">For questions about this policy or assistance with your claim, contact:</p>
+            <div class="space-y-2">
+              <p><i class="fas fa-building mr-2"></i><strong>HR Department</strong></p>
+              <p><i class="fas fa-envelope mr-2"></i>hr@packglamour.com</p>
+              <p><i class="fas fa-phone mr-2"></i>+233 XX XXX XXXX</p>
+              <p class="text-sm mt-3 opacity-90">Office Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-gray-100 p-4 flex justify-end">
+          <button onclick="closeMedicalPolicy()" class="px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors">
+            Close
+          </button>
         </div>
       </div>
     </div>
@@ -858,6 +1078,40 @@
 
         }
       }
+
+      // ========================================
+      // MEDICAL POLICY MODAL FUNCTIONS
+      // ========================================
+      function showMedicalPolicy() {
+        const modal = document.getElementById('medicalPolicyModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+      }
+
+      function closeMedicalPolicy() {
+        const modal = document.getElementById('medicalPolicyModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          document.body.style.overflow = ''; // Restore scrolling
+        }
+      }
+
+      // Close modal when clicking outside
+      document.addEventListener('click', function(event) {
+        const modal = document.getElementById('medicalPolicyModal');
+        if (event.target === modal) {
+          closeMedicalPolicy();
+        }
+      });
+
+      // Close modal with Escape key
+      document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+          closeMedicalPolicy();
+        }
+      });
 
       // Initialize on page load
       document.addEventListener("DOMContentLoaded", function() {
