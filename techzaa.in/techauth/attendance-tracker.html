@@ -566,8 +566,9 @@
       // ========================================
       // AUTO-SYNC ATTENDANCE STATUS ACROSS DEVICES
       // ========================================
-      // Check Airtable every 10 seconds to detect changes made on other devices
+      // Check Airtable every 5 seconds to detect changes made on other devices
       // This ensures if user clocks in/out on Device A, Device B updates automatically
+      // and prevents duplicate check-ins from multiple devices
       setInterval(async function() {
         try {
           const todayRecord = await findTodayRecord();
@@ -580,6 +581,7 @@
             }
 
             // Refresh UI to reflect current status from Airtable
+            // This will disable check-in button if user already checked in on another device
             loadTodayStatus();
           } else {
             // No record exists - ensure buttons are enabled
@@ -593,7 +595,7 @@
           // Silently handle sync errors to avoid disrupting user experience
           console.error('Auto-sync error:', error);
         }
-      }, 10000); // Poll every 10 seconds
+      }, 5000); // Poll every 5 seconds for faster cross-device sync
 
       // Clean up localStorage entries from previous days
       function cleanupOldSessions() {
