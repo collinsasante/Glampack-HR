@@ -196,6 +196,8 @@ function switchTab(tabName) {
         populateReportFilters();
     } else if (tabName === 'announcements') {
         loadAnnouncements();
+    } else if (tabName === 'roles') {
+        loadRolesManagement();
     }
 }
 
@@ -4406,3 +4408,174 @@ async function copyFromPreviousMonth() {
         await customAlert('Error copying payroll data: ' + error.message, 'Error', 'error');
     }
 }
+
+// ========================================
+// ROLES & PERMISSIONS MANAGEMENT
+// ========================================
+
+let allEmployeesForRoles = [];
+let filteredEmployeesForRoles = [];
+
+async function loadRolesManagement() {
+    try {
+        const response = await getEmployees();
+        allEmployeesForRoles = response.records || [];
+        filteredEmployeesForRoles = [...allEmployeesForRoles];
+
+        displayRolesTable();
+    } catch (error) {
+        showToast('error', 'Error', 'Failed to load employees: ' + error.message);
+    }
+}
+
+function displayRolesTable() {
+    const tbody = document.getElementById('rolesTableBody');
+    if (!tbody) return;
+
+    if (filteredEmployeesForRoles.length === 0) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+                    <i class="fas fa-users text-4xl mb-3 block"></i>
+                    <p class="text-lg">No users found</p>
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = filteredEmployeesForRoles.map(employee => {
+        const fields = employee.fields;
+        const role = fields['Role'] || 'Employee';
+        const name = fields['Full Name'] || 'N/A';
+        const email = fields['Email'] || 'N/A';
+        const department = fields['Department'] || 'N/A';
+
+        // Role badge colors
+        let roleBadgeClass = 'bg-blue-100 text-blue-800';
+        let roleIcon = 'fa-user';
+
+        if (role === 'Admin') {
+            roleBadgeClass = 'bg-red-100 text-red-800';
+            roleIcon = 'fa-user-shield';
+        } else if (role === 'HR') {
+            roleBadgeClass = 'bg-purple-100 text-purple-800';
+            roleIcon = 'fa-user-tie';
+        }
+
+        return `
+            <tr class="hover:bg-gray-50 transition-colors">
+                <td class="px-6 py-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center text-white font-bold mr-3">
+                            ${name.charAt(0).toUpperCase()}
+                        </div>
+                        <div>
+                            <p class="font-semibold text-gray-800">${name}</p>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-gray-700">${email}</td>
+                <td class="px-6 py-4 text-gray-700">${department}</td>
+                <td class="px-6 py-4">
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${roleBadgeClass}">
+                        <i class="fas ${roleIcon} mr-1"></i>
+                        ${role}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <button
+                        onclick="openChangeRoleModal('${employee.id}', '${name.replace(/'/g, "\\'")}', '${role}')"
+                        class="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+                        title="Change role"
+                    >
+                        <i class="fas fa-edit mr-1"></i> Change Role
+                    </button>
+                </td>
+            </tr>
+        `;
+    }).join('');
+}
+
+function filterRolesBySearch() {
+    const searchValue = document.getElementById('rolesSearch').value.toLowerCase();
+    const roleFilter = document.getElementById('roleFilter').value;
+
+    filteredEmployeesForRoles = allEmployeesForRoles.filter(employee => {
+        const fields = employee.fields;
+        const name = (fields['Full Name'] || '').toLowerCase();
+        const email = (fields['Email'] || '').toLowerCase();
+        const role = fields['Role'] || 'Employee';
+
+        const matchesSearch = name.includes(searchValue) || email.includes(searchValue);
+        const matchesRole = !roleFilter || role === roleFilter;
+
+        return matchesSearch && matchesRole;
+    });
+
+    displayRolesTable();
+}
+
+function filterRolesByRole() {
+    filterRolesBySearch();
+}
+
+function clearRoleFilters() {
+    document.getElementById('rolesSearch').value = '';
+    document.getElementById('roleFilter').value = '';
+    filteredEmployeesForRoles = [...allEmployeesForRoles];
+    displayRolesTable();
+}
+
+function openChangeRoleModal(employeeId, employeeName, currentRole) {
+    document.getElementById('changeRoleEmployeeId').value = employeeId;
+    document.getElementById('changeRoleEmployeeName').textContent = employeeName;
+    document.getElementById('changeRoleSelect').value = currentRole;
+
+    const modal = document.getElementById('changeRoleModal');
+    modal.classList.add('active');
+}
+
+function closeChangeRoleModal() {
+    const modal = document.getElementById('changeRoleModal');
+    modal.classList.remove('active');
+
+    // Reset form
+    document.getElementById('changeRoleEmployeeId').value = '';
+    document.getElementById('changeRoleEmployeeName').textContent = '';
+    document.getElementById('changeRoleSelect').value = '';
+}
+
+async function confirmChangeRole() {
+    const employeeId = document.getElementById('changeRoleEmployeeId').value;
+    const newRole = document.getElementById('changeRoleSelect').value;
+    const employeeName = document.getElementById('changeRoleEmployeeName').textContent;
+
+    if (!newRole) {
+        showToast('error', 'Validation Error', 'Please select a role');
+        return;
+    }
+
+    try {
+        // Update employee role
+        await updateEmployee(employeeId, {
+            'Role': newRole
+        });
+
+        showToast('success', 'Role Updated', `${employeeName}'s role has been changed to ${newRole}`);
+        closeChangeRoleModal();
+
+        // Reload the roles table
+        await loadRolesManagement();
+    } catch (error) {
+        showToast('error', 'Update Failed', 'Failed to update role: ' + error.message);
+    }
+}
+
+// Close modal when clicking outside
+document.addEventListener('click', function(event) {
+    const modal = document.getElementById('changeRoleModal');
+    if (modal && event.target === modal) {
+        closeChangeRoleModal();
+    }
+});
