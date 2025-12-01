@@ -168,16 +168,24 @@ async function applyRolePermissions() {
 
         const userRole = employee.fields['Role'] || 'Employee';
 
-        // Get tab elements
-        const payrollTab = document.getElementById('tab-payroll');
-        const payrollContent = document.getElementById('content-payroll');
-        const rolesTab = document.getElementById('tab-roles');
-        const rolesContent = document.getElementById('content-roles');
+        // Helper function to hide tabs reliably
+        function hideTab(tabId, contentId) {
+            const tab = document.getElementById(tabId);
+            const content = document.getElementById(contentId);
+
+            if (tab) {
+                tab.style.cssText = 'display: none !important;';
+                tab.classList.add('hidden');
+            }
+            if (content) {
+                content.style.cssText = 'display: none !important;';
+                content.classList.add('hidden');
+            }
+        }
 
         // Manager role: Hide roles tab only (can view own payroll)
         if (userRole === 'Manager') {
-            if (rolesTab) rolesTab.style.display = 'none';
-            if (rolesContent) rolesContent.style.display = 'none';
+            hideTab('tab-roles', 'content-roles');
 
             // If currently on roles tab, switch to employees tab
             const currentTab = localStorage.getItem('adminActiveTab');
@@ -197,8 +205,7 @@ async function applyRolePermissions() {
 
         // HR role: Hide roles tab (can view payroll but not create)
         if (userRole === 'HR') {
-            if (rolesTab) rolesTab.style.display = 'none';
-            if (rolesContent) rolesContent.style.display = 'none';
+            hideTab('tab-roles', 'content-roles');
 
             // If currently on roles tab, switch to employees tab
             const currentTab = localStorage.getItem('adminActiveTab');
@@ -215,6 +222,13 @@ async function applyRolePermissions() {
 
         // Only Admin can access Roles & Permissions tab
         // Employee role shouldn't see admin dashboard at all (handled by navigation.js)
+
+        // Double-check after a short delay to ensure DOM is fully loaded
+        setTimeout(() => {
+            if (userRole === 'Manager' || userRole === 'HR') {
+                hideTab('tab-roles', 'content-roles');
+            }
+        }, 100);
     } catch (error) {
         console.error('Error applying role permissions:', error);
     }
