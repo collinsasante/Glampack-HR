@@ -49,17 +49,13 @@ function createNavigation(currentPage = '') {
     }
 
     function updatePayrollLink(role) {
-        // Hide payroll menu item for Manager role
+        // Show payroll for all roles (Managers can view their own payroll in admin dashboard)
         const payrollLinkContainer = document.getElementById('payrollLinkContainer');
         const mobilePayrollLinkContainer = document.getElementById('mobilePayrollLinkContainer');
 
-        if (role === 'Manager') {
-            if (payrollLinkContainer) payrollLinkContainer.style.display = 'none';
-            if (mobilePayrollLinkContainer) mobilePayrollLinkContainer.style.display = 'none';
-        } else {
-            if (payrollLinkContainer) payrollLinkContainer.style.display = '';
-            if (mobilePayrollLinkContainer) mobilePayrollLinkContainer.style.display = '';
-        }
+        // All roles can see payroll link now
+        if (payrollLinkContainer) payrollLinkContainer.style.display = '';
+        if (mobilePayrollLinkContainer) mobilePayrollLinkContainer.style.display = '';
     }
 
     const navItems = [

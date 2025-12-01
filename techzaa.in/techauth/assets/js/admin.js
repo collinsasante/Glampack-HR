@@ -84,13 +84,8 @@ async function checkAdminAccess() {
                 return false;
             }
 
-            // Hide payroll tab for Managers
-            if (role === 'Manager') {
-                const payrollTab = document.getElementById('tab-payroll');
-                if (payrollTab) {
-                    payrollTab.style.display = 'none';
-                }
-            }
+            // Managers can now view their own payroll in the payroll tab
+            // No need to hide the tab anymore
 
             return true;
         } else {
@@ -179,17 +174,24 @@ async function applyRolePermissions() {
         const rolesTab = document.getElementById('tab-roles');
         const rolesContent = document.getElementById('content-roles');
 
-        // Manager role: Hide payroll and roles tabs
+        // Manager role: Hide roles tab only (can view own payroll)
         if (userRole === 'Manager') {
-            if (payrollTab) payrollTab.style.display = 'none';
-            if (payrollContent) payrollContent.style.display = 'none';
             if (rolesTab) rolesTab.style.display = 'none';
             if (rolesContent) rolesContent.style.display = 'none';
 
-            // If currently on restricted tab, switch to employees tab
+            // If currently on roles tab, switch to employees tab
             const currentTab = localStorage.getItem('adminActiveTab');
-            if (currentTab === 'payroll' || currentTab === 'roles') {
+            if (currentTab === 'roles') {
                 localStorage.setItem('adminActiveTab', 'employees');
+            }
+
+            // Store role for payroll filtering
+            window.currentUserRole = 'Manager';
+
+            // Hide payroll creation buttons (Managers can only view their own payroll)
+            const payrollCreateButtons = document.getElementById('payrollCreateButtons');
+            if (payrollCreateButtons) {
+                payrollCreateButtons.style.display = 'none';
             }
         }
 
@@ -202,6 +204,12 @@ async function applyRolePermissions() {
             const currentTab = localStorage.getItem('adminActiveTab');
             if (currentTab === 'roles') {
                 localStorage.setItem('adminActiveTab', 'employees');
+            }
+
+            // Hide payroll creation buttons (HR can view all payroll but not create)
+            const payrollCreateButtons = document.getElementById('payrollCreateButtons');
+            if (payrollCreateButtons) {
+                payrollCreateButtons.style.display = 'none';
             }
         }
 
@@ -2694,6 +2702,20 @@ async function loadPayrollRecords() {
         // Load all payroll records
         const data = await getPayroll();
         allPayrollRecords = data.records || [];
+
+        // Filter for Manager role - only show their own payroll records
+        const currentUser = getCurrentUser();
+        if (window.currentUserRole === 'Manager' && currentUser && currentUser.id) {
+            allPayrollRecords = allPayrollRecords.filter(record => {
+                const employeeIds = record.fields['Employee'];
+                if (Array.isArray(employeeIds)) {
+                    return employeeIds.includes(currentUser.id);
+                } else if (typeof employeeIds === 'string') {
+                    return employeeIds === currentUser.id;
+                }
+                return false;
+            });
+        }
 
         // Sort by payment date descending (most recent first)
         allPayrollRecords.sort((a, b) => {
