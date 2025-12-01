@@ -3183,14 +3183,23 @@ function calculateNetSalary() {
     // Calculate total deductions and net
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
 
-    // Net Salary = Basic + Transport - PAYE - SSNIT - Welfare - Other Deductions
-    const netSalary = basicSalary + transportAllowance - incomeTax - socialSecurity - welfare - otherDeductions;
+    // Earnings = Basic + Transport
+    const earnings = basicSalary + transportAllowance;
+
+    // Custom Deductions = Other Deductions + Welfare
+    const customDeductionsSum = otherDeductions + welfare;
+
+    // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
+    const standardDeductions = incomeTax + socialSecurity;
+
+    // Net Salary = Earnings - Custom Deductions - Standard Deductions
+    const netSalary = earnings - customDeductionsSum - standardDeductions;
+
+    // Amount to Pay = Net Salary + Standard Deductions (added back)
+    const amountToPay = netSalary + standardDeductions;
 
     // Calculate Total Earnings (Basic Salary + all allowances)
     const totalEarnings = grossSalary;
-
-    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3390,11 +3399,20 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const grossSalary = basicSalary + totalAllowances;
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
 
-    // Net Salary = Basic + Transport - PAYE - SSNIT - Welfare - Other Deductions
-    const netSalary = basicSalary + transportAllowance - incomeTax - socialSecurity - welfare - otherDeductions;
+    // Earnings = Basic + Transport
+    const earnings = basicSalary + transportAllowance;
 
-    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
+    // Custom Deductions = Other Deductions + Welfare
+    const customDeductionsSum = otherDeductions + welfare;
+
+    // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
+    const standardDeductions = incomeTax + socialSecurity;
+
+    // Net Salary = Earnings - Custom Deductions - Standard Deductions
+    const netSalary = earnings - customDeductionsSum - standardDeductions;
+
+    // Amount to Pay = Net Salary + Standard Deductions (added back)
+    const amountToPay = netSalary + standardDeductions;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
