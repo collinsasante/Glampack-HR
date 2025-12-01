@@ -85,6 +85,16 @@ function createNavigation(currentPage = '') {
             `;
         }
 
+        // Add notification badge to Announcements link
+        if (item.page === 'announcements') {
+            return `
+                <a href="${item.href}" class="${activeClass} relative">
+                    <i class="fas ${item.icon} mr-1"></i> ${item.name}
+                    <span id="announcementBadge" class="hidden absolute -top-1 -right-2 bg-red-600 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"></span>
+                </a>
+            `;
+        }
+
         return `
             <a href="${item.href}" class="${activeClass}">
                 <i class="fas ${item.icon} mr-1"></i> ${item.name}
@@ -179,11 +189,41 @@ function toggleMobileMenu() {
     }
 }
 
+// Check for unread announcements and update badge
+async function updateAnnouncementBadge() {
+    try {
+        const currentUser = getCurrentUser();
+        if (!currentUser || !currentUser.id) return;
+
+        // Get all announcements
+        const announcements = await getAnnouncements();
+
+        // Get announcement reads for current user
+        const reads = await getAnnouncementReads(`{Employee}='${currentUser.id}'`);
+        const readAnnouncementIds = reads.map(r => r.fields['Announcement'] ? r.fields['Announcement'][0] : null).filter(Boolean);
+
+        // Count unread announcements
+        const unreadCount = announcements.filter(a => !readAnnouncementIds.includes(a.id)).length;
+
+        // Update badge
+        const badge = document.getElementById('announcementBadge');
+        if (badge && unreadCount > 0) {
+            badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+            badge.classList.remove('hidden');
+        }
+    } catch (error) {
+        console.error('Error updating announcement badge:', error);
+    }
+}
+
 // Initialize navigation on page load
 document.addEventListener('DOMContentLoaded', function() {
     const navContainer = document.getElementById('navigationContainer');
     if (navContainer) {
         const currentPage = navContainer.getAttribute('data-current-page');
         navContainer.innerHTML = createNavigation(currentPage);
+
+        // Update announcement badge after navigation is created
+        setTimeout(() => updateAnnouncementBadge(), 500);
     }
 });
