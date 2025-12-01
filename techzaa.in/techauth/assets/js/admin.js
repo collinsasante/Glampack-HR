@@ -78,15 +78,11 @@ async function checkAdminAccess() {
 
         if (employee && employee.fields) {
             const role = employee.fields['Role'] || '';
-            if (role !== 'Admin' && role !== 'HR' && role !== 'Manager') {
+            if (role !== 'Admin' && role !== 'HR') {
                 showToast('error', 'Access Denied', 'Admin privileges required.');
                 window.location.href = 'dashboard.html';
                 return false;
             }
-
-            // Managers can now view their own payroll in the payroll tab
-            // No need to hide the tab anymore
-
             return true;
         } else {
             throw new Error('Failed to fetch employee data');
@@ -137,31 +133,7 @@ function restoreActiveTab() {
 }
 
 // Initialize on page load with multiple fallbacks for reliability
-window.addEventListener('DOMContentLoaded', async function() {
-    // Check user permissions and hide payroll tab if Manager
-    await applyRolePermissions();
-    restoreActiveTab();
-
-    // Add event delegation for payroll action buttons
-    document.addEventListener('click', function(e) {
-        const actionBtn = e.target.closest('.payroll-action-btn');
-        if (!actionBtn) return;
-
-        const action = actionBtn.dataset.action;
-        const recordId = actionBtn.dataset.recordId;
-
-        if (action === 'edit') {
-            const record = window.payrollRecordsMap[recordId];
-            if (record) {
-                editPayroll(record);
-            }
-        } else if (action === 'delete') {
-            const employeeName = actionBtn.dataset.employeeName;
-            const month = actionBtn.dataset.month;
-            deletePayrollHandler(recordId, employeeName, month);
-        }
-    });
-});
+window.addEventListener('DOMContentLoaded', restoreActiveTab);
 window.addEventListener('load', function() {
     // Double-check on window load in case DOMContentLoaded fired before script loaded
     const currentTab = localStorage.getItem('adminActiveTab');
@@ -173,104 +145,6 @@ window.addEventListener('load', function() {
         }
     }
 });
-
-// ========================================
-// ROLE-BASED PERMISSIONS
-// ========================================
-async function applyRolePermissions() {
-    try {
-        const currentUser = getCurrentUser();
-        if (!currentUser || !currentUser.id) return;
-
-        // Fetch user's current role from Airtable
-        const employee = await getEmployee(currentUser.id);
-        if (!employee || !employee.fields) return;
-
-        const userRole = employee.fields['Role'] || 'Employee';
-
-        // Helper function to hide tabs reliably
-        function hideTab(tabId, contentId) {
-            const tab = document.getElementById(tabId);
-            const content = document.getElementById(contentId);
-
-            if (tab) {
-                tab.style.cssText = 'display: none !important;';
-                tab.classList.add('hidden');
-            }
-            if (content) {
-                content.style.cssText = 'display: none !important;';
-                content.classList.add('hidden');
-            }
-        }
-
-        // Manager role: Hide roles tab only (can view own payroll)
-        if (userRole === 'Manager') {
-            hideTab('tab-roles', 'content-roles');
-
-            // If currently on roles tab, switch to employees tab
-            const currentTab = localStorage.getItem('adminActiveTab');
-            if (currentTab === 'roles') {
-                localStorage.setItem('adminActiveTab', 'employees');
-            }
-
-            // Store role for payroll filtering
-            window.currentUserRole = 'Manager';
-
-            // Hide payroll creation buttons (Managers can only view their own payroll)
-            const payrollCreateButtons = document.getElementById('payrollCreateButtons');
-            if (payrollCreateButtons) {
-                payrollCreateButtons.style.display = 'none';
-            }
-        }
-
-        // HR role: Hide roles tab (can view payroll but not create)
-        if (userRole === 'HR') {
-            hideTab('tab-roles', 'content-roles');
-
-            // If currently on roles tab, switch to employees tab
-            const currentTab = localStorage.getItem('adminActiveTab');
-            if (currentTab === 'roles') {
-                localStorage.setItem('adminActiveTab', 'employees');
-            }
-
-            // Hide payroll creation buttons (HR can view all payroll but not create)
-            const payrollCreateButtons = document.getElementById('payrollCreateButtons');
-            if (payrollCreateButtons) {
-                payrollCreateButtons.style.display = 'none';
-            }
-        }
-
-        // Admin role: Hide Employee View button (Admins should stay in admin view)
-        if (userRole === 'Admin') {
-            const employeeViewButton = document.getElementById('employeeViewButton');
-            if (employeeViewButton) {
-                employeeViewButton.style.cssText = 'display: none !important;';
-                employeeViewButton.classList.add('hidden');
-                employeeViewButton.remove(); // Completely remove from DOM
-            }
-        }
-
-        // Only Admin can access Roles & Permissions tab
-        // Employee role shouldn't see admin dashboard at all (handled by navigation.js)
-
-        // Double-check after a short delay to ensure DOM is fully loaded
-        setTimeout(() => {
-            if (userRole === 'Manager' || userRole === 'HR') {
-                hideTab('tab-roles', 'content-roles');
-            }
-            if (userRole === 'Admin') {
-                const employeeViewButton = document.getElementById('employeeViewButton');
-                if (employeeViewButton) {
-                    employeeViewButton.style.cssText = 'display: none !important;';
-                    employeeViewButton.classList.add('hidden');
-                    employeeViewButton.remove(); // Completely remove from DOM
-                }
-            }
-        }, 100);
-    } catch (error) {
-        console.error('Error applying role permissions:', error);
-    }
-}
 
 // ========================================
 // AIRTABLE CONFIGURATION
@@ -2755,20 +2629,6 @@ async function loadPayrollRecords() {
         const data = await getPayroll();
         allPayrollRecords = data.records || [];
 
-        // Filter for Manager role - only show their own payroll records
-        const currentUser = getCurrentUser();
-        if (window.currentUserRole === 'Manager' && currentUser && currentUser.id) {
-            allPayrollRecords = allPayrollRecords.filter(record => {
-                const employeeIds = record.fields['Employee'];
-                if (Array.isArray(employeeIds)) {
-                    return employeeIds.includes(currentUser.id);
-                } else if (typeof employeeIds === 'string') {
-                    return employeeIds === currentUser.id;
-                }
-                return false;
-            });
-        }
-
         // Sort by payment date descending (most recent first)
         allPayrollRecords.sort((a, b) => {
             const dateA = new Date(a.fields['Payment Date'] || 0);
@@ -2776,24 +2636,24 @@ async function loadPayrollRecords() {
             return dateB - dateA;
         });
 
-        // Fetch ALL employees once to avoid rate limiting
-        const employeesData = await getEmployees();
-        const employeeMap = {};
-        if (employeesData && employeesData.records) {
-            employeesData.records.forEach(emp => {
-                employeeMap[emp.id] = emp.fields['Full Name'] || 'Unknown';
-            });
-        }
-
-        // Map payroll records with employee names from the lookup map
-        allPayrollData = allPayrollRecords.map(record => {
-            const employeeId = record.fields['Employee'] && record.fields['Employee'][0];
-            return {
-                record: record,
-                employeeName: employeeId ? (employeeMap[employeeId] || 'Unknown') : 'Unknown',
-                employeeId: employeeId || ''
-            };
+        // Fetch employee names and store
+        const employeePromises = allPayrollRecords.map(async (record) => {
+            if (record.fields['Employee'] && record.fields['Employee'][0]) {
+                try {
+                    const employee = await getEmployee(record.fields['Employee'][0]);
+                    return {
+                        record: record,
+                        employeeName: employee.fields['Full Name'] || 'Unknown',
+                        employeeId: record.fields['Employee'][0]
+                    };
+                } catch (error) {
+                    return { record: record, employeeName: 'Unknown', employeeId: '' };
+                }
+            }
+            return { record: record, employeeName: 'Unknown', employeeId: '' };
         });
+
+        allPayrollData = await Promise.all(employeePromises);
 
         displayPayrollRecords();
     } catch (error) {
@@ -2938,10 +2798,10 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${statusBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
-                    <button data-action="edit" data-record-id="${record.id}" class="payroll-action-btn text-red-600 hover:text-red-900 mr-3">
+                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 mr-3">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button data-action="delete" data-record-id="${record.id}" data-employee-name="${employeeName.replace(/"/g, '&quot;')}" data-month="${monthDisplay}" class="payroll-action-btn text-red-600 hover:text-red-900">
+                    <button onclick='deletePayrollHandler("${record.id}", "${employeeName}", "${monthDisplay}")' class="text-red-600 hover:text-red-900">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
@@ -3097,12 +2957,6 @@ async function autoPopulatePayrollData(employeeId, selectedMonth) {
     } catch (error) {
 
     }
-
-    // Calculate initial values (will show 0s until employee is selected)
-    calculateNetSalary();
-
-    // Show modal
-    document.getElementById('payrollModal').classList.add('active');
 }
 
 // Show notification in payroll modal
@@ -3133,53 +2987,26 @@ function closePayrollModal() {
 }
 
 function editPayroll(record) {
-    // Check if required elements exist
-    const titleEl = document.getElementById('payrollModalTitle');
-    const idEl = document.getElementById('payrollId');
-    const modalEl = document.getElementById('payrollModal');
-
-    if (!titleEl || !idEl || !modalEl) {
-        console.error('Payroll modal elements not found');
-        showToast('error', 'Error', 'Unable to open edit modal. Please refresh the page.');
-        return;
-    }
-
-    titleEl.textContent = 'Edit Payroll';
-    idEl.value = record.id;
+    document.getElementById('payrollModalTitle').textContent = 'Edit Payroll';
+    document.getElementById('payrollId').value = record.id;
 
     const fields = record.fields;
-
-    // Set values with null checks
-    const employeeEl = document.getElementById('payrollEmployee');
-    const monthEl = document.getElementById('payrollMonth');
-    const statusEl = document.getElementById('payrollStatus');
-    const basicSalaryEl = document.getElementById('basicSalary');
-    const housingAllowanceEl = document.getElementById('housingAllowance');
-    const transportAllowanceEl = document.getElementById('transportAllowance');
-    const benefitsEl = document.getElementById('benefits');
-    const otherAllowancesEl = document.getElementById('otherAllowances');
-    const incomeTaxEl = document.getElementById('incomeTax');
-    const welfareEl = document.getElementById('welfare');
-    const socialSecurityEl = document.getElementById('socialSecurity');
-    const healthInsuranceEl = document.getElementById('healthInsurance');
-    const otherDeductionsEl = document.getElementById('otherDeductions');
-
-    if (employeeEl) employeeEl.value = fields['Employee'] ? fields['Employee'][0] : '';
-    if (monthEl) monthEl.value = fields['Month'] || '';
-    if (statusEl) statusEl.value = fields['Status'] || 'Processed';
-    if (basicSalaryEl) basicSalaryEl.value = fields['Basic Salary'] || 0;
-    if (housingAllowanceEl) housingAllowanceEl.value = fields['Housing Allowance'] || 0;
-    if (transportAllowanceEl) transportAllowanceEl.value = fields['Transport Allowance'] || 0;
-    if (benefitsEl) benefitsEl.value = fields['Benefits'] || 0;
-    if (otherAllowancesEl) otherAllowancesEl.value = fields['Other Allowances'] || 0;
-    if (incomeTaxEl) incomeTaxEl.value = fields['Income Tax'] || 0;
-    if (welfareEl) welfareEl.value = fields['Welfare'] || 0;
-    if (socialSecurityEl) socialSecurityEl.value = fields['Social Security'] || 0;
-    if (healthInsuranceEl) healthInsuranceEl.value = fields['Health Insurance'] || 0;
-    if (otherDeductionsEl) otherDeductionsEl.value = fields['Other Deductions'] || 0;
+    document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
+    document.getElementById('payrollMonth').value = fields['Month'] || '';
+    document.getElementById('payrollStatus').value = fields['Status'] || 'Processed';
+    document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
+    document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
+    document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
+    document.getElementById('benefits').value = fields['Benefits'] || 0;
+    document.getElementById('otherAllowances').value = fields['Other Allowances'] || 0;
+    document.getElementById('incomeTax').value = fields['Income Tax'] || 0;
+    document.getElementById('welfare').value = fields['Welfare'] || 0;
+    document.getElementById('socialSecurity').value = fields['Social Security'] || 0;
+    document.getElementById('healthInsurance').value = fields['Health Insurance'] || 0;
+    document.getElementById('otherDeductions').value = fields['Other Deductions'] || 0;
 
     calculateNetSalary();
-    modalEl.classList.add('active');
+    document.getElementById('payrollModal').classList.add('active');
 }
 
 async function deletePayrollHandler(payrollId, employeeName, month) {
@@ -3219,14 +3046,12 @@ function calculateNetSalary() {
 
     // Get all deductions - check if elements exist first
     const incomeTaxEl = document.getElementById('incomeTax');
-    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
-    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3236,25 +3061,8 @@ function calculateNetSalary() {
     const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     // Calculate total deductions and net
-    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
-
-    // Earnings = Basic + Transport
-    const earnings = basicSalary + transportAllowance;
-
-    // Custom Deductions = Other Deductions + Welfare
-    const customDeductionsSum = otherDeductions + welfare;
-
-    // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
-    const standardDeductions = incomeTax + paye + socialSecurity;
-
-    // Net Salary = Earnings - Custom Deductions - Standard Deductions
-    const netSalary = earnings - customDeductionsSum - standardDeductions;
-
-    // Amount to Pay = Net Salary + Standard Deductions (added back)
-    const amountToPay = netSalary + standardDeductions;
-
-    // Total Earnings = Basic + Transport (same as earnings)
-    const totalEarnings = earnings;
+    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const netSalary = grossSalary - totalDeductions;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3262,16 +3070,12 @@ function calculateNetSalary() {
     const totalDeductionsSummaryEl = document.getElementById('totalDeductionsSummary');
     const grossSalaryEl = document.getElementById('grossSalaryDisplay');
     const netSalaryEl = document.getElementById('netSalaryDisplay');
-    const amountToPayEl = document.getElementById('amountToPayDisplay');
-    const totalEarningsEl = document.getElementById('totalEarningsDisplay');
 
     if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
     if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
     if (totalDeductionsSummaryEl) totalDeductionsSummaryEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
     if (grossSalaryEl) grossSalaryEl.textContent = `GH₵${grossSalary.toFixed(2)}`;
     if (netSalaryEl) netSalaryEl.textContent = `GH₵${netSalary.toFixed(2)}`;
-    if (amountToPayEl) amountToPayEl.textContent = `GH₵${amountToPay.toFixed(2)}`;
-    if (totalEarningsEl) totalEarningsEl.textContent = `GH₵${totalEarnings.toFixed(2)}`;
 }
 
 // Custom Allowances Management
@@ -3438,14 +3242,12 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     const incomeTaxEl = document.getElementById('incomeTax');
-    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
-    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3454,22 +3256,8 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
     const grossSalary = basicSalary + totalAllowances;
-    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
-
-    // Earnings = Basic + Transport
-    const earnings = basicSalary + transportAllowance;
-
-    // Custom Deductions = Other Deductions + Welfare
-    const customDeductionsSum = otherDeductions + welfare;
-
-    // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
-    const standardDeductions = incomeTax + paye + socialSecurity;
-
-    // Net Salary = Earnings - Custom Deductions - Standard Deductions
-    const netSalary = earnings - customDeductionsSum - standardDeductions;
-
-    // Amount to Pay = Net Salary + Standard Deductions (added back)
-    const amountToPay = netSalary + standardDeductions;
+    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const netSalary = grossSalary - totalDeductions;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
@@ -3488,14 +3276,11 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Other Allowances': otherAllowances + customAllowancesTotal,
         // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': incomeTax,
-        // Note: PAYE field removed - not present in Airtable table
-        // PAYE is included in calculations but stored in Income Tax field
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
         'Net Salary': netSalary,  // This is a Number field, not Formula, so we can send it
-        'Amount to Pay': amountToPay,  // Final amount to pay after all deductions
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
         'Status': statusValue,  // Options: Processed, Pending - read from dropdown
@@ -3516,19 +3301,11 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     } catch (error) {
         // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
-        console.error('Payroll save error:', error);
-        console.error('Error message:', error.message);
-
         if (error.message) {
             try {
                 const errorObj = JSON.parse(error.message);
-                console.error('Parsed error object:', errorObj);
                 if (errorObj.error && errorObj.error.message) {
                     errorMessage = `${errorObj.error.message}`;
-                } else if (errorObj.message) {
-                    errorMessage = errorObj.message;
-                } else if (typeof errorObj === 'string') {
-                    errorMessage = errorObj;
                 }
             } catch (e) {
                 errorMessage = error.message;
@@ -3536,7 +3313,6 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         }
 
         showToast('error', 'Payroll Save Failed', errorMessage);
-        console.error('Final error message shown to user:', errorMessage);
     }
 });
 
@@ -3559,36 +3335,15 @@ function updateLastRefreshTime() {
 }
 
 function startAutoRefresh() {
-    // Refresh data every 3 minutes (reduced from 30 seconds to prevent rate limiting)
+    // Refresh data every 30 seconds
     refreshInterval = setInterval(() => {
-        // Only refresh if page is visible (user is actively viewing)
-        if (document.hidden) {
-            return; // Skip refresh when page is not visible
-        }
-
         const activeTab = document.querySelector('[id^="tab-"].tab-active');
         if (activeTab) {
             const tabName = activeTab.id.replace('tab-', '');
             refreshTabData(tabName);
         }
-    }, 180000); // 3 minutes (180000ms)
+    }, 30000); // 30 seconds
 }
-
-// Pause auto-refresh when page is hidden, resume when visible
-document.addEventListener('visibilitychange', function() {
-    if (document.hidden) {
-        // Page is hidden, stop auto-refresh to save resources
-        if (refreshInterval) {
-            clearInterval(refreshInterval);
-            refreshInterval = null;
-        }
-    } else {
-        // Page is visible again, restart auto-refresh if it was stopped
-        if (!refreshInterval && typeof startAutoRefresh === 'function') {
-            startAutoRefresh();
-        }
-    }
-});
 
 async function refreshTabData(tabName) {
     try {
@@ -4706,9 +4461,6 @@ function displayRolesTable() {
         } else if (role === 'HR') {
             roleBadgeClass = 'bg-purple-100 text-purple-800';
             roleIcon = 'fa-user-tie';
-        } else if (role === 'Manager') {
-            roleBadgeClass = 'bg-green-100 text-green-800';
-            roleIcon = 'fa-user-cog';
         }
 
         return `
