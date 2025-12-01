@@ -173,20 +173,40 @@ async function applyRolePermissions() {
 
         const userRole = employee.fields['Role'] || 'Employee';
 
-        // Manager role: Hide payroll tab and content
-        if (userRole === 'Manager') {
-            const payrollTab = document.getElementById('tab-payroll');
-            const payrollContent = document.getElementById('content-payroll');
+        // Get tab elements
+        const payrollTab = document.getElementById('tab-payroll');
+        const payrollContent = document.getElementById('content-payroll');
+        const rolesTab = document.getElementById('tab-roles');
+        const rolesContent = document.getElementById('content-roles');
 
+        // Manager role: Hide payroll and roles tabs
+        if (userRole === 'Manager') {
             if (payrollTab) payrollTab.style.display = 'none';
             if (payrollContent) payrollContent.style.display = 'none';
+            if (rolesTab) rolesTab.style.display = 'none';
+            if (rolesContent) rolesContent.style.display = 'none';
 
-            // If currently on payroll tab, switch to employees tab
+            // If currently on restricted tab, switch to employees tab
             const currentTab = localStorage.getItem('adminActiveTab');
-            if (currentTab === 'payroll') {
+            if (currentTab === 'payroll' || currentTab === 'roles') {
                 localStorage.setItem('adminActiveTab', 'employees');
             }
         }
+
+        // HR role: Hide roles tab (can view payroll but not create)
+        if (userRole === 'HR') {
+            if (rolesTab) rolesTab.style.display = 'none';
+            if (rolesContent) rolesContent.style.display = 'none';
+
+            // If currently on roles tab, switch to employees tab
+            const currentTab = localStorage.getItem('adminActiveTab');
+            if (currentTab === 'roles') {
+                localStorage.setItem('adminActiveTab', 'employees');
+            }
+        }
+
+        // Only Admin can access Roles & Permissions tab
+        // Employee role shouldn't see admin dashboard at all (handled by navigation.js)
     } catch (error) {
         console.error('Error applying role permissions:', error);
     }
