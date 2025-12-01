@@ -220,6 +220,14 @@ async function applyRolePermissions() {
             }
         }
 
+        // Admin role: Hide Employee View button (Admins should stay in admin view)
+        if (userRole === 'Admin') {
+            const employeeViewButton = document.getElementById('employeeViewButton');
+            if (employeeViewButton) {
+                employeeViewButton.style.display = 'none';
+            }
+        }
+
         // Only Admin can access Roles & Permissions tab
         // Employee role shouldn't see admin dashboard at all (handled by navigation.js)
 
@@ -227,6 +235,12 @@ async function applyRolePermissions() {
         setTimeout(() => {
             if (userRole === 'Manager' || userRole === 'HR') {
                 hideTab('tab-roles', 'content-roles');
+            }
+            if (userRole === 'Admin') {
+                const employeeViewButton = document.getElementById('employeeViewButton');
+                if (employeeViewButton) {
+                    employeeViewButton.style.display = 'none';
+                }
             }
         }, 100);
     } catch (error) {
