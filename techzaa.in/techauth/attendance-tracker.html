@@ -563,40 +563,6 @@
 
       initializePage();
 
-      // ========================================
-      // AUTO-SYNC ATTENDANCE STATUS ACROSS DEVICES
-      // ========================================
-      // Check Airtable every 5 seconds to detect changes made on other devices
-      // This ensures if user clocks in/out on Device A, Device B updates automatically
-      // and prevents duplicate check-ins from multiple devices
-      setInterval(async function() {
-        try {
-          const todayRecord = await findTodayRecord();
-
-          if (todayRecord) {
-            // Update local record ID if changed
-            if (todayRecordId !== todayRecord.id) {
-              todayRecordId = todayRecord.id;
-              setTodayRecordId(todayRecord.id);
-            }
-
-            // Refresh UI to reflect current status from Airtable
-            // This will disable check-in button if user already checked in on another device
-            loadTodayStatus();
-          } else {
-            // No record exists - ensure buttons are enabled
-            if (todayRecordId) {
-              todayRecordId = null;
-              clearTodayRecordId();
-              loadTodayStatus();
-            }
-          }
-        } catch (error) {
-          // Silently handle sync errors to avoid disrupting user experience
-          console.error('Auto-sync error:', error);
-        }
-      }, 5000); // Poll every 5 seconds for faster cross-device sync
-
       // Clean up localStorage entries from previous days
       function cleanupOldSessions() {
         const today = getTodayDate();
@@ -1283,49 +1249,24 @@
               document.getElementById("todayHours").textContent = "0h 0m";
             }
 
-            // Update button states based on check-in/out status
-            const checkInBtn = document.getElementById("checkInBtn");
-            const checkOutBtn = document.getElementById("checkOutBtn");
-
+            // Update button states
+            if (checkIn !== "Not yet") {
+              document.getElementById("checkInBtn").disabled = true;
+              document
+                .getElementById("checkInBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
+            }
             if (checkOut !== "Not yet") {
               // If checked out, disable both buttons (no re-checking in allowed)
-              checkInBtn.disabled = true;
-              checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
-              checkOutBtn.disabled = true;
-              checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
-            } else if (checkIn !== "Not yet") {
-              // If checked in but not out, disable check-in and enable check-out
-              checkInBtn.disabled = true;
-              checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
-              checkOutBtn.disabled = false;
-              checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
-            } else {
-              // No check-in yet, enable check-in and disable check-out
-              checkInBtn.disabled = false;
-              checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
-              checkOutBtn.disabled = true;
-              checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
+              document.getElementById("checkOutBtn").disabled = true;
+              document
+                .getElementById("checkOutBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
+              document.getElementById("checkInBtn").disabled = true;
+              document
+                .getElementById("checkInBtn")
+                .classList.add("opacity-50", "cursor-not-allowed");
             }
-          } else {
-            // No record found - reset to initial state
-            document.getElementById("todayShift").textContent = "Not set";
-            document.getElementById("todayCheckIn").textContent = "Not yet";
-            document.getElementById("todayCheckOut").textContent = "Not yet";
-            document.getElementById("todayHours").textContent = "0h 0m";
-
-            // Enable check-in, disable check-out
-            const checkInBtn = document.getElementById("checkInBtn");
-            const checkOutBtn = document.getElementById("checkOutBtn");
-            checkInBtn.disabled = false;
-            checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
-            checkOutBtn.disabled = true;
-            checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
-
-            // Re-enable shift selector
-            const shiftSelect = document.getElementById("shiftSelect");
-            shiftSelect.disabled = false;
-            shiftSelect.classList.remove("opacity-50", "cursor-not-allowed");
-            shiftSelect.value = "";
           }
         } catch (error) {
 
