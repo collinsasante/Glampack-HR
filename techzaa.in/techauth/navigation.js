@@ -96,11 +96,11 @@ function createNavigation(currentPage = '') {
         `;
     }).join('');
 
-    // Admin link (shown if user is admin from cache)
+    // Admin Dashboard link (shown if user is admin/manager/HR from cache)
     const adminLink = `
         <div id="adminLinkContainer" class="${isAdmin ? '' : 'hidden'}">
-            <a href="admin-dashboard.html" class="${currentPage === 'admin' ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-red-600'}">
-                <i class="fas fa-user-shield mr-1"></i> Admin
+            <a href="admin-dashboard.html" class="inline-flex items-center px-4 py-2 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md hover:shadow-lg">
+                <i class="fas fa-user-shield mr-2"></i> Admin Dashboard
             </a>
         </div>
     `;
@@ -128,11 +128,11 @@ function createNavigation(currentPage = '') {
         `;
     }).join('');
 
-    // Mobile Admin Link (shown if user is admin from cache)
+    // Mobile Admin Dashboard link (shown if user is admin/manager/HR from cache)
     const mobileAdminLink = `
         <div id="mobileAdminLinkContainer" class="${isAdmin ? '' : 'hidden'}">
-            <a href="admin-dashboard.html" class="block px-4 py-3 ${currentPage === 'admin' ? 'bg-red-100 text-red-600 font-semibold' : 'text-gray-700 hover:bg-gray-100'} rounded-lg">
-                <i class="fas fa-user-shield mr-2"></i> Admin
+            <a href="admin-dashboard.html" class="block px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-200 shadow-md">
+                <i class="fas fa-user-shield mr-2"></i> Admin Dashboard
             </a>
         </div>
     `;
