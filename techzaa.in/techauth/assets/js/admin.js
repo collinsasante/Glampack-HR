@@ -3184,10 +3184,11 @@ function calculateNetSalary() {
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Calculate Amount to Pay (Net Salary - welfare - other deductions)
-    // Welfare and other deductions are already deducted from Net Salary,
-    // but Amount to Pay shows what employee actually receives
-    const amountToPay = netSalary; // All deductions already applied
+    // Calculate Total Earnings (Basic Salary + all allowances)
+    const totalEarnings = grossSalary;
+
+    // Calculate Amount to Pay = Basic Salary + Transport + PAYE (Income Tax) + SSNIT (Social Security)
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3196,6 +3197,7 @@ function calculateNetSalary() {
     const grossSalaryEl = document.getElementById('grossSalaryDisplay');
     const netSalaryEl = document.getElementById('netSalaryDisplay');
     const amountToPayEl = document.getElementById('amountToPayDisplay');
+    const totalEarningsEl = document.getElementById('totalEarningsDisplay');
 
     if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
     if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
@@ -3203,6 +3205,7 @@ function calculateNetSalary() {
     if (grossSalaryEl) grossSalaryEl.textContent = `GH₵${grossSalary.toFixed(2)}`;
     if (netSalaryEl) netSalaryEl.textContent = `GH₵${netSalary.toFixed(2)}`;
     if (amountToPayEl) amountToPayEl.textContent = `GH₵${amountToPay.toFixed(2)}`;
+    if (totalEarningsEl) totalEarningsEl.textContent = `GH₵${totalEarnings.toFixed(2)}`;
 }
 
 // Custom Allowances Management
@@ -3386,8 +3389,8 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Amount to Pay is the net salary (all deductions including welfare are already applied)
-    const amountToPay = netSalary;
+    // Amount to Pay = Basic Salary + Transport + PAYE (Income Tax) + SSNIT (Social Security)
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
