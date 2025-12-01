@@ -408,16 +408,13 @@
       // Check user's role from Airtable and redirect if Manager
       async function checkPayrollAccess() {
         try {
+          // All employees (including Manager, HR, Admin) can view their own payroll
+          // Manager role is restricted from CREATING payroll in admin dashboard,
+          // but can VIEW their own payroll records here as an employee
           const employee = await getEmployee(currentUser.id);
           if (employee && employee.fields) {
             const userRole = employee.fields['Role'] || 'Employee';
-
-            // Only Manager is blocked from payroll (Admin, HR can access)
-            if (userRole === 'Manager') {
-              alert('Access Denied: Managers do not have permission to view payroll information.');
-              window.location.href = 'dashboard.html';
-              return false;
-            }
+            // No restrictions - all roles can access their own payroll
           }
           return true;
         } catch (error) {
