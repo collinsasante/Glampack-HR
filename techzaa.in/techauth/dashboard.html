@@ -288,7 +288,7 @@
           </a>
           <a
             href="#"
-            onclick="customAlert('Staff Welfare Guide will be available soon', 'Coming Soon', 'info'); return false;"
+            onclick="showWelfareGuide(); return false;"
             class="flex items-center p-4 bg-gradient-to-r from-purple-50 to-purple-100 hover:from-purple-100 hover:to-purple-200 rounded-lg border border-purple-200 transition-all"
           >
             <div class="bg-purple-500 p-3 rounded-lg mr-4">
@@ -810,6 +810,327 @@
         <!-- Modal Footer -->
         <div class="bg-gray-100 p-4 flex justify-end">
           <button onclick="closeEmployeeHandbook()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Staff Welfare Guide Modal -->
+    <div id="welfareGuideModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+      <div class="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+        <!-- Modal Header -->
+        <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-6 flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <i class="fas fa-hands-helping text-2xl"></i>
+            <h2 class="text-2xl font-bold">Employee Welfare Fund Rules and Regulations</h2>
+          </div>
+          <button onclick="closeWelfareGuide()" class="text-white hover:text-gray-200 transition-colors">
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+        </div>
+
+        <!-- Modal Content -->
+        <div class="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+          <!-- Introduction -->
+          <div class="mb-6 bg-purple-50 p-5 rounded-lg border border-purple-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-info-circle text-purple-600 mr-2"></i>
+              Introduction
+            </h3>
+            <p class="text-gray-700 leading-relaxed">
+              The Employee Welfare Fund is designed to support the financial well-being of our employees during significant life events and emergencies. This fund reflects our commitment to creating a supportive and caring work environment.
+            </p>
+          </div>
+
+          <!-- Purpose -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-bullseye text-purple-600 mr-2"></i>
+              Purpose of the Fund
+            </h3>
+            <p class="text-gray-700 mb-3">The Employee Welfare Fund provides financial assistance to employees for:</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div class="flex items-start bg-blue-50 p-3 rounded-lg border border-blue-200">
+                <i class="fas fa-heartbeat text-blue-600 mr-2 mt-1"></i>
+                <span class="text-sm text-gray-700">Medical expenses and healthcare needs</span>
+              </div>
+              <div class="flex items-start bg-green-50 p-3 rounded-lg border border-green-200">
+                <i class="fas fa-graduation-cap text-green-600 mr-2 mt-1"></i>
+                <span class="text-sm text-gray-700">Educational support for employees and their children</span>
+              </div>
+              <div class="flex items-start bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                <i class="fas fa-exclamation-triangle text-yellow-600 mr-2 mt-1"></i>
+                <span class="text-sm text-gray-700">Emergency situations and unforeseen circumstances</span>
+              </div>
+              <div class="flex items-start bg-red-50 p-3 rounded-lg border border-red-200">
+                <i class="fas fa-hand-holding-heart text-red-600 mr-2 mt-1"></i>
+                <span class="text-sm text-gray-700">Other approved financial assistance needs</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Eligibility -->
+          <div class="mb-6 bg-blue-50 p-5 rounded-lg border border-blue-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-user-check text-blue-600 mr-2"></i>
+              Eligibility Criteria
+            </h3>
+            <p class="text-gray-700 mb-3">To be eligible for welfare fund benefits, employees must meet the following requirements:</p>
+            <ul class="space-y-2 text-gray-700">
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1"></i>
+                <span><strong>Employment Status:</strong> Must be a permanent employee of the company</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1"></i>
+                <span><strong>Service Period:</strong> Must have completed at least 6 months of continuous service</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1"></i>
+                <span><strong>Active Employment:</strong> Must be actively employed at the time of application</span>
+              </li>
+              <li class="flex items-start">
+                <i class="fas fa-check-circle text-blue-600 mr-2 mt-1"></i>
+                <span><strong>Good Standing:</strong> Must not be under any disciplinary action</span>
+              </li>
+            </ul>
+          </div>
+
+          <!-- Fund Contributions -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-wallet text-purple-600 mr-2"></i>
+              Monthly Contributions
+            </h3>
+            <div class="bg-gradient-to-r from-purple-50 to-purple-100 p-5 rounded-lg border border-purple-300">
+              <div class="flex items-center justify-between mb-3">
+                <div>
+                  <p class="text-gray-800 font-semibold text-lg">Monthly Contribution Amount</p>
+                  <p class="text-sm text-gray-600 mt-1">Automatically deducted from your monthly salary</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-purple-600">GH₵ 50</p>
+                  <p class="text-xs text-gray-600">per month</p>
+                </div>
+              </div>
+              <div class="bg-white p-3 rounded border border-purple-200">
+                <p class="text-sm text-gray-700">
+                  <i class="fas fa-info-circle text-purple-600 mr-2"></i>
+                  This contribution is automatically deducted from your gross salary each month and goes directly into the welfare fund to support all eligible employees.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Benefits -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+              <i class="fas fa-gift text-purple-600 mr-2"></i>
+              Welfare Fund Benefits
+            </h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <!-- Medical Expenses -->
+              <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-5 rounded-lg border-2 border-blue-300 shadow-sm">
+                <div class="flex items-center mb-3">
+                  <div class="bg-blue-600 p-3 rounded-lg mr-3">
+                    <i class="fas fa-stethoscope text-white text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-800 text-lg">Medical Expenses</h4>
+                    <p class="text-2xl font-bold text-blue-600">GH₵ 1,000</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-700">Maximum annual support for medical bills and healthcare expenses</p>
+              </div>
+
+              <!-- Funeral Support -->
+              <div class="bg-gradient-to-br from-gray-50 to-gray-100 p-5 rounded-lg border-2 border-gray-400 shadow-sm">
+                <div class="flex items-center mb-3">
+                  <div class="bg-gray-700 p-3 rounded-lg mr-3">
+                    <i class="fas fa-praying-hands text-white text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-800 text-lg">Funeral Support</h4>
+                    <p class="text-2xl font-bold text-gray-700">GH₵ 2,000</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-700">Support for bereavement and funeral expenses (employee or immediate family)</p>
+              </div>
+
+              <!-- Marriage Support -->
+              <div class="bg-gradient-to-br from-pink-50 to-pink-100 p-5 rounded-lg border-2 border-pink-300 shadow-sm">
+                <div class="flex items-center mb-3">
+                  <div class="bg-pink-600 p-3 rounded-lg mr-3">
+                    <i class="fas fa-heart text-white text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-800 text-lg">Marriage Support</h4>
+                    <p class="text-2xl font-bold text-pink-600">GH₵ 1,500</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-700">One-time support for employees getting married</p>
+              </div>
+
+              <!-- Christening Support -->
+              <div class="bg-gradient-to-br from-green-50 to-green-100 p-5 rounded-lg border-2 border-green-300 shadow-sm">
+                <div class="flex items-center mb-3">
+                  <div class="bg-green-600 p-3 rounded-lg mr-3">
+                    <i class="fas fa-baby text-white text-xl"></i>
+                  </div>
+                  <div>
+                    <h4 class="font-bold text-gray-800 text-lg">Christening Support</h4>
+                    <p class="text-2xl font-bold text-green-600">GH₵ 1,000</p>
+                  </div>
+                </div>
+                <p class="text-sm text-gray-700">Support for child naming/christening ceremonies</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Application Process -->
+          <div class="mb-6 bg-yellow-50 p-5 rounded-lg border border-yellow-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-file-alt text-yellow-600 mr-2"></i>
+              Application Process
+            </h3>
+            <div class="space-y-3">
+              <div class="flex items-start">
+                <div class="bg-yellow-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3 flex-shrink-0">1</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Submit Written Application</p>
+                  <p class="text-sm text-gray-700">Submit your welfare fund application to the HR department with supporting documentation</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-yellow-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3 flex-shrink-0">2</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Committee Review</p>
+                  <p class="text-sm text-gray-700">The Welfare Fund Committee will review your application and verify eligibility</p>
+                </div>
+              </div>
+              <div class="flex items-start">
+                <div class="bg-yellow-600 text-white rounded-full w-8 h-8 flex items-center justify-center font-bold mr-3 flex-shrink-0">3</div>
+                <div>
+                  <p class="font-semibold text-gray-800">Decision & Payment</p>
+                  <p class="text-sm text-gray-700">Receive decision within <strong>3 working days</strong>. Approved benefits will be disbursed promptly</p>
+                </div>
+              </div>
+            </div>
+            <div class="bg-white p-3 rounded border border-yellow-300 mt-4">
+              <p class="text-sm text-gray-700">
+                <i class="fas fa-clock text-yellow-600 mr-2"></i>
+                <strong>Processing Time:</strong> All applications are reviewed and decided upon within 3 working days of submission.
+              </p>
+            </div>
+          </div>
+
+          <!-- Fund Management -->
+          <div class="mb-6">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-users-cog text-purple-600 mr-2"></i>
+              Fund Management
+            </h3>
+            <div class="bg-gray-50 p-4 rounded-lg border border-gray-300">
+              <p class="text-gray-700 mb-3">The Employee Welfare Fund is managed by a dedicated committee responsible for:</p>
+              <ul class="space-y-2 text-gray-700">
+                <li class="flex items-start">
+                  <i class="fas fa-check text-purple-600 mr-2 mt-1"></i>
+                  <span>Reviewing and approving welfare fund applications</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-purple-600 mr-2 mt-1"></i>
+                  <span>Ensuring fair and consistent distribution of benefits</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-purple-600 mr-2 mt-1"></i>
+                  <span>Maintaining fund records and financial accountability</span>
+                </li>
+                <li class="flex items-start">
+                  <i class="fas fa-check text-purple-600 mr-2 mt-1"></i>
+                  <span>Periodically reviewing benefit amounts and fund policies</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Confidentiality -->
+          <div class="mb-6 bg-red-50 p-5 rounded-lg border border-red-200">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-lock text-red-600 mr-2"></i>
+              Confidentiality & Privacy
+            </h3>
+            <p class="text-gray-700 mb-3">We take your privacy seriously. All welfare fund matters are handled with strict confidentiality:</p>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+              <div class="bg-white p-3 rounded border border-red-200 text-center">
+                <i class="fas fa-user-shield text-red-600 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-800">Personal Information</p>
+                <p class="text-xs text-gray-600 mt-1">Protected and confidential</p>
+              </div>
+              <div class="bg-white p-3 rounded border border-red-200 text-center">
+                <i class="fas fa-file-medical text-red-600 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-800">Medical Records</p>
+                <p class="text-xs text-gray-600 mt-1">Strictly confidential</p>
+              </div>
+              <div class="bg-white p-3 rounded border border-red-200 text-center">
+                <i class="fas fa-dollar-sign text-red-600 text-2xl mb-2"></i>
+                <p class="text-sm font-semibold text-gray-800">Financial Details</p>
+                <p class="text-xs text-gray-600 mt-1">Secure and private</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Fund Maturity -->
+          <div class="mb-6 bg-gradient-to-r from-orange-50 to-orange-100 p-5 rounded-lg border border-orange-300">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-calendar-check text-orange-600 mr-2"></i>
+              Fund Maturity Date
+            </h3>
+            <div class="bg-white p-4 rounded border border-orange-300">
+              <div class="flex items-center justify-between">
+                <div>
+                  <p class="text-gray-800 font-semibold text-lg">The Employee Welfare Fund matures on:</p>
+                  <p class="text-sm text-gray-600 mt-1">All accumulated funds will be disbursed to eligible employees</p>
+                </div>
+                <div class="text-right">
+                  <p class="text-3xl font-bold text-orange-600">December 30</p>
+                  <p class="text-sm text-gray-600">Annual maturity date</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Amendments -->
+          <div class="mb-6 bg-gray-50 p-5 rounded-lg border border-gray-300">
+            <h3 class="text-xl font-bold text-gray-800 mb-3 flex items-center">
+              <i class="fas fa-edit text-gray-600 mr-2"></i>
+              Amendments & Updates
+            </h3>
+            <p class="text-gray-700">
+              <i class="fas fa-info-circle text-blue-600 mr-2"></i>
+              The company reserves the right to amend or modify these welfare fund rules and regulations as necessary. All employees will be notified in advance of any changes to the fund policies, contribution amounts, or benefit limits.
+            </p>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-5 rounded-lg">
+            <h3 class="text-xl font-bold mb-3 flex items-center">
+              <i class="fas fa-phone-alt mr-2"></i>
+              Need Assistance?
+            </h3>
+            <p class="mb-3">For questions about the Employee Welfare Fund or to submit an application, please contact:</p>
+            <div class="space-y-2">
+              <p><i class="fas fa-building mr-2"></i><strong>HR Department - Welfare Fund Committee</strong></p>
+              <p><i class="fas fa-envelope mr-2"></i>hr@packglamour.com</p>
+              <p><i class="fas fa-phone mr-2"></i>+233 XX XXX XXXX</p>
+              <p class="text-sm mt-3 opacity-90">Office Hours: Monday - Friday, 8:00 AM - 5:00 PM</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal Footer -->
+        <div class="bg-gray-100 p-4 flex justify-end">
+          <button onclick="closeWelfareGuide()" class="px-6 py-2 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors">
             Close
           </button>
         </div>
@@ -1384,11 +1705,31 @@
         }
       }
 
+      // ========================================
+      // WELFARE GUIDE MODAL FUNCTIONS
+      // ========================================
+      function showWelfareGuide() {
+        const modal = document.getElementById('welfareGuideModal');
+        if (modal) {
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+      }
+
+      function closeWelfareGuide() {
+        const modal = document.getElementById('welfareGuideModal');
+        if (modal) {
+          modal.classList.add('hidden');
+          document.body.style.overflow = '';
+        }
+      }
+
       // Close modals with Escape key
       document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
           closeMedicalPolicy();
           closeEmployeeHandbook();
+          closeWelfareGuide();
         }
       });
 
@@ -1396,12 +1737,16 @@
       document.addEventListener('click', function(event) {
         const medicalModal = document.getElementById('medicalPolicyModal');
         const handbookModal = document.getElementById('employeeHandbookModal');
+        const welfareModal = document.getElementById('welfareGuideModal');
 
         if (event.target === medicalModal) {
           closeMedicalPolicy();
         }
         if (event.target === handbookModal) {
           closeEmployeeHandbook();
+        }
+        if (event.target === welfareModal) {
+          closeWelfareGuide();
         }
       });
 
