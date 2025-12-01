@@ -5,14 +5,18 @@
 function createNavigation(currentPage = '') {
     const currentUser = getCurrentUser();
 
-    // Check if user is admin/HR - use cached value first
+    // Check if user is admin/HR/Manager - use cached value first
     let isAdmin = localStorage.getItem('isAdmin') === 'true';
+    let userRole = localStorage.getItem('userRole') || 'Employee';
 
-    // Update admin status in background
+    // Update admin status and role in background
     checkIfUserIsAdmin().then(result => {
-        isAdmin = result;
+        isAdmin = result.isAdmin;
+        userRole = result.role;
         localStorage.setItem('isAdmin', isAdmin);
+        localStorage.setItem('userRole', userRole);
         updateAdminLink();
+        updatePayrollLink(userRole);
     });
 
     async function checkIfUserIsAdmin() {
@@ -21,13 +25,15 @@ function createNavigation(currentPage = '') {
             const employee = await getEmployee(currentUser.id);
 
             if (employee && employee.fields) {
-                const role = employee.fields['Role'] || '';
-                return role === 'Admin' || role === 'HR';
+                const role = employee.fields['Role'] || 'Employee';
+                // Manager role can access admin dashboard (all features except payroll)
+                const isAdmin = role === 'Admin' || role === 'HR' || role === 'Manager';
+                return { isAdmin, role };
             }
         } catch (error) {
             // Silently handle error
         }
-        return false;
+        return { isAdmin: false, role: 'Employee' };
     }
 
     function updateAdminLink() {
@@ -39,6 +45,20 @@ function createNavigation(currentPage = '') {
         }
         if (mobileAdminLinkContainer && isAdmin) {
             mobileAdminLinkContainer.classList.remove('hidden');
+        }
+    }
+
+    function updatePayrollLink(role) {
+        // Hide payroll menu item for Manager role
+        const payrollLinkContainer = document.getElementById('payrollLinkContainer');
+        const mobilePayrollLinkContainer = document.getElementById('mobilePayrollLinkContainer');
+
+        if (role === 'Manager') {
+            if (payrollLinkContainer) payrollLinkContainer.style.display = 'none';
+            if (mobilePayrollLinkContainer) mobilePayrollLinkContainer.style.display = 'none';
+        } else {
+            if (payrollLinkContainer) payrollLinkContainer.style.display = '';
+            if (mobilePayrollLinkContainer) mobilePayrollLinkContainer.style.display = '';
         }
     }
 
@@ -57,6 +77,18 @@ function createNavigation(currentPage = '') {
     const desktopNav = navItems.map(item => {
         const isActive = currentPage === item.page;
         const activeClass = isActive ? 'text-red-600 font-semibold' : 'text-gray-600 hover:text-red-600';
+
+        // Wrap Payroll link in container for Manager role hiding
+        if (item.page === 'payroll') {
+            return `
+                <div id="payrollLinkContainer">
+                    <a href="${item.href}" class="${activeClass}">
+                        <i class="fas ${item.icon} mr-1"></i> ${item.name}
+                    </a>
+                </div>
+            `;
+        }
+
         return `
             <a href="${item.href}" class="${activeClass}">
                 <i class="fas ${item.icon} mr-1"></i> ${item.name}
@@ -77,6 +109,18 @@ function createNavigation(currentPage = '') {
     const mobileNav = navItems.map(item => {
         const isActive = currentPage === item.page;
         const activeClass = isActive ? 'bg-red-100 text-red-600 font-semibold' : 'text-gray-700 hover:bg-gray-100';
+
+        // Wrap Payroll link in container for Manager role hiding
+        if (item.page === 'payroll') {
+            return `
+                <div id="mobilePayrollLinkContainer">
+                    <a href="${item.href}" class="block px-4 py-3 ${activeClass} rounded-lg">
+                        <i class="fas ${item.icon} mr-2"></i> ${item.name}
+                    </a>
+                </div>
+            `;
+        }
+
         return `
             <a href="${item.href}" class="block px-4 py-3 ${activeClass} rounded-lg">
                 <i class="fas ${item.icon} mr-2"></i> ${item.name}

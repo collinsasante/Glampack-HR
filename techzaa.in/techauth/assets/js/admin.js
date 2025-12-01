@@ -142,7 +142,11 @@ function restoreActiveTab() {
 }
 
 // Initialize on page load with multiple fallbacks for reliability
-window.addEventListener('DOMContentLoaded', restoreActiveTab);
+window.addEventListener('DOMContentLoaded', async function() {
+    // Check user permissions and hide payroll tab if Manager
+    await applyRolePermissions();
+    restoreActiveTab();
+});
 window.addEventListener('load', function() {
     // Double-check on window load in case DOMContentLoaded fired before script loaded
     const currentTab = localStorage.getItem('adminActiveTab');
@@ -154,6 +158,39 @@ window.addEventListener('load', function() {
         }
     }
 });
+
+// ========================================
+// ROLE-BASED PERMISSIONS
+// ========================================
+async function applyRolePermissions() {
+    try {
+        const currentUser = getCurrentUser();
+        if (!currentUser || !currentUser.id) return;
+
+        // Fetch user's current role from Airtable
+        const employee = await getEmployee(currentUser.id);
+        if (!employee || !employee.fields) return;
+
+        const userRole = employee.fields['Role'] || 'Employee';
+
+        // Manager role: Hide payroll tab and content
+        if (userRole === 'Manager') {
+            const payrollTab = document.getElementById('tab-payroll');
+            const payrollContent = document.getElementById('content-payroll');
+
+            if (payrollTab) payrollTab.style.display = 'none';
+            if (payrollContent) payrollContent.style.display = 'none';
+
+            // If currently on payroll tab, switch to employees tab
+            const currentTab = localStorage.getItem('adminActiveTab');
+            if (currentTab === 'payroll') {
+                localStorage.setItem('adminActiveTab', 'employees');
+            }
+        }
+    } catch (error) {
+        console.error('Error applying role permissions:', error);
+    }
+}
 
 // ========================================
 // AIRTABLE CONFIGURATION

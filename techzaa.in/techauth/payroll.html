@@ -401,6 +401,38 @@
 
       const currentUser = getCurrentUser();
 
+      // ========================================
+      // ROLE-BASED ACCESS CONTROL
+      // ========================================
+      // Manager role should NOT have access to payroll page
+      // Check user's role from Airtable and redirect if Manager
+      async function checkPayrollAccess() {
+        try {
+          const employee = await getEmployee(currentUser.id);
+          if (employee && employee.fields) {
+            const userRole = employee.fields['Role'] || 'Employee';
+
+            // Only Manager is blocked from payroll (Admin, HR can access)
+            if (userRole === 'Manager') {
+              alert('Access Denied: Managers do not have permission to view payroll information.');
+              window.location.href = 'dashboard.html';
+              return false;
+            }
+          }
+          return true;
+        } catch (error) {
+          console.error('Error checking payroll access:', error);
+          return true; // Allow access on error to avoid blocking legitimate users
+        }
+      }
+
+      // Check access before loading page
+      checkPayrollAccess().then(hasAccess => {
+        if (hasAccess) {
+          loadSalaryInfo();
+        }
+      });
+
       // Show admin link if user is admin
       const adminLink = document.getElementById("adminLink");
       if (currentUser.role === "Admin" && adminLink) {
@@ -1111,7 +1143,8 @@
       // INITIALIZE PAGE
       // ========================================
       window.addEventListener("DOMContentLoaded", function () {
-        loadSalaryInfo();
+        // Access check is done inline above, only loads if permitted
+        // loadSalaryInfo(); // Now called after access check passes
         loadPaymentHistory();
         checkAndShowAdminLink();
       });
