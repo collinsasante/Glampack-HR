@@ -302,67 +302,6 @@
         </div>
       </div>
 
-      <!-- Company Policies Section -->
-      <div class="bg-white rounded-lg shadow-md p-4 sm:p-6 mb-6 sm:mb-8">
-        <h3 class="text-lg sm:text-xl font-semibold text-gray-800 mb-4">
-          <i class="fas fa-file-contract text-red-600 mr-2"></i>Company Policies
-        </h3>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <!-- Medical Bill Policy -->
-          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="togglePolicy('medical')">
-            <div class="flex items-start space-x-3">
-              <div class="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-notes-medical text-red-600"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <h4 class="font-semibold text-gray-800 mb-1">Medical Bill Policy</h4>
-                <p class="text-sm text-gray-600 mb-2">GH₵ 1,000 annual reimbursement for medical expenses</p>
-                <button class="text-red-600 text-sm font-medium hover:text-red-700">
-                  <i class="fas fa-chevron-down mr-1" id="medical-icon"></i>
-                  <span id="medical-text">View Details</span>
-                </button>
-              </div>
-            </div>
-            <div id="medical-content" class="hidden mt-4 pt-4 border-t border-gray-200 text-sm text-gray-700 space-y-2">
-              <p><strong>Annual Limit:</strong> GH₵ 1,000 per employee</p>
-              <p><strong>Submission Deadline:</strong> Within 3 days of treatment</p>
-              <p><strong>Eligibility:</strong> All full-time employees after probation</p>
-              <p><strong>Covers:</strong> Deductibles, co-payments, non-NHIS treatments</p>
-              <p><strong>Timeline:</strong> Processed within next payroll cycle</p>
-            </div>
-          </div>
-
-          <!-- Welfare Fund Policy -->
-          <div class="border border-gray-200 rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer" onclick="togglePolicy('welfare')">
-            <div class="flex items-start space-x-3">
-              <div class="flex-shrink-0 w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                <i class="fas fa-hand-holding-heart text-green-600"></i>
-              </div>
-              <div class="flex-1 min-w-0">
-                <h4 class="font-semibold text-gray-800 mb-1">Welfare Fund Policy</h4>
-                <p class="text-sm text-gray-600 mb-2">GH₵ 50 monthly contribution for welfare benefits</p>
-                <button class="text-green-600 text-sm font-medium hover:text-green-700">
-                  <i class="fas fa-chevron-down mr-1" id="welfare-icon"></i>
-                  <span id="welfare-text">View Details</span>
-                </button>
-              </div>
-            </div>
-            <div id="welfare-content" class="hidden mt-4 pt-4 border-t border-gray-200 text-sm text-gray-700 space-y-2">
-              <p><strong>Monthly Contribution:</strong> GH₵ 50 (auto-deducted from salary)</p>
-              <p><strong>Eligibility:</strong> 6 months continuous service</p>
-              <p><strong>Benefits:</strong></p>
-              <ul class="list-disc ml-5 space-y-1">
-                <li>Funeral Support: Up to GH₵ 2,000/year</li>
-                <li>Marriage Support: Up to GH₵ 1,500</li>
-                <li>Christening Support: Up to GH₵ 1,000</li>
-                <li>Medical: Up to GH₵ 1,000/year</li>
-              </ul>
-              <p><strong>Review Time:</strong> 3 working days</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
       <!-- Charts and Announcements Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
         <!-- Attendance Chart -->
@@ -917,27 +856,6 @@
           }
         } catch (error) {
 
-        }
-      }
-
-      // ========================================
-      // TOGGLE POLICY DETAILS
-      // ========================================
-      function togglePolicy(policyType) {
-        const content = document.getElementById(policyType + '-content');
-        const icon = document.getElementById(policyType + '-icon');
-        const text = document.getElementById(policyType + '-text');
-
-        if (content.classList.contains('hidden')) {
-          content.classList.remove('hidden');
-          icon.classList.remove('fa-chevron-down');
-          icon.classList.add('fa-chevron-up');
-          text.textContent = 'Hide Details';
-        } else {
-          content.classList.add('hidden');
-          icon.classList.remove('fa-chevron-up');
-          icon.classList.add('fa-chevron-down');
-          text.textContent = 'View Details';
         }
       }
 
