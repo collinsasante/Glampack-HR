@@ -3207,6 +3207,16 @@ function calculateNetSalary() {
     // Total Earnings = Basic + Transport (same as earnings)
     const totalEarnings = earnings;
 
+    // Debug logging
+    console.log('Payroll Calculation:', {
+        earnings,
+        customDeductionsSum,
+        standardDeductions,
+        netSalary,
+        amountToPay,
+        totalEarnings
+    });
+
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
     const totalDeductionsEl = document.getElementById('totalDeductionsDisplay');
@@ -3215,6 +3225,12 @@ function calculateNetSalary() {
     const netSalaryEl = document.getElementById('netSalaryDisplay');
     const amountToPayEl = document.getElementById('amountToPayDisplay');
     const totalEarningsEl = document.getElementById('totalEarningsDisplay');
+
+    console.log('Display elements found:', {
+        totalEarnings: !!totalEarningsEl,
+        amountToPay: !!amountToPayEl,
+        netSalary: !!netSalaryEl
+    });
 
     if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
     if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
