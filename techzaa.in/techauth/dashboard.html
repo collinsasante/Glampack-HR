@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
     <title>Dashboard - Glampack HR</title>
 
     <!-- Favicon -->
@@ -339,7 +342,7 @@
     </div>
 
     <!-- Scripts -->
-    <script src="config-worker.js?v=2"></script>
+    <script src="config-worker.js?v=7"></script>
     <script src="shared-modal.js"></script>
     <script>
       // Authentication check
@@ -374,10 +377,10 @@
           userNameElement.textContent = currentUser.name.split(" ")[0];
         }
 
-        // Show admin link if user is admin
+        // Show admin link if user is admin/HR/Manager - will be updated by checkAdminStatus
         const adminLink = document.getElementById("adminLink");
-        if (currentUser.role === "Admin" && adminLink) {
-          adminLink.style.display = "inline-block";
+        if ((currentUser.role === "Admin" || currentUser.role === "HR" || currentUser.role === "Manager") && adminLink) {
+          adminLink.style.display = "inline-flex";
         }
 
         // Load all dashboard data
