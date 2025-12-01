@@ -495,7 +495,7 @@
       // Check if already logged in
       if (isLoggedIn()) {
         const currentUser = getCurrentUser();
-        if (currentUser.role === "Admin") {
+        if (currentUser.role === "Admin" || currentUser.role === "HR" || currentUser.role === "Manager") {
           window.location.href = "admin-dashboard.html";
         } else {
           window.location.href = "dashboard.html";

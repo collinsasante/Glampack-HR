@@ -78,11 +78,20 @@ async function checkAdminAccess() {
 
         if (employee && employee.fields) {
             const role = employee.fields['Role'] || '';
-            if (role !== 'Admin' && role !== 'HR') {
+            if (role !== 'Admin' && role !== 'HR' && role !== 'Manager') {
                 showToast('error', 'Access Denied', 'Admin privileges required.');
                 window.location.href = 'dashboard.html';
                 return false;
             }
+
+            // Hide payroll tab for Managers
+            if (role === 'Manager') {
+                const payrollTab = document.getElementById('tab-payroll');
+                if (payrollTab) {
+                    payrollTab.style.display = 'none';
+                }
+            }
+
             return true;
         } else {
             throw new Error('Failed to fetch employee data');
@@ -4461,6 +4470,9 @@ function displayRolesTable() {
         } else if (role === 'HR') {
             roleBadgeClass = 'bg-purple-100 text-purple-800';
             roleIcon = 'fa-user-tie';
+        } else if (role === 'Manager') {
+            roleBadgeClass = 'bg-green-100 text-green-800';
+            roleIcon = 'fa-user-cog';
         }
 
         return `
