@@ -189,21 +189,40 @@ function toggleMobileMenu() {
     }
 }
 
-// Check for unread announcements and update badge
+// Check for unread announcements and update badge with caching
 async function updateAnnouncementBadge() {
     try {
         const currentUser = getCurrentUser();
         if (!currentUser || !currentUser.id) return;
 
-        // Get all announcements
-        const announcements = await getAnnouncements();
+        // Check cache first (cache for 5 minutes)
+        const cacheKey = `announcement_badge_${currentUser.id}`;
+        const cacheTimeKey = `announcement_badge_time_${currentUser.id}`;
+        const cachedCount = localStorage.getItem(cacheKey);
+        const cachedTime = localStorage.getItem(cacheTimeKey);
+        const now = Date.now();
+        const fiveMinutes = 5 * 60 * 1000;
 
-        // Get announcement reads for current user
+        // Use cached value if it's less than 5 minutes old
+        if (cachedCount !== null && cachedTime && (now - parseInt(cachedTime)) < fiveMinutes) {
+            const badge = document.getElementById('announcementBadge');
+            const unreadCount = parseInt(cachedCount);
+            if (badge && unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.classList.remove('hidden');
+            }
+            return;
+        }
+
+        // Fetch fresh data only if cache is expired
+        const announcements = await getAnnouncements();
         const reads = await getAnnouncementReads(`{Employee}='${currentUser.id}'`);
         const readAnnouncementIds = reads.map(r => r.fields['Announcement'] ? r.fields['Announcement'][0] : null).filter(Boolean);
-
-        // Count unread announcements
         const unreadCount = announcements.filter(a => !readAnnouncementIds.includes(a.id)).length;
+
+        // Update cache
+        localStorage.setItem(cacheKey, unreadCount.toString());
+        localStorage.setItem(cacheTimeKey, now.toString());
 
         // Update badge
         const badge = document.getElementById('announcementBadge');
@@ -213,6 +232,7 @@ async function updateAnnouncementBadge() {
         }
     } catch (error) {
         console.error('Error updating announcement badge:', error);
+        // Silently fail - don't block page load
     }
 }
 
@@ -224,6 +244,9 @@ document.addEventListener('DOMContentLoaded', function() {
         navContainer.innerHTML = createNavigation(currentPage);
 
         // Update announcement badge after navigation is created
-        setTimeout(() => updateAnnouncementBadge(), 500);
+        // Only update if not on announcements page (to avoid double fetching)
+        if (currentPage !== 'announcements') {
+            setTimeout(() => updateAnnouncementBadge(), 500);
+        }
     }
 });

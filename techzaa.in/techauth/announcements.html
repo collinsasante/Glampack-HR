@@ -487,6 +487,13 @@
 
       async function loadAnnouncements() {
         try {
+          // Clear announcement badge cache when loading announcements page
+          const currentUser = getCurrentUser();
+          if (currentUser && currentUser.id) {
+            localStorage.removeItem(`announcement_badge_${currentUser.id}`);
+            localStorage.removeItem(`announcement_badge_time_${currentUser.id}`);
+          }
+
           // Load announcements, reads, and comments using Worker API
           const [announcementsData, readsData, commentsData] = await Promise.all([
             getAnnouncements(),
