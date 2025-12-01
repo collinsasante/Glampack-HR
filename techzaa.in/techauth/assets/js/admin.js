@@ -3182,13 +3182,15 @@ function calculateNetSalary() {
 
     // Calculate total deductions and net
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
-    const netSalary = grossSalary - totalDeductions;
+
+    // Net Salary = Basic + Transport - PAYE - SSNIT - Welfare - Other Deductions
+    const netSalary = basicSalary + transportAllowance - incomeTax - socialSecurity - welfare - otherDeductions;
 
     // Calculate Total Earnings (Basic Salary + all allowances)
     const totalEarnings = grossSalary;
 
-    // Calculate Amount to Pay = Basic Salary + Transport + PAYE (Income Tax) + SSNIT (Social Security)
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity;
+    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3387,10 +3389,12 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
     const grossSalary = basicSalary + totalAllowances;
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
-    const netSalary = grossSalary - totalDeductions;
 
-    // Amount to Pay = Basic Salary + Transport + PAYE (Income Tax) + SSNIT (Social Security)
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity;
+    // Net Salary = Basic + Transport - PAYE - SSNIT - Welfare - Other Deductions
+    const netSalary = basicSalary + transportAllowance - incomeTax - socialSecurity - welfare - otherDeductions;
+
+    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
