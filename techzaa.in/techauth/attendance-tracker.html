@@ -144,11 +144,22 @@
       class="fixed inset-0 bg-gray-100 bg-opacity-30 hidden items-center justify-center z-50"
     >
       <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="p-6 border-b">
-          <h3 class="text-xl font-bold text-gray-800">Late Arrival</h3>
-          <p class="text-sm text-gray-600 mt-1">
-            You are checking in after 8:30 AM. Please provide a reason.
+        <div class="p-6 border-b bg-gradient-to-r from-red-50 to-orange-50">
+          <h3 class="text-xl font-bold text-gray-800 flex items-center">
+            <i class="fas fa-exclamation-circle text-red-600 mr-2"></i>
+            Late Arrival Detected
+          </h3>
+          <p class="text-sm text-gray-600 mt-2" id="lateReasonDescription">
+            You are checking in late for your shift. Please provide a reason.
           </p>
+          <div class="mt-3 bg-white rounded-lg p-3 border border-red-200">
+            <p class="text-xs text-gray-500 mb-1">Shift Details:</p>
+            <p class="text-sm font-semibold text-gray-800" id="lateReasonShiftName">-</p>
+            <p class="text-xs text-gray-600 mt-1">
+              <i class="fas fa-clock text-red-600 mr-1"></i>
+              Late Threshold: <span class="font-semibold" id="lateReasonThreshold">-</span>
+            </p>
+          </div>
         </div>
         <div class="p-6">
           <form id="lateReasonForm">
@@ -244,7 +255,8 @@
                   <option value="Morning Production (Day)">Morning Production (Day) - 8:00am to 6:00pm</option>
                   <option value="Night Production">Night Production - 8:00pm to 6:00am</option>
                   <option value="Straight Shift">Straight Shift - 8:00am to 5:00pm</option>
-                  <option value="Hybrid (Customer Service)">Hybrid (Customer Service) - 7:00am to 2:00pm / 2:00pm to 9:00pm</option>
+                  <option value="Hybrid Morning">Hybrid Morning - 7:00am to 2:00pm</option>
+                  <option value="Hybrid Afternoon">Hybrid Afternoon - 2:00pm to 9:00pm</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-2">
                   <i class="fas fa-info-circle mr-1"></i>
@@ -840,6 +852,23 @@
       // LATE REASON MODAL FUNCTIONS
       // ========================================
       function openLateReasonModal() {
+        const shiftSelect = document.getElementById("shiftSelect");
+        const selectedShift = shiftSelect.value;
+        const shiftConfig = SHIFT_CONFIGS[selectedShift];
+
+        // Update modal with shift information
+        document.getElementById("lateReasonShiftName").textContent = selectedShift;
+        document.getElementById("lateReasonThreshold").textContent = formatTime(shiftConfig.lateThreshold);
+
+        // Format time helper function
+        function formatTime(time) {
+          const [hours, minutes] = time.split(":");
+          const hour = parseInt(hours);
+          const ampm = hour >= 12 ? "PM" : "AM";
+          const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+          return `${displayHour}:${minutes} ${ampm}`;
+        }
+
         document.getElementById("lateReasonModal").classList.remove("hidden");
         document.getElementById("lateReasonModal").classList.add("flex");
         document.getElementById("lateReasonInput").value = "";
@@ -869,13 +898,15 @@
           end: "17:00",
           lateThreshold: "08:30"
         },
-        "Hybrid (Customer Service)": {
+        "Hybrid Morning": {
           start: "07:00",
-          end: "14:00", // First shift ends at 2pm, second shift 14:00-21:00
-          lateThreshold: "07:30",
-          secondShiftStart: "14:00",
-          secondShiftEnd: "21:00",
-          secondShiftLateThreshold: "14:30"
+          end: "14:00",
+          lateThreshold: "07:30"
+        },
+        "Hybrid Afternoon": {
+          start: "14:00",
+          end: "21:00",
+          lateThreshold: "14:30"
         }
       };
 
@@ -931,22 +962,6 @@
         const currentMinute = currentTime.getMinutes();
         const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-        // For Hybrid shift, check which period we're in
-        if (shiftName === "Hybrid (Customer Service)") {
-          const firstShiftLate = shiftConfig.lateThreshold.split(":");
-          const secondShiftLate = shiftConfig.secondShiftLateThreshold.split(":");
-          const firstLateMinutes = parseInt(firstShiftLate[0]) * 60 + parseInt(firstShiftLate[1]);
-          const secondLateMinutes = parseInt(secondShiftLate[0]) * 60 + parseInt(secondShiftLate[1]);
-
-          // If checking in during first shift window (7am-2pm)
-          if (currentHour < 14) {
-            return currentTotalMinutes > firstLateMinutes;
-          } else {
-            // Checking in during second shift window (2pm-9pm)
-            return currentTotalMinutes > secondLateMinutes;
-          }
-        }
-
         // For night shift, handle midnight crossover
         if (shiftName === "Night Production") {
           const lateTime = shiftConfig.lateThreshold.split(":");
@@ -962,7 +977,7 @@
           return false;
         }
 
-        // For day shifts (Morning Production and Straight Shift)
+        // For all other shifts (including Hybrid Morning and Hybrid Afternoon)
         const lateTime = shiftConfig.lateThreshold.split(":");
         const lateMinutes = parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
         return currentTotalMinutes > lateMinutes;
