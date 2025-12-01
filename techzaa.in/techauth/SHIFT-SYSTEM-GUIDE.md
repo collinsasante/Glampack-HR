@@ -25,13 +25,17 @@ The attendance system now supports shift-based time tracking with automatic late
 - **Department:** All departments (standard shift)
 - **Duration:** 9 hours
 
-### 4. Hybrid (Customer Service)
-- **First Shift:** 7:00 AM to 2:00 PM
-  - Late Threshold: After 7:30 AM
-- **Second Shift:** 2:00 PM to 9:00 PM
-  - Late Threshold: After 2:30 PM
-- **Department:** Customer Service only
-- **Duration:** 7 hours per shift
+### 4. Hybrid Morning
+- **Schedule:** 7:00 AM to 2:00 PM
+- **Late Threshold:** After 7:30 AM
+- **Department:** Customer Service
+- **Duration:** 7 hours
+
+### 5. Hybrid Afternoon
+- **Schedule:** 2:00 PM to 9:00 PM
+- **Late Threshold:** After 2:30 PM
+- **Department:** Customer Service
+- **Duration:** 7 hours
 
 ## 🎯 How It Works
 
@@ -67,7 +71,8 @@ Options:
   - Morning Production (Day)
   - Night Production
   - Straight Shift
-  - Hybrid (Customer Service)
+  - Hybrid Morning
+  - Hybrid Afternoon
 ```
 
 #### Monitoring Attendance:
@@ -99,33 +104,35 @@ const SHIFT_CONFIGS = {
     end: "17:00",
     lateThreshold: "08:30"
   },
-  "Hybrid (Customer Service)": {
+  "Hybrid Morning": {
     start: "07:00",
     end: "14:00",
-    lateThreshold: "07:30",
-    secondShiftStart: "14:00",
-    secondShiftEnd: "21:00",
-    secondShiftLateThreshold: "14:30"
+    lateThreshold: "07:30"
+  },
+  "Hybrid Afternoon": {
+    start: "14:00",
+    end: "21:00",
+    lateThreshold: "14:30"
   }
 };
 ```
 
 ### Late Detection Logic
 
-#### Day Shifts (Morning Production & Straight):
+#### Day Shifts (Morning Production, Straight, Hybrid Morning, Hybrid Afternoon):
 - Check if current time > late threshold
-- Example: Checking in at 8:45 AM = Late
+- Example: Checking in at 8:45 AM for Straight Shift = Late
+- Example: Checking in at 7:45 AM for Hybrid Morning = Late
 
 #### Night Shift:
 - Handles midnight crossover
 - Late if checking in after 8:30 PM
 - Early morning check-ins (before 6 AM) are normal
 
-#### Hybrid Shift:
-- Two separate time windows
-- First shift (7am-2pm): Late after 7:30 AM
-- Second shift (2pm-9pm): Late after 2:30 PM
-- System auto-detects which window based on check-in time
+#### Hybrid Shifts:
+- **Hybrid Morning** (7am-2pm): Late after 7:30 AM
+- **Hybrid Afternoon** (2pm-9pm): Late after 2:30 PM
+- Each shift is selected independently (no auto-detection needed)
 
 ### Data Storage
 
@@ -182,7 +189,8 @@ Create exactly these options in the Shift field:
 1. `Morning Production (Day)`
 2. `Night Production`
 3. `Straight Shift`
-4. `Hybrid (Customer Service)`
+4. `Hybrid Morning`
+5. `Hybrid Afternoon`
 
 **Important:** Names must match exactly (case-sensitive)
 
@@ -242,19 +250,19 @@ git push origin main
 3. Should work normally
 4. Late only if after 8:30 PM
 
-### Test 4: Hybrid Shift - First Window
-1. Select "Hybrid (Customer Service)"
+### Test 4: Hybrid Morning Shift
+1. Select "Hybrid Morning"
 2. Check in at 7:15 AM (on time)
 3. Verify no late modal
 4. Check in at 7:45 AM (late)
-5. Verify late modal appears
+5. Verify late modal appears with shift details
 
-### Test 5: Hybrid Shift - Second Window
-1. Select "Hybrid (Customer Service)"
+### Test 5: Hybrid Afternoon Shift
+1. Select "Hybrid Afternoon"
 2. Check in at 2:15 PM (on time)
 3. Verify no late modal
 4. Check in at 2:45 PM (late)
-5. Verify late modal appears
+5. Verify late modal appears with shift details
 
 ### Test 6: Shift Persistence
 1. Check in with any shift
@@ -279,8 +287,9 @@ git push origin main
 - Sort by: Date
 
 **Customer Service Performance:**
-- Filter: Shift = "Hybrid (Customer Service)"
+- Filter: Shift contains "Hybrid"
 - Group by: Employee
+- Or separate filters for "Hybrid Morning" and "Hybrid Afternoon"
 
 ## ⚠️ Important Notes
 
