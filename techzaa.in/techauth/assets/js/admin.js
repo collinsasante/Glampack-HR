@@ -224,7 +224,9 @@ async function applyRolePermissions() {
         if (userRole === 'Admin') {
             const employeeViewButton = document.getElementById('employeeViewButton');
             if (employeeViewButton) {
-                employeeViewButton.style.display = 'none';
+                employeeViewButton.style.cssText = 'display: none !important;';
+                employeeViewButton.classList.add('hidden');
+                employeeViewButton.remove(); // Completely remove from DOM
             }
         }
 
@@ -239,7 +241,9 @@ async function applyRolePermissions() {
             if (userRole === 'Admin') {
                 const employeeViewButton = document.getElementById('employeeViewButton');
                 if (employeeViewButton) {
-                    employeeViewButton.style.display = 'none';
+                    employeeViewButton.style.cssText = 'display: none !important;';
+                    employeeViewButton.classList.add('hidden');
+                    employeeViewButton.remove(); // Completely remove from DOM
                 }
             }
         }, 100);
