@@ -3077,6 +3077,12 @@ async function autoPopulatePayrollData(employeeId, selectedMonth) {
     } catch (error) {
 
     }
+
+    // Calculate initial values (will show 0s until employee is selected)
+    calculateNetSalary();
+
+    // Show modal
+    document.getElementById('payrollModal').classList.add('active');
 }
 
 // Show notification in payroll modal
@@ -3198,8 +3204,8 @@ function calculateNetSalary() {
     // Amount to Pay = Net Salary + Standard Deductions (added back)
     const amountToPay = netSalary + standardDeductions;
 
-    // Calculate Total Earnings (Basic Salary + all allowances)
-    const totalEarnings = grossSalary;
+    // Total Earnings = Basic + Transport (same as earnings)
+    const totalEarnings = earnings;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
