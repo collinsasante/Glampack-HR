@@ -25,14 +25,15 @@ const API_CONFIG = {
 // ========================================
 
 /**
- * Make a request to the Cloudflare Worker API
+ * Make a request to the Cloudflare Worker API with retry logic
  * @param {string} endpoint - API endpoint (e.g., '/api/employees')
  * @param {string} method - HTTP method (GET, POST, PATCH, DELETE)
  * @param {object} body - Request body (for POST/PATCH)
  * @param {string} queryParams - URL query parameters
+ * @param {number} retries - Number of retry attempts (default: 3)
  * @returns {Promise<object>} Response data
  */
-async function workerRequest(endpoint, method = 'GET', body = null, queryParams = '') {
+async function workerRequest(endpoint, method = 'GET', body = null, queryParams = '', retries = 3) {
     // Add cache-busting parameter for GET requests
     let url = `${API_CONFIG.workerUrl}${endpoint}${queryParams}`;
 
@@ -54,19 +55,43 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
         options.body = JSON.stringify(body);
     }
 
-    try {
-        const response = await fetch(url, options);
+    for (let attempt = 0; attempt <= retries; attempt++) {
+        try {
+            const response = await fetch(url, options);
 
-        if (!response.ok) {
-            const error = await response.json();
+            if (!response.ok) {
+                // Handle rate limiting (429) with exponential backoff
+                if (response.status === 429 && attempt < retries) {
+                    const backoffDelay = Math.min(1000 * Math.pow(2, attempt), 10000); // Max 10 seconds
+                    console.warn(`Rate limited (429), retrying in ${backoffDelay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                    continue;
+                }
 
-            throw new Error(JSON.stringify(error.error || error) || `API request failed with status ${response.status}`);
+                // Handle connection errors with retry
+                if ((response.status === 0 || response.status >= 500) && attempt < retries) {
+                    const backoffDelay = Math.min(2000 * Math.pow(2, attempt), 15000); // Max 15 seconds
+                    console.warn(`Connection error (${response.status}), retrying in ${backoffDelay}ms...`);
+                    await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                    continue;
+                }
+
+                const error = await response.json().catch(() => ({ message: 'Unknown error' }));
+                throw new Error(JSON.stringify(error.error || error) || `API request failed with status ${response.status}`);
+            }
+
+            return response.json();
+        } catch (error) {
+            // Network errors (ERR_CONNECTION_CLOSED, etc.)
+            if (attempt < retries && (error.name === 'TypeError' || error.message.includes('fetch'))) {
+                const backoffDelay = Math.min(2000 * Math.pow(2, attempt), 15000);
+                console.warn(`Network error, retrying in ${backoffDelay}ms...`, error.message);
+                await new Promise(resolve => setTimeout(resolve, backoffDelay));
+                continue;
+            }
+
+            throw error;
         }
-
-        return response.json();
-    } catch (error) {
-
-        throw error;
     }
 }
 

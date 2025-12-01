@@ -3469,15 +3469,36 @@ function updateLastRefreshTime() {
 }
 
 function startAutoRefresh() {
-    // Refresh data every 30 seconds
+    // Refresh data every 3 minutes (reduced from 30 seconds to prevent rate limiting)
     refreshInterval = setInterval(() => {
+        // Only refresh if page is visible (user is actively viewing)
+        if (document.hidden) {
+            return; // Skip refresh when page is not visible
+        }
+
         const activeTab = document.querySelector('[id^="tab-"].tab-active');
         if (activeTab) {
             const tabName = activeTab.id.replace('tab-', '');
             refreshTabData(tabName);
         }
-    }, 30000); // 30 seconds
+    }, 180000); // 3 minutes (180000ms)
 }
+
+// Pause auto-refresh when page is hidden, resume when visible
+document.addEventListener('visibilitychange', function() {
+    if (document.hidden) {
+        // Page is hidden, stop auto-refresh to save resources
+        if (refreshInterval) {
+            clearInterval(refreshInterval);
+            refreshInterval = null;
+        }
+    } else {
+        // Page is visible again, restart auto-refresh if it was stopped
+        if (!refreshInterval && typeof startAutoRefresh === 'function') {
+            startAutoRefresh();
+        }
+    }
+});
 
 async function refreshTabData(tabName) {
     try {
