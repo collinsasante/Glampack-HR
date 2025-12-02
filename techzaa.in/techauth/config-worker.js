@@ -21,11 +21,101 @@ const API_CONFIG = {
 };
 
 // ========================================
+// CACHING LAYER
+// ========================================
+
+/**
+ * Cache for API responses to reduce rate limiting issues
+ * Uses in-memory storage with TTL (time-to-live)
+ */
+const API_CACHE = {
+    data: new Map(),
+
+    // Default TTL: 5 minutes for most data
+    // Shorter TTL for frequently changing data
+    ttls: {
+        employees: 5 * 60 * 1000,        // 5 minutes
+        announcements: 2 * 60 * 1000,    // 2 minutes
+        announcementComments: 1 * 60 * 1000, // 1 minute
+        announcementReads: 1 * 60 * 1000,    // 1 minute
+        attendance: 2 * 60 * 1000,       // 2 minutes
+        leaveRequests: 3 * 60 * 1000,    // 3 minutes
+        payroll: 5 * 60 * 1000,          // 5 minutes
+        default: 5 * 60 * 1000           // 5 minutes default
+    },
+
+    /**
+     * Generate cache key from endpoint and query params
+     */
+    getCacheKey(endpoint, queryParams = '') {
+        return `${endpoint}${queryParams}`;
+    },
+
+    /**
+     * Get TTL for specific endpoint
+     */
+    getTTL(endpoint) {
+        for (const [key, ttl] of Object.entries(this.ttls)) {
+            if (endpoint.includes(key)) {
+                return ttl;
+            }
+        }
+        return this.ttls.default;
+    },
+
+    /**
+     * Store data in cache with TTL
+     */
+    set(key, value, ttl = null) {
+        const actualTTL = ttl || this.getTTL(key);
+        this.data.set(key, {
+            value,
+            expires: Date.now() + actualTTL
+        });
+    },
+
+    /**
+     * Get data from cache if not expired
+     */
+    get(key) {
+        const item = this.data.get(key);
+        if (!item) return null;
+
+        // Check if expired
+        if (Date.now() > item.expires) {
+            this.data.delete(key);
+            return null;
+        }
+
+        return item.value;
+    },
+
+    /**
+     * Invalidate cache entries matching pattern
+     * Used when data is created/updated/deleted
+     */
+    invalidate(pattern) {
+        for (const key of this.data.keys()) {
+            if (key.includes(pattern)) {
+                this.data.delete(key);
+            }
+        }
+    },
+
+    /**
+     * Clear all cache
+     */
+    clear() {
+        this.data.clear();
+    }
+};
+
+// ========================================
 // WORKER API HELPER FUNCTIONS
 // ========================================
 
 /**
- * Make a request to the Cloudflare Worker API with retry logic
+ * Make a request to the Cloudflare Worker API with retry logic and caching
  * @param {string} endpoint - API endpoint (e.g., '/api/employees')
  * @param {string} method - HTTP method (GET, POST, PATCH, DELETE)
  * @param {object} body - Request body (for POST/PATCH)
@@ -34,13 +124,20 @@ const API_CONFIG = {
  * @returns {Promise<object>} Response data
  */
 async function workerRequest(endpoint, method = 'GET', body = null, queryParams = '', retries = 3) {
-    // Add cache-busting parameter for GET requests
-    let url = `${API_CONFIG.workerUrl}${endpoint}${queryParams}`;
+    // Generate cache key for this request
+    const cacheKey = API_CACHE.getCacheKey(endpoint, queryParams);
 
+    // Check cache for GET requests
     if (method === 'GET') {
-        const separator = url.includes('?') ? '&' : '?';
-        url += `${separator}_t=${Date.now()}`;
+        const cached = API_CACHE.get(cacheKey);
+        if (cached) {
+            console.log(`Cache HIT: ${cacheKey}`);
+            return cached;
+        }
     }
+
+    // Build URL (no cache-busting timestamp needed with caching layer)
+    let url = `${API_CONFIG.workerUrl}${endpoint}${queryParams}`;
 
     const options = {
         method,
@@ -80,7 +177,23 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
                 throw new Error(JSON.stringify(error.error || error) || `API request failed with status ${response.status}`);
             }
 
-            return response.json();
+            const data = await response.json();
+
+            // Cache GET responses
+            if (method === 'GET') {
+                API_CACHE.set(cacheKey, data);
+                console.log(`Cache MISS: ${cacheKey} - stored in cache`);
+            }
+
+            // Invalidate related cache entries for mutations
+            if (method === 'POST' || method === 'PATCH' || method === 'DELETE') {
+                // Extract base endpoint for cache invalidation
+                const baseEndpoint = endpoint.split('/').slice(0, 3).join('/');
+                API_CACHE.invalidate(baseEndpoint);
+                console.log(`Cache invalidated for: ${baseEndpoint}`);
+            }
+
+            return data;
         } catch (error) {
             // Network errors (ERR_CONNECTION_CLOSED, etc.)
             if (attempt < retries && (error.name === 'TypeError' || error.message.includes('fetch'))) {
