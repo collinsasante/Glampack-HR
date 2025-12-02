@@ -3198,7 +3198,7 @@ function calculateNetSalary() {
     const customDeductionsSum = otherDeductions + welfare;
 
     // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
-    const standardDeductions = incomeTax + socialSecurity;
+    const standardDeductions = incomeTax + paye + socialSecurity;
 
     // Net Salary = Earnings - Custom Deductions - Standard Deductions
     const netSalary = earnings - customDeductionsSum - standardDeductions;
@@ -3430,7 +3430,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const customDeductionsSum = otherDeductions + welfare;
 
     // Standard Deductions = PAYEE + SSNIT (deducted at Net Salary stage, added back to Amount to Pay)
-    const standardDeductions = incomeTax + socialSecurity;
+    const standardDeductions = incomeTax + paye + socialSecurity;
 
     // Net Salary = Earnings - Custom Deductions - Standard Deductions
     const netSalary = earnings - customDeductionsSum - standardDeductions;
