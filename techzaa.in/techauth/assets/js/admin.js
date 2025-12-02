@@ -141,6 +141,26 @@ window.addEventListener('DOMContentLoaded', async function() {
     // Check user permissions and hide payroll tab if Manager
     await applyRolePermissions();
     restoreActiveTab();
+
+    // Add event delegation for payroll action buttons
+    document.addEventListener('click', function(e) {
+        const actionBtn = e.target.closest('.payroll-action-btn');
+        if (!actionBtn) return;
+
+        const action = actionBtn.dataset.action;
+        const recordId = actionBtn.dataset.recordId;
+
+        if (action === 'edit') {
+            const record = window.payrollRecordsMap[recordId];
+            if (record) {
+                editPayroll(record);
+            }
+        } else if (action === 'delete') {
+            const employeeName = actionBtn.dataset.employeeName;
+            const month = actionBtn.dataset.month;
+            deletePayrollHandler(recordId, employeeName, month);
+        }
+    });
 });
 window.addEventListener('load', function() {
     // Double-check on window load in case DOMContentLoaded fired before script loaded
@@ -2918,10 +2938,10 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${statusBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
-                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 mr-3">
+                    <button data-action="edit" data-record-id="${record.id}" class="payroll-action-btn text-red-600 hover:text-red-900 mr-3">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button onclick='deletePayrollHandler("${record.id}", "${employeeName}", "${monthDisplay}")' class="text-red-600 hover:text-red-900">
+                    <button data-action="delete" data-record-id="${record.id}" data-employee-name="${employeeName.replace(/"/g, '&quot;')}" data-month="${monthDisplay}" class="payroll-action-btn text-red-600 hover:text-red-900">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
