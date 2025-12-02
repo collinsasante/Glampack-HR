@@ -285,10 +285,14 @@
               </button>
 
               <!-- Instructions -->
-              <div class="mt-6 p-4 bg-gray-50 rounded-lg">
+              <div class="mt-6 p-4 bg-gray-50 rounded-lg space-y-2">
                 <p class="text-xs text-gray-600 text-center">
                   <i class="fas fa-map-marker-alt mr-1 text-red-600"></i>
                   Location will be recorded with your attendance
+                </p>
+                <p class="text-xs text-blue-600 text-center">
+                  <i class="fas fa-mobile-alt mr-1"></i>
+                  You can check in on one device and check out on another
                 </p>
               </div>
             </div>
@@ -1085,10 +1089,12 @@
 
           // If still no record ID, try finding today's record from Airtable
           if (!todayRecordId) {
+            showMessage("Finding your check-in record...", "info");
             const existingRecord = await findTodayRecord();
             if (existingRecord) {
               todayRecordId = existingRecord.id;
               setTodayRecordId(existingRecord.id);
+              showMessage("Check-in record found! Proceeding with check-out...", "success");
             } else {
               showMessage("Please check in first!", "error");
               return;
