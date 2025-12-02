@@ -100,38 +100,70 @@
           </div>
 
           <!-- Mobile Menu Button -->
-          <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-600 hover:text-red-600 focus:outline-none">
+          <button
+            onclick="toggleMobileMenu()"
+            class="lg:hidden text-gray-600 hover:text-red-600 focus:outline-none"
+          >
             <i class="fas fa-bars text-2xl"></i>
           </button>
         </div>
 
         <!-- Mobile Navigation Menu (hidden by default) -->
         <div id="mobileMenu" class="hidden lg:hidden mt-4 pb-2 space-y-2">
-          <a href="dashboard.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="dashboard.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-chart-line mr-2"></i> Dashboard
           </a>
-          <a href="attendance-tracker.html" class="block px-4 py-3 bg-red-100 text-red-600 font-semibold rounded-lg">
+          <a
+            href="attendance-tracker.html"
+            class="block px-4 py-3 bg-red-100 text-red-600 font-semibold rounded-lg"
+          >
             <i class="fas fa-clock mr-2"></i> Attendance
           </a>
-          <a href="leave-request.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="leave-request.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-calendar-alt mr-2"></i> Leave
           </a>
-          <a href="medical-claims.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="medical-claims.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-notes-medical mr-2"></i> Medical Claims
           </a>
-          <a href="profile.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="profile.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-user mr-2"></i> Profile
           </a>
-          <a href="announcements.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="announcements.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-bullhorn mr-2"></i> Announcements
           </a>
-          <a href="payroll.html" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg">
+          <a
+            href="payroll.html"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+          >
             <i class="fas fa-money-bill-wave mr-2"></i> Payroll
           </a>
-          <a href="admin-dashboard.html" id="adminLinkMobile" class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg" style="display: none">
+          <a
+            href="admin-dashboard.html"
+            id="adminLinkMobile"
+            class="block px-4 py-3 text-gray-700 hover:bg-gray-100 rounded-lg"
+            style="display: none"
+          >
             <i class="fas fa-user-shield mr-2"></i> Admin
           </a>
-          <button onclick="logout()" class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg">
+          <button
+            onclick="logout()"
+            class="w-full text-left px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg"
+          >
             <i class="fas fa-sign-out-alt mr-2"></i> Logout
           </button>
         </div>
@@ -154,10 +186,16 @@
           </p>
           <div class="mt-3 bg-white rounded-lg p-3 border border-red-200">
             <p class="text-xs text-gray-500 mb-1">Shift Details:</p>
-            <p class="text-sm font-semibold text-gray-800" id="lateReasonShiftName">-</p>
+            <p
+              class="text-sm font-semibold text-gray-800"
+              id="lateReasonShiftName"
+            >
+              -
+            </p>
             <p class="text-xs text-gray-600 mt-1">
               <i class="fas fa-clock text-red-600 mr-1"></i>
-              Late Threshold: <span class="font-semibold" id="lateReasonThreshold">-</span>
+              Late Threshold:
+              <span class="font-semibold" id="lateReasonThreshold">-</span>
             </p>
           </div>
         </div>
@@ -252,11 +290,21 @@
                   required
                 >
                   <option value="">Choose your shift...</option>
-                  <option value="Morning Production (Day)">Morning Production (Day) - 8:00am to 6:00pm</option>
-                  <option value="Night Production">Night Production - 8:00pm to 6:00am</option>
-                  <option value="Straight Shift">Straight Shift - 8:00am to 5:00pm</option>
-                  <option value="Hybrid Morning">Hybrid Morning - 7:00am to 2:00pm</option>
-                  <option value="Hybrid Afternoon">Hybrid Afternoon - 2:00pm to 9:00pm</option>
+                  <option value="Morning Production (Day)">
+                    Morning Production (Day) - 8:00am to 6:00pm
+                  </option>
+                  <option value="Night Production">
+                    Night Production - 8:00pm to 6:00am
+                  </option>
+                  <option value="Straight Shift">
+                    Straight Shift - 8:00am to 5:00pm
+                  </option>
+                  <option value="Hybrid Morning">
+                    Hybrid Morning - 7:00am to 2:00pm
+                  </option>
+                  <option value="Hybrid Afternoon">
+                    Hybrid Afternoon - 2:00pm to 9:00pm
+                  </option>
                 </select>
                 <p class="text-xs text-gray-500 mt-2">
                   <i class="fas fa-info-circle mr-1"></i>
@@ -289,10 +337,6 @@
                 <p class="text-xs text-gray-600 text-center">
                   <i class="fas fa-map-marker-alt mr-1 text-red-600"></i>
                   Location will be recorded with your attendance
-                </p>
-                <p class="text-xs text-blue-600 text-center">
-                  <i class="fas fa-mobile-alt mr-1"></i>
-                  You can check in on one device and check out on another
                 </p>
               </div>
             </div>
@@ -823,7 +867,6 @@
             `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`
           );
         } catch (error) {
-
           // Fallback to coordinates if reverse geocoding fails
           return `Lat: ${latitude.toFixed(6)}, Lng: ${longitude.toFixed(6)}`;
         }
@@ -861,15 +904,18 @@
         const shiftConfig = SHIFT_CONFIGS[selectedShift];
 
         // Update modal with shift information
-        document.getElementById("lateReasonShiftName").textContent = selectedShift;
-        document.getElementById("lateReasonThreshold").textContent = formatTime(shiftConfig.lateThreshold);
+        document.getElementById("lateReasonShiftName").textContent =
+          selectedShift;
+        document.getElementById("lateReasonThreshold").textContent = formatTime(
+          shiftConfig.lateThreshold
+        );
 
         // Format time helper function
         function formatTime(time) {
           const [hours, minutes] = time.split(":");
           const hour = parseInt(hours);
           const ampm = hour >= 12 ? "PM" : "AM";
-          const displayHour = hour > 12 ? hour - 12 : (hour === 0 ? 12 : hour);
+          const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
           return `${displayHour}:${minutes} ${ampm}`;
         }
 
@@ -890,28 +936,28 @@
         "Morning Production (Day)": {
           start: "08:00",
           end: "18:00",
-          lateThreshold: "08:30"
+          lateThreshold: "08:30",
         },
         "Night Production": {
           start: "20:00",
           end: "06:00", // Next day
-          lateThreshold: "20:30"
+          lateThreshold: "20:30",
         },
         "Straight Shift": {
           start: "08:00",
           end: "17:00",
-          lateThreshold: "08:30"
+          lateThreshold: "08:30",
         },
         "Hybrid Morning": {
           start: "07:00",
           end: "14:00",
-          lateThreshold: "07:30"
+          lateThreshold: "07:30",
         },
         "Hybrid Afternoon": {
           start: "14:00",
           end: "21:00",
-          lateThreshold: "14:30"
-        }
+          lateThreshold: "14:30",
+        },
       };
 
       // ========================================
@@ -940,7 +986,10 @@
             );
             return;
           }
-          showMessage("You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.", "error");
+          showMessage(
+            "You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.",
+            "error"
+          );
           return;
         }
 
@@ -969,7 +1018,8 @@
         // For night shift, handle midnight crossover
         if (shiftName === "Night Production") {
           const lateTime = shiftConfig.lateThreshold.split(":");
-          const lateMinutes = parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
+          const lateMinutes =
+            parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
 
           // Night shift starts at 8pm (20:00)
           // If current time is after 8pm, check against 20:30
@@ -1018,15 +1068,13 @@
             const ipLocation = await getIPBasedLocation();
             ipAddress = ipLocation.ip;
             locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
-          } catch (locationError) {
-
-          }
+          } catch (locationError) {}
 
           const fields = {
             "Check In": datetime,
             "Check In Location": locationString,
             "IP Address": ipAddress,
-            "Shift": selectedShift
+            Shift: selectedShift,
           };
 
           // Add late reason if applicable
@@ -1061,15 +1109,16 @@
 
           // Disable shift selector after check-in
           document.getElementById("shiftSelect").disabled = true;
-          document.getElementById("shiftSelect").classList.add("opacity-50", "cursor-not-allowed");
+          document
+            .getElementById("shiftSelect")
+            .classList.add("opacity-50", "cursor-not-allowed");
 
           // Signal dashboard to refresh
-          localStorage.setItem('attendanceUpdated', Date.now().toString());
+          localStorage.setItem("attendanceUpdated", Date.now().toString());
 
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history
         } catch (error) {
-
           showMessage(`Error checking in: ${error.message}`, "error");
         }
       }
@@ -1094,7 +1143,10 @@
             if (existingRecord) {
               todayRecordId = existingRecord.id;
               setTodayRecordId(existingRecord.id);
-              showMessage("Check-in record found! Proceeding with check-out...", "success");
+              showMessage(
+                "Check-in record found! Proceeding with check-out...",
+                "success"
+              );
             } else {
               showMessage("Please check in first!", "error");
               return;
@@ -1104,7 +1156,10 @@
           // Verify the record hasn't already been checked out
           const currentRecord = await getAttendanceRecord(todayRecordId);
           if (currentRecord && currentRecord.fields["Check Out"]) {
-            showMessage("You have already checked out today. You cannot check out more than once in 24 hours.", "error");
+            showMessage(
+              "You have already checked out today. You cannot check out more than once in 24 hours.",
+              "error"
+            );
             return;
           }
 
@@ -1117,9 +1172,7 @@
             const ipLocation = await getIPBasedLocation();
             ipAddress = ipLocation.ip;
             locationString = `${ipLocation.city}, ${ipLocation.region}, ${ipLocation.country}`;
-          } catch (locationError) {
-
-          }
+          } catch (locationError) {}
 
           // Update record with check-out time and location
           const updateFields = {
@@ -1137,7 +1190,7 @@
           showMessage(`Successfully checked out at ${time}`, "success");
 
           // Signal dashboard to refresh
-          localStorage.setItem('attendanceUpdated', Date.now().toString());
+          localStorage.setItem("attendanceUpdated", Date.now().toString());
 
           // Disable both check in and check out buttons after completing attendance
           document.getElementById("checkOutBtn").disabled = true;
@@ -1152,7 +1205,6 @@
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history with updated record
         } catch (error) {
-
           showMessage(`Error checking out: ${error.message}`, "error");
         }
       }
@@ -1172,16 +1224,16 @@
           const allRecords = allData.records || allData || [];
 
           // Find records for this employee
-          const myRecords = allRecords.filter(r =>
-            r.fields.Employee && r.fields.Employee.includes(EMPLOYEE_ID)
+          const myRecords = allRecords.filter(
+            (r) => r.fields.Employee && r.fields.Employee.includes(EMPLOYEE_ID)
           );
 
           // Find today's record
-          const todayRecord = myRecords.find(r => r.fields.Date === today);
+          const todayRecord = myRecords.find((r) => r.fields.Date === today);
 
           return todayRecord || null;
         } catch (error) {
-          console.error('Error in findTodayRecord:', error);
+          console.error("Error in findTodayRecord:", error);
           return null;
         }
       }
@@ -1297,9 +1349,7 @@
                 .classList.add("opacity-50", "cursor-not-allowed");
             }
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       }
 
       // ========================================
@@ -1465,21 +1515,30 @@
 
                 // For hybrid shift, check both time windows
                 if (shift === "Hybrid (Customer Service)") {
-                  const secondLateTime = shiftConfig.secondShiftLateThreshold.split(":");
+                  const secondLateTime =
+                    shiftConfig.secondShiftLateThreshold.split(":");
                   const secondLateHour = parseInt(secondLateTime[0]);
                   const secondLateMinute = parseInt(secondLateTime[1]);
 
                   if (checkInHour < 14) {
-                    isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
+                    isLate =
+                      checkInHour > lateHour ||
+                      (checkInHour === lateHour && checkInMinute > lateMinute);
                   } else {
-                    isLate = checkInHour > secondLateHour || (checkInHour === secondLateHour && checkInMinute > secondLateMinute);
+                    isLate =
+                      checkInHour > secondLateHour ||
+                      (checkInHour === secondLateHour &&
+                        checkInMinute > secondLateMinute);
                   }
                 } else {
-                  isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
+                  isLate =
+                    checkInHour > lateHour ||
+                    (checkInHour === lateHour && checkInMinute > lateMinute);
                 }
               } else {
                 // Fallback to default 8:30 AM threshold if no shift config
-                isLate = checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
+                isLate =
+                  checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
               }
 
               if (isLate) {
@@ -1500,7 +1559,8 @@
             if (shift === "Morning Production (Day)") shortShift = "Morning";
             else if (shift === "Night Production") shortShift = "Night";
             else if (shift === "Straight Shift") shortShift = "Straight";
-            else if (shift === "Hybrid (Customer Service)") shortShift = "Hybrid";
+            else if (shift === "Hybrid (Customer Service)")
+              shortShift = "Hybrid";
 
             const row = document.createElement("tr");
             row.className = "hover:bg-gray-50";
@@ -1578,7 +1638,6 @@
               "bg-gradient-to-r from-red-500 to-red-600 h-3 rounded-full transition-all duration-500";
           }
         } catch (error) {
-
           loadingDiv.classList.add("hidden");
           emptyDiv.classList.remove("hidden");
 
@@ -1626,9 +1685,9 @@
       // MOBILE MENU TOGGLE
       // ========================================
       function toggleMobileMenu() {
-        const mobileMenu = document.getElementById('mobileMenu');
+        const mobileMenu = document.getElementById("mobileMenu");
         if (mobileMenu) {
-          mobileMenu.classList.toggle('hidden');
+          mobileMenu.classList.toggle("hidden");
         }
       }
 
@@ -1642,25 +1701,24 @@
 
           const employee = await getEmployee(currentUser.id);
           if (employee && employee.fields) {
-            const role = employee.fields['Role'] || '';
-            if (role === 'Admin' || role === 'HR') {
+            const role = employee.fields["Role"] || "";
+            if (role === "Admin" || role === "HR") {
               // Show desktop admin link
-              const adminLink = document.getElementById('adminLink');
-              if (adminLink) adminLink.style.display = '';
+              const adminLink = document.getElementById("adminLink");
+              if (adminLink) adminLink.style.display = "";
 
               // Show mobile admin link
-              const adminLinkMobile = document.getElementById('adminLinkMobile');
-              if (adminLinkMobile) adminLinkMobile.style.display = '';
+              const adminLinkMobile =
+                document.getElementById("adminLinkMobile");
+              if (adminLinkMobile) adminLinkMobile.style.display = "";
             }
           }
-        } catch (error) {
-
-        }
+        } catch (error) {}
       }
 
       // Call on page load
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', checkAndShowAdminLink);
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", checkAndShowAdminLink);
       } else {
         checkAndShowAdminLink();
       }

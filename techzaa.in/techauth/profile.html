@@ -1178,7 +1178,7 @@
           }
         });
 
-      // Change password
+      // Change password (SECURE - uses Worker API)
       document
         .getElementById("changePasswordForm")
         .addEventListener("submit", async function (e) {
@@ -1194,13 +1194,7 @@
             .getElementById("confirmPassword")
             .value.trim();
 
-          // Hash the current password and compare with stored hash
-          const currentPasswordHash = await hashPassword(current);
-          if (currentPasswordHash !== employeeData["Password"]) {
-            showNotification("Current password is incorrect", "error");
-            return;
-          }
-
+          // Client-side validation
           if (newPass !== confirm) {
             showNotification("New passwords do not match", "error");
             return;
@@ -1209,21 +1203,6 @@
           if (newPass.length < 8) {
             showNotification(
               "Password must be at least 8 characters long",
-              "error"
-            );
-            return;
-          }
-
-          // Strong password validation
-          const hasUppercase = /[A-Z]/.test(newPass);
-          const hasNumber = /[0-9]/.test(newPass);
-          const hasSymbol = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(
-            newPass
-          );
-
-          if (!hasUppercase || !hasNumber || !hasSymbol) {
-            showNotification(
-              "Password must contain at least one uppercase letter, number, and special character",
               "error"
             );
             return;
@@ -1244,20 +1223,44 @@
             '<i class="fas fa-spinner fa-spin mr-2"></i> Updating...';
 
           try {
-            // Hash the new password before storing
-            const newPasswordHash = await hashPassword(newPass);
-
-            await updateEmployee(currentUser.id, {
-              Password: newPasswordHash,
+            // Use secure Worker API endpoint for password change
+            const response = await fetch('https://glampack-hr-api.mr-asanteeprog.workers.dev/api/auth/change-password', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                email: currentUser.email,
+                oldPassword: current,
+                newPassword: newPass
+              })
             });
 
-            showNotification("Password updated successfully!", "success");
-            document.getElementById("changePasswordForm").reset();
-            await loadEmployeeData();
-          } catch (error) {
+            const data = await response.json();
 
+            if (!response.ok) {
+              // Handle specific error cases
+              if (response.status === 401) {
+                showNotification("Current password is incorrect", "error");
+              } else if (response.status === 400) {
+                showNotification(data.error || "Invalid password format", "error");
+              } else {
+                showNotification(data.error || "Failed to update password", "error");
+              }
+              return;
+            }
+
+            if (data.success) {
+              showNotification("Password updated successfully!", "success");
+              document.getElementById("changePasswordForm").reset();
+              // No need to reload employee data - password is hashed
+            } else {
+              showNotification("Failed to update password. Please try again.", "error");
+            }
+          } catch (error) {
+            console.error('Password change error:', error);
             showNotification(
-              "Failed to update password. Please try again.",
+              "Failed to update password. Please check your connection and try again.",
               "error"
             );
           } finally {
