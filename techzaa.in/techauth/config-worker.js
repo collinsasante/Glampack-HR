@@ -131,7 +131,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
     if (method === 'GET') {
         const cached = API_CACHE.get(cacheKey);
         if (cached) {
-            console.log(`Cache HIT: ${cacheKey}`);
             return cached;
         }
     }
@@ -160,7 +159,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
                 // Handle rate limiting (429) with exponential backoff
                 if (response.status === 429 && attempt < retries) {
                     const backoffDelay = Math.min(1000 * Math.pow(2, attempt), 10000); // Max 10 seconds
-                    console.warn(`Rate limited (429), retrying in ${backoffDelay}ms...`);
                     await new Promise(resolve => setTimeout(resolve, backoffDelay));
                     continue;
                 }
@@ -168,7 +166,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
                 // Handle connection errors with retry
                 if ((response.status === 0 || response.status >= 500) && attempt < retries) {
                     const backoffDelay = Math.min(2000 * Math.pow(2, attempt), 15000); // Max 15 seconds
-                    console.warn(`Connection error (${response.status}), retrying in ${backoffDelay}ms...`);
                     await new Promise(resolve => setTimeout(resolve, backoffDelay));
                     continue;
                 }
@@ -182,7 +179,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
             // Cache GET responses
             if (method === 'GET') {
                 API_CACHE.set(cacheKey, data);
-                console.log(`Cache MISS: ${cacheKey} - stored in cache`);
             }
 
             // Invalidate related cache entries for mutations
@@ -190,7 +186,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
                 // Extract base endpoint for cache invalidation
                 const baseEndpoint = endpoint.split('/').slice(0, 3).join('/');
                 API_CACHE.invalidate(baseEndpoint);
-                console.log(`Cache invalidated for: ${baseEndpoint}`);
             }
 
             return data;
@@ -198,7 +193,6 @@ async function workerRequest(endpoint, method = 'GET', body = null, queryParams 
             // Network errors (ERR_CONNECTION_CLOSED, etc.)
             if (attempt < retries && (error.name === 'TypeError' || error.message.includes('fetch'))) {
                 const backoffDelay = Math.min(2000 * Math.pow(2, attempt), 15000);
-                console.warn(`Network error, retrying in ${backoffDelay}ms...`, error.message);
                 await new Promise(resolve => setTimeout(resolve, backoffDelay));
                 continue;
             }
