@@ -1050,7 +1050,19 @@
               ...fields,
             };
 
+            console.log('Creating attendance record with data:', recordData);
+
             const newRecord = await createRecord(recordData);
+
+            console.log('Created attendance record:', newRecord);
+            console.log('Record ID:', newRecord.id);
+            console.log('Record fields:', newRecord.fields);
+
+            // Verify Employee field was saved
+            if (!newRecord.fields || !newRecord.fields.Employee) {
+              console.error('WARNING: Employee field was not saved in the record!');
+              showMessage('Warning: Attendance created but employee link may be missing. Please contact support.', 'warning');
+            }
 
             // Store the record ID for checkout in both memory and localStorage
             todayRecordId = newRecord.id;
@@ -1189,6 +1201,18 @@
             const allRecords = allData.records || allData || [];
 
             console.log('All employee records:', allRecords.length);
+
+            // If still no records, try getting ALL attendance records (debug only)
+            if (allRecords.length === 0) {
+              console.log('No employee records found. Fetching ALL attendance records for debugging...');
+              const debugData = await getAttendance();
+              const debugRecords = debugData.records || debugData || [];
+              console.log('Total attendance records in database:', debugRecords.length);
+              if (debugRecords.length > 0) {
+                console.log('Sample record structure:', debugRecords[0]);
+                console.log('Sample Employee field:', debugRecords[0].fields.Employee);
+              }
+            }
 
             const todayRecord = allRecords.find((record) => {
               const recordDate = record.fields.Date;
