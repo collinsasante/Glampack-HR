@@ -1211,6 +1211,23 @@
               if (debugRecords.length > 0) {
                 console.log('Sample record structure:', debugRecords[0]);
                 console.log('Sample Employee field:', debugRecords[0].fields.Employee);
+
+                // Check if any records belong to current employee
+                const myRecords = debugRecords.filter(r =>
+                  r.fields.Employee && r.fields.Employee.includes(EMPLOYEE_ID)
+                );
+                console.log(`Records for employee ${EMPLOYEE_ID}:`, myRecords.length);
+                if (myRecords.length > 0) {
+                  console.log('My attendance records:', myRecords);
+                  console.log('My record dates:', myRecords.map(r => r.fields.Date));
+
+                  // Check specifically for today
+                  const myTodayRecord = myRecords.find(r => r.fields.Date === today);
+                  if (myTodayRecord) {
+                    console.log('FOUND my today record in all records!', myTodayRecord);
+                    return myTodayRecord;
+                  }
+                }
               }
             }
 
