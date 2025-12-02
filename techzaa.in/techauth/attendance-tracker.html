@@ -1163,19 +1163,31 @@
       async function findTodayRecord() {
         const today = getTodayDate();
 
-        // Get all records for this employee using Worker API
-        const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+        try {
+          // Get all records for this employee using Worker API
+          const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
 
-        const data = await getAttendance(filterFormula);
+          const data = await getAttendance(filterFormula);
 
-        // Filter in JavaScript to find today's record
-        const todayRecord = data.records.find((record) => {
-          const recordDate = record.fields.Date;
+          console.log('findTodayRecord - data:', data);
+          console.log('findTodayRecord - today:', today);
 
-          return recordDate === today;
-        });
+          // Handle both formats: data.records or data directly
+          const records = data.records || data || [];
 
-        return todayRecord || null;
+          // Filter in JavaScript to find today's record
+          const todayRecord = records.find((record) => {
+            const recordDate = record.fields.Date;
+            console.log('Checking record date:', recordDate, 'vs today:', today);
+            return recordDate === today;
+          });
+
+          console.log('findTodayRecord - result:', todayRecord);
+          return todayRecord || null;
+        } catch (error) {
+          console.error('Error in findTodayRecord:', error);
+          return null;
+        }
       }
 
       // ========================================
