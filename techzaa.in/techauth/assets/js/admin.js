@@ -3504,7 +3504,8 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Other Allowances': otherAllowances + customAllowancesTotal,
         // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': incomeTax,
-        'PAYE': paye,
+        // Note: PAYE field removed - not present in Airtable table
+        // PAYE is included in calculations but stored in Income Tax field
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
