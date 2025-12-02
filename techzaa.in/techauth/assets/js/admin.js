@@ -3531,11 +3531,19 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     } catch (error) {
         // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
+        console.error('Payroll save error:', error);
+        console.error('Error message:', error.message);
+
         if (error.message) {
             try {
                 const errorObj = JSON.parse(error.message);
+                console.error('Parsed error object:', errorObj);
                 if (errorObj.error && errorObj.error.message) {
                     errorMessage = `${errorObj.error.message}`;
+                } else if (errorObj.message) {
+                    errorMessage = errorObj.message;
+                } else if (typeof errorObj === 'string') {
+                    errorMessage = errorObj;
                 }
             } catch (e) {
                 errorMessage = error.message;
@@ -3543,6 +3551,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         }
 
         showToast('error', 'Payroll Save Failed', errorMessage);
+        console.error('Final error message shown to user:', errorMessage);
     }
 });
 
