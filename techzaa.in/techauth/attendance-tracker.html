@@ -1050,19 +1050,7 @@
               ...fields,
             };
 
-            console.log('Creating attendance record with data:', recordData);
-
             const newRecord = await createRecord(recordData);
-
-            console.log('Created attendance record:', newRecord);
-            console.log('Record ID:', newRecord.id);
-            console.log('Record fields:', newRecord.fields);
-
-            // Verify Employee field was saved
-            if (!newRecord.fields || !newRecord.fields.Employee) {
-              console.error('WARNING: Employee field was not saved in the record!');
-              showMessage('Warning: Attendance created but employee link may be missing. Please contact support.', 'warning');
-            }
 
             // Store the record ID for checkout in both memory and localStorage
             todayRecordId = newRecord.id;
@@ -1176,79 +1164,21 @@
         const today = getTodayDate();
 
         try {
-          // Try multiple filter approaches
-          // Approach 1: Filter by both Employee and Date
-          const filterFormula = `AND({Date}='${today}', FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee})))`;
+          // Airtable filter formulas don't work reliably for linked record fields
+          // So we fetch all attendance records and filter in JavaScript
+          // This ensures cross-device functionality works correctly
 
-          console.log('findTodayRecord - Employee ID:', EMPLOYEE_ID);
-          console.log('findTodayRecord - Filter:', filterFormula);
-          console.log('findTodayRecord - Today:', today);
+          const allData = await getAttendance();
+          const allRecords = allData.records || allData || [];
 
-          const data = await getAttendance(filterFormula);
+          // Find records for this employee
+          const myRecords = allRecords.filter(r =>
+            r.fields.Employee && r.fields.Employee.includes(EMPLOYEE_ID)
+          );
 
-          console.log('findTodayRecord - API response:', data);
+          // Find today's record
+          const todayRecord = myRecords.find(r => r.fields.Date === today);
 
-          // Handle both formats: data.records or data directly
-          const records = data.records || data || [];
-
-          console.log('findTodayRecord - Total records found:', records.length);
-
-          // If filter didn't work, get all records for this employee and filter manually
-          if (records.length === 0) {
-            console.log('No records with filter, trying without date filter...');
-            const filterByEmployee = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
-            const allData = await getAttendance(filterByEmployee);
-            const allRecords = allData.records || allData || [];
-
-            console.log('All employee records:', allRecords.length);
-
-            // If still no records, try getting ALL attendance records (debug only)
-            if (allRecords.length === 0) {
-              console.log('No employee records found. Fetching ALL attendance records for debugging...');
-              const debugData = await getAttendance();
-              const debugRecords = debugData.records || debugData || [];
-              console.log('Total attendance records in database:', debugRecords.length);
-              if (debugRecords.length > 0) {
-                console.log('Sample record structure:', debugRecords[0]);
-                console.log('Sample Employee field:', debugRecords[0].fields.Employee);
-
-                // Check if any records belong to current employee
-                const myRecords = debugRecords.filter(r =>
-                  r.fields.Employee && r.fields.Employee.includes(EMPLOYEE_ID)
-                );
-                console.log(`Records for employee ${EMPLOYEE_ID}:`, myRecords.length);
-                if (myRecords.length > 0) {
-                  console.log('My attendance records:', myRecords);
-                  console.log('My record dates:', myRecords.map(r => r.fields.Date));
-
-                  // Check specifically for today
-                  const myTodayRecord = myRecords.find(r => r.fields.Date === today);
-                  if (myTodayRecord) {
-                    console.log('FOUND my today record in all records!', myTodayRecord);
-                    return myTodayRecord;
-                  }
-                }
-              }
-            }
-
-            const todayRecord = allRecords.find((record) => {
-              const recordDate = record.fields.Date;
-              console.log('Manual filter - Record date:', recordDate, 'vs today:', today, 'Match:', recordDate === today);
-              return recordDate === today;
-            });
-
-            console.log('findTodayRecord - Manual result:', todayRecord);
-            return todayRecord || null;
-          }
-
-          // Filter in JavaScript to find today's record (double-check)
-          const todayRecord = records.find((record) => {
-            const recordDate = record.fields.Date;
-            console.log('Checking record date:', recordDate, 'vs today:', today);
-            return recordDate === today;
-          });
-
-          console.log('findTodayRecord - result:', todayRecord);
           return todayRecord || null;
         } catch (error) {
           console.error('Error in findTodayRecord:', error);
