@@ -3172,12 +3172,14 @@ function calculateNetSalary() {
 
     // Get all deductions - check if elements exist first
     const incomeTaxEl = document.getElementById('incomeTax');
+    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3187,7 +3189,7 @@ function calculateNetSalary() {
     const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     // Calculate total deductions and net
-    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
 
     // Earnings = Basic + Transport
     const earnings = basicSalary + transportAllowance;
