@@ -3133,26 +3133,53 @@ function closePayrollModal() {
 }
 
 function editPayroll(record) {
-    document.getElementById('payrollModalTitle').textContent = 'Edit Payroll';
-    document.getElementById('payrollId').value = record.id;
+    // Check if required elements exist
+    const titleEl = document.getElementById('payrollModalTitle');
+    const idEl = document.getElementById('payrollId');
+    const modalEl = document.getElementById('payrollModal');
+
+    if (!titleEl || !idEl || !modalEl) {
+        console.error('Payroll modal elements not found');
+        showToast('error', 'Error', 'Unable to open edit modal. Please refresh the page.');
+        return;
+    }
+
+    titleEl.textContent = 'Edit Payroll';
+    idEl.value = record.id;
 
     const fields = record.fields;
-    document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
-    document.getElementById('payrollMonth').value = fields['Month'] || '';
-    document.getElementById('payrollStatus').value = fields['Status'] || 'Processed';
-    document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
-    document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
-    document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
-    document.getElementById('benefits').value = fields['Benefits'] || 0;
-    document.getElementById('otherAllowances').value = fields['Other Allowances'] || 0;
-    document.getElementById('incomeTax').value = fields['Income Tax'] || 0;
-    document.getElementById('welfare').value = fields['Welfare'] || 0;
-    document.getElementById('socialSecurity').value = fields['Social Security'] || 0;
-    document.getElementById('healthInsurance').value = fields['Health Insurance'] || 0;
-    document.getElementById('otherDeductions').value = fields['Other Deductions'] || 0;
+
+    // Set values with null checks
+    const employeeEl = document.getElementById('payrollEmployee');
+    const monthEl = document.getElementById('payrollMonth');
+    const statusEl = document.getElementById('payrollStatus');
+    const basicSalaryEl = document.getElementById('basicSalary');
+    const housingAllowanceEl = document.getElementById('housingAllowance');
+    const transportAllowanceEl = document.getElementById('transportAllowance');
+    const benefitsEl = document.getElementById('benefits');
+    const otherAllowancesEl = document.getElementById('otherAllowances');
+    const incomeTaxEl = document.getElementById('incomeTax');
+    const welfareEl = document.getElementById('welfare');
+    const socialSecurityEl = document.getElementById('socialSecurity');
+    const healthInsuranceEl = document.getElementById('healthInsurance');
+    const otherDeductionsEl = document.getElementById('otherDeductions');
+
+    if (employeeEl) employeeEl.value = fields['Employee'] ? fields['Employee'][0] : '';
+    if (monthEl) monthEl.value = fields['Month'] || '';
+    if (statusEl) statusEl.value = fields['Status'] || 'Processed';
+    if (basicSalaryEl) basicSalaryEl.value = fields['Basic Salary'] || 0;
+    if (housingAllowanceEl) housingAllowanceEl.value = fields['Housing Allowance'] || 0;
+    if (transportAllowanceEl) transportAllowanceEl.value = fields['Transport Allowance'] || 0;
+    if (benefitsEl) benefitsEl.value = fields['Benefits'] || 0;
+    if (otherAllowancesEl) otherAllowancesEl.value = fields['Other Allowances'] || 0;
+    if (incomeTaxEl) incomeTaxEl.value = fields['Income Tax'] || 0;
+    if (welfareEl) welfareEl.value = fields['Welfare'] || 0;
+    if (socialSecurityEl) socialSecurityEl.value = fields['Social Security'] || 0;
+    if (healthInsuranceEl) healthInsuranceEl.value = fields['Health Insurance'] || 0;
+    if (otherDeductionsEl) otherDeductionsEl.value = fields['Other Deductions'] || 0;
 
     calculateNetSalary();
-    document.getElementById('payrollModal').classList.add('active');
+    modalEl.classList.add('active');
 }
 
 async function deletePayrollHandler(payrollId, employeeName, month) {
