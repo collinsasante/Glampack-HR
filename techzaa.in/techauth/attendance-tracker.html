@@ -1164,18 +1164,43 @@
         const today = getTodayDate();
 
         try {
-          // Get all records for this employee using Worker API
-          const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+          // Try multiple filter approaches
+          // Approach 1: Filter by both Employee and Date
+          const filterFormula = `AND({Date}='${today}', FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee})))`;
+
+          console.log('findTodayRecord - Employee ID:', EMPLOYEE_ID);
+          console.log('findTodayRecord - Filter:', filterFormula);
+          console.log('findTodayRecord - Today:', today);
 
           const data = await getAttendance(filterFormula);
 
-          console.log('findTodayRecord - data:', data);
-          console.log('findTodayRecord - today:', today);
+          console.log('findTodayRecord - API response:', data);
 
           // Handle both formats: data.records or data directly
           const records = data.records || data || [];
 
-          // Filter in JavaScript to find today's record
+          console.log('findTodayRecord - Total records found:', records.length);
+
+          // If filter didn't work, get all records for this employee and filter manually
+          if (records.length === 0) {
+            console.log('No records with filter, trying without date filter...');
+            const filterByEmployee = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+            const allData = await getAttendance(filterByEmployee);
+            const allRecords = allData.records || allData || [];
+
+            console.log('All employee records:', allRecords.length);
+
+            const todayRecord = allRecords.find((record) => {
+              const recordDate = record.fields.Date;
+              console.log('Manual filter - Record date:', recordDate, 'vs today:', today, 'Match:', recordDate === today);
+              return recordDate === today;
+            });
+
+            console.log('findTodayRecord - Manual result:', todayRecord);
+            return todayRecord || null;
+          }
+
+          // Filter in JavaScript to find today's record (double-check)
           const todayRecord = records.find((record) => {
             const recordDate = record.fields.Date;
             console.log('Checking record date:', recordDate, 'vs today:', today);
