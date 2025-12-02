@@ -2776,24 +2776,24 @@ async function loadPayrollRecords() {
             return dateB - dateA;
         });
 
-        // Fetch employee names and store
-        const employeePromises = allPayrollRecords.map(async (record) => {
-            if (record.fields['Employee'] && record.fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(record.fields['Employee'][0]);
-                    return {
-                        record: record,
-                        employeeName: employee.fields['Full Name'] || 'Unknown',
-                        employeeId: record.fields['Employee'][0]
-                    };
-                } catch (error) {
-                    return { record: record, employeeName: 'Unknown', employeeId: '' };
-                }
-            }
-            return { record: record, employeeName: 'Unknown', employeeId: '' };
-        });
+        // Fetch ALL employees once to avoid rate limiting
+        const employeesData = await getEmployees();
+        const employeeMap = {};
+        if (employeesData && employeesData.records) {
+            employeesData.records.forEach(emp => {
+                employeeMap[emp.id] = emp.fields['Full Name'] || 'Unknown';
+            });
+        }
 
-        allPayrollData = await Promise.all(employeePromises);
+        // Map payroll records with employee names from the lookup map
+        allPayrollData = allPayrollRecords.map(record => {
+            const employeeId = record.fields['Employee'] && record.fields['Employee'][0];
+            return {
+                record: record,
+                employeeName: employeeId ? (employeeMap[employeeId] || 'Unknown') : 'Unknown',
+                employeeId: employeeId || ''
+            };
+        });
 
         displayPayrollRecords();
     } catch (error) {
