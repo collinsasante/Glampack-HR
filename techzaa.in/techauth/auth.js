@@ -1,62 +1,62 @@
 // ========================================
-// AUTHENTICATION SYSTEM (SECURE)
+// AUTHENTICATION SYSTEM
 // ========================================
-// Uses /api/auth/login endpoint with JWT tokens and password hashing
-// Passwords are hashed with PBKDF2 in the Worker
-// JWT tokens expire after 24 hours
+// Configuration is loaded from config.js
+// Make sure to include <script src="config.js"></script> before this file
 
 // ========================================
-// LOGIN FUNCTION (SECURE)
+// PASSWORD HASHING UTILITY
+// ========================================
+async function hashPassword(password) {
+    // Simple SHA-256 hashing using Web Crypto API
+    const encoder = new TextEncoder();
+    const data = encoder.encode(password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return hashHex;
+}
+
+// ========================================
+// LOGIN FUNCTION
 // ========================================
 async function login(email, password) {
     try {
         // Show loading state
         showLoading(true);
 
-        // Use secure Worker authentication endpoint
-        const response = await fetch('https://glampack-hr-api.mr-asanteeprog.workers.dev/api/auth/login', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password
-            })
-        });
+        // Fetch employee by email using Worker API
+        const filterFormula = `{Email} = '${email}'`;
+        const data = await getEmployees(filterFormula);
 
-        const data = await response.json();
-
-        // Handle authentication errors
-        if (!response.ok) {
-            if (response.status === 429) {
-                // Rate limited
-                showError(data.error + (data.retryAfter ? ` Please wait ${data.retryAfter} seconds.` : ''));
-            } else {
-                showError(data.error || 'Invalid email or password');
-            }
+        // Check if employee exists
+        if (!data.records || data.records.length === 0) {
+            showError('Invalid email or password');
             showLoading(false);
             return false;
         }
 
-        // Check for successful authentication
-        if (!data.success || !data.token || !data.user) {
-            showError('Login failed. Please try again.');
+        const employee = data.records[0];
+
+        // NOTE: Password validation is now handled by Firebase Authentication
+        // We only validate the user exists in Airtable and retrieve their profile
+        // The packaging-glamour-signin.html page checks Firebase authentication first
+
+        // Check if account is active
+        const accountStatus = employee.fields['Account Status'];
+        if (accountStatus === 'Inactive') {
+            showError('Your account has been deactivated. Please contact your administrator.');
             showLoading(false);
             return false;
         }
-
-        // Store JWT token securely
-        sessionStorage.setItem('auth_token', data.token);
 
         // Store user session
         const userSession = {
-            id: data.user.id,
-            name: data.user.fullName,
-            email: data.user.email,
-            role: data.user.role || 'Employee',
-            department: data.user.department,
-            jobTitle: data.user.jobTitle,
+            id: employee.id,
+            name: employee.fields['Full Name'],
+            email: employee.fields['Email'],
+            role: employee.fields['Role'] || 'Employee',
+            status: employee.fields['Status'],
             loginTime: new Date().toISOString()
         };
 
@@ -70,79 +70,57 @@ async function login(email, password) {
         return true;
 
     } catch (error) {
-        console.error('Login error:', error);
-        showError('Login failed. Please check your connection and try again.');
+        showError('Login failed. Please try again.');
         showLoading(false);
         return false;
     }
 }
 
 // ========================================
-// SIGNUP FUNCTION (SECURE)
+// SIGNUP FUNCTION
 // ========================================
-async function signup(fullName, email, status, password, role = 'Employee', department = '', jobTitle = '') {
+async function signup(fullName, email, status, password, role = 'Employee') {
     try {
         showLoading(true);
 
-        // Use secure Worker authentication endpoint
-        const response = await fetch('https://glampack-hr-api.mr-asanteeprog.workers.dev/api/auth/signup', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                email: email,
-                password: password,
-                fullName: fullName,
-                role: role,
-                department: department,
-                jobTitle: jobTitle,
-                status: status
-            })
+        // Check if employee already exists using Worker API
+        const filterFormula = `{Email} = '${email}'`;
+        const checkData = await getEmployees(filterFormula);
+
+        if (checkData.records && checkData.records.length > 0) {
+            showError('An account with this email already exists. Please sign in.');
+            showLoading(false);
+            return false;
+        }
+
+        // Generate unique Employee ID
+        const empId = 'EMP' + Math.random().toString(36).substr(2, 6).toUpperCase();
+
+        // Hash the password before storing
+        const passwordHash = await hashPassword(password);
+
+        // Create new employee record with hashed password and role using Worker API
+        const createData = await createEmployee({
+            'Full Name': fullName,
+            'Email': email,
+            'Password': passwordHash,
+            'Role': role,
+            'Annual Leave Balance': 20,  // Default leave balance for new employees
+            'Status': status
         });
 
-        const data = await response.json();
-
-        // Handle signup errors
-        if (!response.ok) {
-            if (response.status === 429) {
-                // Rate limited
-                showError(data.error + (data.retryAfter ? ` Please wait ${data.retryAfter} seconds.` : ''));
-            } else if (response.status === 400) {
-                // Validation error
-                showError(data.error || 'Invalid signup data');
-            } else if (response.status === 409) {
-                // Email already exists
-                showError(data.error || 'An account with this email already exists');
-            } else {
-                showError(data.error || 'Signup failed. Please try again.');
-            }
-            showLoading(false);
-            return false;
+        if (!createData || !createData.id) {
+            throw new Error('Failed to create account');
         }
-
-        // Check for successful signup
-        if (!data.success || !data.token || !data.user) {
-            showError('Signup failed. Please try again.');
-            showLoading(false);
-            return false;
-        }
-
-        // Store JWT token securely
-        sessionStorage.setItem('auth_token', data.token);
 
         // Auto-login the user after signup
-        const userSession = {
-            id: data.user.id,
-            name: data.user.fullName,
-            email: data.user.email,
-            role: data.user.role || 'Employee',
-            department: data.user.department,
-            jobTitle: data.user.jobTitle,
-            loginTime: new Date().toISOString()
+        const userData = {
+            id: createData.id,
+            name: fullName,
+            email: email,
+            role: role
         };
-
-        sessionStorage.setItem('currentUser', JSON.stringify(userSession));
+        sessionStorage.setItem('currentUser', JSON.stringify(userData));
         localStorage.setItem('lastUser', email);
 
         showLoading(false);
@@ -151,8 +129,7 @@ async function signup(fullName, email, status, password, role = 'Employee', depa
         return true;
 
     } catch (error) {
-        console.error('Signup error:', error);
-        showError('Signup failed. Please check your connection and try again.');
+        showError('Signup failed. Please try again.');
         showLoading(false);
         return false;
     }
@@ -220,9 +197,7 @@ function generateResetToken() {
 // LOGOUT FUNCTION
 // ========================================
 function logout() {
-    // Clear all session data including JWT token
     sessionStorage.removeItem('currentUser');
-    sessionStorage.removeItem('auth_token');
     localStorage.removeItem('isAdmin');
     window.location.href = 'packaging-glamour-signin.html';
 }
