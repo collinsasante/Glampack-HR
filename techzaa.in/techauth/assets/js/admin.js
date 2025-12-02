@@ -3454,12 +3454,14 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     const incomeTaxEl = document.getElementById('incomeTax');
+    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3468,7 +3470,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
     const grossSalary = basicSalary + totalAllowances;
-    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
 
     // Earnings = Basic + Transport
     const earnings = basicSalary + transportAllowance;
@@ -3502,6 +3504,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Other Allowances': otherAllowances + customAllowancesTotal,
         // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': incomeTax,
+        'PAYE': paye,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
