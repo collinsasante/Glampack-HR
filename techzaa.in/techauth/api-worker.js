@@ -636,6 +636,22 @@ async function handlePayroll(request, env, apiKey, baseId, corsHeaders) {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: response.status,
     });
+  } else if (request.method === 'DELETE') {
+    const recordId = pathParts[3];
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
+    const data = await response.json();
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else {
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 }
 // Add these functions to the end of api-worker.js file (before the closing of the file)
