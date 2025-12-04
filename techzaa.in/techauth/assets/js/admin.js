@@ -2807,10 +2807,10 @@ async function displayPayrollRecords(filteredData = null) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600">GH₵${netSalary.toFixed(2)}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700">${statusBadge}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium" onclick="event.stopPropagation()">
-                    <button onclick='editPayroll(${JSON.stringify(record).replace(/'/g, "&#39;")})' class="text-red-600 hover:text-red-900 mr-3">
+                    <button onclick="editPayrollById('${record.id}')" class="text-red-600 hover:text-red-900 mr-3 transition-colors" title="Edit payroll">
                         <i class="fas fa-edit"></i> Edit
                     </button>
-                    <button onclick='deletePayrollHandler("${record.id}", "${employeeName}", "${monthDisplay}")' class="text-red-600 hover:text-red-900">
+                    <button onclick="deletePayrollHandler('${record.id}', '${employeeName.replace(/'/g, "\\'")}', '${monthDisplay}')" class="text-red-600 hover:text-red-900 transition-colors" title="Delete payroll">
                         <i class="fas fa-trash"></i> Delete
                     </button>
                 </td>
@@ -3016,6 +3016,16 @@ function editPayroll(record) {
 
     calculateNetSalary();
     document.getElementById('payrollModal').classList.add('active');
+}
+
+// Helper function to edit payroll by ID (uses global payrollRecordsMap)
+function editPayrollById(recordId) {
+    const record = window.payrollRecordsMap[recordId];
+    if (record) {
+        editPayroll(record);
+    } else {
+        showToast('error', 'Error', 'Could not find payroll record');
+    }
 }
 
 async function deletePayrollHandler(payrollId, employeeName, month) {
