@@ -3039,6 +3039,32 @@ function editPayroll(record) {
     if (healthInsurance) healthInsurance.value = fields['Health Insurance'] || 0;
     if (otherDeductions) otherDeductions.value = fields['Other Deductions'] || 0;
 
+    // Load custom allowances
+    if (fields['Custom Allowances']) {
+        try {
+            customAllowances = JSON.parse(fields['Custom Allowances']);
+            updateCustomAllowancesList();
+        } catch (e) {
+            customAllowances = [];
+        }
+    } else {
+        customAllowances = [];
+        updateCustomAllowancesList();
+    }
+
+    // Load custom deductions
+    if (fields['Custom Deductions']) {
+        try {
+            customDeductions = JSON.parse(fields['Custom Deductions']);
+            updateCustomDeductionsList();
+        } catch (e) {
+            customDeductions = [];
+        }
+    } else {
+        customDeductions = [];
+        updateCustomDeductionsList();
+    }
+
     calculateNetSalary();
     payrollModal.classList.add('active');
 }
