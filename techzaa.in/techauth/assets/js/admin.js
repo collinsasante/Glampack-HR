@@ -3167,8 +3167,8 @@ function calculateNetSalary() {
     const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + paye + socialSecurity - otherDeductions - welfare;
+    // Amount to Pay = Net Salary (final amount employee receives after all deductions)
+    const amountToPay = netSalary;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3369,8 +3369,8 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
-    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + paye + socialSecurity - otherDeductions - welfare;
+    // Amount to Pay = Net Salary (final amount employee receives after all deductions)
+    const amountToPay = netSalary;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
