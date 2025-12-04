@@ -1886,62 +1886,6 @@ function closeAnnouncementStatsModal() {
     document.getElementById('announcementStatsModal').style.display = 'none';
 }
 
-// Handle announcement form submission
-document.getElementById('announcementForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const announcementId = document.getElementById('announcementId').value;
-
-    // Get current user from session
-    let authorName = 'Admin';
-    try {
-        const currentUser = getCurrentUser();
-
-        if (currentUser && currentUser.name) {
-            authorName = currentUser.name;
-        }
-    } catch (error) {
-
-    }
-
-    const data = {
-        'Title': document.getElementById('annTitle').value,
-        'Message': document.getElementById('annMessage').value,
-        'Priority': document.getElementById('annPriority').value,
-        'Posted By': authorName
-    };
-
-    try {
-        // Handle image upload if file is selected
-        const imageFile = document.getElementById('annImageFile').files[0];
-        if (imageFile) {
-            showToast('info', 'Uploading', 'Uploading image...');
-            try {
-                const uploadResult = await uploadToCloudinary(imageFile);
-                data['Image URL'] = uploadResult.secure_url;
-            } catch (uploadError) {
-                showToast('error', 'Upload Failed', `Image upload failed: ${uploadError.message}`);
-                return;
-            }
-        }
-
-        if (announcementId) {
-            // Update existing announcement
-            await updateAnnouncement(announcementId, data);
-            showToast('success', 'Announcement Updated', 'Announcement updated successfully!');
-        } else {
-            // Create new announcement
-            await createAnnouncement(data);
-            showToast('success', 'Announcement Posted', 'Announcement posted successfully!');
-        }
-
-        closeAnnouncementModal();
-        loadAnnouncements();
-    } catch (error) {
-        showToast('error', 'Save Failed', `Error saving announcement: ${error.message}`);
-    }
-});
-
 // ========================================
 // ATTENDANCE RECORDS
 // ========================================
@@ -3925,7 +3869,7 @@ async function showPayrollDetails(record) {
                     <div class="space-y-2">
                         <div class="flex justify-between">
                             <span class="text-xs text-gray-600">PAYE:</span>
-                            <span class="font-medium">${formatCurrency(fields['PAYE'])}</span>
+                            <span class="font-medium">${formatCurrency(fields['Income Tax'])}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-xs text-gray-600">Welfare:</span>
