@@ -3007,6 +3007,7 @@ function editPayroll(record) {
     const benefits = document.getElementById('benefits');
     const otherAllowances = document.getElementById('otherAllowances');
     const incomeTax = document.getElementById('incomeTax');
+    const paye = document.getElementById('paye');
     const welfare = document.getElementById('welfare');
     const socialSecurity = document.getElementById('socialSecurity');
     const healthInsurance = document.getElementById('healthInsurance');
@@ -3032,6 +3033,7 @@ function editPayroll(record) {
     if (benefits) benefits.value = fields['Benefits'] || 0;
     if (otherAllowances) otherAllowances.value = fields['Other Allowances'] || 0;
     if (incomeTax) incomeTax.value = fields['Income Tax'] || 0;
+    if (paye) paye.value = fields['PAYE'] || 0;
     if (welfare) welfare.value = fields['Welfare'] || 0;
     if (socialSecurity) socialSecurity.value = fields['Social Security'] || 0;
     if (healthInsurance) healthInsurance.value = fields['Health Insurance'] || 0;
@@ -3088,12 +3090,14 @@ function calculateNetSalary() {
 
     // Get all deductions - check if elements exist first
     const incomeTaxEl = document.getElementById('incomeTax');
+    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3103,7 +3107,7 @@ function calculateNetSalary() {
     const customDeductionsTotal = customDeductions.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     // Calculate total deductions and net
-    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
     // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
@@ -3289,12 +3293,14 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const customAllowancesTotal = customAllowances.reduce((sum, item) => sum + parseFloat(item.amount), 0);
 
     const incomeTaxEl = document.getElementById('incomeTax');
+    const payeEl = document.getElementById('paye');
     const welfareEl = document.getElementById('welfare');
     const socialSecurityEl = document.getElementById('socialSecurity');
     const healthInsuranceEl = document.getElementById('healthInsurance');
     const otherDeductionsEl = document.getElementById('otherDeductions');
 
     const incomeTax = incomeTaxEl ? parseFloat(incomeTaxEl.value) || 0 : 0;
+    const paye = payeEl ? parseFloat(payeEl.value) || 0 : 0;
     const welfare = welfareEl ? parseFloat(welfareEl.value) || 0 : 0;
     const socialSecurity = socialSecurityEl ? parseFloat(socialSecurityEl.value) || 0 : 0;
     const healthInsurance = healthInsuranceEl ? parseFloat(healthInsuranceEl.value) || 0 : 0;
@@ -3303,7 +3309,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 
     const totalAllowances = housingAllowance + transportAllowance + benefits + otherAllowances + customAllowancesTotal;
     const grossSalary = basicSalary + totalAllowances;
-    const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
+    const totalDeductions = incomeTax + paye + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
     // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
@@ -3326,6 +3332,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Other Allowances': otherAllowances + customAllowancesTotal,
         // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': incomeTax,
+        'PAYE': paye,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
