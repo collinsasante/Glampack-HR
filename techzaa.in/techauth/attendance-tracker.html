@@ -1208,17 +1208,8 @@
             return;
           }
 
-          // Validate geofencing
+          // Calculate distance for logging purposes
           const geofenceCheck = isWithinGeofence(gpsLocation.latitude, gpsLocation.longitude);
-
-          if (!geofenceCheck.isValid) {
-            const distanceKm = (geofenceCheck.distance / 1000).toFixed(3);
-            showMessage(
-              `You are ${distanceKm}km away from ${OFFICE_LOCATION.name}. You must be within ${MAX_DISTANCE_METERS}m of the office to check out.`,
-              "error"
-            );
-            return;
-          }
 
           // Get IP location for additional context
           let ipAddress = "Unknown";
