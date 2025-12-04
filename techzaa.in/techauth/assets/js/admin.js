@@ -2996,26 +2996,49 @@ function closePayrollModal() {
 }
 
 function editPayroll(record) {
-    document.getElementById('payrollModalTitle').textContent = 'Edit Payroll';
-    document.getElementById('payrollId').value = record.id;
+    const payrollModalTitle = document.getElementById('payrollModalTitle');
+    const payrollId = document.getElementById('payrollId');
+    const payrollEmployee = document.getElementById('payrollEmployee');
+    const payrollMonth = document.getElementById('payrollMonth');
+    const payrollStatus = document.getElementById('payrollStatus');
+    const basicSalary = document.getElementById('basicSalary');
+    const housingAllowance = document.getElementById('housingAllowance');
+    const transportAllowance = document.getElementById('transportAllowance');
+    const benefits = document.getElementById('benefits');
+    const otherAllowances = document.getElementById('otherAllowances');
+    const incomeTax = document.getElementById('incomeTax');
+    const welfare = document.getElementById('welfare');
+    const socialSecurity = document.getElementById('socialSecurity');
+    const healthInsurance = document.getElementById('healthInsurance');
+    const otherDeductions = document.getElementById('otherDeductions');
+    const payrollModal = document.getElementById('payrollModal');
+
+    // Check if elements exist (they won't for Managers since payroll tab is hidden)
+    if (!payrollModalTitle || !payrollModal) {
+        showToast('error', 'Access Denied', 'You do not have permission to edit payroll records');
+        return;
+    }
+
+    payrollModalTitle.textContent = 'Edit Payroll';
+    if (payrollId) payrollId.value = record.id;
 
     const fields = record.fields;
-    document.getElementById('payrollEmployee').value = fields['Employee'] ? fields['Employee'][0] : '';
-    document.getElementById('payrollMonth').value = fields['Month'] || '';
-    document.getElementById('payrollStatus').value = fields['Status'] || 'Processed';
-    document.getElementById('basicSalary').value = fields['Basic Salary'] || 0;
-    document.getElementById('housingAllowance').value = fields['Housing Allowance'] || 0;
-    document.getElementById('transportAllowance').value = fields['Transport Allowance'] || 0;
-    document.getElementById('benefits').value = fields['Benefits'] || 0;
-    document.getElementById('otherAllowances').value = fields['Other Allowances'] || 0;
-    document.getElementById('incomeTax').value = fields['Income Tax'] || 0;
-    document.getElementById('welfare').value = fields['Welfare'] || 0;
-    document.getElementById('socialSecurity').value = fields['Social Security'] || 0;
-    document.getElementById('healthInsurance').value = fields['Health Insurance'] || 0;
-    document.getElementById('otherDeductions').value = fields['Other Deductions'] || 0;
+    if (payrollEmployee) payrollEmployee.value = fields['Employee'] ? fields['Employee'][0] : '';
+    if (payrollMonth) payrollMonth.value = fields['Month'] || '';
+    if (payrollStatus) payrollStatus.value = fields['Status'] || 'Processed';
+    if (basicSalary) basicSalary.value = fields['Basic Salary'] || 0;
+    if (housingAllowance) housingAllowance.value = fields['Housing Allowance'] || 0;
+    if (transportAllowance) transportAllowance.value = fields['Transport Allowance'] || 0;
+    if (benefits) benefits.value = fields['Benefits'] || 0;
+    if (otherAllowances) otherAllowances.value = fields['Other Allowances'] || 0;
+    if (incomeTax) incomeTax.value = fields['Income Tax'] || 0;
+    if (welfare) welfare.value = fields['Welfare'] || 0;
+    if (socialSecurity) socialSecurity.value = fields['Social Security'] || 0;
+    if (healthInsurance) healthInsurance.value = fields['Health Insurance'] || 0;
+    if (otherDeductions) otherDeductions.value = fields['Other Deductions'] || 0;
 
     calculateNetSalary();
-    document.getElementById('payrollModal').classList.add('active');
+    payrollModal.classList.add('active');
 }
 
 // Helper function to edit payroll by ID (uses global payrollRecordsMap)
