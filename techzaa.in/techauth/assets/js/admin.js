@@ -3001,6 +3001,10 @@ async function editPayroll(record) {
     const payrollEmployee = document.getElementById('payrollEmployee');
     const payrollMonth = document.getElementById('payrollMonth');
     const payrollStatus = document.getElementById('payrollStatus');
+    const payslipTitle = document.getElementById('payslipTitle');
+    const periodStartDate = document.getElementById('periodStartDate');
+    const periodEndDate = document.getElementById('periodEndDate');
+    const paymentDate = document.getElementById('paymentDate');
     const basicSalary = document.getElementById('basicSalary');
     const housingAllowance = document.getElementById('housingAllowance');
     const transportAllowance = document.getElementById('transportAllowance');
@@ -3050,6 +3054,10 @@ async function editPayroll(record) {
     if (payrollEmployee) payrollEmployee.value = fields['Employee'] ? fields['Employee'][0] : '';
     if (payrollMonth) payrollMonth.value = fields['Month'] || '';
     if (payrollStatus) payrollStatus.value = fields['Status'] || 'Processed';
+    if (payslipTitle) payslipTitle.value = fields['Payslip Title'] || '';
+    if (periodStartDate) periodStartDate.value = fields['Period Start Date'] || '';
+    if (periodEndDate) periodEndDate.value = fields['Period End Date'] || '';
+    if (paymentDate) paymentDate.value = fields['Payment Date'] || '';
     if (basicSalary) basicSalary.value = fields['Basic Salary'] || 0;
     if (housingAllowance) housingAllowance.value = fields['Housing Allowance'] || 0;
     if (transportAllowance) transportAllowance.value = fields['Transport Allowance'] || 0;
