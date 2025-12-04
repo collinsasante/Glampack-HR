@@ -2995,7 +2995,7 @@ function closePayrollModal() {
     document.getElementById('payrollModal').classList.remove('active');
 }
 
-function editPayroll(record) {
+async function editPayroll(record) {
     const payrollModalTitle = document.getElementById('payrollModalTitle');
     const payrollId = document.getElementById('payrollId');
     const payrollEmployee = document.getElementById('payrollEmployee');
@@ -3022,6 +3022,29 @@ function editPayroll(record) {
 
     payrollModalTitle.textContent = 'Edit Payroll';
     if (payrollId) payrollId.value = record.id;
+
+    // Populate employee dropdown
+    if (payrollEmployee) {
+        payrollEmployee.innerHTML = '<option value="">Select Employee</option>';
+        try {
+            const data = await getEmployees();
+            const employees = data.records || [];
+            employees.sort((a, b) => {
+                const nameA = (a.fields['Full Name'] || '').toLowerCase();
+                const nameB = (b.fields['Full Name'] || '').toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
+
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = emp.fields['Full Name'];
+                payrollEmployee.appendChild(option);
+            });
+        } catch (error) {
+            // Continue even if employee fetch fails
+        }
+    }
 
     const fields = record.fields;
     if (payrollEmployee) payrollEmployee.value = fields['Employee'] ? fields['Employee'][0] : '';
@@ -3137,7 +3160,7 @@ function calculateNetSalary() {
     const netSalary = grossSalary - totalDeductions;
 
     // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
+    const amountToPay = basicSalary + transportAllowance + paye + socialSecurity - otherDeductions - welfare;
 
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
@@ -3339,7 +3362,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const netSalary = grossSalary - totalDeductions;
 
     // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
-    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
+    const amountToPay = basicSalary + transportAllowance + paye + socialSecurity - otherDeductions - welfare;
 
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
