@@ -190,8 +190,19 @@
             </div>
           </div>
 
-          <!-- Forgot Password Link -->
-          <div class="text-right">
+          <!-- Remember Me & Forgot Password -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <input
+                type="checkbox"
+                id="rememberMe"
+                name="rememberMe"
+                class="w-4 h-4 text-red-600 bg-gray-100 border-gray-300 rounded focus:ring-red-500 focus:ring-2"
+              />
+              <label for="rememberMe" class="ml-2 text-sm font-medium text-gray-700">
+                Remember me
+              </label>
+            </div>
             <a
               href="packaging-glamour-forgot-password.html"
               class="text-sm font-medium text-red-600 hover:text-red-700 transition-colors"
@@ -261,6 +272,37 @@
         }
       }
 
+      // Cookie helper functions
+      function setCookie(name, value, days) {
+        const expires = new Date();
+        expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
+        document.cookie = name + '=' + encodeURIComponent(value) + ';expires=' + expires.toUTCString() + ';path=/';
+      }
+
+      function getCookie(name) {
+        const nameEQ = name + '=';
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+          let cookie = cookies[i];
+          while (cookie.charAt(0) === ' ') cookie = cookie.substring(1, cookie.length);
+          if (cookie.indexOf(nameEQ) === 0) return decodeURIComponent(cookie.substring(nameEQ.length, cookie.length));
+        }
+        return null;
+      }
+
+      function deleteCookie(name) {
+        document.cookie = name + '=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;';
+      }
+
+      // Load saved email on page load
+      window.addEventListener('DOMContentLoaded', () => {
+        const savedEmail = getCookie('remembered_email');
+        if (savedEmail) {
+          document.getElementById('email').value = savedEmail;
+          document.getElementById('rememberMe').checked = true;
+        }
+      });
+
       // Toggle password visibility
       function togglePasswordVisibility(inputId, iconId) {
         const input = document.getElementById(inputId);
@@ -285,6 +327,7 @@
 
           const email = document.getElementById("email").value.trim();
           const password = document.getElementById("pwd").value.trim();
+          const rememberMe = document.getElementById("rememberMe").checked;
 
           const submitBtn = e.target.querySelector('button[type="submit"]');
           submitBtn.disabled = true;
@@ -320,6 +363,13 @@
             const success = await login(email, password);
 
             if (success) {
+              // Save credentials in cookies if Remember Me is checked
+              if (rememberMe) {
+                setCookie('remembered_email', email, 30); // 30 days
+              } else {
+                deleteCookie('remembered_email');
+              }
+
               // Get the logged-in user's actual role from Airtable
               const currentUser = getCurrentUser();
 
