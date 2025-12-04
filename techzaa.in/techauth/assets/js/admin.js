@@ -2768,7 +2768,7 @@ async function displayPayrollRecords(filteredData = null) {
             ? parseFloat(fields['Gross Salary'])
             : (basicSalary + totalAllowances);
 
-        const incomeTax = parseFloat(fields['Income Tax'] || 0);
+        const paye = parseFloat(fields['PAYE'] || 0);
         const welfare = parseFloat(fields['Welfare'] || 0);
         const socialSecurity = parseFloat(fields['Social Security'] || 0);
         const healthInsurance = parseFloat(fields['Health Insurance'] || 0);
@@ -2777,7 +2777,7 @@ async function displayPayrollRecords(filteredData = null) {
 
         const totalDeductions = fields['Total Deductions']
             ? parseFloat(fields['Total Deductions'])
-            : (deductions || (incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions));
+            : (deductions || (paye + welfare + socialSecurity + healthInsurance + otherDeductions));
 
         const netSalary = fields['Net Salary'] || fields['Net Pay']
             ? parseFloat(fields['Net Salary'] || fields['Net Pay'] || 0)
@@ -2910,7 +2910,7 @@ async function autoPopulatePayrollData(employeeId, selectedMonth) {
             document.getElementById('transportAllowance').value = prevPayroll['Transport Allowance'] || 0;
             document.getElementById('benefits').value = prevPayroll['Benefits'] || 0;
             document.getElementById('otherAllowances').value = prevPayroll['Other Allowances'] || 0;
-            document.getElementById('incomeTax').value = prevPayroll['Income Tax'] || 0;
+            document.getElementById('paye').value = prevPayroll['PAYE'] || 0;
             document.getElementById('welfare').value = prevPayroll['Welfare'] || 0;
             document.getElementById('socialSecurity').value = prevPayroll['Social Security'] || 0;
             document.getElementById('healthInsurance').value = prevPayroll['Health Insurance'] || 0;
@@ -3924,8 +3924,8 @@ async function showPayrollDetails(record) {
                     <h4 class="text-sm font-semibold text-gray-600 mb-3">Deductions</h4>
                     <div class="space-y-2">
                         <div class="flex justify-between">
-                            <span class="text-xs text-gray-600">Income Tax:</span>
-                            <span class="font-medium">${formatCurrency(fields['Income Tax'])}</span>
+                            <span class="text-xs text-gray-600">PAYE:</span>
+                            <span class="font-medium">${formatCurrency(fields['PAYE'])}</span>
                         </div>
                         <div class="flex justify-between">
                             <span class="text-xs text-gray-600">Welfare:</span>

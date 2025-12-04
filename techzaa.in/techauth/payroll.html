@@ -476,7 +476,7 @@
             const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
 
             // Update deductions
-            const incomeTax = parseFloat(salary["Income Tax"] || 0);
+            const paye = parseFloat(salary["PAYE"] || 0);
             const welfare = parseFloat(salary["Welfare"] || 0);
             const socialSecurity = parseFloat(salary["Social Security"] || 0);
             const healthInsurance = parseFloat(salary["Health Insurance"] || 0);
@@ -489,7 +489,7 @@
               benefits +
               otherAllowances;
             const totalDeductions =
-              incomeTax +
+              paye +
               welfare +
               socialSecurity +
               healthInsurance +
@@ -515,7 +515,7 @@
               formatCurrency(benefits + otherAllowances);
 
             document.getElementById("incomeTax").textContent =
-              formatCurrency(incomeTax);
+              formatCurrency(paye);
             document.getElementById("socialSecurity").textContent =
               formatCurrency(socialSecurity);
             document.getElementById("healthInsurance").textContent =
@@ -662,7 +662,7 @@
         const benefits = parseFloat(fields["Benefits"] || 0);
         const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
 
-        const incomeTax = parseFloat(fields["Income Tax"] || 0);
+        const paye = parseFloat(fields["PAYE"] || 0);
         const welfare = parseFloat(fields["Welfare"] || 0);
         const socialSecurity = parseFloat(fields["Social Security"] || 0);
         const healthInsurance = parseFloat(fields["Health Insurance"] || 0);
@@ -672,7 +672,7 @@
         const calculatedTotalEarnings =
           housingAllowance + transportAllowance + benefits + otherAllowances;
         const calculatedTotalDeductions =
-          incomeTax +
+          paye +
           welfare +
           socialSecurity +
           healthInsurance +
@@ -704,7 +704,7 @@
           ].filter((item) => item.amount > 0),
           totalEarnings: calculatedTotalEarnings,
           deductions: [
-            { label: "PAYE", amount: incomeTax },
+            { label: "PAYE", amount: paye },
             { label: "Welfare", amount: welfare },
             { label: "Social Security Deductions", amount: socialSecurity },
             { label: "Health Insurance", amount: healthInsurance },
