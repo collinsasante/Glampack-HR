@@ -3106,18 +3106,23 @@ function calculateNetSalary() {
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
+    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
+
     // Update displays (check if elements exist first)
     const totalAllowancesEl = document.getElementById('totalAllowancesDisplay');
     const totalDeductionsEl = document.getElementById('totalDeductionsDisplay');
     const totalDeductionsSummaryEl = document.getElementById('totalDeductionsSummary');
     const grossSalaryEl = document.getElementById('grossSalaryDisplay');
     const netSalaryEl = document.getElementById('netSalaryDisplay');
+    const amountToPayEl = document.getElementById('amountToPayDisplay');
 
     if (totalAllowancesEl) totalAllowancesEl.textContent = `GH₵${totalAllowances.toFixed(2)}`;
     if (totalDeductionsEl) totalDeductionsEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
     if (totalDeductionsSummaryEl) totalDeductionsSummaryEl.textContent = `GH₵${totalDeductions.toFixed(2)}`;
     if (grossSalaryEl) grossSalaryEl.textContent = `GH₵${grossSalary.toFixed(2)}`;
     if (netSalaryEl) netSalaryEl.textContent = `GH₵${netSalary.toFixed(2)}`;
+    if (amountToPayEl) amountToPayEl.textContent = `GH₵${amountToPay.toFixed(2)}`;
 }
 
 // Custom Allowances Management
@@ -3301,6 +3306,9 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const totalDeductions = incomeTax + welfare + socialSecurity + healthInsurance + otherDeductions + customDeductionsTotal;
     const netSalary = grossSalary - totalDeductions;
 
+    // Amount to Pay = Basic + Transport + PAYE + SSNIT - Other Deductions - Welfare
+    const amountToPay = basicSalary + transportAllowance + incomeTax + socialSecurity - otherDeductions - welfare;
+
     // Get month value (YYYY-MM format)
     const monthValueEl = document.getElementById('payrollMonth');
     const monthValue = monthValueEl ? monthValueEl.value : '';
@@ -3323,6 +3331,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
         'Net Salary': netSalary,  // This is a Number field, not Formula, so we can send it
+        'Amount to Pay': amountToPay,  // Amount to Pay field
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
         'Status': statusValue,  // Options: Processed, Pending - read from dropdown
