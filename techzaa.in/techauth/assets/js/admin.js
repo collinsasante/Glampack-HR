@@ -3382,7 +3382,7 @@ document.getElementById('payrollForm').addEventListener('submit', async function
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
         // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
-        'PAYE': paye,
+        'Income Tax': paye,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
