@@ -927,9 +927,30 @@
       // ========================================
       // LATE REASON MODAL FUNCTIONS
       // ========================================
-      function openLateReasonModal() {
-        document.getElementById("lateReasonModal").classList.remove("hidden");
-        document.getElementById("lateReasonModal").classList.add("flex");
+      function openLateReasonModal(shiftName, shiftConfig) {
+        const modal = document.getElementById("lateReasonModal");
+        const messageElement = modal.querySelector("p.text-sm");
+
+        // Get the late threshold for the shift
+        let lateThreshold = shiftConfig.lateThreshold;
+
+        // For Hybrid shift, determine which threshold based on current time
+        if (shiftName === "Hybrid (Customer Service)") {
+          const currentHour = new Date().getHours();
+          lateThreshold = currentHour < 14 ? shiftConfig.lateThreshold : shiftConfig.secondShiftLateThreshold;
+        }
+
+        // Convert 24-hour format to 12-hour format
+        const [hours, minutes] = lateThreshold.split(":");
+        const hour12 = parseInt(hours) > 12 ? parseInt(hours) - 12 : parseInt(hours);
+        const period = parseInt(hours) >= 12 ? "PM" : "AM";
+        const formattedTime = `${hour12}:${minutes} ${period}`;
+
+        // Update modal message
+        messageElement.textContent = `You are checking in after ${formattedTime}. Please provide a reason.`;
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
         document.getElementById("lateReasonInput").value = "";
       }
 
@@ -1009,7 +1030,7 @@
 
         if (isLate) {
           // Show modal for late reason
-          openLateReasonModal();
+          openLateReasonModal(selectedShift, shiftConfig);
         } else {
           // Proceed with normal check-in
           await performCheckIn(null, selectedShift);
