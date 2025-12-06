@@ -1134,8 +1134,7 @@
           const fields = {
             "Check In": datetime,
             "Check In Location": locationString,
-            "IP Address": ipAddress,
-            "Shift": selectedShift
+            "IP Address": ipAddress
           };
 
           // Add late reason if applicable
@@ -1351,7 +1350,8 @@
           if (todayRecord && todayRecord.fields) {
             const checkInRaw = todayRecord.fields["Check In"];
             const checkOutRaw = todayRecord.fields["Check Out"];
-            const shift = todayRecord.fields["Shift"] || "Not set";
+            const shiftSelect = document.getElementById("shiftSelect");
+            const shift = shiftSelect.value || "Not set";
 
             // Extract time from datetime
             const checkIn = checkInRaw
@@ -1369,10 +1369,8 @@
             document.getElementById("todayCheckIn").textContent = checkIn;
             document.getElementById("todayCheckOut").textContent = checkOut;
 
-            // Set shift selector value if shift exists
-            if (shift && shift !== "Not set") {
-              const shiftSelect = document.getElementById("shiftSelect");
-              shiftSelect.value = shift;
+            // Disable shift selector if already checked in
+            if (checkIn !== "Not yet") {
               shiftSelect.disabled = true;
               shiftSelect.classList.add("opacity-50", "cursor-not-allowed");
             }
