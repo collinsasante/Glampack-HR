@@ -1555,20 +1555,7 @@
                 const lateHour = parseInt(lateTime[0]);
                 const lateMinute = parseInt(lateTime[1]);
 
-                // For hybrid shift, check both time windows
-                if (shift === "Hybrid (Customer Service)") {
-                  const secondLateTime = shiftConfig.secondShiftLateThreshold.split(":");
-                  const secondLateHour = parseInt(secondLateTime[0]);
-                  const secondLateMinute = parseInt(secondLateTime[1]);
-
-                  if (checkInHour < 14) {
-                    isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
-                  } else {
-                    isLate = checkInHour > secondLateHour || (checkInHour === secondLateHour && checkInMinute > secondLateMinute);
-                  }
-                } else {
-                  isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
-                }
+                isLate = checkInHour > lateHour || (checkInHour === lateHour && checkInMinute > lateMinute);
               } else {
                 // Fallback to default 8:30 AM threshold if no shift config
                 isLate = checkInHour > 8 || (checkInHour === 8 && checkInMinute > 30);
@@ -1592,7 +1579,10 @@
             if (shift === "Morning Production (Day)") shortShift = "Morning";
             else if (shift === "Night Production") shortShift = "Night";
             else if (shift === "Straight Shift") shortShift = "Straight";
-            else if (shift === "Hybrid (Customer Service)") shortShift = "Hybrid";
+            else if (shift === "Hybrid Morning") shortShift = "Hybrid AM";
+            else if (shift === "Hybrid Afternoon") shortShift = "Hybrid PM";
+            else if (shift === "Saturday Shift") shortShift = "Saturday";
+            else if (shift === "-") shortShift = "N/A";
 
             const row = document.createElement("tr");
             row.className = "hover:bg-gray-50";
