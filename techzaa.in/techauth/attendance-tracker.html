@@ -244,7 +244,8 @@
                   <option value="Morning Production (Day)">Morning Production (Day) - 8:00am to 6:00pm</option>
                   <option value="Night Production">Night Production - 8:00pm to 6:00am</option>
                   <option value="Straight Shift">Straight Shift - 8:00am to 5:00pm</option>
-                  <option value="Hybrid (Customer Service)">Hybrid (Customer Service) - 7:00am to 2:00pm / 2:00pm to 9:00pm</option>
+                  <option value="Hybrid Morning">Hybrid Morning - 7:00am to 2:00pm</option>
+                  <option value="Hybrid Afternoon">Hybrid Afternoon - 2:00pm to 9:00pm</option>
                   <option value="Saturday Shift">Saturday Shift - 9:00am to 4:00pm</option>
                 </select>
                 <p class="text-xs text-gray-500 mt-2">
@@ -932,13 +933,7 @@
         const messageElement = modal.querySelector("p.text-sm");
 
         // Get the late threshold for the shift
-        let lateThreshold = shiftConfig.lateThreshold;
-
-        // For Hybrid shift, determine which threshold based on current time
-        if (shiftName === "Hybrid (Customer Service)") {
-          const currentHour = new Date().getHours();
-          lateThreshold = currentHour < 14 ? shiftConfig.lateThreshold : shiftConfig.secondShiftLateThreshold;
-        }
+        const lateThreshold = shiftConfig.lateThreshold;
 
         // Convert 24-hour format to 12-hour format
         const [hours, minutes] = lateThreshold.split(":");
@@ -978,13 +973,15 @@
           end: "17:00",
           lateThreshold: "08:30"
         },
-        "Hybrid (Customer Service)": {
+        "Hybrid Morning": {
           start: "07:00",
-          end: "14:00", // First shift ends at 2pm, second shift 14:00-21:00
-          lateThreshold: "07:30",
-          secondShiftStart: "14:00",
-          secondShiftEnd: "21:00",
-          secondShiftLateThreshold: "14:30"
+          end: "14:00",
+          lateThreshold: "07:30"
+        },
+        "Hybrid Afternoon": {
+          start: "14:00",
+          end: "21:00",
+          lateThreshold: "14:30"
         },
         "Saturday Shift": {
           start: "09:00",
@@ -1045,22 +1042,6 @@
         const currentMinute = currentTime.getMinutes();
         const currentTotalMinutes = currentHour * 60 + currentMinute;
 
-        // For Hybrid shift, check which period we're in
-        if (shiftName === "Hybrid (Customer Service)") {
-          const firstShiftLate = shiftConfig.lateThreshold.split(":");
-          const secondShiftLate = shiftConfig.secondShiftLateThreshold.split(":");
-          const firstLateMinutes = parseInt(firstShiftLate[0]) * 60 + parseInt(firstShiftLate[1]);
-          const secondLateMinutes = parseInt(secondShiftLate[0]) * 60 + parseInt(secondShiftLate[1]);
-
-          // If checking in during first shift window (7am-2pm)
-          if (currentHour < 14) {
-            return currentTotalMinutes > firstLateMinutes;
-          } else {
-            // Checking in during second shift window (2pm-9pm)
-            return currentTotalMinutes > secondLateMinutes;
-          }
-        }
-
         // For night shift, handle midnight crossover
         if (shiftName === "Night Production") {
           const lateTime = shiftConfig.lateThreshold.split(":");
@@ -1076,7 +1057,7 @@
           return false;
         }
 
-        // For day shifts (Morning Production and Straight Shift)
+        // For all other shifts (day shifts, hybrid morning/afternoon, Saturday)
         const lateTime = shiftConfig.lateThreshold.split(":");
         const lateMinutes = parseInt(lateTime[0]) * 60 + parseInt(lateTime[1]);
         return currentTotalMinutes > lateMinutes;
