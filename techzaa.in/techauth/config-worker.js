@@ -38,7 +38,7 @@ const API_CACHE = {
         announcements: 2 * 60 * 1000,    // 2 minutes
         announcementComments: 1 * 60 * 1000, // 1 minute
         announcementReads: 1 * 60 * 1000,    // 1 minute
-        attendance: 2 * 60 * 1000,       // 2 minutes
+        attendance: 30 * 1000,           // 30 seconds (reduced for real-time check-in sync)
         leaveRequests: 3 * 60 * 1000,    // 3 minutes
         payroll: 5 * 60 * 1000,          // 5 minutes
         default: 5 * 60 * 1000           // 5 minutes default

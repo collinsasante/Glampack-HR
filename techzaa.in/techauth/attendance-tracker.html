@@ -551,6 +551,11 @@
 
       // Load today's status and history, and set todayRecordId if record exists
       async function initializePage() {
+        // Clear attendance cache on page load to ensure fresh data across devices
+        if (typeof API_CACHE !== 'undefined') {
+          API_CACHE.invalidate('attendance');
+        }
+
         const todayRecord = await findTodayRecord();
         if (todayRecord) {
           todayRecordId = todayRecord.id;
