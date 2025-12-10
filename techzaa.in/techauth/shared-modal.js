@@ -93,43 +93,17 @@ function initializeModalSystem() {
               <!-- List will be inserted here -->
             </div>
 
-            <!-- Send Wishes Section -->
-            <div id="birthdayWishesSection" class="mt-6 max-w-xl mx-auto">
-              <div class="bg-white rounded-xl p-6 shadow-lg mb-4">
-                <h3 class="font-bold text-gray-800 mb-3 text-left flex items-center">
-                  <i class="fas fa-heart text-red-500 mr-2"></i>
-                  Send Birthday Wishes
-                </h3>
-                <textarea
-                  id="birthdayWishMessage"
-                  rows="3"
-                  placeholder="Write your birthday wishes here... 🎉"
-                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent resize-none"
-                ></textarea>
-                <div class="flex gap-3 mt-3">
-                  <button
-                    onclick="sendBirthdayWish()"
-                    class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    <i class="fas fa-paper-plane mr-2"></i>
-                    Send Wishes
-                  </button>
-                  <button
-                    onclick="viewAllWishes()"
-                    class="flex-1 bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2 px-4 rounded-lg transition-colors"
-                  >
-                    <i class="fas fa-comments mr-2"></i>
-                    View All Wishes
-                  </button>
-                </div>
-              </div>
+            <!-- Action Buttons -->
+            <div class="flex gap-4 justify-center">
+              <button onclick="viewBirthdayAnnouncement()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors text-lg shadow-lg">
+                <i class="fas fa-comments mr-2"></i>
+                Send Birthday Wishes
+              </button>
+              <button onclick="closeBirthdayModal()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-full transition-colors text-lg shadow-lg">
+                <i class="fas fa-times mr-2"></i>
+                Close
+              </button>
             </div>
-
-            <!-- Action Button -->
-            <button onclick="closeBirthdayModal()" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-8 rounded-full transition-colors text-lg shadow-lg">
-              <i class="fas fa-times mr-2"></i>
-              Close
-            </button>
           </div>
         </div>
       </div>
@@ -337,113 +311,108 @@ function showBirthdayModal(employees) {
 function closeBirthdayModal() {
   const modal = document.getElementById('birthdayModal');
   modal.classList.add('hidden');
-  // Clear the textarea
-  const wishMessage = document.getElementById('birthdayWishMessage');
-  if (wishMessage) wishMessage.value = '';
 }
 
-// Send birthday wish
-async function sendBirthdayWish() {
+// Create birthday announcement in Airtable
+async function createBirthdayAnnouncement(celebrants) {
   try {
-    const wishMessage = document.getElementById('birthdayWishMessage');
-    const message = wishMessage.value.trim();
-
-    if (!message) {
-      await customAlert('Please write a birthday message first!', 'Empty Message', 'warning');
-      return;
+    if (typeof getAnnouncements !== 'function' || typeof createAnnouncement !== 'function') {
+      return; // Announcements API not available
     }
 
-    // Get current user
+    // Check if birthday announcement already exists for today
+    const today = new Date().toISOString().split('T')[0];
+    const existingAnnouncements = await getAnnouncements();
+    const announcements = existingAnnouncements.records || existingAnnouncements || [];
+
+    const todaysBirthdayAnnouncement = announcements.find(ann => {
+      const annDate = ann.fields['Date'];
+      const title = ann.fields['Title'] || '';
+      return annDate === today && title.includes('🎉 Birthday Celebration');
+    });
+
+    if (todaysBirthdayAnnouncement) {
+      return; // Already created
+    }
+
+    // Get system user (admin) or first admin user for announcement creator
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    if (!currentUser.id) {
-      await customAlert('You must be logged in to send wishes', 'Not Logged In', 'error');
-      return;
-    }
+    const creatorId = currentUser.id;
 
-    // Create birthday wish record in Airtable
-    const wishData = {
-      'From Employee': [currentUser.id],
-      'To Employees': currentBirthdayCelebrants.map(c => c.id).filter(Boolean),
+    if (!creatorId) return;
+
+    // Create birthday announcement
+    const names = celebrants.map(c => c.name).join(', ');
+    const message = celebrants.length === 1
+      ? `🎂 Today is ${names}'s birthday! Let's wish them a wonderful day filled with happiness and success!\n\n🎈 Click the comments below to send your birthday wishes! 🎉`
+      : `🎂 Today we celebrate ${celebrants.length} team members: ${names}! Let's wish them a wonderful day!\n\n🎈 Click the comments below to send your birthday wishes! 🎉`;
+
+    await createAnnouncement({
+      'Title': `🎉 Birthday Celebration - ${today}`,
+      'Type': 'Event',
       'Message': message,
-      'Date': new Date().toISOString().split('T')[0],
-      'From Name': currentUser.name || currentUser.email,
-      'To Names': currentBirthdayCelebrants.map(c => c.name).join(', ')
-    };
-
-    // Save to Airtable (requires BirthdayWishes table)
-    if (typeof createBirthdayWish === 'function') {
-      await createBirthdayWish(wishData);
-      await customAlert('Your birthday wishes have been sent! 🎉', 'Wishes Sent', 'success');
-      wishMessage.value = '';
-    } else {
-      // Fallback: show in console and alert
-      await customAlert(
-        `Your wishes for ${currentBirthdayCelebrants.map(c => c.name).join(', ')}: "${message}" 🎉\n\n(Note: Birthday wishes table not set up in Airtable yet)`,
-        'Wishes Sent',
-        'success'
-      );
-      wishMessage.value = '';
-    }
+      'Created By': [creatorId],
+      'Date': today
+    });
   } catch (error) {
-    await customAlert('Failed to send birthday wishes. Please try again.', 'Error', 'error');
+    // Silently handle error - birthday announcement is optional
   }
 }
 
-// View all birthday wishes
-async function viewAllWishes() {
+// Clean up old birthday announcements (older than 1 day)
+async function cleanupOldBirthdayAnnouncements() {
   try {
-    // Get all wishes for today's celebrants
-    if (typeof getBirthdayWishes === 'function') {
-      const wishes = await getBirthdayWishes();
+    if (typeof getAnnouncements !== 'function' || typeof deleteAnnouncementRecord !== 'function') {
+      return; // Announcements API not available
+    }
 
-      // Filter for today's celebrants
-      const celebrantIds = currentBirthdayCelebrants.map(c => c.id).filter(Boolean);
-      const today = new Date().toDateString();
+    const announcements = await getAnnouncements();
+    const records = announcements.records || announcements || [];
 
-      const todayWishes = wishes.filter(wish => {
-        const wishDate = new Date(wish.fields['Date']).toDateString();
-        const toEmployees = wish.fields['To Employees'] || [];
-        return wishDate === today && toEmployees.some(id => celebrantIds.includes(id));
-      });
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-      if (todayWishes.length === 0) {
-        await customAlert('No birthday wishes yet. Be the first to send one! 🎂', 'No Wishes', 'info');
-        return;
-      }
+    // Find birthday announcements older than 1 day
+    const oldBirthdayAnnouncements = records.filter(ann => {
+      const title = ann.fields['Title'] || '';
+      const annDate = new Date(ann.fields['Date']);
+      annDate.setHours(0, 0, 0, 0);
 
-      // Display wishes
-      const wishesHTML = todayWishes.map(wish => `
-        <div class="bg-white p-4 rounded-lg border border-gray-200 mb-3">
-          <div class="flex items-start">
-            <div class="w-10 h-10 bg-blue-600 rounded-full flex items-center justify-center text-white font-bold mr-3 flex-shrink-0">
-              ${(wish.fields['From Name'] || 'A').charAt(0)}
-            </div>
-            <div class="flex-1">
-              <div class="font-semibold text-gray-900">${wish.fields['From Name'] || 'Anonymous'}</div>
-              <div class="text-gray-700 mt-1">${wish.fields['Message']}</div>
-              <div class="text-xs text-gray-500 mt-2">
-                <i class="far fa-clock mr-1"></i>
-                ${new Date(wish.fields['Date']).toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-        </div>
-      `).join('');
+      const isBirthdayAnnouncement = title.includes('🎉 Birthday Celebration');
+      const isOlderThanOneDay = (today - annDate) > (24 * 60 * 60 * 1000);
 
-      await customAlert(
-        `<div class="max-h-96 overflow-y-auto text-left">${wishesHTML}</div>`,
-        `Birthday Wishes (${todayWishes.length})`,
-        'info'
-      );
-    } else {
-      await customAlert(
-        'Birthday wishes feature requires the BirthdayWishes table in Airtable.\n\nPlease contact your administrator to set this up.',
-        'Feature Not Available',
-        'info'
-      );
+      return isBirthdayAnnouncement && isOlderThanOneDay;
+    });
+
+    // Delete old birthday announcements
+    for (const announcement of oldBirthdayAnnouncements) {
+      await deleteAnnouncementRecord(announcement.id);
     }
   } catch (error) {
-    await customAlert('Failed to load birthday wishes. Please try again.', 'Error', 'error');
+    // Silently handle error
+  }
+}
+
+// View birthday announcement - redirects to announcements page
+async function viewBirthdayAnnouncement() {
+  try {
+    // Get current user
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (!currentUser.id) {
+      await customAlert('You must be logged in to view announcements', 'Not Logged In', 'error');
+      return;
+    }
+
+    // Store birthday celebrants info for announcement page
+    sessionStorage.setItem('birthdayCelebrants', JSON.stringify(currentBirthdayCelebrants));
+
+    // Close modal
+    closeBirthdayModal();
+
+    // Redirect to announcements page
+    window.location.href = 'announcements.html';
+  } catch (error) {
+    await customAlert('Failed to open announcements. Please try again.', 'Error', 'error');
   }
 }
 
@@ -498,12 +467,18 @@ async function checkBirthdays() {
         department: emp.fields['Department'] || ''
       }));
 
+      // Create birthday announcement if it doesn't exist yet
+      await createBirthdayAnnouncement(celebrants);
+
       // Show birthday modal
       showBirthdayModal(celebrants);
 
       // Mark as shown for today
       localStorage.setItem('birthdayModalShown', today);
     }
+
+    // Clean up old birthday announcements (older than 1 day)
+    await cleanupOldBirthdayAnnouncements();
   } catch (error) {
     // Silently handle error - birthday feature is optional
   }
