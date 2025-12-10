@@ -463,18 +463,31 @@ async function checkBirthdays() {
     }
 
     // Get all employees
-    const employees = await getEmployees();
+    const employeesResponse = await getEmployees();
+    const employees = employeesResponse.records || employeesResponse || [];
 
     // Filter employees with today's birthday
     const todayMonth = new Date().getMonth() + 1; // 1-12
     const todayDay = new Date().getDate();
 
     const birthdayEmployees = employees.filter(emp => {
-      const dob = emp.fields['Date of Birth'];
+      // Check multiple possible field names for date of birth
+      const dob = emp.fields['Date of Birth'] ||
+                  emp.fields['DateOfBirth'] ||
+                  emp.fields['Birthday'] ||
+                  emp.fields['DOB'];
+
       if (!dob) return false;
 
-      const dobDate = new Date(dob);
-      return dobDate.getMonth() + 1 === todayMonth && dobDate.getDate() === todayDay;
+      try {
+        const dobDate = new Date(dob);
+        // Check if date is valid
+        if (isNaN(dobDate.getTime())) return false;
+
+        return dobDate.getMonth() + 1 === todayMonth && dobDate.getDate() === todayDay;
+      } catch (e) {
+        return false;
+      }
     });
 
     if (birthdayEmployees.length > 0) {
@@ -492,7 +505,7 @@ async function checkBirthdays() {
       localStorage.setItem('birthdayModalShown', today);
     }
   } catch (error) {
-    // Silently handle error
+    // Silently handle error - birthday feature is optional
   }
 }
 

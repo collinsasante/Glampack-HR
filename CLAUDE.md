@@ -115,6 +115,7 @@ The Airtable base requires these exact table/field names (case-sensitive):
 - `Role` (Single select: Employee, Admin, HR)
 - `Annual Leave Balance` (Number, default: 20)
 - `Salary` (Currency or Number)
+- `Date of Birth` (Date) - **Optional** - Required for birthday notifications feature
 
 **2. Attendance Table**
 - `Employee` (Link to Employees) - **Must be array format**
