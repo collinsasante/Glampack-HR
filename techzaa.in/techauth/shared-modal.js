@@ -57,19 +57,19 @@ function initializeModalSystem() {
 
       <!-- Modal Container -->
       <div class="flex items-center justify-center min-h-screen p-4">
-        <div class="relative bg-gradient-to-br from-yellow-50 to-orange-50 rounded-3xl shadow-2xl max-w-2xl w-full transform transition-all animate-bounce-in" style="animation: bounceIn 0.6s ease-out">
+        <div class="relative bg-white rounded-3xl shadow-2xl max-w-2xl w-full transform transition-all animate-bounce-in" style="animation: bounceIn 0.6s ease-out; background: linear-gradient(135deg, #fef9e7 0%, #fff5e6 100%);">
           <!-- Confetti Background -->
           <div class="absolute inset-0 overflow-hidden rounded-3xl pointer-events-none">
             <div class="confetti"></div>
           </div>
 
           <!-- Close Button -->
-          <button onclick="closeBirthdayModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors z-10">
+          <button onclick="closeBirthdayModal()" class="absolute top-4 right-4 text-gray-600 hover:text-gray-800 transition-colors z-10">
             <i class="fas fa-times text-2xl"></i>
           </button>
 
           <!-- Modal Content -->
-          <div class="relative p-8 text-center">
+          <div class="relative p-8 text-center" style="background-color: rgba(255, 255, 255, 0.85); border-radius: 1.5rem;">
             <!-- Cake Icon -->
             <div class="mb-6">
               <i class="fas fa-birthday-cake text-8xl text-red-600 animate-pulse"></i>
