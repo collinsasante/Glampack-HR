@@ -3,6 +3,81 @@
 // API credentials are stored in Cloudflare environment variables
 
 // ============================================================================
+// WORKER-LEVEL CACHING
+// ============================================================================
+
+// In-memory cache for Airtable API responses
+// This cache persists across requests within the same Worker instance
+const CACHE_STORE = new Map();
+
+// Cache TTL configuration (in milliseconds)
+const CACHE_TTL = {
+  employees: 5 * 60 * 1000,         // 5 minutes
+  announcements: 2 * 60 * 1000,     // 2 minutes
+  'announcement-comments': 30 * 1000, // 30 seconds
+  'announcement-reads': 30 * 1000,   // 30 seconds
+  attendance: 30 * 1000,            // 30 seconds (for real-time sync)
+  'leave-requests': 3 * 60 * 1000,  // 3 minutes
+  payroll: 5 * 60 * 1000,           // 5 minutes
+  'medical-claims': 5 * 60 * 1000,  // 5 minutes
+  'emergency-contacts': 5 * 60 * 1000, // 5 minutes
+  default: 2 * 60 * 1000            // 2 minutes default
+};
+
+function getCacheKey(method, path, queryParams = '') {
+  return `${method}:${path}${queryParams}`;
+}
+
+function getCacheTTL(path) {
+  for (const [key, ttl] of Object.entries(CACHE_TTL)) {
+    if (path.includes(key)) {
+      return ttl;
+    }
+  }
+  return CACHE_TTL.default;
+}
+
+function getCachedResponse(cacheKey) {
+  const cached = CACHE_STORE.get(cacheKey);
+  if (!cached) return null;
+
+  // Check if expired
+  if (Date.now() > cached.expires) {
+    CACHE_STORE.delete(cacheKey);
+    return null;
+  }
+
+  return cached.data;
+}
+
+function setCachedResponse(cacheKey, data, path) {
+  const ttl = getCacheTTL(path);
+  CACHE_STORE.set(cacheKey, {
+    data,
+    expires: Date.now() + ttl
+  });
+}
+
+function invalidateCache(pattern) {
+  // Remove all cache entries matching the pattern
+  for (const key of CACHE_STORE.keys()) {
+    if (key.includes(pattern)) {
+      CACHE_STORE.delete(key);
+    }
+  }
+}
+
+// Periodic cache cleanup (remove expired entries)
+function cleanupCache() {
+  const now = Date.now();
+  for (const [key, value] of CACHE_STORE.entries()) {
+    if (now > value.expires) {
+      CACHE_STORE.delete(key);
+    }
+  }
+}
+
+// ============================================================================
 // SECURITY: Logging and Error Handling
 // ============================================================================
 
@@ -38,6 +113,11 @@ export default {
   async fetch(request, env) {
     const startTime = Date.now();
     const requestId = crypto.randomUUID();
+
+    // Periodic cache cleanup (every ~100 requests)
+    if (Math.random() < 0.01) {
+      cleanupCache();
+    }
 
     // CORS and Security headers for browser requests
     const corsHeaders = {
@@ -258,6 +338,18 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
     // Get all employees or specific employee
     const recordId = pathParts[3]; // /api/employees/{recordId}
 
+    // Generate cache key
+    const cacheKey = getCacheKey('GET', url.pathname, url.search);
+
+    // Check cache first
+    const cachedData = getCachedResponse(cacheKey);
+    if (cachedData) {
+      return new Response(JSON.stringify(cachedData), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+        status: 200,
+      });
+    }
+
     let airtableUrl;
     if (recordId) {
       airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
@@ -273,8 +365,11 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
     const response = await airtableRequest(airtableUrl, apiKey);
     const data = await response.json();
 
+    // Cache the response
+    setCachedResponse(cacheKey, data, url.pathname);
+
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
       status: response.status,
     });
   } else if (request.method === 'POST') {
@@ -284,6 +379,9 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
 
     const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
     const data = await response.json();
+
+    // Invalidate employees cache
+    invalidateCache('/api/employees');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -298,6 +396,9 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
     const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
     const data = await response.json();
 
+    // Invalidate employees cache
+    invalidateCache('/api/employees');
+
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: response.status,
@@ -309,6 +410,9 @@ async function handleEmployees(request, env, apiKey, baseId, corsHeaders) {
 
     const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
     const data = await response.json();
+
+    // Invalidate employees cache
+    invalidateCache('/api/employees');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -467,12 +571,27 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
   const tableName = 'Announcements';
 
   if (request.method === 'GET') {
+    // Generate cache key
+    const cacheKey = getCacheKey('GET', url.pathname, url.search);
+
+    // Check cache first
+    const cachedData = getCachedResponse(cacheKey);
+    if (cachedData) {
+      return new Response(JSON.stringify(cachedData), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+        status: 200,
+      });
+    }
+
     const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
     const response = await airtableRequest(airtableUrl, apiKey);
     const data = await response.json();
 
+    // Cache the response
+    setCachedResponse(cacheKey, data, url.pathname);
+
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
       status: response.status,
     });
   } else if (request.method === 'POST') {
@@ -481,6 +600,9 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
 
     const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
     const data = await response.json();
+
+    // Invalidate announcements cache
+    invalidateCache('/api/announcements');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -494,6 +616,9 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
     const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
     const data = await response.json();
 
+    // Invalidate announcements cache
+    invalidateCache('/api/announcements');
+
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: response.status,
@@ -504,6 +629,9 @@ async function handleAnnouncements(request, env, apiKey, baseId, corsHeaders) {
 
     const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
     const data = await response.json();
+
+    // Invalidate announcements cache
+    invalidateCache('/api/announcements');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -519,6 +647,18 @@ async function handleAnnouncementComments(request, env, apiKey, baseId, corsHead
   const tableName = 'AnnouncementComments';
 
   if (request.method === 'GET') {
+    // Generate cache key
+    const cacheKey = getCacheKey('GET', url.pathname, url.search);
+
+    // Check cache first
+    const cachedData = getCachedResponse(cacheKey);
+    if (cachedData) {
+      return new Response(JSON.stringify(cachedData), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'HIT' },
+        status: 200,
+      });
+    }
+
     const filterFormula = url.searchParams.get('filterByFormula');
     let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
 
@@ -529,8 +669,11 @@ async function handleAnnouncementComments(request, env, apiKey, baseId, corsHead
     const response = await airtableRequest(airtableUrl, apiKey);
     const data = await response.json();
 
+    // Cache the response
+    setCachedResponse(cacheKey, data, url.pathname);
+
     return new Response(JSON.stringify(data), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', 'X-Cache': 'MISS' },
       status: response.status,
     });
   } else if (request.method === 'POST') {
@@ -539,6 +682,9 @@ async function handleAnnouncementComments(request, env, apiKey, baseId, corsHead
 
     const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
     const data = await response.json();
+
+    // Invalidate comments cache
+    invalidateCache('/api/announcement-comments');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -550,6 +696,9 @@ async function handleAnnouncementComments(request, env, apiKey, baseId, corsHead
 
     const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
     const data = await response.json();
+
+    // Invalidate comments cache
+    invalidateCache('/api/announcement-comments');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
