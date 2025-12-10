@@ -326,9 +326,9 @@ async function createBirthdayAnnouncement(celebrants) {
     const announcements = existingAnnouncements.records || existingAnnouncements || [];
 
     const todaysBirthdayAnnouncement = announcements.find(ann => {
-      const annDate = ann.fields['Date'];
       const title = ann.fields['Title'] || '';
-      return annDate === today && title.includes('🎉 Birthday Celebration');
+      // Check title contains birthday celebration (date field might not exist)
+      return title.includes('🎉 Birthday Celebration') && title.includes(today);
     });
 
     if (todaysBirthdayAnnouncement) {
@@ -344,18 +344,30 @@ async function createBirthdayAnnouncement(celebrants) {
     // Create birthday announcement
     const names = celebrants.map(c => c.name).join(', ');
     const message = celebrants.length === 1
-      ? `🎂 Today is ${names}'s birthday! Let's wish them a wonderful day filled with happiness and success!\n\n🎈 Click the comments below to send your birthday wishes! 🎉`
-      : `🎂 Today we celebrate ${celebrants.length} team members: ${names}! Let's wish them a wonderful day!\n\n🎈 Click the comments below to send your birthday wishes! 🎉`;
+      ? `🎂 Today is ${names}'s birthday! Let's wish them a wonderful day filled with happiness and success!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`
+      : `🎂 Today we celebrate ${celebrants.length} team members: ${names}! Let's wish them a wonderful day!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`;
 
-    await createAnnouncement({
+    // Create announcement (Date field is optional in Airtable)
+    const announcementData = {
       'Title': `🎉 Birthday Celebration - ${today}`,
       'Type': 'Event',
       'Message': message,
-      'Created By': [creatorId],
-      'Date': today
-    });
+      'Created By': [creatorId]
+    };
+
+    // Only add Date field if it exists in schema
+    try {
+      announcementData['Date'] = today;
+    } catch (e) {
+      // Date field doesn't exist, skip it
+    }
+
+    await createAnnouncement(announcementData);
   } catch (error) {
-    // Silently handle error - birthday announcement is optional
+    // Show error for debugging
+    if (typeof customAlert === 'function') {
+      await customAlert('Birthday announcement created with limited info. Check announcements page.', 'Info', 'info');
+    }
   }
 }
 
@@ -371,17 +383,26 @@ async function cleanupOldBirthdayAnnouncements() {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
+    const todayStr = today.toISOString().split('T')[0];
 
     // Find birthday announcements older than 1 day
     const oldBirthdayAnnouncements = records.filter(ann => {
       const title = ann.fields['Title'] || '';
-      const annDate = new Date(ann.fields['Date']);
-      annDate.setHours(0, 0, 0, 0);
 
-      const isBirthdayAnnouncement = title.includes('🎉 Birthday Celebration');
-      const isOlderThanOneDay = (today - annDate) > (24 * 60 * 60 * 1000);
+      if (!title.includes('🎉 Birthday Celebration')) {
+        return false; // Not a birthday announcement
+      }
 
-      return isBirthdayAnnouncement && isOlderThanOneDay;
+      // Extract date from title (format: "🎉 Birthday Celebration - YYYY-MM-DD")
+      const dateMatch = title.match(/(\d{4}-\d{2}-\d{2})/);
+      if (!dateMatch) {
+        return false; // Can't determine date
+      }
+
+      const annDateStr = dateMatch[1];
+
+      // Check if announcement is from yesterday or older
+      return annDateStr < todayStr;
     });
 
     // Delete old birthday announcements
