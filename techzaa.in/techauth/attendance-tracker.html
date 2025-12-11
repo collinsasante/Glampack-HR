@@ -999,43 +999,63 @@
       // CHECK IN FUNCTION
       // ========================================
       async function checkIn() {
-        // Validate shift selection
-        const shiftSelect = document.getElementById("shiftSelect");
-        const selectedShift = shiftSelect.value;
+        // Immediately disable button to prevent double-clicks
+        const checkInBtn = document.getElementById("checkInBtn");
+        if (checkInBtn.disabled) return; // Already processing
 
-        if (!selectedShift) {
-          showMessage("Please select your shift before checking in!", "error");
-          shiftSelect.focus();
-          return;
-        }
+        checkInBtn.disabled = true;
+        checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
 
-        // Check if already checked in today FIRST
-        const existingRecord = await findTodayRecord();
+        try {
+          // Validate shift selection
+          const shiftSelect = document.getElementById("shiftSelect");
+          const selectedShift = shiftSelect.value;
 
-        if (existingRecord && existingRecord.fields["Check In"]) {
-          // If already checked out, don't allow checking in again
-          if (existingRecord.fields["Check Out"]) {
-            showMessage(
-              "You have already completed your attendance for today (checked in and out). You can only clock in and out once in 24 hours. Please wait until tomorrow.",
-              "error"
-            );
+          if (!selectedShift) {
+            showMessage("Please select your shift before checking in!", "error");
+            shiftSelect.focus();
+            // Re-enable button if validation fails
+            checkInBtn.disabled = false;
+            checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
             return;
           }
-          showMessage("You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.", "error");
-          return;
-        }
 
-        // Check if late based on shift schedule
-        const now = new Date();
-        const shiftConfig = SHIFT_CONFIGS[selectedShift];
-        const isLate = checkIfLate(now, shiftConfig, selectedShift);
+          // Check if already checked in today FIRST
+          const existingRecord = await findTodayRecord();
 
-        if (isLate) {
-          // Show modal for late reason
-          openLateReasonModal(selectedShift, shiftConfig);
-        } else {
-          // Proceed with normal check-in
-          await performCheckIn(null, selectedShift);
+          if (existingRecord && existingRecord.fields["Check In"]) {
+            // If already checked out, don't allow checking in again
+            if (existingRecord.fields["Check Out"]) {
+              showMessage(
+                "You have already completed your attendance for today (checked in and out). You can only clock in and out once in 24 hours. Please wait until tomorrow.",
+                "error"
+              );
+              return; // Keep button disabled
+            }
+            showMessage("You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.", "error");
+            return; // Keep button disabled
+          }
+
+          // Check if late based on shift schedule
+          const now = new Date();
+          const shiftConfig = SHIFT_CONFIGS[selectedShift];
+          const isLate = checkIfLate(now, shiftConfig, selectedShift);
+
+          if (isLate) {
+            // Re-enable button temporarily for late modal
+            checkInBtn.disabled = false;
+            checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
+            // Show modal for late reason
+            openLateReasonModal(selectedShift, shiftConfig);
+          } else {
+            // Proceed with normal check-in
+            await performCheckIn(null, selectedShift);
+          }
+        } catch (error) {
+          // Re-enable button if there's an error
+          checkInBtn.disabled = false;
+          checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
+          showMessage(`Error: ${error.message}`, "error");
         }
       }
 
@@ -1120,7 +1140,8 @@
           const fields = {
             "Check In": datetime,
             "Check In Location": locationString,
-            "IP Address": ipAddress
+            "IP Address": ipAddress,
+            "Shift": selectedShift  // Save shift to Airtable
           };
 
           // Add late reason if applicable
@@ -1172,6 +1193,13 @@
       // CHECK OUT FUNCTION
       // ========================================
       async function checkOut() {
+        // Immediately disable button to prevent double-clicks
+        const checkOutBtn = document.getElementById("checkOutBtn");
+        if (checkOutBtn.disabled) return; // Already processing
+
+        checkOutBtn.disabled = true;
+        checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
+
         const time = getCurrentTime();
         const datetime = getCurrentDateTime();
 
@@ -1189,6 +1217,9 @@
               setTodayRecordId(existingRecord.id);
             } else {
               showMessage("Please check in first!", "error");
+              // Re-enable button if validation fails
+              checkOutBtn.disabled = false;
+              checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
               return;
             }
           }
@@ -1197,7 +1228,7 @@
           const currentRecord = await getAttendanceRecord(todayRecordId);
           if (currentRecord && currentRecord.fields["Check Out"]) {
             showMessage("You have already checked out today. You cannot check out more than once in 24 hours.", "error");
-            return;
+            return; // Keep button disabled
           }
 
           showMessage("Getting your GPS location...", "info");
@@ -1258,7 +1289,10 @@
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history with updated record
         } catch (error) {
-
+          // Re-enable button if there's an error
+          const checkOutBtn = document.getElementById("checkOutBtn");
+          checkOutBtn.disabled = false;
+          checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
           showMessage(`Error checking out: ${error.message}`, "error");
         }
       }
@@ -1337,7 +1371,9 @@
             const checkInRaw = todayRecord.fields["Check In"];
             const checkOutRaw = todayRecord.fields["Check Out"];
             const shiftSelect = document.getElementById("shiftSelect");
-            const shift = shiftSelect.value || "Not set";
+
+            // Get shift from Airtable record (saved during check-in), fallback to dropdown if not saved yet
+            const shift = todayRecord.fields["Shift"] || shiftSelect.value || "Not set";
 
             // Extract time from datetime
             const checkIn = checkInRaw
