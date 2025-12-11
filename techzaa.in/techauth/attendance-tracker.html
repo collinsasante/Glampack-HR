@@ -1411,23 +1411,30 @@
               document.getElementById("todayHours").textContent = "0h 0m";
             }
 
-            // Update button states
+            // Update button states based on Airtable record
+            const checkInBtn = document.getElementById("checkInBtn");
+            const checkOutBtn = document.getElementById("checkOutBtn");
+
             if (checkIn !== "Not yet") {
-              document.getElementById("checkInBtn").disabled = true;
-              document
-                .getElementById("checkInBtn")
-                .classList.add("opacity-50", "cursor-not-allowed");
-            }
-            if (checkOut !== "Not yet") {
-              // If checked out, disable both buttons (no re-checking in allowed)
-              document.getElementById("checkOutBtn").disabled = true;
-              document
-                .getElementById("checkOutBtn")
-                .classList.add("opacity-50", "cursor-not-allowed");
-              document.getElementById("checkInBtn").disabled = true;
-              document
-                .getElementById("checkInBtn")
-                .classList.add("opacity-50", "cursor-not-allowed");
+              // Has checked in - disable check-in button
+              checkInBtn.disabled = true;
+              checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
+
+              if (checkOut === "Not yet") {
+                // Has checked in but not checked out - enable check-out button
+                checkOutBtn.disabled = false;
+                checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
+              } else {
+                // Has both checked in and out - disable both buttons
+                checkOutBtn.disabled = true;
+                checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
+              }
+            } else {
+              // Has not checked in yet - enable check-in, disable check-out
+              checkInBtn.disabled = false;
+              checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
+              checkOutBtn.disabled = true;
+              checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
             }
           }
         } catch (error) {
