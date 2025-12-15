@@ -733,7 +733,15 @@
               resolve(location);
             },
             (error) => {
-              reject(new Error(`GPS error: ${error.message}`));
+              let errorMessage = "Unable to access GPS";
+              if (error.code === error.PERMISSION_DENIED) {
+                errorMessage = "GPS permission denied. Please enable location access in your phone settings.";
+              } else if (error.code === error.POSITION_UNAVAILABLE) {
+                errorMessage = "GPS position unavailable. Please check if location services are enabled.";
+              } else if (error.code === error.TIMEOUT) {
+                errorMessage = "GPS request timed out. Please try again.";
+              }
+              reject(new Error(errorMessage));
             },
             {
               enableHighAccuracy: true,  // Request high accuracy
@@ -770,7 +778,15 @@
               resolve(location);
             },
             (error) => {
-              reject(new Error(`GPS error: ${error.message}`));
+              let errorMessage = "Unable to access GPS";
+              if (error.code === error.PERMISSION_DENIED) {
+                errorMessage = "GPS permission denied. Please enable location access in your phone settings.";
+              } else if (error.code === error.POSITION_UNAVAILABLE) {
+                errorMessage = "GPS position unavailable. Please check if location services are enabled.";
+              } else if (error.code === error.TIMEOUT) {
+                errorMessage = "GPS request timed out. Please try again.";
+              }
+              reject(new Error(errorMessage));
             },
             {
               enableHighAccuracy: true,
@@ -827,12 +843,14 @@
           return location;
         } catch (error) {
           // If race fails, try IP as ultimate fallback
+          // GPS failed, try IP-based location as fallback
           try {
+            showMessage("GPS unavailable. Using network-based location instead...", "info");
             const ipLocation = await getIPBasedLocation();
             return ipLocation;
           } catch (ipError) {
             throw new Error(
-              "Unable to determine location. Please check permissions and network."
+              "Unable to determine your location. Please enable GPS in your phone settings or check your internet connection."
             );
           }
         }
@@ -1121,32 +1139,58 @@
         const datetime = getCurrentDateTime();
 
         try {
-          showMessage("Getting your GPS location...", "info");
+          showMessage("Getting your location...", "info");
 
-          // Get GPS location with high accuracy for geofencing
+          // Try to get GPS location with high accuracy for geofencing
           let gpsLocation;
+          let useIPLocation = false;
+
           try {
             gpsLocation = await getGPSLocationHighAccuracy();
           } catch (gpsError) {
-            showMessage("GPS is required for check-in. Please enable location services and try again.", "error");
-            return;
+            // GPS failed, try IP-based location as fallback
+            showMessage("GPS unavailable. Using network-based location...", "info");
+            try {
+              const ipLocation = await getIPBasedLocation();
+              gpsLocation = {
+                latitude: ipLocation.lat,
+                longitude: ipLocation.lon,
+                accuracy: 5000, // IP location is less accurate (approximately 5km)
+                method: "IP",
+                city: ipLocation.city,
+                region: ipLocation.region,
+                ip: ipLocation.ip
+              };
+              useIPLocation = true;
+            } catch (ipError) {
+              showMessage("Unable to determine your location. Please enable GPS in your phone settings or check your internet connection.", "error");
+              return;
+            }
           }
 
           // Calculate distance for logging purposes
           const geofenceCheck = isWithinGeofence(gpsLocation.latitude, gpsLocation.longitude);
 
-          // Get IP location for additional context
+          // Get IP location for additional context if GPS was used
           let ipAddress = "Unknown";
           let cityInfo = "";
-          try {
-            const ipLocation = await getIPBasedLocation();
-            ipAddress = ipLocation.ip;
-            cityInfo = `, ${ipLocation.city}, ${ipLocation.region}`;
-          } catch (locationError) {
-            // IP location is optional
+
+          if (!useIPLocation) {
+            try {
+              const ipLocation = await getIPBasedLocation();
+              ipAddress = ipLocation.ip;
+              cityInfo = `, ${ipLocation.city}, ${ipLocation.region}`;
+            } catch (locationError) {
+              // IP location is optional when GPS is available
+            }
+          } else {
+            // Already have IP location data
+            ipAddress = gpsLocation.ip || "Unknown";
+            cityInfo = `, ${gpsLocation.city}, ${gpsLocation.region}`;
           }
 
-          const locationString = `${gpsLocation.latitude.toFixed(6)}, ${gpsLocation.longitude.toFixed(6)}${cityInfo} (${geofenceCheck.distance.toFixed(1)}m from office)`;
+          const locationMethod = useIPLocation ? " (Network-based)" : "";
+          const locationString = `${gpsLocation.latitude.toFixed(6)}, ${gpsLocation.longitude.toFixed(6)}${cityInfo} (${geofenceCheck.distance.toFixed(1)}m from office)${locationMethod}`;
 
           const fields = {
             "Check In": datetime,
@@ -1242,32 +1286,58 @@
             return; // Keep button disabled
           }
 
-          showMessage("Getting your GPS location...", "info");
+          showMessage("Getting your location...", "info");
 
-          // Get GPS location with high accuracy for geofencing
+          // Try to get GPS location with high accuracy for geofencing
           let gpsLocation;
+          let useIPLocation = false;
+
           try {
             gpsLocation = await getGPSLocationHighAccuracy();
           } catch (gpsError) {
-            showMessage("GPS is required for check-out. Please enable location services and try again.", "error");
-            return;
+            // GPS failed, try IP-based location as fallback
+            showMessage("GPS unavailable. Using network-based location...", "info");
+            try {
+              const ipLocation = await getIPBasedLocation();
+              gpsLocation = {
+                latitude: ipLocation.lat,
+                longitude: ipLocation.lon,
+                accuracy: 5000, // IP location is less accurate (approximately 5km)
+                method: "IP",
+                city: ipLocation.city,
+                region: ipLocation.region,
+                ip: ipLocation.ip
+              };
+              useIPLocation = true;
+            } catch (ipError) {
+              showMessage("Unable to determine your location. Please enable GPS in your phone settings or check your internet connection.", "error");
+              return;
+            }
           }
 
           // Calculate distance for logging purposes
           const geofenceCheck = isWithinGeofence(gpsLocation.latitude, gpsLocation.longitude);
 
-          // Get IP location for additional context
+          // Get IP location for additional context if GPS was used
           let ipAddress = "Unknown";
           let cityInfo = "";
-          try {
-            const ipLocation = await getIPBasedLocation();
-            ipAddress = ipLocation.ip;
-            cityInfo = `, ${ipLocation.city}, ${ipLocation.region}`;
-          } catch (locationError) {
-            // IP location is optional
+
+          if (!useIPLocation) {
+            try {
+              const ipLocation = await getIPBasedLocation();
+              ipAddress = ipLocation.ip;
+              cityInfo = `, ${ipLocation.city}, ${ipLocation.region}`;
+            } catch (locationError) {
+              // IP location is optional when GPS is available
+            }
+          } else {
+            // Already have IP location data
+            ipAddress = gpsLocation.ip || "Unknown";
+            cityInfo = `, ${gpsLocation.city}, ${gpsLocation.region}`;
           }
 
-          const locationString = `${gpsLocation.latitude.toFixed(6)}, ${gpsLocation.longitude.toFixed(6)}${cityInfo} (${geofenceCheck.distance.toFixed(1)}m from office)`;
+          const locationMethod = useIPLocation ? " (Network-based)" : "";
+          const locationString = `${gpsLocation.latitude.toFixed(6)}, ${gpsLocation.longitude.toFixed(6)}${cityInfo} (${geofenceCheck.distance.toFixed(1)}m from office)${locationMethod}`;
 
           // Update record with check-out time and location
           const updateFields = {
