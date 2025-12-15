@@ -566,6 +566,15 @@
 
         // Clean up old localStorage entries (older than today)
         cleanupOldSessions();
+
+        // Refresh attendance status every 10 seconds to sync across devices
+        setInterval(async () => {
+          // Invalidate cache before each refresh
+          if (typeof API_CACHE !== 'undefined') {
+            API_CACHE.invalidate('attendance');
+          }
+          await loadTodayStatus();
+        }, 10000); // 10 seconds
       }
 
       initializePage();
@@ -1303,6 +1312,11 @@
       async function findTodayRecord() {
         const today = getTodayDate();
 
+        // Invalidate attendance cache before querying to ensure fresh data across devices
+        if (typeof API_CACHE !== 'undefined') {
+          API_CACHE.invalidate('attendance');
+        }
+
         // Get all records for this employee using Worker API
         const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
 
@@ -1337,6 +1351,11 @@
       // ========================================
       async function loadTodayStatus() {
         try {
+          // Invalidate cache before loading to ensure fresh data
+          if (typeof API_CACHE !== 'undefined') {
+            API_CACHE.invalidate('attendance');
+          }
+
           let todayRecord = null;
 
           // Try to get record ID from memory or localStorage
