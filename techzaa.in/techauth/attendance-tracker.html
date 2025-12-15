@@ -569,6 +569,7 @@
 
         // Refresh attendance status every 10 seconds to sync across devices
         setInterval(async () => {
+          console.log('=== PERIODIC REFRESH (every 10s) ===');
           // Invalidate cache before each refresh
           if (typeof API_CACHE !== 'undefined') {
             API_CACHE.invalidate('attendance');
@@ -1008,12 +1009,19 @@
       // CHECK IN FUNCTION
       // ========================================
       async function checkIn() {
+        console.log('=== CHECK-IN STARTED ===');
+        console.log('Time:', new Date().toISOString());
+
         // Immediately disable button to prevent double-clicks
         const checkInBtn = document.getElementById("checkInBtn");
-        if (checkInBtn.disabled) return; // Already processing
+        if (checkInBtn.disabled) {
+          console.log('Button already disabled, returning');
+          return; // Already processing
+        }
 
         checkInBtn.disabled = true;
         checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
+        console.log('Button disabled');
 
         try {
           // Validate shift selection
@@ -1021,6 +1029,7 @@
           const selectedShift = shiftSelect.value;
 
           if (!selectedShift) {
+            console.log('No shift selected');
             showMessage("Please select your shift before checking in!", "error");
             shiftSelect.focus();
             // Re-enable button if validation fails
@@ -1029,21 +1038,33 @@
             return;
           }
 
+          console.log('Selected shift:', selectedShift);
+
           // Check if already checked in today FIRST
+          console.log('Checking for existing record...');
           const existingRecord = await findTodayRecord();
+          console.log('Existing record:', existingRecord);
 
           if (existingRecord && existingRecord.fields["Check In"]) {
+            console.log('Already checked in!');
+            console.log('Check In:', existingRecord.fields["Check In"]);
+            console.log('Check Out:', existingRecord.fields["Check Out"]);
+
             // If already checked out, don't allow checking in again
             if (existingRecord.fields["Check Out"]) {
+              console.log('Already checked out - attendance complete');
               showMessage(
                 "You have already completed your attendance for today (checked in and out). You can only clock in and out once in 24 hours. Please wait until tomorrow.",
                 "error"
               );
               return; // Keep button disabled
             }
+            console.log('Checked in but not checked out yet');
             showMessage("You have already checked in today! You can only check in once in 24 hours. Please check out when you're done.", "error");
             return; // Keep button disabled
           }
+
+          console.log('No existing record found, proceeding with check-in');
 
           // Check if late based on shift schedule
           const now = new Date();
@@ -1311,24 +1332,32 @@
       // ========================================
       async function findTodayRecord() {
         const today = getTodayDate();
+        console.log('findTodayRecord - Looking for date:', today);
+        console.log('findTodayRecord - Employee ID:', EMPLOYEE_ID);
 
         // Invalidate attendance cache before querying to ensure fresh data across devices
         if (typeof API_CACHE !== 'undefined') {
+          console.log('findTodayRecord - Invalidating cache');
           API_CACHE.invalidate('attendance');
         }
 
         // Get all records for this employee using Worker API
         const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
+        console.log('findTodayRecord - Filter formula:', filterFormula);
 
         const data = await getAttendance(filterFormula);
+        console.log('findTodayRecord - Raw data from Airtable:', data);
+        console.log('findTodayRecord - Number of records:', data.records?.length || 0);
 
         // Filter in JavaScript to find today's record
         const todayRecord = data.records.find((record) => {
           const recordDate = record.fields.Date;
+          console.log('findTodayRecord - Checking record date:', recordDate, 'vs today:', today);
 
           return recordDate === today;
         });
 
+        console.log('findTodayRecord - Found today record:', todayRecord);
         return todayRecord || null;
       }
 
@@ -1350,9 +1379,13 @@
       // LOAD TODAY'S STATUS
       // ========================================
       async function loadTodayStatus() {
+        console.log('=== LOAD TODAY STATUS ===');
+        console.log('Time:', new Date().toISOString());
+
         try {
           // Invalidate cache before loading to ensure fresh data
           if (typeof API_CACHE !== 'undefined') {
+            console.log('loadTodayStatus - Invalidating cache');
             API_CACHE.invalidate('attendance');
           }
 
@@ -1360,14 +1393,18 @@
 
           // Try to get record ID from memory or localStorage
           let recordId = todayRecordId || getTodayRecordId();
+          console.log('loadTodayStatus - Stored record ID:', recordId);
 
           // If we have a stored record ID, fetch it directly using Worker API
           if (recordId) {
+            console.log('loadTodayStatus - Fetching record by ID:', recordId);
             try {
               todayRecord = await getAttendanceRecord(recordId);
+              console.log('loadTodayStatus - Fetched record:', todayRecord);
               // Sync the memory variable
               todayRecordId = recordId;
             } catch (error) {
+              console.log('loadTodayStatus - Error fetching by ID, searching instead:', error);
               // Record ID might be invalid, clear it and search again
               clearTodayRecordId();
               todayRecordId = null;
@@ -1375,14 +1412,17 @@
               if (todayRecord) {
                 todayRecordId = todayRecord.id;
                 setTodayRecordId(todayRecord.id);
+                console.log('loadTodayStatus - Found record via search:', todayRecord.id);
               }
             }
           } else {
+            console.log('loadTodayStatus - No stored ID, searching...');
             // Fallback to searching
             todayRecord = await findTodayRecord();
             if (todayRecord) {
               todayRecordId = todayRecord.id;
               setTodayRecordId(todayRecord.id);
+              console.log('loadTodayStatus - Found record:', todayRecord.id);
             }
           }
 
@@ -1434,27 +1474,39 @@
             const checkInBtn = document.getElementById("checkInBtn");
             const checkOutBtn = document.getElementById("checkOutBtn");
 
+            console.log('loadTodayStatus - Updating button states');
+            console.log('loadTodayStatus - Check In:', checkIn);
+            console.log('loadTodayStatus - Check Out:', checkOut);
+
             if (checkIn !== "Not yet") {
+              console.log('loadTodayStatus - User has checked in, disabling check-in button');
               // Has checked in - disable check-in button
               checkInBtn.disabled = true;
               checkInBtn.classList.add("opacity-50", "cursor-not-allowed");
 
               if (checkOut === "Not yet") {
+                console.log('loadTodayStatus - Not checked out yet, enabling check-out button');
                 // Has checked in but not checked out - enable check-out button
                 checkOutBtn.disabled = false;
                 checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
               } else {
+                console.log('loadTodayStatus - Already checked out, disabling check-out button');
                 // Has both checked in and out - disable both buttons
                 checkOutBtn.disabled = true;
                 checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
               }
             } else {
+              console.log('loadTodayStatus - No check-in yet, enabling check-in button');
               // Has not checked in yet - enable check-in, disable check-out
               checkInBtn.disabled = false;
               checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
               checkOutBtn.disabled = true;
               checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
             }
+
+            console.log('loadTodayStatus - Final button states:');
+            console.log('  Check-in button disabled:', checkInBtn.disabled);
+            console.log('  Check-out button disabled:', checkOutBtn.disabled);
           }
         } catch (error) {
 
