@@ -90,8 +90,8 @@ function logSecurityEvent(event, details = {}) {
     ...details
   };
 
-  // For now, log to console (Cloudflare Workers logs)
-  console.log(JSON.stringify(logEntry));
+  // Cloudflare Workers automatically logs errors
+  // Remove console.log in production
 }
 
 function sanitizeErrorMessage(error, includeDetails = false) {

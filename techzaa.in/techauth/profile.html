@@ -1258,9 +1258,8 @@
               showNotification("Failed to update password. Please try again.", "error");
             }
           } catch (error) {
-            console.error('Password change error:', error);
             showNotification(
-              "Failed to update password. Please check your connection and try again.",
+              "Unable to update your password. Please check your internet connection and try again.",
               "error"
             );
           } finally {

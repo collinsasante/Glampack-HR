@@ -231,7 +231,6 @@ async function updateAnnouncementBadge() {
             badge.classList.remove('hidden');
         }
     } catch (error) {
-        console.error('Error updating announcement badge:', error);
         // Silently fail - don't block page load
     }
 }
