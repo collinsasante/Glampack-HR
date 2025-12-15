@@ -2042,7 +2042,7 @@ async function loadAttendanceRecords() {
 
         document.getElementById('attendanceRecordsBody').innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-red-600">
+                <td colspan="9" class="px-6 py-4 text-center text-red-600">
                     Error loading attendance records. Please try again.
                 </td>
             </tr>
@@ -2130,7 +2130,7 @@ async function displayAttendanceRecords(records) {
 
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-8 text-center text-gray-500">
+                <td colspan="9" class="px-6 py-8 text-center text-gray-500">
                     <i class="fas fa-calendar-times text-4xl mb-3 opacity-50"></i>
                     <div class="font-medium text-lg mb-2">
                         ${isTableEmpty
@@ -2225,6 +2225,7 @@ async function displayAttendanceRecords(records) {
 
         const location = fields['Check In Location'] || '--';
         const ipAddress = fields['IP Address'] || '--';
+        const lateReason = fields['Late Reason'] || '--';
 
         // Store record in a global map for click handler access
         window.attendanceRecordsMap = window.attendanceRecordsMap || {};
@@ -2251,6 +2252,11 @@ async function displayAttendanceRecords(records) {
                     <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${statusClass}">
                         ${status}
                     </span>
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-700 ${lateReason === '--' ? '' : 'italic'}" title="${lateReason !== '--' ? lateReason : 'No late reason'}">
+                        ${lateReason.length > 30 ? lateReason.substring(0, 30) + '...' : lateReason}
+                    </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="text-sm text-gray-700 font-mono">${ipAddress}</div>

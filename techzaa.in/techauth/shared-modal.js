@@ -3,12 +3,21 @@
  * Used across all pages for consistent user experience
  */
 
+// Toast notification queue
+let toastQueue = [];
+let isShowingToast = false;
+
 // Create modal HTML and inject into page
 function initializeModalSystem() {
   // Check if modal already exists
   if (document.getElementById('customModal')) return;
 
   const modalHTML = `
+    <!-- Toast Container -->
+    <div id="toastContainer" class="fixed top-4 right-4 z-[9999] flex flex-col gap-2 pointer-events-none">
+      <!-- Toasts will be inserted here -->
+    </div>
+
     <!-- Custom Modal -->
     <div id="customModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
       <!-- Backdrop -->
@@ -626,6 +635,107 @@ async function recordAnnouncementViewFromDashboard(announcementId) {
     await createAnnouncementRead(viewData);
   } catch (error) {
     // Silently fail
+  }
+}
+
+// ========================================
+// TOAST NOTIFICATION SYSTEM
+// ========================================
+
+/**
+ * Show a toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - Type of toast: success, error, info, warning
+ * @param {number} duration - How long to show the toast in milliseconds (default: 3000)
+ */
+function showToast(message, type = 'info', duration = 3000) {
+  const container = document.getElementById('toastContainer');
+  if (!container) {
+    // If container doesn't exist yet, initialize modal system first
+    initializeModalSystem();
+    return showToast(message, type, duration);
+  }
+
+  // Create toast element
+  const toastId = 'toast-' + Date.now();
+  const toast = document.createElement('div');
+  toast.id = toastId;
+  toast.className = 'pointer-events-auto max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto flex ring-1 ring-black ring-opacity-5 transform transition-all duration-300 ease-out translate-x-full opacity-0';
+
+  // Define colors and icons for different types
+  const typeStyles = {
+    success: {
+      bgColor: 'bg-green-50',
+      textColor: 'text-green-800',
+      iconColor: 'text-green-600',
+      icon: 'fa-check-circle'
+    },
+    error: {
+      bgColor: 'bg-red-50',
+      textColor: 'text-red-800',
+      iconColor: 'text-red-600',
+      icon: 'fa-exclamation-circle'
+    },
+    warning: {
+      bgColor: 'bg-yellow-50',
+      textColor: 'text-yellow-800',
+      iconColor: 'text-yellow-600',
+      icon: 'fa-exclamation-triangle'
+    },
+    info: {
+      bgColor: 'bg-blue-50',
+      textColor: 'text-blue-800',
+      iconColor: 'text-blue-600',
+      icon: 'fa-info-circle'
+    }
+  };
+
+  const style = typeStyles[type] || typeStyles.info;
+
+  toast.innerHTML = `
+    <div class="flex-1 w-0 p-4">
+      <div class="flex items-start">
+        <div class="flex-shrink-0">
+          <i class="fas ${style.icon} text-2xl ${style.iconColor}"></i>
+        </div>
+        <div class="ml-3 flex-1">
+          <p class="text-sm font-medium ${style.textColor}">
+            ${message}
+          </p>
+        </div>
+      </div>
+    </div>
+    <div class="flex border-l border-gray-200">
+      <button onclick="closeToast('${toastId}')" class="w-full border border-transparent rounded-none rounded-r-lg p-4 flex items-center justify-center text-sm font-medium ${style.textColor} hover:${style.bgColor} focus:outline-none">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+  `;
+
+  // Add to container
+  container.appendChild(toast);
+
+  // Trigger animation
+  setTimeout(() => {
+    toast.classList.remove('translate-x-full', 'opacity-0');
+  }, 10);
+
+  // Auto-remove after duration
+  setTimeout(() => {
+    closeToast(toastId);
+  }, duration);
+}
+
+/**
+ * Close a specific toast
+ */
+function closeToast(toastId) {
+  const toast = document.getElementById(toastId);
+  if (toast) {
+    toast.classList.add('translate-x-full', 'opacity-0');
+    setTimeout(() => {
+      toast.remove();
+    }, 300);
   }
 }
 
