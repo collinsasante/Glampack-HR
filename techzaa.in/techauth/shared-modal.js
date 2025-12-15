@@ -505,6 +505,130 @@ async function checkBirthdays() {
   }
 }
 
+// Check for latest announcement on login
+async function checkLatestAnnouncement() {
+  try {
+    // Get current user
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (!currentUser.id) return;
+
+    // Get all announcements
+    const announcementsResponse = await getAnnouncements();
+    const announcements = announcementsResponse.records || [];
+
+    if (announcements.length === 0) return;
+
+    // Sort by date descending to get the latest
+    announcements.sort((a, b) => {
+      const dateA = new Date(a.fields['Date'] || 0);
+      const dateB = new Date(b.fields['Date'] || 0);
+      return dateB - dateA;
+    });
+
+    const latestAnnouncement = announcements[0];
+
+    // Check if we've already shown this announcement to this user
+    const shownAnnouncementKey = `latestAnnouncementShown_${currentUser.id}`;
+    const lastShownAnnouncementId = localStorage.getItem(shownAnnouncementKey);
+
+    // Only show if it's a new announcement
+    if (lastShownAnnouncementId !== latestAnnouncement.id) {
+      // Check if user has already viewed this announcement
+      const announcementReadsResponse = await getAnnouncementReads(null);
+      const announcementReads = announcementReadsResponse.records || [];
+
+      const hasUserViewed = announcementReads.some(read => {
+        const announcementField = read.fields['Announcement'];
+        const employeeField = read.fields['Employee'];
+        return Array.isArray(announcementField) && announcementField.includes(latestAnnouncement.id) &&
+               Array.isArray(employeeField) && employeeField.includes(currentUser.id);
+      });
+
+      // Only show if user hasn't viewed it yet
+      if (!hasUserViewed) {
+        showLatestAnnouncementModal(latestAnnouncement);
+        localStorage.setItem(shownAnnouncementKey, latestAnnouncement.id);
+      }
+    }
+  } catch (error) {
+    // Silently handle error - announcement feature is optional
+  }
+}
+
+// Show latest announcement modal
+function showLatestAnnouncementModal(announcement) {
+  const priority = announcement.fields['Priority'] || 'Medium';
+  const title = announcement.fields['Title'] || 'Untitled';
+  const message = announcement.fields['Message'] || '';
+  const dateObj = new Date(announcement.fields['Date'] || announcement.createdTime);
+  const formattedDate = dateObj.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric',
+  });
+
+  const priorityColors = {
+    High: 'bg-red-100 text-red-800 border-red-300',
+    Medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    Low: 'bg-blue-100 text-blue-800 border-blue-300',
+  };
+
+  const priorityIcons = {
+    High: 'fa-exclamation-circle',
+    Medium: 'fa-info-circle',
+    Low: 'fa-flag',
+  };
+
+  const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800 border-gray-300';
+  const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
+
+  customAlert(
+    `
+    <div class="text-left">
+      <div class="mb-4">
+        <span class="px-3 py-1 rounded-full text-sm font-semibold ${priorityColor} border">
+          <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
+        </span>
+      </div>
+      <p class="text-sm text-gray-600 mb-4">
+        <i class="fas fa-calendar mr-2"></i>${formattedDate}
+      </p>
+      <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 max-h-60 overflow-y-auto">
+        <p class="text-gray-800 whitespace-pre-line">${message}</p>
+      </div>
+      <div class="mt-4 text-center">
+        <a href="announcements.html" class="text-red-600 hover:text-red-700 font-semibold">
+          <i class="fas fa-bullhorn mr-2"></i>View All Announcements
+        </a>
+      </div>
+    </div>
+    `,
+    `<i class="fas fa-bullhorn mr-2"></i>${title}`,
+    'info'
+  );
+
+  // Record view when the modal is shown
+  recordAnnouncementViewFromDashboard(announcement.id);
+}
+
+// Record announcement view from dashboard
+async function recordAnnouncementViewFromDashboard(announcementId) {
+  try {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (!currentUser.id) return;
+
+    const viewData = {
+      'Announcement': [announcementId],
+      'Employee': [currentUser.id],
+      'Read Date': new Date().toISOString()
+    };
+
+    await createAnnouncementRead(viewData);
+  } catch (error) {
+    // Silently fail
+  }
+}
+
 // Override native alert
 window.alert = function(message) {
   return customAlert(message, 'Alert', 'info');

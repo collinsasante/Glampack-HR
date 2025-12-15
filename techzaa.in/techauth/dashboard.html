@@ -1153,10 +1153,13 @@
         window.location.href = "packaging-glamour-signin.html";
       }
 
-      // Check for birthdays after page loads
+      // Check for birthdays and latest announcement after page loads
       window.addEventListener('DOMContentLoaded', function() {
         // Wait a bit for other elements to load
-        setTimeout(checkBirthdays, 1000);
+        setTimeout(() => {
+          checkBirthdays();
+          checkLatestAnnouncement();
+        }, 1000);
       });
 
       // Chart instance
