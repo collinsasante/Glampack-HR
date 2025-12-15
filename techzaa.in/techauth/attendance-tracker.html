@@ -1341,20 +1341,30 @@
           API_CACHE.invalidate('attendance');
         }
 
-        // Get all records for this employee using Worker API
-        const filterFormula = `FIND('${EMPLOYEE_ID}', ARRAYJOIN({Employee}))`;
-        console.log('findTodayRecord - Filter formula:', filterFormula);
-
-        const data = await getAttendance(filterFormula);
+        // Fetch ALL attendance records without filter (filter formula not working reliably)
+        // We'll filter on client side instead
+        console.log('findTodayRecord - Fetching ALL attendance records');
+        const data = await getAttendance(null);
         console.log('findTodayRecord - Raw data from Airtable:', data);
-        console.log('findTodayRecord - Number of records:', data.records?.length || 0);
+        console.log('findTodayRecord - Total number of records:', data.records?.length || 0);
 
-        // Filter in JavaScript to find today's record
+        // Filter in JavaScript to find today's record for this employee
         const todayRecord = data.records.find((record) => {
           const recordDate = record.fields.Date;
-          console.log('findTodayRecord - Checking record date:', recordDate, 'vs today:', today);
+          const employeeIds = record.fields.Employee;
 
-          return recordDate === today;
+          console.log('findTodayRecord - Checking record:', {
+            date: recordDate,
+            employee: employeeIds,
+            matchesDate: recordDate === today,
+            matchesEmployee: employeeIds && employeeIds.includes(EMPLOYEE_ID)
+          });
+
+          // Match both date AND employee ID
+          return recordDate === today &&
+                 employeeIds &&
+                 Array.isArray(employeeIds) &&
+                 employeeIds.includes(EMPLOYEE_ID);
         });
 
         console.log('findTodayRecord - Found today record:', todayRecord);
