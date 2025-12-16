@@ -1153,8 +1153,8 @@
             try {
               const ipLocation = await getIPBasedLocation();
               gpsLocation = {
-                latitude: ipLocation.lat,
-                longitude: ipLocation.lon,
+                latitude: ipLocation.latitude,
+                longitude: ipLocation.longitude,
                 accuracy: 5000, // IP location is less accurate (approximately 5km)
                 method: "IP",
                 city: ipLocation.city,
@@ -1300,8 +1300,8 @@
             try {
               const ipLocation = await getIPBasedLocation();
               gpsLocation = {
-                latitude: ipLocation.lat,
-                longitude: ipLocation.lon,
+                latitude: ipLocation.latitude,
+                longitude: ipLocation.longitude,
                 accuracy: 5000, // IP location is less accurate (approximately 5km)
                 method: "IP",
                 city: ipLocation.city,
