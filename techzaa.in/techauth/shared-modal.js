@@ -368,19 +368,18 @@ async function createBirthdayAnnouncement(celebrants) {
       ? `🎂 Today is ${names}'s birthday! Let's wish them a wonderful day filled with happiness and success!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`
       : `🎂 Today we celebrate ${celebrants.length} team members: ${names}! Let's wish them a wonderful day!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`;
 
-    // Create announcement (Date field is optional in Airtable)
+    // Create announcement - remove Type field as it doesn't exist in Airtable
     const announcementData = {
       'Title': `🎉 Birthday Celebration - ${today}`,
-      'Type': 'Event',
       'Message': message,
       'Created By': [creatorId]
     };
 
-    // Only add Date field if it exists in schema
+    // Try to add Date field if it exists in schema
     try {
       announcementData['Date'] = today;
     } catch (e) {
-      console.log('[Birthday Announcement] Date field error:', e);
+      console.log('[Birthday Announcement] Date field not available:', e);
     }
 
     console.log('[Birthday Announcement] Creating announcement with data:', announcementData);
