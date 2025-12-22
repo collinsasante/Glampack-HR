@@ -325,30 +325,42 @@ function closeBirthdayModal() {
 // Create birthday announcement in Airtable
 async function createBirthdayAnnouncement(celebrants) {
   try {
+    console.log('[Birthday Announcement] Starting to create announcement for:', celebrants);
+
     if (typeof getAnnouncements !== 'function' || typeof createAnnouncement !== 'function') {
+      console.log('[Birthday Announcement] APIs not available');
       return; // Announcements API not available
     }
 
     // Check if birthday announcement already exists for today
     const today = new Date().toISOString().split('T')[0];
+    console.log('[Birthday Announcement] Today date:', today);
+
     const existingAnnouncements = await getAnnouncements();
     const announcements = existingAnnouncements.records || existingAnnouncements || [];
+    console.log('[Birthday Announcement] Existing announcements:', announcements.length);
 
     const todaysBirthdayAnnouncement = announcements.find(ann => {
       const title = ann.fields['Title'] || '';
+      console.log('[Birthday Announcement] Checking announcement:', title);
       // Check title contains birthday celebration (date field might not exist)
       return title.includes('🎉 Birthday Celebration') && title.includes(today);
     });
 
     if (todaysBirthdayAnnouncement) {
+      console.log('[Birthday Announcement] Already exists:', todaysBirthdayAnnouncement);
       return; // Already created
     }
 
     // Get system user (admin) or first admin user for announcement creator
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     const creatorId = currentUser.id;
+    console.log('[Birthday Announcement] Creator ID:', creatorId);
 
-    if (!creatorId) return;
+    if (!creatorId) {
+      console.log('[Birthday Announcement] No creator ID, exiting');
+      return;
+    }
 
     // Create birthday announcement
     const names = celebrants.map(c => c.name).join(', ');
@@ -368,15 +380,14 @@ async function createBirthdayAnnouncement(celebrants) {
     try {
       announcementData['Date'] = today;
     } catch (e) {
-      // Date field doesn't exist, skip it
+      console.log('[Birthday Announcement] Date field error:', e);
     }
 
-    await createAnnouncement(announcementData);
+    console.log('[Birthday Announcement] Creating announcement with data:', announcementData);
+    const result = await createAnnouncement(announcementData);
+    console.log('[Birthday Announcement] Created successfully:', result);
   } catch (error) {
-    // Show error for debugging
-    if (typeof customAlert === 'function') {
-      await customAlert('Birthday announcement created with limited info. Check announcements page.', 'Info', 'info');
-    }
+    console.error('[Birthday Announcement] Error:', error);
   }
 }
 
@@ -449,30 +460,42 @@ async function viewBirthdayAnnouncement() {
 // Check for birthdays on page load
 async function checkBirthdays() {
   try {
+    console.log('[Birthday Check] Starting birthday check...');
+
     // Get current user
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
-    if (!currentUser.id) return;
+    console.log('[Birthday Check] Current user:', currentUser);
+
+    if (!currentUser.id) {
+      console.log('[Birthday Check] No user ID, exiting');
+      return;
+    }
 
     // Check if APIs are available
     if (typeof getEmployees !== 'function' || typeof createAnnouncement !== 'function') {
+      console.log('[Birthday Check] Required APIs not available');
       return;
     }
 
     // Check if birthday modal was already shown today
     const lastShown = localStorage.getItem('birthdayModalShown');
     const today = new Date().toDateString();
+    console.log('[Birthday Check] Last shown:', lastShown, 'Today:', today);
 
     if (lastShown === today) {
+      console.log('[Birthday Check] Already shown today, exiting');
       return; // Already shown today
     }
 
     // Get all employees
     const employeesResponse = await getEmployees();
     const employees = employeesResponse.records || employeesResponse || [];
+    console.log('[Birthday Check] Total employees:', employees.length);
 
     // Filter employees with today's birthday
     const todayMonth = new Date().getMonth() + 1; // 1-12
     const todayDay = new Date().getDate();
+    console.log('[Birthday Check] Looking for birthdays on month:', todayMonth, 'day:', todayDay);
 
     const birthdayEmployees = employees.filter(emp => {
       // Check multiple possible field names for date of birth
@@ -481,6 +504,8 @@ async function checkBirthdays() {
                   emp.fields['Birthday'] ||
                   emp.fields['DOB'];
 
+      console.log('[Birthday Check] Employee:', emp.fields['Full Name'], 'DOB:', dob);
+
       if (!dob) return false;
 
       try {
@@ -488,11 +513,17 @@ async function checkBirthdays() {
         // Check if date is valid
         if (isNaN(dobDate.getTime())) return false;
 
-        return dobDate.getMonth() + 1 === todayMonth && dobDate.getDate() === todayDay;
+        const matches = dobDate.getMonth() + 1 === todayMonth && dobDate.getDate() === todayDay;
+        console.log('[Birthday Check] Employee DOB month:', dobDate.getMonth() + 1, 'day:', dobDate.getDate(), 'matches:', matches);
+
+        return matches;
       } catch (e) {
+        console.log('[Birthday Check] Error parsing DOB:', e);
         return false;
       }
     });
+
+    console.log('[Birthday Check] Birthday employees found:', birthdayEmployees.length, birthdayEmployees);
 
     if (birthdayEmployees.length > 0) {
       // Format employee data with IDs for wish sending
@@ -502,10 +533,14 @@ async function checkBirthdays() {
         department: emp.fields['Department'] || ''
       }));
 
+      console.log('[Birthday Check] Celebrants:', celebrants);
+
       // Create birthday announcement if it doesn't exist yet
+      console.log('[Birthday Check] Creating birthday announcement...');
       await createBirthdayAnnouncement(celebrants);
 
       // Show birthday modal
+      console.log('[Birthday Check] Showing birthday modal...');
       showBirthdayModal(celebrants);
 
       // Mark as shown for today
@@ -515,7 +550,7 @@ async function checkBirthdays() {
     // Clean up old birthday announcements (older than 1 day)
     await cleanupOldBirthdayAnnouncements();
   } catch (error) {
-    // Silently handle error - birthday feature is optional
+    console.error('[Birthday Check] Error:', error);
   }
 }
 
