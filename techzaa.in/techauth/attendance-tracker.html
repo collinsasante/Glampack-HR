@@ -646,6 +646,15 @@
       }
 
       // ========================================
+      // GET YESTERDAY'S DATE IN YYYY-MM-DD FORMAT
+      // ========================================
+      function getYesterdayDate() {
+        const now = new Date();
+        now.setDate(now.getDate() - 1);
+        return now.toISOString().split("T")[0];
+      }
+
+      // ========================================
       // LOCATION TRACKING SYSTEM
       // ========================================
       // This system uses BOTH GPS and IP-based geolocation in parallel:
@@ -1404,6 +1413,30 @@
                  Array.isArray(employeeIds) &&
                  employeeIds.includes(EMPLOYEE_ID);
         });
+
+        // If no record found for today, check if there's a night shift record from yesterday
+        // Night shift workers check in yesterday but check out today (next day)
+        if (!todayRecord) {
+          const yesterday = getYesterdayDate();
+          const yesterdayRecord = data.records.find((record) => {
+            const recordDate = record.fields.Date;
+            const employeeIds = record.fields.Employee;
+            const shift = record.fields.Shift;
+            const checkOut = record.fields["Check Out"];
+
+            // Match yesterday's date, employee ID, Night Production shift, and no check-out yet
+            return recordDate === yesterday &&
+                   employeeIds &&
+                   Array.isArray(employeeIds) &&
+                   employeeIds.includes(EMPLOYEE_ID) &&
+                   shift === "Night Production" &&
+                   !checkOut;
+          });
+
+          if (yesterdayRecord) {
+            return yesterdayRecord;
+          }
+        }
 
         return todayRecord || null;
       }

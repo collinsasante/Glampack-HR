@@ -453,6 +453,11 @@ async function checkBirthdays() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     if (!currentUser.id) return;
 
+    // Check if APIs are available
+    if (typeof getEmployees !== 'function' || typeof createAnnouncement !== 'function') {
+      return;
+    }
+
     // Check if birthday modal was already shown today
     const lastShown = localStorage.getItem('birthdayModalShown');
     const today = new Date().toDateString();
@@ -521,6 +526,11 @@ async function checkLatestAnnouncement() {
     const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
     if (!currentUser.id) return;
 
+    // Check if APIs are available
+    if (typeof getAnnouncements !== 'function' || typeof getAnnouncementReads !== 'function') {
+      return;
+    }
+
     // Get all announcements
     const announcementsResponse = await getAnnouncements();
     const announcements = announcementsResponse.records || [];
@@ -566,7 +576,7 @@ async function checkLatestAnnouncement() {
 
 // Show latest announcement modal
 function showLatestAnnouncementModal(announcement) {
-  const priority = announcement.fields['Priority'] || 'Medium';
+  const type = announcement.fields['Type'] || 'General';
   const title = announcement.fields['Title'] || 'Untitled';
   const message = announcement.fields['Message'] || '';
   const dateObj = new Date(announcement.fields['Date'] || announcement.createdTime);
@@ -576,27 +586,31 @@ function showLatestAnnouncementModal(announcement) {
     day: 'numeric',
   });
 
-  const priorityColors = {
-    High: 'bg-red-100 text-red-800 border-red-300',
-    Medium: 'bg-yellow-100 text-yellow-800 border-yellow-300',
-    Low: 'bg-blue-100 text-blue-800 border-blue-300',
+  const typeColors = {
+    'Urgent': 'bg-red-100 text-red-800 border-red-300',
+    'HR': 'bg-yellow-100 text-yellow-800 border-yellow-300',
+    'General': 'bg-blue-100 text-blue-800 border-blue-300',
+    'Event': 'bg-green-100 text-green-800 border-green-300',
+    'Policy': 'bg-purple-100 text-purple-800 border-purple-300',
   };
 
-  const priorityIcons = {
-    High: 'fa-exclamation-circle',
-    Medium: 'fa-info-circle',
-    Low: 'fa-flag',
+  const typeIcons = {
+    'Urgent': 'fa-exclamation-circle',
+    'HR': 'fa-user-tie',
+    'General': 'fa-info-circle',
+    'Event': 'fa-calendar',
+    'Policy': 'fa-file-alt',
   };
 
-  const priorityColor = priorityColors[priority] || 'bg-gray-100 text-gray-800 border-gray-300';
-  const priorityIcon = priorityIcons[priority] || 'fa-info-circle';
+  const typeColor = typeColors[type] || 'bg-gray-100 text-gray-800 border-gray-300';
+  const typeIcon = typeIcons[type] || 'fa-info-circle';
 
   customAlert(
     `
     <div class="text-left">
       <div class="mb-4">
-        <span class="px-3 py-1 rounded-full text-sm font-semibold ${priorityColor} border">
-          <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
+        <span class="px-3 py-1 rounded-full text-sm font-semibold ${typeColor} border">
+          <i class="fas ${typeIcon} mr-1"></i> ${type}
         </span>
       </div>
       <p class="text-sm text-gray-600 mb-4">
