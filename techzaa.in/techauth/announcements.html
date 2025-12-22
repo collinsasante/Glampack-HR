@@ -259,25 +259,32 @@
             All
           </button>
           <button
-            onclick="filterByType('High')"
-            id="filter-High"
+            onclick="filterByType('Urgent')"
+            id="filter-Urgent"
             class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
-            <i class="fas fa-exclamation-circle mr-1"></i> High Priority
+            <i class="fas fa-exclamation-circle mr-1"></i> Urgent
           </button>
           <button
-            onclick="filterByType('Medium')"
-            id="filter-Medium"
+            onclick="filterByType('HR')"
+            id="filter-HR"
             class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
-            <i class="fas fa-info-circle mr-1"></i> Medium Priority
+            <i class="fas fa-user-tie mr-1"></i> HR
           </button>
           <button
-            onclick="filterByType('Low')"
-            id="filter-Low"
+            onclick="filterByType('Event')"
+            id="filter-Event"
             class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
           >
-            <i class="fas fa-flag mr-1"></i> Low Priority
+            <i class="fas fa-calendar mr-1"></i> Event
+          </button>
+          <button
+            onclick="filterByType('General')"
+            id="filter-General"
+            class="filter-btn px-4 py-2 rounded-full text-sm font-medium transition duration-200 bg-gray-200 text-gray-700 hover:bg-gray-300"
+          >
+            <i class="fas fa-info-circle mr-1"></i> General
           </button>
           <div class="ml-auto flex items-center space-x-3">
             <label class="flex items-center text-sm font-medium text-gray-700">
@@ -552,14 +559,14 @@
           document.getElementById("showUnreadOnly").checked;
 
         let filtered = allAnnouncements.filter((announcement) => {
-          const priority = announcement.fields["Priority"] || "Medium";
+          const type = announcement.fields["Type"] || "General";
           const isViewed = hasUserViewedAnnouncement(announcement.id);
 
-          const matchesPriority =
-            currentFilter === "All" || priority === currentFilter;
+          const matchesType =
+            currentFilter === "All" || type === currentFilter;
           const matchesReadStatus = !showUnreadOnly || !isViewed;
 
-          return matchesPriority && matchesReadStatus;
+          return matchesType && matchesReadStatus;
         });
 
         const listContainer = document.getElementById("announcementsList");
@@ -581,7 +588,7 @@
         listContainer.innerHTML = filtered
           .map((announcement) => {
             const isViewed = hasUserViewedAnnouncement(announcement.id);
-            const priority = announcement.fields["Priority"] || "Medium";
+            const type = announcement.fields["Type"] || "General";
             const title = announcement.fields["Title"] || "Untitled";
             const message = announcement.fields["Message"] || "";
             const author = announcement.fields["Posted By"] || "Admin";
@@ -605,22 +612,26 @@
                 return Array.isArray(announcementField) && announcementField.includes(announcement.id);
             }).length;
 
-            // Priority badge colors
-            const priorityColors = {
-              High: "bg-red-100 text-red-800",
-              Medium: "bg-yellow-100 text-yellow-800",
-              Low: "bg-blue-100 text-blue-800",
+            // Type badge colors
+            const typeColors = {
+              "Urgent": "bg-red-100 text-red-800",
+              "HR": "bg-yellow-100 text-yellow-800",
+              "General": "bg-blue-100 text-blue-800",
+              "Event": "bg-green-100 text-green-800",
+              "Policy": "bg-purple-100 text-purple-800",
             };
 
-            const priorityIcons = {
-              High: "fa-exclamation-circle",
-              Medium: "fa-info-circle",
-              Low: "fa-flag",
+            const typeIcons = {
+              "Urgent": "fa-exclamation-circle",
+              "HR": "fa-user-tie",
+              "General": "fa-info-circle",
+              "Event": "fa-calendar",
+              "Policy": "fa-file-alt",
             };
 
-            const priorityColor =
-              priorityColors[priority] || "bg-gray-100 text-gray-800";
-            const priorityIcon = priorityIcons[priority] || "fa-info-circle";
+            const typeColor =
+              typeColors[type] || "bg-gray-100 text-gray-800";
+            const typeIcon = typeIcons[type] || "fa-info-circle";
 
             // Create summary (first 150 characters)
             const summary = message.length > 150 ? message.substring(0, 150) + '...' : message;
@@ -630,8 +641,8 @@
                     <div class="announcement-card bg-white rounded-lg shadow-md p-6 ${!isViewed ? "unread" : ""} cursor-pointer hover:shadow-lg transition-shadow" data-id="${announcement.id}" onclick="showAnnouncementDetail('${announcement.id}')">
                         <div class="flex justify-between items-start mb-3">
                             <div class="flex items-center space-x-2">
-                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${priorityColor}">
-                                    <i class="fas ${priorityIcon} mr-1"></i> ${priority}
+                                <span class="px-3 py-1 rounded-full text-xs font-semibold ${typeColor}">
+                                    <i class="fas ${typeIcon} mr-1"></i> ${type}
                                 </span>
                                 ${!isViewed ? '<span class="px-3 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-800"><i class="fas fa-circle text-xs mr-1"></i> New</span>' : ""}
                             </div>
@@ -694,7 +705,7 @@
         );
         if (!announcement) return;
 
-        const priority = announcement.fields["Priority"] || "Medium";
+        const type = announcement.fields["Type"] || "General";
         const title = announcement.fields["Title"] || "Untitled";
         const message = announcement.fields["Message"] || "";
         const author = announcement.fields["Posted By"] || "Admin";
@@ -707,26 +718,30 @@
           minute: "2-digit",
         });
 
-        const priorityColors = {
-          High: "bg-red-100 text-red-800",
-          Medium: "bg-yellow-100 text-yellow-800",
-          Low: "bg-blue-100 text-blue-800",
+        const typeColors = {
+          "Urgent": "bg-red-100 text-red-800",
+          "HR": "bg-yellow-100 text-yellow-800",
+          "General": "bg-blue-100 text-blue-800",
+          "Event": "bg-green-100 text-green-800",
+          "Policy": "bg-purple-100 text-purple-800",
         };
 
-        const priorityIcons = {
-          High: "fa-exclamation-circle",
-          Medium: "fa-info-circle",
-          Low: "fa-flag",
+        const typeIcons = {
+          "Urgent": "fa-exclamation-circle",
+          "HR": "fa-user-tie",
+          "General": "fa-info-circle",
+          "Event": "fa-calendar",
+          "Policy": "fa-file-alt",
         };
 
-        const priorityColor =
-          priorityColors[priority] || "bg-gray-100 text-gray-800";
-        const priorityIcon = priorityIcons[priority] || "fa-info-circle";
+        const typeColor =
+          typeColors[type] || "bg-gray-100 text-gray-800";
+        const typeIcon = typeIcons[type] || "fa-info-circle";
 
         document.getElementById("modalTitle").textContent = title;
         document.getElementById("modalPriority").innerHTML = `
-                <span class="px-3 py-1 rounded-full text-sm font-semibold ${priorityColor}">
-                    <i class="fas ${priorityIcon} mr-1"></i> ${priority} Priority
+                <span class="px-3 py-1 rounded-full text-sm font-semibold ${typeColor}">
+                    <i class="fas ${typeIcon} mr-1"></i> ${type}
                 </span>
             `;
         document.getElementById("modalMeta").innerHTML = `
