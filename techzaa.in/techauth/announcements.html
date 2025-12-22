@@ -559,7 +559,7 @@
           document.getElementById("showUnreadOnly").checked;
 
         let filtered = allAnnouncements.filter((announcement) => {
-          const type = announcement.fields["Type"] || "General";
+          const type = announcement.fields["Announcement Type"] || "General";
           const isViewed = hasUserViewedAnnouncement(announcement.id);
 
           const matchesType =
@@ -588,7 +588,7 @@
         listContainer.innerHTML = filtered
           .map((announcement) => {
             const isViewed = hasUserViewedAnnouncement(announcement.id);
-            const type = announcement.fields["Type"] || "General";
+            const type = announcement.fields["Announcement Type"] || "General";
             const title = announcement.fields["Title"] || "Untitled";
             const message = announcement.fields["Message"] || "";
             const author = announcement.fields["Posted By"] || "Admin";
@@ -705,7 +705,7 @@
         );
         if (!announcement) return;
 
-        const type = announcement.fields["Type"] || "General";
+        const type = announcement.fields["Announcement Type"] || "General";
         const title = announcement.fields["Title"] || "Untitled";
         const message = announcement.fields["Message"] || "";
         const author = announcement.fields["Posted By"] || "Admin";
