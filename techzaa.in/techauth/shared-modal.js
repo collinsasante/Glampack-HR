@@ -368,18 +368,31 @@ async function createBirthdayAnnouncement(celebrants) {
       ? `🎂 Today is ${names}'s birthday! Let's wish them a wonderful day filled with happiness and success!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`
       : `🎂 Today we celebrate ${celebrants.length} team members: ${names}! Let's wish them a wonderful day!\n\n🎈 Use the comments section below to send your birthday wishes! 🎉`;
 
-    // Create announcement with correct Airtable field names
+    // Create announcement - try with and without Announcement Type field
     const announcementData = {
       'Title': `🎉 Birthday Celebration - ${today}`,
       'Message': message,
       'Posted By': currentUser.name || 'HR System',
-      'Announcement Type': 'Event',
       'Date': today
     };
 
-    console.log('[Birthday Announcement] Creating announcement with data:', announcementData);
-    const result = await createAnnouncement(announcementData);
-    console.log('[Birthday Announcement] Created successfully:', result);
+    console.log('[Birthday Announcement] Creating announcement with data (without type):', announcementData);
+
+    try {
+      // First try without Announcement Type
+      const result = await createAnnouncement(announcementData);
+      console.log('[Birthday Announcement] Created successfully:', result);
+    } catch (firstError) {
+      console.log('[Birthday Announcement] First attempt failed, trying with minimal fields:', firstError);
+
+      // If that fails, try with only required fields
+      const minimalData = {
+        'Title': `🎉 Birthday Celebration - ${today}`,
+        'Message': message
+      };
+      const result = await createAnnouncement(minimalData);
+      console.log('[Birthday Announcement] Created with minimal fields:', result);
+    }
   } catch (error) {
     console.error('[Birthday Announcement] Error:', error);
   }
