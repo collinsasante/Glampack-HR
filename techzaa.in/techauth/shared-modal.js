@@ -477,17 +477,7 @@ async function checkBirthdays() {
       return;
     }
 
-    // Check if birthday modal was already shown today
-    const lastShown = localStorage.getItem('birthdayModalShown');
-    const today = new Date().toDateString();
-    console.log('[Birthday Check] Last shown:', lastShown, 'Today:', today);
-
-    if (lastShown === today) {
-      console.log('[Birthday Check] Already shown today, exiting');
-      return; // Already shown today
-    }
-
-    // Get all employees
+    // Get all employees FIRST (before checking if modal was shown)
     const employeesResponse = await getEmployees();
     const employees = employeesResponse.records || employeesResponse || [];
     console.log('[Birthday Check] Total employees:', employees.length);
@@ -535,16 +525,25 @@ async function checkBirthdays() {
 
       console.log('[Birthday Check] Celebrants:', celebrants);
 
-      // Create birthday announcement if it doesn't exist yet
+      // ALWAYS create birthday announcement if it doesn't exist yet (regardless of modal shown status)
       console.log('[Birthday Check] Creating birthday announcement...');
       await createBirthdayAnnouncement(celebrants);
 
-      // Show birthday modal
-      console.log('[Birthday Check] Showing birthday modal...');
-      showBirthdayModal(celebrants);
+      // Check if birthday modal was already shown today
+      const lastShown = localStorage.getItem('birthdayModalShown');
+      const today = new Date().toDateString();
+      console.log('[Birthday Check] Last shown:', lastShown, 'Today:', today);
 
-      // Mark as shown for today
-      localStorage.setItem('birthdayModalShown', today);
+      if (lastShown !== today) {
+        // Show birthday modal only if not shown today
+        console.log('[Birthday Check] Showing birthday modal...');
+        showBirthdayModal(celebrants);
+
+        // Mark as shown for today
+        localStorage.setItem('birthdayModalShown', today);
+      } else {
+        console.log('[Birthday Check] Modal already shown today, skipping modal display');
+      }
     }
 
     // Clean up old birthday announcements (older than 1 day)
