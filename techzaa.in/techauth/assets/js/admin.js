@@ -1,4 +1,37 @@
 // ========================================
+// EMPLOYEE CACHE
+// ========================================
+let employeeCache = null;
+let employeeCacheTime = null;
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+async function getEmployeeCache() {
+    const now = Date.now();
+    if (employeeCache && employeeCacheTime && (now - employeeCacheTime < CACHE_DURATION)) {
+        return employeeCache;
+    }
+
+    try {
+        const employees = await getEmployees();
+        employeeCache = {};
+        employees.forEach(emp => {
+            employeeCache[emp.id] = emp;
+        });
+        employeeCacheTime = now;
+        return employeeCache;
+    } catch (error) {
+        return {};
+    }
+}
+
+function getEmployeeFromCache(employeeId) {
+    if (!employeeCache || !employeeCache[employeeId]) {
+        return null;
+    }
+    return employeeCache[employeeId];
+}
+
+// ========================================
 // TOAST NOTIFICATION SYSTEM
 // ========================================
 function showToast(type, title, message, duration = 5000) {
@@ -888,23 +921,22 @@ async function displayLeaveRequests(requests) {
         return;
     }
 
-    // Fetch employee names using Worker API
-    const employeePromises = requests.map(async (req) => {
+    // Use employee cache
+    const empCache = await getEmployeeCache();
+    const nameMap = {};
+    requests.forEach(req => {
         if (req.fields['Employee'] && req.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(req.fields['Employee'][0]);
-                if (employee && employee.fields) {
-                    return { id: req.id, name: employee.fields['Full Name'] };
-                }
-            } catch (error) {
-
+            const employeeId = req.fields['Employee'][0];
+            const employee = empCache[employeeId];
+            if (employee && employee.fields) {
+                nameMap[req.id] = employee.fields['Full Name'];
+            } else {
+                nameMap[req.id] = 'Unknown';
             }
+        } else {
+            nameMap[req.id] = 'Unknown';
         }
-        return { id: req.id, name: 'Unknown' };
     });
-
-    const employeeNames = await Promise.all(employeePromises);
-    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
 
     tbody.innerHTML = requests.map(req => {
         const fields = req.fields;
@@ -2595,37 +2627,30 @@ async function loadPayrollRecords() {
             return dateB - dateA;
         });
 
-        // Fetch employee names and payment details
-        const employeePromises = allPayrollRecords.map(async (record) => {
+        // Load employee cache once
+        const empCache = await getEmployeeCache();
+
+        // Map payroll records with employee data from cache
+        allPayrollData = allPayrollRecords.map((record) => {
             if (record.fields['Employee'] && record.fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(record.fields['Employee'][0]);
-                    if (employee && employee.fields) {
-                        return {
-                            record: record,
-                            employeeName: employee.fields['Full Name'] || 'No Name',
-                            employeeId: record.fields['Employee'][0],
-                            accountNumber: employee.fields['Bank Account Number'] || 'N/A',
-                            bankName: employee.fields['Bank Name'] || 'N/A',
-                            accountName: employee.fields['Full Name'] || 'N/A',
-                            paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
-                        };
-                    } else {
-                        return {
-                            record: record,
-                            employeeName: 'Employee Not Found',
-                            employeeId: record.fields['Employee'][0],
-                            accountNumber: 'N/A',
-                            bankName: 'N/A',
-                            accountName: 'N/A',
-                            paymentMethod: 'N/A'
-                        };
-                    }
-                } catch (error) {
+                const employeeId = record.fields['Employee'][0];
+                const employee = empCache[employeeId];
+
+                if (employee && employee.fields) {
                     return {
                         record: record,
-                        employeeName: 'Error Loading Employee',
-                        employeeId: record.fields['Employee'][0] || '',
+                        employeeName: employee.fields['Full Name'] || 'No Name',
+                        employeeId: employeeId,
+                        accountNumber: employee.fields['Bank Account Number'] || 'N/A',
+                        bankName: employee.fields['Bank Name'] || 'N/A',
+                        accountName: employee.fields['Full Name'] || 'N/A',
+                        paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
+                    };
+                } else {
+                    return {
+                        record: record,
+                        employeeName: 'Employee Not Found',
+                        employeeId: employeeId,
                         accountNumber: 'N/A',
                         bankName: 'N/A',
                         accountName: 'N/A',
@@ -2643,8 +2668,6 @@ async function loadPayrollRecords() {
                 paymentMethod: 'N/A'
             };
         });
-
-        allPayrollData = await Promise.all(employeePromises);
 
         displayPayrollRecords();
     } catch (error) {
