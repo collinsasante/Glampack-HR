@@ -2600,35 +2600,47 @@ async function loadPayrollRecords() {
             if (record.fields['Employee'] && record.fields['Employee'][0]) {
                 try {
                     const employee = await getEmployee(record.fields['Employee'][0]);
-                    return {
-                        record: record,
-                        employeeName: employee.fields['Full Name'] || 'Unknown',
-                        employeeId: record.fields['Employee'][0],
-                        accountNumber: employee.fields['Bank Account Number'] || '',
-                        bankName: employee.fields['Bank Name'] || '',
-                        accountName: employee.fields['Full Name'] || '',
-                        paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
-                    };
+                    if (employee && employee.fields) {
+                        return {
+                            record: record,
+                            employeeName: employee.fields['Full Name'] || 'No Name',
+                            employeeId: record.fields['Employee'][0],
+                            accountNumber: employee.fields['Bank Account Number'] || 'N/A',
+                            bankName: employee.fields['Bank Name'] || 'N/A',
+                            accountName: employee.fields['Full Name'] || 'N/A',
+                            paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
+                        };
+                    } else {
+                        return {
+                            record: record,
+                            employeeName: 'Employee Not Found',
+                            employeeId: record.fields['Employee'][0],
+                            accountNumber: 'N/A',
+                            bankName: 'N/A',
+                            accountName: 'N/A',
+                            paymentMethod: 'N/A'
+                        };
+                    }
                 } catch (error) {
                     return {
                         record: record,
-                        employeeName: 'Unknown',
-                        employeeId: '',
-                        accountNumber: '',
-                        bankName: '',
-                        accountName: '',
-                        paymentMethod: ''
+                        employeeName: 'Error Loading Employee',
+                        employeeId: record.fields['Employee'][0] || '',
+                        accountNumber: 'N/A',
+                        bankName: 'N/A',
+                        accountName: 'N/A',
+                        paymentMethod: 'N/A'
                     };
                 }
             }
             return {
                 record: record,
-                employeeName: 'Unknown',
+                employeeName: 'No Employee Linked',
                 employeeId: '',
-                accountNumber: '',
-                bankName: '',
-                accountName: '',
-                paymentMethod: ''
+                accountNumber: 'N/A',
+                bankName: 'N/A',
+                accountName: 'N/A',
+                paymentMethod: 'N/A'
             };
         });
 
@@ -2710,17 +2722,20 @@ function downloadPayrollExcel() {
     }
 
     const rows = [
-        ['Employee Name', 'Month', 'Amount to Pay (Net Salary)', 'Payment Method', 'Bank Name', 'Account Number', 'Account Name', 'Basic Salary', 'Housing Allowance', 'Transport Allowance', 'Benefits', 'Other Allowances', 'Total Allowances', 'Gross Salary', 'Income Tax', 'Welfare', 'Social Security', 'Health Insurance', 'Other Deductions', 'Total Deductions', 'Status', 'Payment Date']
+        ['Employee Name', 'Month', 'Amount to Pay (Net + PAYE + SSF)', 'Payment Method', 'Bank Name', 'Account Number', 'Account Name', 'Basic Salary', 'Housing Allowance', 'Transport Allowance', 'Benefits', 'Other Allowances', 'Total Allowances', 'Gross Salary', 'Income Tax', 'Welfare', 'Social Security', 'Health Insurance', 'Other Deductions', 'Total Deductions', 'Status', 'Payment Date']
     ];
 
     allPayrollData.forEach(item => {
         const fields = item.record.fields;
         const netSalary = parseFloat(fields['Net Salary'] || 0);
+        const paye = parseFloat(fields['Income Tax'] || 0);
+        const socialSecurity = parseFloat(fields['Social Security'] || 0);
+        const amountToPay = netSalary + paye + socialSecurity;
 
         rows.push([
             item.employeeName,
             fields['Month'] || '',
-            netSalary.toFixed(2),
+            amountToPay.toFixed(2),
             item.paymentMethod || 'Bank Transfer',
             item.bankName || '',
             item.accountNumber || '',
