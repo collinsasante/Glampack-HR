@@ -1266,21 +1266,18 @@ async function renderLeaveScheduleList(monthLeaves) {
         return dateA - dateB;
     });
 
-    // Fetch employee names
-    const employeePromises = monthLeaves.map(async (req) => {
+    // Use employee cache
+    const empCache = await getEmployeeCache();
+    const nameMap = {};
+    monthLeaves.forEach(req => {
         if (req.fields['Employee'] && req.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(req.fields['Employee'][0]);
-                return { id: req.id, name: (employee && employee.fields && employee.fields['Full Name']) || 'Unknown' };
-            } catch (error) {
-                return { id: req.id, name: 'Unknown' };
-            }
+            const employeeId = req.fields['Employee'][0];
+            const employee = empCache[employeeId];
+            nameMap[req.id] = (employee && employee.fields && employee.fields['Full Name']) || 'Unknown';
+        } else {
+            nameMap[req.id] = 'Unknown';
         }
-        return { id: req.id, name: 'Unknown' };
     });
-
-    const employeeNames = await Promise.all(employeePromises);
-    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
 
     listContainer.innerHTML = monthLeaves.map(req => {
         const fields = req.fields;
@@ -1760,29 +1757,20 @@ async function loadViewsList(reads) {
         return;
     }
 
-    // Fetch employee details for all reads
-    const employeePromises = reads.map(async (read) => {
+    // Use employee cache
+    const empCache = await getEmployeeCache();
+    const validReads = reads.map((read) => {
         if (read.fields['Employee'] && read.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(read.fields['Employee'][0]);
-                return {
-                    name: employee?.fields?.['Full Name'] || 'Unknown',
-                    date: read.fields['Read Date'],
-                    department: employee?.fields?.['Department'] || 'N/A'
-                };
-            } catch (error) {
-                return {
-                    name: 'Unknown',
-                    date: read.fields['Read Date'],
-                    department: 'N/A'
-                };
-            }
+            const employeeId = read.fields['Employee'][0];
+            const employee = empCache[employeeId];
+            return {
+                name: employee?.fields?.['Full Name'] || 'Unknown',
+                date: read.fields['Read Date'],
+                department: employee?.fields?.['Department'] || 'N/A'
+            };
         }
         return null;
-    });
-
-    const employeeData = await Promise.all(employeePromises);
-    const validReads = employeeData.filter(e => e !== null);
+    }).filter(e => e !== null);
 
     // Sort by date (newest first)
     validReads.sort((a, b) => new Date(b.date) - new Date(a.date));
@@ -1832,31 +1820,21 @@ async function loadStatsCommentsList(comments) {
         return dateB - dateA;
     });
 
-    // Fetch employee names for all comments
-    const employeePromises = comments.map(async (comment) => {
+    // Use employee cache
+    const empCache = await getEmployeeCache();
+    const validComments = comments.map((comment) => {
         if (comment.fields['Employee'] && comment.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(comment.fields['Employee'][0]);
-                return {
-                    id: comment.id,
-                    name: employee?.fields?.['Full Name'] || 'Unknown',
-                    comment: comment.fields['Comment'],
-                    date: comment.fields['Date']
-                };
-            } catch (error) {
-                return {
-                    id: comment.id,
-                    name: 'Unknown',
-                    comment: comment.fields['Comment'],
-                    date: comment.fields['Date']
-                };
-            }
+            const employeeId = comment.fields['Employee'][0];
+            const employee = empCache[employeeId];
+            return {
+                id: comment.id,
+                name: employee?.fields?.['Full Name'] || 'Unknown',
+                comment: comment.fields['Comment'],
+                date: comment.fields['Date']
+            };
         }
         return null;
-    });
-
-    const commentData = await Promise.all(employeePromises);
-    const validComments = commentData.filter(c => c !== null);
+    }).filter(c => c !== null);
 
     commentsList.innerHTML = validComments.map(comment => {
         const commentDate = new Date(comment.date);
@@ -2179,23 +2157,22 @@ async function displayAttendanceRecords(records) {
         `;
         return;
     }
-    // Fetch employee names using Worker API
-    const employeePromises = records.map(async (rec) => {
+    // Use employee cache
+    const empCache = await getEmployeeCache();
+    const nameMap = {};
+    records.forEach(rec => {
         if (rec.fields['Employee'] && rec.fields['Employee'][0]) {
-            try {
-                const employee = await getEmployee(rec.fields['Employee'][0]);
-                if (employee && employee.fields) {
-                    return { id: rec.id, name: employee.fields['Full Name'], empId: rec.fields['Employee'][0] };
-                }
-            } catch (error) {
-
+            const employeeId = rec.fields['Employee'][0];
+            const employee = empCache[employeeId];
+            if (employee && employee.fields) {
+                nameMap[rec.id] = { name: employee.fields['Full Name'], empId: employeeId };
+            } else {
+                nameMap[rec.id] = { name: 'Unknown', empId: employeeId };
             }
+        } else {
+            nameMap[rec.id] = { name: 'Unknown', empId: '' };
         }
-        return { id: rec.id, name: 'Unknown', empId: '' };
     });
-
-    const employeeNames = await Promise.all(employeePromises);
-    const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, { name: e.name, empId: e.empId }]));
 
     tbody.innerHTML = records.map(rec => {
         const fields = rec.fields;
@@ -2427,19 +2404,16 @@ async function generateAttendanceReport() {
         const filterFormula = `AND(YEAR({Date})=${year},MONTH({Date})=${parseInt(month)})`;
         const data = await getAttendance(filterFormula);
 
-        // Fetch employee names using Worker API
-        const tableData = await Promise.all(data.records.map(async (rec) => {
+        // Use employee cache
+        const empCache = await getEmployeeCache();
+        const tableData = data.records.map((rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(fields['Employee'][0]);
-                    if (employee && employee.fields) {
-                        employeeName = employee.fields['Full Name'];
-                    }
-                } catch (error) {
-
+                const employee = empCache[fields['Employee'][0]];
+                if (employee && employee.fields) {
+                    employeeName = employee.fields['Full Name'];
                 }
             }
 
@@ -2449,7 +2423,7 @@ async function generateAttendanceReport() {
                 fields['Check In'] || '--',
                 fields['Check Out'] || '--'
             ];
-        }));
+        });
 
         doc.autoTable({
             startY: 40,
@@ -2487,19 +2461,16 @@ async function generateLeaveReport() {
         const filterFormula = `YEAR({Start Date})=${year}`;
         const data = await getLeaveRequests(filterFormula);
 
-        // Fetch employee names using Worker API
-        const tableData = await Promise.all(data.records.map(async (rec) => {
+        // Use employee cache
+        const empCache = await getEmployeeCache();
+        const tableData = data.records.map((rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(fields['Employee'][0]);
-                    if (employee && employee.fields) {
-                        employeeName = employee.fields['Full Name'];
-                    }
-                } catch (error) {
-
+                const employee = empCache[fields['Employee'][0]];
+                if (employee && employee.fields) {
+                    employeeName = employee.fields['Full Name'];
                 }
             }
 
@@ -2511,7 +2482,7 @@ async function generateLeaveReport() {
                 fields['Number of Days'] || '--',
                 fields['Status'] || '--'
             ];
-        }));
+        });
 
         doc.autoTable({
             startY: 40,
@@ -2551,19 +2522,16 @@ async function generatePayrollReport() {
         const filterFormula = `AND(YEAR({Payment Date})=${year},MONTH({Payment Date})=${parseInt(month)})`;
         const data = await getPayroll(filterFormula);
 
-        // Fetch employee names and create table using Worker API
-        const tableData = await Promise.all(data.records.map(async (rec) => {
+        // Use employee cache
+        const empCache = await getEmployeeCache();
+        const tableData = data.records.map((rec) => {
             const fields = rec.fields;
             let employeeName = 'Unknown';
 
             if (fields['Employee'] && fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(fields['Employee'][0]);
-                    if (employee && employee.fields) {
-                        employeeName = employee.fields['Full Name'];
-                    }
-                } catch (error) {
-
+                const employee = empCache[fields['Employee'][0]];
+                if (employee && employee.fields) {
+                    employeeName = employee.fields['Full Name'];
                 }
             }
 
@@ -2574,7 +2542,7 @@ async function generatePayrollReport() {
                 `GH₵${(fields['Net Salary'] || 0).toFixed(2)}`,
                 fields['Status'] || '--'
             ];
-        }));
+        });
 
         // Calculate totals
         const totalGross = data.records.reduce((sum, rec) => sum + (rec.fields['Gross Salary'] || 0), 0);
@@ -4126,23 +4094,18 @@ async function exportAttendanceReport() {
             return;
         }
 
-        // Fetch employee names for the records
-        const employeePromises = records.map(async (rec) => {
+        // Use employee cache
+        const empCache = await getEmployeeCache();
+        const nameMap = {};
+        records.forEach(rec => {
             if (rec.fields['Employee'] && rec.fields['Employee'][0]) {
-                try {
-                    const employee = await getEmployee(rec.fields['Employee'][0]);
-                    if (employee && employee.fields) {
-                        return { id: rec.id, name: employee.fields['Full Name'] || 'Unknown' };
-                    }
-                } catch (error) {
-                    return { id: rec.id, name: 'Unknown' };
-                }
+                const employeeId = rec.fields['Employee'][0];
+                const employee = empCache[employeeId];
+                nameMap[rec.id] = (employee && employee.fields && employee.fields['Full Name']) || 'Unknown';
+            } else {
+                nameMap[rec.id] = 'Unknown';
             }
-            return { id: rec.id, name: 'Unknown' };
         });
-
-        const employeeNames = await Promise.all(employeePromises);
-        const nameMap = Object.fromEntries(employeeNames.map(e => [e.id, e.name]));
 
         // Create PDF using jsPDF
         const { jsPDF } = window.jspdf;
