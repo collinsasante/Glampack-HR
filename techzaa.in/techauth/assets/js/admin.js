@@ -2595,7 +2595,7 @@ async function loadPayrollRecords() {
             return dateB - dateA;
         });
 
-        // Fetch employee names and store
+        // Fetch employee names and payment details
         const employeePromises = allPayrollRecords.map(async (record) => {
             if (record.fields['Employee'] && record.fields['Employee'][0]) {
                 try {
@@ -2603,13 +2603,33 @@ async function loadPayrollRecords() {
                     return {
                         record: record,
                         employeeName: employee.fields['Full Name'] || 'Unknown',
-                        employeeId: record.fields['Employee'][0]
+                        employeeId: record.fields['Employee'][0],
+                        accountNumber: employee.fields['Account Number'] || '',
+                        bankName: employee.fields['Bank Name'] || '',
+                        accountName: employee.fields['Account Name'] || '',
+                        paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
                     };
                 } catch (error) {
-                    return { record: record, employeeName: 'Unknown', employeeId: '' };
+                    return {
+                        record: record,
+                        employeeName: 'Unknown',
+                        employeeId: '',
+                        accountNumber: '',
+                        bankName: '',
+                        accountName: '',
+                        paymentMethod: ''
+                    };
                 }
             }
-            return { record: record, employeeName: 'Unknown', employeeId: '' };
+            return {
+                record: record,
+                employeeName: 'Unknown',
+                employeeId: '',
+                accountNumber: '',
+                bankName: '',
+                accountName: '',
+                paymentMethod: ''
+            };
         });
 
         allPayrollData = await Promise.all(employeePromises);
@@ -2690,14 +2710,21 @@ function downloadPayrollExcel() {
     }
 
     const rows = [
-        ['Employee Name', 'Month', 'Basic Salary', 'Housing Allowance', 'Transport Allowance', 'Benefits', 'Other Allowances', 'Total Allowances', 'Gross Salary', 'Income Tax', 'Welfare', 'Social Security', 'Health Insurance', 'Other Deductions', 'Total Deductions', 'Net Salary', 'Status', 'Payment Date']
+        ['Employee Name', 'Month', 'Amount to Pay (Net Salary)', 'Payment Method', 'Bank Name', 'Account Number', 'Account Name', 'Basic Salary', 'Housing Allowance', 'Transport Allowance', 'Benefits', 'Other Allowances', 'Total Allowances', 'Gross Salary', 'Income Tax', 'Welfare', 'Social Security', 'Health Insurance', 'Other Deductions', 'Total Deductions', 'Status', 'Payment Date']
     ];
 
     allPayrollData.forEach(item => {
         const fields = item.record.fields;
+        const netSalary = parseFloat(fields['Net Salary'] || 0);
+
         rows.push([
             item.employeeName,
             fields['Month'] || '',
+            netSalary.toFixed(2),
+            item.paymentMethod || 'Bank Transfer',
+            item.bankName || '',
+            item.accountNumber || '',
+            item.accountName || item.employeeName,
             parseFloat(fields['Basic Salary'] || 0).toFixed(2),
             parseFloat(fields['Housing Allowance'] || 0).toFixed(2),
             parseFloat(fields['Transport Allowance'] || 0).toFixed(2),
@@ -2711,7 +2738,6 @@ function downloadPayrollExcel() {
             parseFloat(fields['Health Insurance'] || 0).toFixed(2),
             parseFloat(fields['Other Deductions'] || 0).toFixed(2),
             parseFloat(fields['Total Deductions'] || 0).toFixed(2),
-            parseFloat(fields['Net Salary'] || 0).toFixed(2),
             fields['Status'] || '',
             fields['Payment Date'] || ''
         ]);
