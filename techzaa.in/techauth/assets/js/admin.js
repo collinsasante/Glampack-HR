@@ -16,7 +16,8 @@ async function getEmployeeCache(forceRefresh = false) {
 
     try {
         console.log('[CACHE] Fetching fresh employee data...');
-        const employees = await getEmployees();
+        const response = await getEmployees();
+        const employees = response.records || response || [];
         console.log('[CACHE] Received employees:', employees.length);
 
         employeeCache = {};
