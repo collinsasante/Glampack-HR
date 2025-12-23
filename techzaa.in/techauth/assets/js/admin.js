@@ -2604,9 +2604,9 @@ async function loadPayrollRecords() {
                         record: record,
                         employeeName: employee.fields['Full Name'] || 'Unknown',
                         employeeId: record.fields['Employee'][0],
-                        accountNumber: employee.fields['Account Number'] || '',
+                        accountNumber: employee.fields['Bank Account Number'] || '',
                         bankName: employee.fields['Bank Name'] || '',
-                        accountName: employee.fields['Account Name'] || '',
+                        accountName: employee.fields['Full Name'] || '',
                         paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
                     };
                 } catch (error) {
