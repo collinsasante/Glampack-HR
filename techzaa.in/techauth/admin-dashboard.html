@@ -1258,6 +1258,13 @@
             </h3>
             <div class="flex gap-3">
               <button
+                onclick="downloadPayrollExcel()"
+                class="button button-blue"
+                title="Download all payroll records as Excel file"
+              >
+                <i class="fas fa-file-excel mr-2"></i> Download Excel
+              </button>
+              <button
                 onclick="autoGeneratePayroll()"
                 class="button button-green"
                 title="Auto-generate payroll for all employees based on previous month"

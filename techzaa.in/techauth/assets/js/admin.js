@@ -2682,6 +2682,65 @@ function applyPayrollFilters() {
     displayPayrollRecords(filteredData);
 }
 
+// Download payroll records as Excel
+function downloadPayrollExcel() {
+    if (allPayrollData.length === 0) {
+        showToast('warning', 'No Data', 'No payroll records available to download');
+        return;
+    }
+
+    const rows = [
+        ['Employee Name', 'Month', 'Basic Salary', 'Housing Allowance', 'Transport Allowance', 'Benefits', 'Other Allowances', 'Total Allowances', 'Gross Salary', 'Income Tax', 'Welfare', 'Social Security', 'Health Insurance', 'Other Deductions', 'Total Deductions', 'Net Salary', 'Status', 'Payment Date']
+    ];
+
+    allPayrollData.forEach(item => {
+        const fields = item.record.fields;
+        rows.push([
+            item.employeeName,
+            fields['Month'] || '',
+            parseFloat(fields['Basic Salary'] || 0).toFixed(2),
+            parseFloat(fields['Housing Allowance'] || 0).toFixed(2),
+            parseFloat(fields['Transport Allowance'] || 0).toFixed(2),
+            parseFloat(fields['Benefits'] || 0).toFixed(2),
+            parseFloat(fields['Other Allowances'] || 0).toFixed(2),
+            parseFloat(fields['Total Allowances'] || 0).toFixed(2),
+            parseFloat(fields['Gross Salary'] || 0).toFixed(2),
+            parseFloat(fields['Income Tax'] || 0).toFixed(2),
+            parseFloat(fields['Welfare'] || 0).toFixed(2),
+            parseFloat(fields['Social Security'] || 0).toFixed(2),
+            parseFloat(fields['Health Insurance'] || 0).toFixed(2),
+            parseFloat(fields['Other Deductions'] || 0).toFixed(2),
+            parseFloat(fields['Total Deductions'] || 0).toFixed(2),
+            parseFloat(fields['Net Salary'] || 0).toFixed(2),
+            fields['Status'] || '',
+            fields['Payment Date'] || ''
+        ]);
+    });
+
+    let csvContent = rows.map(row =>
+        row.map(cell => {
+            const cellStr = String(cell);
+            return cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')
+                ? `"${cellStr.replace(/"/g, '""')}"`
+                : cellStr;
+        }).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+
+    const today = new Date().toISOString().split('T')[0];
+    link.setAttribute('href', url);
+    link.setAttribute('download', `Payroll_Records_${today}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    showToast('success', 'Download Complete', `Downloaded ${allPayrollData.length} payroll records`);
+}
+
 async function displayPayrollRecords(filteredData = null) {
     const tbody = document.getElementById('payrollTableBody');
     const dataToDisplay = filteredData || allPayrollData;
