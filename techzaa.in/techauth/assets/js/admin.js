@@ -7,19 +7,30 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 async function getEmployeeCache(forceRefresh = false) {
     const now = Date.now();
+    console.log('[CACHE] getEmployeeCache called, forceRefresh:', forceRefresh);
+
     if (!forceRefresh && employeeCache && employeeCacheTime && (now - employeeCacheTime < CACHE_DURATION)) {
+        console.log('[CACHE] Returning cached employees, count:', Object.keys(employeeCache).length);
         return employeeCache;
     }
 
     try {
+        console.log('[CACHE] Fetching fresh employee data...');
         const employees = await getEmployees();
+        console.log('[CACHE] Received employees:', employees.length);
+
         employeeCache = {};
         employees.forEach(emp => {
             employeeCache[emp.id] = emp;
         });
         employeeCacheTime = now;
+
+        console.log('[CACHE] Cache populated with', Object.keys(employeeCache).length, 'employees');
+        console.log('[CACHE] Sample employee IDs:', Object.keys(employeeCache).slice(0, 3));
+
         return employeeCache;
     } catch (error) {
+        console.error('[CACHE] Error fetching employees:', error);
         return employeeCache || {};
     }
 }
@@ -2596,15 +2607,21 @@ async function loadPayrollRecords() {
         });
 
         // Load employee cache once
+        console.log('[PAYROLL] Loading employee cache...');
         const empCache = await getEmployeeCache();
+        console.log('[PAYROLL] Cache loaded, total employees in cache:', Object.keys(empCache).length);
 
         // Map payroll records with employee data from cache
+        console.log('[PAYROLL] Processing', allPayrollRecords.length, 'payroll records');
         allPayrollData = allPayrollRecords.map((record) => {
             if (record.fields['Employee'] && record.fields['Employee'][0]) {
                 const employeeId = record.fields['Employee'][0];
                 const employee = empCache[employeeId];
 
+                console.log('[PAYROLL] Looking for employee ID:', employeeId, 'Found:', !!employee);
+
                 if (employee && employee.fields) {
+                    console.log('[PAYROLL] Employee name:', employee.fields['Full Name']);
                     return {
                         record: record,
                         employeeName: employee.fields['Full Name'] || 'No Name',
@@ -2615,6 +2632,8 @@ async function loadPayrollRecords() {
                         paymentMethod: employee.fields['Payment Method'] || 'Bank Transfer'
                     };
                 } else {
+                    console.warn('[PAYROLL] Employee NOT FOUND in cache for ID:', employeeId);
+                    console.log('[PAYROLL] Available IDs in cache:', Object.keys(empCache).slice(0, 5));
                     return {
                         record: record,
                         employeeName: 'Employee Not Found',
@@ -2626,6 +2645,7 @@ async function loadPayrollRecords() {
                     };
                 }
             }
+            console.log('[PAYROLL] No employee linked to this payroll record');
             return {
                 record: record,
                 employeeName: 'No Employee Linked',
