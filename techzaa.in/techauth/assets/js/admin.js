@@ -5,9 +5,9 @@ let employeeCache = null;
 let employeeCacheTime = null;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
-async function getEmployeeCache() {
+async function getEmployeeCache(forceRefresh = false) {
     const now = Date.now();
-    if (employeeCache && employeeCacheTime && (now - employeeCacheTime < CACHE_DURATION)) {
+    if (!forceRefresh && employeeCache && employeeCacheTime && (now - employeeCacheTime < CACHE_DURATION)) {
         return employeeCache;
     }
 
@@ -20,7 +20,7 @@ async function getEmployeeCache() {
         employeeCacheTime = now;
         return employeeCache;
     } catch (error) {
-        return {};
+        return employeeCache || {};
     }
 }
 
@@ -3496,6 +3496,9 @@ function startAutoRefresh() {
 
 async function refreshTabData(tabName) {
     try {
+        // Force refresh employee cache first
+        await getEmployeeCache(true);
+
         switch(tabName) {
             case 'employees':
                 await loadEmployees();
@@ -3580,8 +3583,11 @@ if (attendanceDateRangeEl) {
 // ========================================
 checkAdminAccess().then(hasAccess => {
     if (hasAccess) {
-        // Load employees first to populate filter dropdowns
-        loadEmployees().then(() => {
+        // Pre-load employee cache first
+        getEmployeeCache().then(() => {
+            // Load employees first to populate filter dropdowns
+            return loadEmployees();
+        }).then(() => {
             // Then load other data that depends on employees being loaded
             return Promise.all([
                 loadLeaveRequests(),
