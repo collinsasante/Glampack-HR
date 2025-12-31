@@ -1257,29 +1257,43 @@
       // CHECK OUT FUNCTION
       // ========================================
       async function checkOut() {
+        console.log('[CHECKOUT] Starting checkout process...');
+
         // Immediately disable button to prevent double-clicks
         const checkOutBtn = document.getElementById("checkOutBtn");
-        if (checkOutBtn.disabled) return; // Already processing
+        if (checkOutBtn.disabled) {
+          console.log('[CHECKOUT] Button already disabled, aborting');
+          return; // Already processing
+        }
 
         checkOutBtn.disabled = true;
         checkOutBtn.classList.add("opacity-50", "cursor-not-allowed");
 
         const time = getCurrentTime();
         const datetime = getCurrentDateTime();
+        console.log('[CHECKOUT] Current time:', time, 'DateTime:', datetime);
 
         try {
           // Check if we have a record ID from check-in (memory or localStorage)
+          console.log('[CHECKOUT] todayRecordId from memory:', todayRecordId);
+
           if (!todayRecordId) {
             todayRecordId = getTodayRecordId();
+            console.log('[CHECKOUT] todayRecordId from localStorage:', todayRecordId);
           }
 
           // If still no record ID, try finding today's record from Airtable
           if (!todayRecordId) {
+            console.log('[CHECKOUT] No record ID found, searching Airtable...');
             const existingRecord = await findTodayRecord();
+            console.log('[CHECKOUT] Found existing record:', existingRecord);
+
             if (existingRecord) {
               todayRecordId = existingRecord.id;
               setTodayRecordId(existingRecord.id);
+              console.log('[CHECKOUT] Set record ID to:', todayRecordId);
             } else {
+              console.error('[CHECKOUT] No record found - user needs to check in first');
               showMessage("Please check in first!", "error");
               // Re-enable button if validation fails
               checkOutBtn.disabled = false;
@@ -1288,14 +1302,21 @@
             }
           }
 
+          console.log('[CHECKOUT] Fetching current record with ID:', todayRecordId);
+
           // Verify the record hasn't already been checked out
           const currentRecord = await getAttendanceRecord(todayRecordId);
+          console.log('[CHECKOUT] Current record:', currentRecord);
+          console.log('[CHECKOUT] Current record Check Out value:', currentRecord?.fields?.["Check Out"]);
+
           if (currentRecord && currentRecord.fields["Check Out"]) {
+            console.warn('[CHECKOUT] Already checked out!');
             showMessage("You have already checked out today. You cannot check out more than once in 24 hours.", "error");
             return; // Keep button disabled
           }
 
           showMessage("Getting your location...", "info");
+          console.log('[CHECKOUT] Getting location...');
 
           // Try to get GPS location with high accuracy for geofencing
           let gpsLocation;
@@ -1303,11 +1324,14 @@
 
           try {
             gpsLocation = await getGPSLocationHighAccuracy();
+            console.log('[CHECKOUT] GPS location obtained:', gpsLocation);
           } catch (gpsError) {
+            console.warn('[CHECKOUT] GPS failed:', gpsError);
             // GPS failed, try IP-based location as fallback
             showMessage("GPS unavailable. Using network-based location...", "info");
             try {
               const ipLocation = await getIPBasedLocation();
+              console.log('[CHECKOUT] IP location obtained:', ipLocation);
               gpsLocation = {
                 latitude: ipLocation.latitude,
                 longitude: ipLocation.longitude,
@@ -1319,13 +1343,17 @@
               };
               useIPLocation = true;
             } catch (ipError) {
+              console.error('[CHECKOUT] IP location also failed:', ipError);
               showMessage("Unable to determine your location. Please enable GPS in your phone settings or check your internet connection.", "error");
+              checkOutBtn.disabled = false;
+              checkOutBtn.classList.remove("opacity-50", "cursor-not-allowed");
               return;
             }
           }
 
           // Calculate distance for logging purposes
           const geofenceCheck = isWithinGeofence(gpsLocation.latitude, gpsLocation.longitude);
+          console.log('[CHECKOUT] Geofence check:', geofenceCheck);
 
           // Get IP location for additional context if GPS was used
           let ipAddress = "Unknown";
@@ -1347,6 +1375,7 @@
 
           const locationMethod = useIPLocation ? " (Network-based)" : "";
           const locationString = `${gpsLocation.latitude.toFixed(6)}, ${gpsLocation.longitude.toFixed(6)}${cityInfo} (${geofenceCheck.distance.toFixed(1)}m from office)${locationMethod}`;
+          console.log('[CHECKOUT] Location string:', locationString);
 
           // Update record with check-out time and location
           const updateFields = {
@@ -1354,14 +1383,17 @@
             "Check Out Location": locationString,
             "IP Address": ipAddress,
           };
+          console.log('[CHECKOUT] Updating record ID:', todayRecordId, 'with fields:', updateFields);
 
           await updateRecord(todayRecordId, updateFields);
+          console.log('[CHECKOUT] Record updated successfully');
 
           // Keep the record ID in localStorage so the page can still find it on reload
           // This ensures buttons stay disabled when user navigates away and comes back
           // The record ID will be automatically cleared at midnight (next day)
 
           showMessage(`Successfully checked out at ${time}`, "success");
+          console.log('[CHECKOUT] Checkout completed successfully at', time);
 
           // Signal dashboard to refresh
           localStorage.setItem('attendanceUpdated', Date.now().toString());
@@ -1376,9 +1408,11 @@
             .getElementById("checkInBtn")
             .classList.add("opacity-50", "cursor-not-allowed");
 
+          console.log('[CHECKOUT] Refreshing status and history...');
           loadTodayStatus(); // Refresh today's status
           loadAttendanceHistory(); // Refresh history with updated record
         } catch (error) {
+          console.error('[CHECKOUT] Error during checkout:', error);
           // Re-enable button if there's an error
           const checkOutBtn = document.getElementById("checkOutBtn");
           checkOutBtn.disabled = false;
