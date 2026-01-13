@@ -3871,12 +3871,7 @@ function showEmployeeDetails(record) {
 
 // Show leave request details
 async function showLeaveDetails(record) {
-    console.log('showLeaveDetails called with record:', record);
     const fields = record.fields;
-    console.log('Leave request fields:', fields);
-    console.log('Reason field:', fields['Reason']);
-    console.log('Notes field:', fields['Notes']);
-
     const employeeId = fields['Employee'] ? fields['Employee'][0] : null;
 
     let employeeName = 'Loading...';
@@ -3896,8 +3891,6 @@ async function showLeaveDetails(record) {
 
     // Handle both 'Reason' and 'Notes' fields - Check all possible field names
     const reasonText = fields['Reason'] || fields['Notes'] || fields['reason'] || fields['notes'] || '--';
-    console.log('Final reason text:', reasonText);
-    console.log('All fields:', Object.keys(fields));
 
     // Escape HTML in text fields to prevent display issues
     const escapedReason = escapeHtml(reasonText);

@@ -545,6 +545,9 @@ async function handleLeaveRequests(request, env, apiKey, baseId, corsHeaders) {
     const response = await airtableRequest(airtableUrl, apiKey, 'POST', body);
     const data = await response.json();
 
+    // Invalidate cache
+    invalidateCache('leave-requests');
+
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: response.status,
@@ -556,6 +559,23 @@ async function handleLeaveRequests(request, env, apiKey, baseId, corsHeaders) {
 
     const response = await airtableRequest(airtableUrl, apiKey, 'PATCH', body);
     const data = await response.json();
+
+    // Invalidate cache
+    invalidateCache('leave-requests');
+
+    return new Response(JSON.stringify(data), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: response.status,
+    });
+  } else if (request.method === 'DELETE') {
+    const recordId = pathParts[3];
+    const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+
+    const response = await airtableRequest(airtableUrl, apiKey, 'DELETE');
+    const data = await response.json();
+
+    // Invalidate cache
+    invalidateCache('leave-requests');
 
     return new Response(JSON.stringify(data), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
