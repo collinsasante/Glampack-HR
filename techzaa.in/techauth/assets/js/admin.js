@@ -3643,10 +3643,30 @@ function openDetailsModal(title, content) {
     document.getElementById('detailsModalTitle').textContent = title;
     document.getElementById('detailsModalContent').innerHTML = content;
     document.getElementById('detailsModal').classList.add('active');
+
+    // Add backdrop click to close
+    setTimeout(() => {
+        const modal = document.getElementById('detailsModal');
+        modal.onclick = function(e) {
+            if (e.target === modal) {
+                closeDetailsModal();
+            }
+        };
+    }, 100);
 }
 
 function closeDetailsModal() {
-    document.getElementById('detailsModal').classList.remove('active');
+    const modal = document.getElementById('detailsModal');
+    modal.classList.remove('active');
+    modal.onclick = null; // Remove event listener
+}
+
+// Helper function to escape HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 // Format field label
@@ -3874,9 +3894,13 @@ async function showLeaveDetails(record) {
     };
     const statusClass = statusColors[fields['Status']] || 'bg-gray-100 text-gray-800';
 
-    // Handle both 'Reason' and 'Notes' fields
-    const reasonText = fields['Reason'] || fields['Notes'] || '--';
+    // Handle both 'Reason' and 'Notes' fields - Check all possible field names
+    const reasonText = fields['Reason'] || fields['Notes'] || fields['reason'] || fields['notes'] || '--';
     console.log('Final reason text:', reasonText);
+    console.log('All fields:', Object.keys(fields));
+
+    // Escape HTML in text fields to prevent display issues
+    const escapedReason = escapeHtml(reasonText);
 
     const content = `
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -3914,7 +3938,7 @@ async function showLeaveDetails(record) {
 
             <div class="col-span-1 md:col-span-2 bg-gray-50 p-4 rounded-lg">
                 <h4 class="text-sm font-semibold text-gray-600 mb-3">Reason</h4>
-                <p class="text-sm text-gray-900">${reasonText}</p>
+                <p class="text-sm text-gray-900 whitespace-pre-wrap">${escapedReason}</p>
             </div>
 
             <div class="bg-purple-50 p-4 rounded-lg">
