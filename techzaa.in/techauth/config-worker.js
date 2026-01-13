@@ -334,6 +334,15 @@ async function updateLeaveRequest(recordId, fields) {
     return workerRequest(`${API_CONFIG.endpoints.leaveRequests}/${recordId}`, 'PATCH', { fields });
 }
 
+/**
+ * Delete a leave request
+ * @param {string} recordId - Airtable record ID
+ * @returns {Promise<object>} Deletion confirmation
+ */
+async function deleteLeaveRequest(recordId) {
+    return workerRequest(`${API_CONFIG.endpoints.leaveRequests}/${recordId}`, 'DELETE');
+}
+
 // ========================================
 // ANNOUNCEMENTS API
 // ========================================

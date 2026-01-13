@@ -980,14 +980,23 @@ async function displayLeaveRequests(requests) {
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
                     ${fields['Status'] === 'Approved'
-                        ? '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Approved</span>'
+                        ? `<span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Approved</span>
+                           <button onclick="deleteLeave('${req.id}')" class="text-red-600 hover:text-red-900 ml-2">
+                            <i class="fas fa-trash"></i> Delete
+                          </button>`
                         : fields['Status'] === 'Rejected'
-                        ? '<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i>Rejected</span>'
+                        ? `<span class="px-3 py-1 rounded-full text-sm font-semibold bg-red-100 text-red-800"><i class="fas fa-times-circle mr-1"></i>Rejected</span>
+                           <button onclick="deleteLeave('${req.id}')" class="text-red-600 hover:text-red-900 ml-2">
+                            <i class="fas fa-trash"></i> Delete
+                          </button>`
                         : `<button onclick="approveLeave('${req.id}')" class="text-green-600 hover:text-green-900">
                             <i class="fas fa-check"></i> Approve
                           </button>
                           <button onclick="rejectLeave('${req.id}')" class="text-red-600 hover:text-red-900">
                             <i class="fas fa-times"></i> Reject
+                          </button>
+                          <button onclick="deleteLeave('${req.id}')" class="text-red-600 hover:text-red-900">
+                            <i class="fas fa-trash"></i> Delete
                           </button>`
                     }
                 </td>
@@ -1083,6 +1092,22 @@ async function rejectLeave(leaveId) {
     } catch (error) {
 
         showToast('error', 'Rejection Failed', 'Error rejecting leave. Please try again.');
+    }
+}
+
+async function deleteLeave(leaveId) {
+    if (!confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
+        return;
+    }
+
+    try {
+        await deleteLeaveRequest(leaveId);
+
+        showToast('success', 'Leave Deleted', 'Leave request deleted successfully!');
+        loadLeaveRequests();
+    } catch (error) {
+
+        showToast('error', 'Deletion Failed', 'Error deleting leave request. Please try again.');
     }
 }
 
