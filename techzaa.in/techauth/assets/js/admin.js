@@ -3931,6 +3931,24 @@ async function showLeaveDetails(record) {
             </div>
             ` : ''}
         </div>
+
+        <!-- Actions Section -->
+        <div class="bg-white rounded-lg shadow-lg p-6 mt-6">
+            <h4 class="text-sm font-semibold text-gray-700 mb-4">Actions</h4>
+            <div class="flex flex-wrap gap-3">
+                ${fields['Status'] === 'Pending' ? `
+                    <button onclick="approveLeave('${record.id}'); closeDetailsModal();" class="flex-1 min-w-[120px] px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-check mr-2"></i> Approve
+                    </button>
+                    <button onclick="rejectLeave('${record.id}'); closeDetailsModal();" class="flex-1 min-w-[120px] px-4 py-2 bg-yellow-600 hover:bg-yellow-700 text-white rounded-lg transition duration-200 flex items-center justify-center">
+                        <i class="fas fa-times mr-2"></i> Reject
+                    </button>
+                ` : ''}
+                <button onclick="deleteLeave('${record.id}'); closeDetailsModal();" class="flex-1 min-w-[120px] px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition duration-200 flex items-center justify-center">
+                    <i class="fas fa-trash mr-2"></i> Delete
+                </button>
+            </div>
+        </div>
     `;
 
     openDetailsModal('Leave Request Details', content);
