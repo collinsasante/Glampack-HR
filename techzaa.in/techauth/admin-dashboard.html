@@ -2635,7 +2635,8 @@
 
     <!-- Custom Allowance Modal -->
     <div id="customAllowanceModal" class="modal">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="flex justify-between items-center p-6 border-b">
           <h3 class="text-xl font-bold text-gray-800">Add Custom Allowance</h3>
           <button
@@ -2688,12 +2689,14 @@
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
 
     <!-- Custom Deduction Modal -->
     <div id="customDeductionModal" class="modal">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
         <div class="flex justify-between items-center p-6 border-b">
           <h3 class="text-xl font-bold text-gray-800">Add Custom Deduction</h3>
           <button
@@ -2777,56 +2780,59 @@
             </button>
           </div>
         </form>
+        </div>
       </div>
     </div>
 
     <!-- Details Modal -->
     <div id="detailsModal" class="modal">
-      <div
-        class="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[85vh] overflow-hidden flex flex-col"
-        style="animation: slideUp 0.3s ease-out"
-      >
-        <!-- Modern Header -->
+      <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div
-          class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center"
+          class="bg-white rounded-xl shadow-xl w-full max-w-3xl mx-4 max-h-[85vh] overflow-hidden flex flex-col"
+          style="animation: slideUp 0.3s ease-out"
         >
-          <div class="flex items-center space-x-3">
-            <div
-              class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center"
-            >
-              <i class="fas fa-file-alt text-red-600 text-sm"></i>
-            </div>
-            <h3
-              class="text-lg font-semibold text-gray-800"
-              id="detailsModalTitle"
-            >
-              Record Details
-            </h3>
-          </div>
-          <button
-            onclick="closeDetailsModal()"
-            class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-all duration-200"
+          <!-- Modern Header -->
+          <div
+            class="bg-white border-b border-gray-200 px-6 py-4 flex justify-between items-center"
           >
-            <i class="fas fa-times text-xl"></i>
-          </button>
-        </div>
+            <div class="flex items-center space-x-3">
+              <div
+                class="w-8 h-8 bg-red-100 rounded-lg flex items-center justify-center"
+              >
+                <i class="fas fa-file-alt text-red-600 text-sm"></i>
+              </div>
+              <h3
+                class="text-lg font-semibold text-gray-800"
+                id="detailsModalTitle"
+              >
+                Record Details
+              </h3>
+            </div>
+            <button
+              onclick="closeDetailsModal()"
+              class="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-2 transition-all duration-200"
+            >
+              <i class="fas fa-times text-xl"></i>
+            </button>
+          </div>
 
-        <!-- Clean Content Area -->
-        <div
-          class="overflow-y-auto flex-1 px-6 py-5 bg-white"
-          id="detailsModalContent"
-          style="scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc"
-        >
-          <!-- Content will be dynamically inserted here -->
-        </div>
+          <!-- Clean Content Area -->
+          <div
+            class="overflow-y-auto flex-1 px-6 py-5 bg-white"
+            id="detailsModalContent"
+            style="scrollbar-width: thin; scrollbar-color: #cbd5e0 #f7fafc"
+          >
+            <!-- Content will be dynamically inserted here -->
+          </div>
 
-        <!-- Simple Footer -->
-        <div
-          class="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200"
-        >
-          <button onclick="closeDetailsModal()" class="button button-red">
-            <i class="fas fa-times mr-2"></i> Close
-          </button>
+          <!-- Simple Footer -->
+          <div
+            class="bg-gray-50 px-6 py-4 flex justify-end border-t border-gray-200"
+          >
+            <button onclick="closeDetailsModal()" class="button button-red">
+              <i class="fas fa-times mr-2"></i> Close
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -2834,69 +2840,71 @@
     <!-- jsPDF for PDF generation -->
     <!-- Change Role Modal -->
     <div id="changeRoleModal" class="modal">
-      <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-        <div class="flex justify-between items-center p-6 border-b">
-          <h3 class="text-2xl font-bold text-gray-800">
-            Change User Role
-          </h3>
-          <button
-            onclick="closeChangeRoleModal()"
-            class="text-gray-500 hover:text-gray-700"
-          >
-            <i class="fas fa-times text-2xl"></i>
-          </button>
-        </div>
-        <div class="p-6">
-          <input type="hidden" id="changeRoleEmployeeId" />
-
-          <div class="mb-6">
-            <p class="text-sm text-gray-600 mb-2">Employee:</p>
-            <p class="font-semibold text-gray-800" id="changeRoleEmployeeName"></p>
-          </div>
-
-          <div class="mb-6">
-            <label class="block text-sm font-medium text-gray-700 mb-2">
-              Select New Role *
-            </label>
-            <select
-              id="changeRoleSelect"
-              required
-              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-            >
-              <option value="">Choose a role...</option>
-              <option value="Employee">Employee</option>
-              <option value="Manager">Manager</option>
-              <option value="HR">HR</option>
-              <option value="Admin">Admin</option>
-            </select>
-          </div>
-
-          <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
-            <div class="flex">
-              <div class="flex-shrink-0">
-                <i class="fas fa-info-circle text-blue-500"></i>
-              </div>
-              <div class="ml-3">
-                <p class="text-sm text-blue-700">
-                  <strong>Note:</strong> Changing a user's role will immediately affect their access permissions.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-end gap-3">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
+          <div class="flex justify-between items-center p-6 border-b">
+            <h3 class="text-2xl font-bold text-gray-800">
+              Change User Role
+            </h3>
             <button
               onclick="closeChangeRoleModal()"
-              class="button button-red button-outline"
+              class="text-gray-500 hover:text-gray-700"
             >
-              Cancel
+              <i class="fas fa-times text-2xl"></i>
             </button>
-            <button
-              onclick="confirmChangeRole()"
-              class="button button-red"
-            >
-              <i class="fas fa-save mr-2"></i> Save Changes
-            </button>
+          </div>
+          <div class="p-6">
+            <input type="hidden" id="changeRoleEmployeeId" />
+
+            <div class="mb-6">
+              <p class="text-sm text-gray-600 mb-2">Employee:</p>
+              <p class="font-semibold text-gray-800" id="changeRoleEmployeeName"></p>
+            </div>
+
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                Select New Role *
+              </label>
+              <select
+                id="changeRoleSelect"
+                required
+                class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+              >
+                <option value="">Choose a role...</option>
+                <option value="Employee">Employee</option>
+                <option value="Manager">Manager</option>
+                <option value="HR">HR</option>
+                <option value="Admin">Admin</option>
+              </select>
+            </div>
+
+            <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mb-6">
+              <div class="flex">
+                <div class="flex-shrink-0">
+                  <i class="fas fa-info-circle text-blue-500"></i>
+                </div>
+                <div class="ml-3">
+                  <p class="text-sm text-blue-700">
+                    <strong>Note:</strong> Changing a user's role will immediately affect their access permissions.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex justify-end gap-3">
+              <button
+                onclick="closeChangeRoleModal()"
+                class="button button-red button-outline"
+              >
+                Cancel
+              </button>
+              <button
+                onclick="confirmChangeRole()"
+                class="button button-red"
+              >
+                <i class="fas fa-save mr-2"></i> Save Changes
+              </button>
+            </div>
           </div>
         </div>
       </div>
