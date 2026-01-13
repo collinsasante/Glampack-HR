@@ -3914,7 +3914,7 @@ async function showLeaveDetails(record) {
 
             <div class="col-span-1 md:col-span-2 bg-gray-50 p-4 rounded-lg">
                 <h4 class="text-sm font-semibold text-gray-600 mb-3">Reason</h4>
-                <p class="text-sm">${reasonText}</p>
+                <p class="text-sm text-gray-900">${reasonText}</p>
             </div>
 
             <div class="bg-purple-50 p-4 rounded-lg">
