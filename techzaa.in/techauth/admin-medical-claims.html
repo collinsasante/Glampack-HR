@@ -28,7 +28,7 @@
     <link rel="stylesheet" href="assets/css/button-styles.css?v=6" />
 
     <!-- Configuration Script -->
-    <script src="config-worker.js?v=5"></script>
+    <script src="config-worker.js?v=6"></script>
     <!-- Shared Modal System -->
     <script src="shared-modal.js"></script>
     <!-- Authentication Script -->
@@ -309,7 +309,7 @@
       }
 
       // Display claims in table
-      function displayClaims(claims) {
+      async function displayClaims(claims) {
         const tbody = document.getElementById("claimsTableBody");
 
         if (claims.length === 0) {
@@ -324,6 +324,14 @@
           return;
         }
 
+        // Fetch all employees to get their names
+        const employeesData = await getEmployees();
+        const employees = employeesData.records || [];
+        const employeeMap = {};
+        employees.forEach(emp => {
+          employeeMap[emp.id] = emp.fields['Full Name'] || 'Unknown';
+        });
+
         tbody.innerHTML = claims
           .map((claim) => {
             const fields = claim.fields;
@@ -333,10 +341,14 @@
               Rejected: "bg-red-100 text-red-800",
             };
 
+            // Get employee name from Employee field (linked record)
+            const employeeId = fields['Employee'] && fields['Employee'][0];
+            const employeeName = employeeId ? (employeeMap[employeeId] || 'Unknown') : 'N/A';
+
             return `
                     <tr class="hover:bg-gray-50">
                         <td class="px-6 py-4 whitespace-nowrap">
-                            <div class="font-medium text-gray-900">${fields["Full Name (from Employee)"] || "N/A"}</div>
+                            <div class="font-medium text-gray-900">${employeeName}</div>
                         </td>
                         <td class="px-6 py-4">
                             <div class="text-sm text-gray-900">${fields["Hospital/Clinic Name"] || "N/A"}</div>
@@ -364,8 +376,20 @@
       }
 
       // View claim details
-      function viewClaim(claim) {
+      async function viewClaim(claim) {
         const fields = claim.fields;
+
+        // Get employee name
+        const employeeId = fields['Employee'] && fields['Employee'][0];
+        let employeeName = 'N/A';
+        if (employeeId) {
+          try {
+            const employee = await getEmployee(employeeId);
+            employeeName = employee.fields['Full Name'] || 'Unknown';
+          } catch (error) {
+            employeeName = 'Unknown';
+          }
+        }
 
         // Handle multiple receipts
         const receipts = fields["Upload Receipt/Proof"] || [];
@@ -393,7 +417,7 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <p class="text-sm font-medium text-gray-500">Employee Name</p>
-                        <p class="text-base font-semibold text-gray-900">${fields["Full Name (from Employee)"] || "N/A"}</p>
+                        <p class="text-base font-semibold text-gray-900">${employeeName}</p>
                     </div>
                     <div>
                         <p class="text-sm font-medium text-gray-500">Hospital/Clinic</p>
