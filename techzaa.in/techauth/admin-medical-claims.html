@@ -236,9 +236,10 @@
           return;
         }
 
-        // Check if user is admin
-        if (currentEmployee.role !== "Admin") {
-          showMessage("Access denied. Admin privileges required.", "error");
+        // Check if user has management access (Admin, Manager, or HR)
+        const allowedRoles = ["Admin", "Manager", "HR"];
+        if (!allowedRoles.includes(currentEmployee.role)) {
+          showMessage("Access denied. Management privileges required.", "error");
           setTimeout(() => (window.location.href = "dashboard.html"), 2000);
           return;
         }
