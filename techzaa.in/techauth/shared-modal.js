@@ -173,8 +173,12 @@ function customAlert(message, title = 'Alert', type = 'info') {
     // Store resolve function
     modalResolve = resolve;
 
-    // Set title
-    modalTitle.textContent = title;
+    // Set title (support HTML for icons)
+    if (typeof title === 'string' && title.includes('<')) {
+      modalTitle.innerHTML = title;
+    } else {
+      modalTitle.textContent = title;
+    }
 
     // Set message (support HTML)
     if (typeof message === 'string' && message.includes('<')) {
