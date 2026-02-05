@@ -981,6 +981,9 @@ async function displayLeaveRequests(requests) {
                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2" onclick="event.stopPropagation()">
                     ${fields['Status'] === 'Approved'
                         ? `<span class="px-3 py-1 rounded-full text-sm font-semibold bg-green-100 text-green-800"><i class="fas fa-check-circle mr-1"></i>Approved</span>
+                           <button onclick="cancelApprovedLeave('${req.id}')" class="text-orange-600 hover:text-orange-900 ml-2" title="Cancel and restore leave balance">
+                            <i class="fas fa-undo"></i> Cancel
+                          </button>
                            <button onclick="deleteLeave('${req.id}')" class="text-red-600 hover:text-red-900 ml-2">
                             <i class="fas fa-trash"></i> Delete
                           </button>`
@@ -1095,15 +1098,133 @@ async function rejectLeave(leaveId) {
     }
 }
 
-async function deleteLeave(leaveId) {
-    if (!confirm('Are you sure you want to delete this leave request? This action cannot be undone.')) {
+async function cancelApprovedLeave(leaveId) {
+    const comment = prompt('Reason for cancellation:');
+    if (!comment) {
+        showToast('warning', 'Comment Required', 'Please provide a reason for cancellation.');
         return;
     }
 
     try {
+        // Get the leave request details
+        const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
+        if (!leaveRequest) {
+            showToast('error', 'Not Found', 'Leave request not found');
+            return;
+        }
+
+        // Verify it was actually approved
+        if (leaveRequest.fields['Status'] !== 'Approved') {
+            showToast('error', 'Invalid Action', 'This leave request is not approved.');
+            return;
+        }
+
+        // Get employee ID
+        const employeeId = leaveRequest.fields['Employee'] && leaveRequest.fields['Employee'][0];
+        if (!employeeId) {
+            showToast('error', 'Missing Data', 'Employee information missing from leave request');
+            return;
+        }
+
+        // Get employee details to get current balance
+        const employee = await getEmployee(employeeId);
+        if (!employee || !employee.fields) {
+            showToast('error', 'Fetch Failed', 'Failed to fetch employee details');
+            return;
+        }
+
+        // Get number of days to restore
+        let numberOfDays = leaveRequest.fields['Days'] || leaveRequest.fields['Number of Days'];
+        if (!numberOfDays && leaveRequest.fields['Start Date'] && leaveRequest.fields['End Date']) {
+            const start = new Date(leaveRequest.fields['Start Date']);
+            const end = new Date(leaveRequest.fields['End Date']);
+            numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+        }
+
+        // Get current balance and restore days
+        const currentAnnualBalance = employee.fields['Annual Leave Balance'] !== undefined
+            ? employee.fields['Annual Leave Balance']
+            : 20;
+        const restoredBalance = currentAnnualBalance + numberOfDays;
+
+        // Update leave request status to Rejected (cancelled)
+        await updateLeaveRequest(leaveId, {
+            'Status': 'Rejected',
+            'Admin Comments': `Cancelled: ${comment}`
+        });
+
+        // Restore employee's annual leave balance
+        try {
+            await updateEmployee(employeeId, {
+                'Annual Leave Balance': restoredBalance
+            });
+        } catch (updateError) {
+            showToast('warning', 'Partial Success', `Leave cancelled but failed to restore balance. Error: ${updateError.message}`);
+            loadLeaveRequests();
+            return;
+        }
+
+        const leaveType = leaveRequest.fields['Leave Type'];
+        showToast('success', 'Leave Cancelled', `Leave cancelled and balance restored!\n\nLeave Type: ${leaveType}\nDays restored: ${numberOfDays}\n\nAnnual Leave Balance:\n${currentAnnualBalance} → ${restoredBalance} days`);
+
+        loadLeaveRequests();
+    } catch (error) {
+        showToast('error', 'Cancellation Failed', 'Error cancelling leave. Please try again.');
+    }
+}
+
+async function deleteLeave(leaveId) {
+    // Get the leave request details first
+    const leaveRequest = allLeaveRequests.find(req => req.id === leaveId);
+    const wasApproved = leaveRequest && leaveRequest.fields['Status'] === 'Approved';
+
+    const confirmMsg = wasApproved
+        ? 'Are you sure you want to delete this APPROVED leave request? The leave days will be restored to the employee. This action cannot be undone.'
+        : 'Are you sure you want to delete this leave request? This action cannot be undone.';
+
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+
+    try {
+        // If the leave was approved, restore the balance before deleting
+        if (wasApproved && leaveRequest) {
+            const employeeId = leaveRequest.fields['Employee'] && leaveRequest.fields['Employee'][0];
+            if (employeeId) {
+                // Get number of days to restore
+                let numberOfDays = leaveRequest.fields['Days'] || leaveRequest.fields['Number of Days'];
+                if (!numberOfDays && leaveRequest.fields['Start Date'] && leaveRequest.fields['End Date']) {
+                    const start = new Date(leaveRequest.fields['Start Date']);
+                    const end = new Date(leaveRequest.fields['End Date']);
+                    numberOfDays = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1;
+                }
+
+                if (numberOfDays) {
+                    try {
+                        const employee = await getEmployee(employeeId);
+                        if (employee && employee.fields) {
+                            const currentBalance = employee.fields['Annual Leave Balance'] !== undefined
+                                ? employee.fields['Annual Leave Balance']
+                                : 20;
+                            const restoredBalance = currentBalance + numberOfDays;
+                            await updateEmployee(employeeId, {
+                                'Annual Leave Balance': restoredBalance
+                            });
+                        }
+                    } catch (restoreError) {
+                        console.error('Failed to restore balance:', restoreError);
+                        // Continue with deletion even if balance restore fails
+                    }
+                }
+            }
+        }
+
         await deleteLeaveRequest(leaveId);
 
-        showToast('success', 'Leave Deleted', 'Leave request deleted successfully!');
+        const successMsg = wasApproved
+            ? 'Leave request deleted and balance restored successfully!'
+            : 'Leave request deleted successfully!';
+        showToast('success', 'Leave Deleted', successMsg);
         loadLeaveRequests();
     } catch (error) {
 
