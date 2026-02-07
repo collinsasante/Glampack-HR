@@ -1510,6 +1510,25 @@
               todayRecord = await getAttendanceRecord(recordId);
               // Sync the memory variable
               todayRecordId = recordId;
+
+              // Check if this is yesterday's night shift that's already checked out
+              // If so, clear it to allow a new clock-in for today
+              if (todayRecord && todayRecord.fields) {
+                const recordDate = todayRecord.fields.Date;
+                const today = getTodayDate();
+                const hasCheckOut = todayRecord.fields["Check Out"];
+
+                if (recordDate !== today && hasCheckOut) {
+                  // Yesterday's night shift is complete, allow new clock-in today
+                  clearTodayRecordId();
+                  todayRecordId = null;
+                  todayRecord = await findTodayRecord(); // Check if there's an actual today record
+                  if (todayRecord) {
+                    todayRecordId = todayRecord.id;
+                    setTodayRecordId(todayRecord.id);
+                  }
+                }
+              }
             } catch (error) {
               // Record ID might be invalid, clear it and search again
               clearTodayRecordId();
