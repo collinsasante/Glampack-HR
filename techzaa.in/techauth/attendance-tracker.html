@@ -1452,6 +1452,7 @@
         // Night shift workers check in yesterday but check out today (next day)
         if (!todayRecord) {
           const yesterday = getYesterdayDate();
+
           const yesterdayRecord = data.records.find((record) => {
             const recordDate = record.fields.Date;
             const employeeIds = record.fields.Employee;
