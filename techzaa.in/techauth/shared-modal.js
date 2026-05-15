@@ -118,6 +118,26 @@ function initializeModalSystem() {
       </div>
     </div>
 
+    <!-- Leave Notification Modal -->
+    <div id="leaveNotificationModal" class="fixed inset-0 z-50 hidden overflow-y-auto">
+      <div class="fixed inset-0 bg-black bg-opacity-50 transition-opacity"></div>
+      <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-md w-full" style="animation: slideUp 0.3s ease-out">
+          <button onclick="closeLeaveNotificationModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors z-10">
+            <i class="fas fa-times text-xl"></i>
+          </button>
+          <div class="p-8 text-center">
+            <div id="leaveNotifIcon" class="mb-4 flex justify-center"></div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-2" id="leaveNotifTitle">Leave Update</h2>
+            <div id="leaveNotifBody" class="space-y-3 mb-6 text-left max-h-64 overflow-y-auto"></div>
+            <button onclick="closeLeaveNotificationModal()" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-8 rounded-full transition-colors shadow-lg">
+              <i class="fas fa-check mr-2"></i>Got it
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <style>
       @keyframes bounceIn {
         0% {
@@ -491,6 +511,105 @@ async function checkBirthdays() {
     await cleanupOldBirthdayAnnouncements();
   } catch (error) {
     // Silent error handling
+  }
+}
+
+// ============================================================
+// LEAVE NOTIFICATION FUNCTIONS
+// ============================================================
+
+function showLeaveNotificationModal(notifications) {
+  initializeModalSystem();
+
+  const modal = document.getElementById('leaveNotificationModal');
+  const iconEl = document.getElementById('leaveNotifIcon');
+  const titleEl = document.getElementById('leaveNotifTitle');
+  const bodyEl = document.getElementById('leaveNotifBody');
+
+  const hasApproved = notifications.some(n => n.fields['Status'] === 'Approved');
+  const hasRejected = notifications.some(n => n.fields['Status'] === 'Rejected');
+
+  if (hasApproved && !hasRejected) {
+    iconEl.innerHTML = '<div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center"><i class="fas fa-check-circle text-4xl text-green-600"></i></div>';
+    titleEl.textContent = 'Leave Approved!';
+  } else if (hasRejected && !hasApproved) {
+    iconEl.innerHTML = '<div class="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center"><i class="fas fa-times-circle text-4xl text-red-600"></i></div>';
+    titleEl.textContent = 'Leave Request Update';
+  } else {
+    iconEl.innerHTML = '<div class="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center"><i class="fas fa-calendar-alt text-4xl text-blue-600"></i></div>';
+    titleEl.textContent = 'Leave Request Updates';
+  }
+
+  bodyEl.innerHTML = notifications.map(n => {
+    const status = n.fields['Status'];
+    const leaveType = n.fields['Leave Type'] || 'Leave';
+    const startDate = n.fields['Start Date'] ? new Date(n.fields['Start Date']).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const endDate = n.fields['End Date'] ? new Date(n.fields['End Date']).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+    const adminComments = n.fields['Admin Comments'] || '';
+    const isApproved = status === 'Approved';
+
+    return `
+      <div class="p-4 rounded-xl border ${isApproved ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}">
+        <div class="flex items-center gap-2 mb-1">
+          <i class="fas ${isApproved ? 'fa-check-circle text-green-600' : 'fa-times-circle text-red-600'}"></i>
+          <span class="font-semibold text-gray-900">${leaveType}</span>
+          <span class="ml-auto px-2 py-0.5 rounded-full text-xs font-bold ${isApproved ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}">${status}</span>
+        </div>
+        <p class="text-sm text-gray-600"><i class="fas fa-calendar mr-1"></i>${startDate}${endDate && endDate !== startDate ? ' – ' + endDate : ''}</p>
+        ${adminComments ? `<p class="text-sm text-gray-500 mt-1 italic"><i class="fas fa-comment mr-1"></i>${adminComments}</p>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  modal.classList.remove('hidden');
+}
+
+function closeLeaveNotificationModal() {
+  const modal = document.getElementById('leaveNotificationModal');
+  if (modal) modal.classList.add('hidden');
+}
+
+async function checkLeaveNotifications() {
+  try {
+    const currentUser = JSON.parse(sessionStorage.getItem('currentUser') || '{}');
+    if (!currentUser.id) return;
+
+    if (typeof getLeaveRequests !== 'function') return;
+
+    const seenKey = `leaveNotifSeen_${currentUser.id}`;
+    const initKey = `leaveNotifInit_${currentUser.id}`;
+
+    const data = await getLeaveRequests();
+    const myRequests = (data.records || []).filter(r => {
+      const employees = r.fields['Employee'] || [];
+      return employees.includes(currentUser.id);
+    });
+
+    // On first run, silently mark all existing resolved requests as seen
+    if (!localStorage.getItem(initKey)) {
+      const alreadyResolved = myRequests
+        .filter(r => r.fields['Status'] === 'Approved' || r.fields['Status'] === 'Rejected')
+        .map(r => r.id);
+      localStorage.setItem(seenKey, JSON.stringify(alreadyResolved));
+      localStorage.setItem(initKey, 'true');
+      return;
+    }
+
+    const seenIds = JSON.parse(localStorage.getItem(seenKey) || '[]');
+
+    const newNotifs = myRequests.filter(r => {
+      const status = r.fields['Status'];
+      return (status === 'Approved' || status === 'Rejected') && !seenIds.includes(r.id);
+    });
+
+    if (newNotifs.length > 0) {
+      // Mark them seen before showing (prevents re-show on dismiss)
+      const updatedSeen = [...seenIds, ...newNotifs.map(r => r.id)];
+      localStorage.setItem(seenKey, JSON.stringify(updatedSeen));
+      showLeaveNotificationModal(newNotifs);
+    }
+  } catch (error) {
+    // Silent
   }
 }
 

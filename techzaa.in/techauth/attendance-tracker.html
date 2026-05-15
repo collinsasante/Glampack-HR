@@ -993,6 +993,12 @@
       function closeLateReasonModal() {
         document.getElementById("lateReasonModal").classList.add("hidden");
         document.getElementById("lateReasonModal").classList.remove("flex");
+        // Re-enable check-in button when user cancels the late-reason modal
+        const checkInBtn = document.getElementById("checkInBtn");
+        if (checkInBtn) {
+          checkInBtn.disabled = false;
+          checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
+        }
       }
 
       // ========================================
@@ -1080,10 +1086,8 @@
           const isLate = checkIfLate(now, shiftConfig, selectedShift);
 
           if (isLate) {
-            // Re-enable button temporarily for late modal
-            checkInBtn.disabled = false;
-            checkInBtn.classList.remove("opacity-50", "cursor-not-allowed");
-            // Show modal for late reason
+            // Keep button disabled while late-reason modal is open;
+            // closeLateReasonModal() will re-enable it if the user cancels
             openLateReasonModal(selectedShift, shiftConfig);
           } else {
             // Proceed with normal check-in

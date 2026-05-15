@@ -864,6 +864,18 @@ async function loadLeaveRequests() {
             return dateB - dateA;
         });
 
+        // Update pending badge count on Leave tab
+        const pendingCount = allLeaveRequests.filter(r => r.fields['Status'] === 'Pending').length;
+        const badge = document.getElementById('leavePendingBadge');
+        if (badge) {
+            if (pendingCount > 0) {
+                badge.textContent = pendingCount;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
         // Apply current filter
         filterLeaveRequests(currentLeaveFilter);
     } catch (error) {

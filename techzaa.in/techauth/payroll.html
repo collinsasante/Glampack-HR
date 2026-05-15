@@ -402,6 +402,9 @@
 
       const currentUser = getCurrentUser();
 
+      // Store fetched payroll records so download buttons can reference by index
+      let payrollHistoryRecords = [];
+
       // ========================================
       // ROLE-BASED ACCESS CONTROL
       // ========================================
@@ -476,7 +479,7 @@
             const otherAllowances = parseFloat(salary["Other Allowances"] || 0);
 
             // Update deductions
-            const paye = parseFloat(salary["PAYE"] || 0);
+            const paye = parseFloat(salary["Income Tax"] || salary["PAYE"] || 0);
             const welfare = parseFloat(salary["Welfare"] || 0);
             const socialSecurity = parseFloat(salary["Social Security"] || 0);
             const healthInsurance = parseFloat(salary["Health Insurance"] || 0);
@@ -581,8 +584,11 @@
             return;
           }
 
+          // Store records globally so buttons can reference them by index
+          payrollHistoryRecords = employeePayrolls;
+
           tbody.innerHTML = employeePayrolls
-            .map((record) => {
+            .map((record, index) => {
               const fields = record.fields;
               const monthValue = fields["Month"] || "";
 
@@ -627,7 +633,7 @@
                                 </span>
                             </td>
                             <td class="px-4 md:px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                <button onclick='downloadPayslipFromRecord(${JSON.stringify(fields).replace(/'/g, "&#39;")})' class="text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center gap-1 transition-colors">
+                                <button onclick="downloadPayslipByIndex(${index})" class="text-white bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg flex items-center gap-1 transition-colors">
                                     <i class="fas fa-download text-sm"></i>
                                     <span class="text-xs sm:text-sm">Download</span>
                                 </button>
@@ -650,6 +656,16 @@
       }
 
       // ========================================
+      // DOWNLOAD PAYSLIP BY HISTORY INDEX
+      // ========================================
+      function downloadPayslipByIndex(index) {
+        const record = payrollHistoryRecords[index];
+        if (record) {
+          downloadPayslipFromRecord(record.fields);
+        }
+      }
+
+      // ========================================
       // DOWNLOAD PAYSLIP FROM RECORD (Wrapper)
       // ========================================
       async function downloadPayslipFromRecord(fields) {
@@ -662,7 +678,7 @@
         const benefits = parseFloat(fields["Benefits"] || 0);
         const otherAllowances = parseFloat(fields["Other Allowances"] || 0);
 
-        const paye = parseFloat(fields["PAYE"] || 0);
+        const paye = parseFloat(fields["Income Tax"] || fields["PAYE"] || 0);
         const welfare = parseFloat(fields["Welfare"] || 0);
         const socialSecurity = parseFloat(fields["Social Security"] || 0);
         const healthInsurance = parseFloat(fields["Health Insurance"] || 0);
