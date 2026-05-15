@@ -521,6 +521,11 @@
       // LOAD PAYMENT HISTORY
       // ========================================
       async function loadPaymentHistory() {
+        // Always fetch fresh payroll data (bypass client cache)
+        if (typeof API_CACHE !== "undefined") {
+          API_CACHE.invalidate("payroll");
+        }
+
         const tbody = document.getElementById("paymentHistoryBody");
 
         tbody.innerHTML = `
@@ -533,17 +538,18 @@
             `;
 
         try {
-          // Fetch all payroll records using Worker API
-          const data = await getPayroll();
+          // Fetch payroll records for this employee using server-side filter formula
+          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
+          const data = await getPayroll(filterFormula);
 
-          // Filter for this employee's payroll records (client-side)
-          let employeePayrolls = data.records.filter((record) => {
+          // Secondary client-side filter to handle any edge cases
+          let employeePayrolls = (data.records || []).filter((record) => {
             const employeeField = record.fields["Employee"];
-            return (
-              employeeField &&
-              Array.isArray(employeeField) &&
-              employeeField.includes(currentUser.id)
-            );
+            if (!employeeField) return true; // include records that slipped through
+            if (Array.isArray(employeeField)) {
+              return employeeField.some(id => String(id).trim() === String(currentUser.id).trim());
+            }
+            return String(employeeField).includes(currentUser.id);
           });
 
           // Sort by month (descending — newest first)
@@ -554,11 +560,13 @@
           });
 
           if (employeePayrolls.length === 0) {
+            const totalReturned = (data.records || []).length;
             tbody.innerHTML = `
                         <tr>
                             <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <i class="fas fa-inbox text-4xl mb-2"></i>
                                 <p>No payment history found</p>
+                                <p class="text-xs text-gray-400 mt-2">Records returned from server: ${totalReturned}</p>
                             </td>
                         </tr>
                     `;
