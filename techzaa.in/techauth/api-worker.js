@@ -769,18 +769,46 @@ async function handlePayroll(request, env, apiKey, baseId, corsHeaders) {
   const tableName = 'Payroll';
 
   if (request.method === 'GET') {
-    const filterFormula = url.searchParams.get('filterByFormula');
-    let airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}`;
-    if (filterFormula) {
-      airtableUrl += `?filterByFormula=${encodeURIComponent(filterFormula)}`;
+    const recordId = pathParts[3];
+
+    if (recordId) {
+      const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}/${recordId}`;
+      const response = await airtableRequest(airtableUrl, apiKey);
+      const data = await response.json();
+      return new Response(JSON.stringify(data), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: response.status,
+      });
     }
 
-    const response = await airtableRequest(airtableUrl, apiKey);
-    const data = await response.json();
+    // Fetch ALL records with pagination (Airtable returns max 100 per page)
+    const filterFormula = url.searchParams.get('filterByFormula');
+    let allRecords = [];
+    let offset = null;
 
-    return new Response(JSON.stringify(data), {
+    do {
+      const params = ['pageSize=100'];
+      if (filterFormula) params.push(`filterByFormula=${encodeURIComponent(filterFormula)}`);
+      if (offset) params.push(`offset=${offset}`);
+
+      const airtableUrl = `https://api.airtable.com/v0/${baseId}/${tableName}?${params.join('&')}`;
+      const response = await airtableRequest(airtableUrl, apiKey);
+      const data = await response.json();
+
+      if (!response.ok) {
+        return new Response(JSON.stringify(data), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: response.status,
+        });
+      }
+
+      allRecords = allRecords.concat(data.records || []);
+      offset = data.offset || null;
+    } while (offset);
+
+    return new Response(JSON.stringify({ records: allRecords }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: response.status,
+      status: 200,
     });
   } else if (request.method === 'POST') {
     const body = await request.json();
