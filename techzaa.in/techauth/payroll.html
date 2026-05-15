@@ -330,6 +330,7 @@
               onchange="loadPaymentHistory()"
               class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
             >
+              <option value="all">All Years</option>
               <option value="2026">2026</option>
               <option value="2025">2025</option>
               <option value="2024">2024</option>
@@ -559,11 +560,13 @@
             );
           });
 
-          // Filter by year
-          employeePayrolls = employeePayrolls.filter((record) => {
-            const month = record.fields["Month"] || "";
-            return month.startsWith(year);
-          });
+          // Filter by year (skip when "all" is selected)
+          if (year !== "all") {
+            employeePayrolls = employeePayrolls.filter((record) => {
+              const month = record.fields["Month"] || "";
+              return month.startsWith(year);
+            });
+          }
 
           // Sort by month (descending)
           employeePayrolls.sort((a, b) => {
@@ -577,7 +580,7 @@
                         <tr>
                             <td colspan="6" class="px-6 py-12 text-center text-gray-500">
                                 <i class="fas fa-inbox text-4xl mb-2"></i>
-                                <p>No payment history found for ${year}</p>
+                                <p>No payment history found${year !== "all" ? " for " + year : ""}</p>
                             </td>
                         </tr>
                     `;
