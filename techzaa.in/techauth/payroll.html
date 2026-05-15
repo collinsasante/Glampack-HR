@@ -538,18 +538,17 @@
             `;
 
         try {
-          // Fetch payroll records for this employee using server-side filter formula
-          const filterFormula = `FIND('${currentUser.id}', ARRAYJOIN({Employee}))`;
-          const data = await getPayroll(filterFormula);
+          // Fetch all payroll records then filter client-side by employee ID
+          const data = await getPayroll();
+          const allRecords = data.records || [];
 
-          // Secondary client-side filter to handle any edge cases
-          let employeePayrolls = (data.records || []).filter((record) => {
+          let employeePayrolls = allRecords.filter((record) => {
             const employeeField = record.fields["Employee"];
-            if (!employeeField) return true; // include records that slipped through
+            if (!employeeField) return false;
             if (Array.isArray(employeeField)) {
               return employeeField.some(id => String(id).trim() === String(currentUser.id).trim());
             }
-            return String(employeeField).includes(currentUser.id);
+            return String(employeeField).trim() === String(currentUser.id).trim();
           });
 
           // Sort by month (descending — newest first)
