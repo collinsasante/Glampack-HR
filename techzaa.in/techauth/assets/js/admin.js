@@ -2800,6 +2800,7 @@ async function loadPayrollRecords() {
         });
 
         displayPayrollRecords();
+        populateEmployeePicker();
     } catch (error) {
 
         document.getElementById('payrollTableBody').innerHTML = `
@@ -2813,6 +2814,9 @@ async function loadPayrollRecords() {
 }
 
 // Filter payroll by employee search
+// Selected employee IDs for payroll filter picker
+let selectedEmployeeIds = new Set();
+
 function filterPayrollByEmployee() {
     applyPayrollFilters();
 }
@@ -2829,7 +2833,12 @@ function filterPayrollByStatus() {
 
 // Clear all payroll filters
 function clearPayrollFilters() {
-    document.getElementById('payrollEmployeeSearch').value = '';
+    selectedEmployeeIds.clear();
+    updateEmployeePickerLabel();
+    const allCbs = document.querySelectorAll('.emp-picker-cb');
+    allCbs.forEach(cb => cb.checked = false);
+    const selectAll = document.getElementById('payrollSelectAllEmployees');
+    if (selectAll) selectAll.checked = false;
     document.getElementById('payrollMonthFilter').value = '';
     document.getElementById('payrollStatusFilter').value = '';
     applyPayrollFilters();
@@ -2837,16 +2846,15 @@ function clearPayrollFilters() {
 
 // Apply all filters
 function applyPayrollFilters() {
-    const searchTerm = document.getElementById('payrollEmployeeSearch').value.toLowerCase();
     const monthFilter = document.getElementById('payrollMonthFilter').value;
     const statusFilter = document.getElementById('payrollStatusFilter').value;
 
     let filteredData = allPayrollData;
 
-    // Filter by employee name
-    if (searchTerm) {
+    // Filter by selected employees (picker)
+    if (selectedEmployeeIds.size > 0) {
         filteredData = filteredData.filter(item =>
-            item.employeeName.toLowerCase().includes(searchTerm)
+            selectedEmployeeIds.has(item.employeeId)
         );
     }
 
@@ -2866,6 +2874,104 @@ function applyPayrollFilters() {
 
     displayPayrollRecords(filteredData);
 }
+
+// ---- Employee Picker (checkbox multi-select) ----
+
+function populateEmployeePicker() {
+    const list = document.getElementById('payrollEmployeePickerList');
+    if (!list) return;
+
+    // Build unique employee list from payroll data
+    const seen = new Map();
+    allPayrollData.forEach(item => {
+        if (item.employeeId && !seen.has(item.employeeId)) {
+            seen.set(item.employeeId, item.employeeName);
+        }
+    });
+
+    const employees = [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
+    list.innerHTML = employees.map(([id, name]) => `
+        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 emp-picker-row" data-name="${name.toLowerCase()}">
+            <input type="checkbox" class="emp-picker-cb w-4 h-4 rounded border-gray-300 text-red-600"
+                data-id="${id}" ${selectedEmployeeIds.has(id) ? 'checked' : ''}
+                onchange="toggleEmployeePickerItem('${id}', this.checked)" />
+            ${name}
+        </label>
+    `).join('');
+
+    syncSelectAllCheckbox();
+}
+
+function toggleEmployeePicker() {
+    const panel = document.getElementById('payrollEmployeePickerPanel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+        document.getElementById('payrollPickerSearch').value = '';
+        filterEmployeePicker();
+        document.getElementById('payrollPickerSearch').focus();
+    }
+}
+
+function filterEmployeePicker() {
+    const term = document.getElementById('payrollPickerSearch').value.toLowerCase();
+    document.querySelectorAll('.emp-picker-row').forEach(row => {
+        row.style.display = row.dataset.name.includes(term) ? '' : 'none';
+    });
+}
+
+function toggleSelectAllEmployees(checked) {
+    document.querySelectorAll('.emp-picker-cb').forEach(cb => {
+        // Only affect visible rows
+        if (cb.closest('.emp-picker-row').style.display !== 'none') {
+            cb.checked = checked;
+            const id = cb.dataset.id;
+            if (checked) selectedEmployeeIds.add(id);
+            else selectedEmployeeIds.delete(id);
+        }
+    });
+    updateEmployeePickerLabel();
+    applyPayrollFilters();
+}
+
+function toggleEmployeePickerItem(employeeId, checked) {
+    if (checked) selectedEmployeeIds.add(employeeId);
+    else selectedEmployeeIds.delete(employeeId);
+    syncSelectAllCheckbox();
+    updateEmployeePickerLabel();
+    applyPayrollFilters();
+}
+
+function syncSelectAllCheckbox() {
+    const allCbs = document.querySelectorAll('.emp-picker-cb');
+    const selectAll = document.getElementById('payrollSelectAllEmployees');
+    if (!selectAll || allCbs.length === 0) return;
+    const checkedCount = [...allCbs].filter(cb => cb.checked).length;
+    selectAll.indeterminate = checkedCount > 0 && checkedCount < allCbs.length;
+    selectAll.checked = checkedCount === allCbs.length;
+}
+
+function updateEmployeePickerLabel() {
+    const label = document.getElementById('payrollEmployeePickerLabel');
+    if (!label) return;
+    if (selectedEmployeeIds.size === 0) {
+        label.textContent = 'All Employees';
+    } else if (selectedEmployeeIds.size === 1) {
+        const id = [...selectedEmployeeIds][0];
+        const row = document.querySelector(`.emp-picker-cb[data-id="${id}"]`);
+        label.textContent = row ? row.closest('label').textContent.trim() : '1 employee';
+    } else {
+        label.textContent = `${selectedEmployeeIds.size} employees selected`;
+    }
+}
+
+// Close picker when clicking outside
+document.addEventListener('click', function(e) {
+    const wrap = document.getElementById('payrollEmployeePickerWrap');
+    if (wrap && !wrap.contains(e.target)) {
+        const panel = document.getElementById('payrollEmployeePickerPanel');
+        if (panel) panel.classList.add('hidden');
+    }
+});
 
 // Download payroll records as Excel
 function downloadPayrollExcel() {
