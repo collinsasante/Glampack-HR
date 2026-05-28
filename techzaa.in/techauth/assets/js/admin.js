@@ -2800,7 +2800,6 @@ async function loadPayrollRecords() {
         });
 
         displayPayrollRecords();
-        populateEmployeePicker();
     } catch (error) {
 
         document.getElementById('payrollTableBody').innerHTML = `
@@ -2814,9 +2813,6 @@ async function loadPayrollRecords() {
 }
 
 // Filter payroll by employee search
-// Selected employee IDs for payroll filter picker
-let selectedEmployeeIds = new Set();
-
 function filterPayrollByEmployee() {
     applyPayrollFilters();
 }
@@ -2833,12 +2829,7 @@ function filterPayrollByStatus() {
 
 // Clear all payroll filters
 function clearPayrollFilters() {
-    selectedEmployeeIds.clear();
-    updateEmployeePickerLabel();
-    const allCbs = document.querySelectorAll('.emp-picker-cb');
-    allCbs.forEach(cb => cb.checked = false);
-    const selectAll = document.getElementById('payrollSelectAllEmployees');
-    if (selectAll) selectAll.checked = false;
+    document.getElementById('payrollEmployeeSearch').value = '';
     document.getElementById('payrollMonthFilter').value = '';
     document.getElementById('payrollStatusFilter').value = '';
     applyPayrollFilters();
@@ -2846,26 +2837,24 @@ function clearPayrollFilters() {
 
 // Apply all filters
 function applyPayrollFilters() {
+    const searchTerm = document.getElementById('payrollEmployeeSearch').value.toLowerCase();
     const monthFilter = document.getElementById('payrollMonthFilter').value;
     const statusFilter = document.getElementById('payrollStatusFilter').value;
 
     let filteredData = allPayrollData;
 
-    // Filter by selected employees (picker)
-    if (selectedEmployeeIds.size > 0) {
+    if (searchTerm) {
         filteredData = filteredData.filter(item =>
-            selectedEmployeeIds.has(item.employeeId)
+            item.employeeName.toLowerCase().includes(searchTerm)
         );
     }
 
-    // Filter by month
     if (monthFilter) {
         filteredData = filteredData.filter(item =>
             item.record.fields['Month'] === monthFilter
         );
     }
 
-    // Filter by status
     if (statusFilter) {
         filteredData = filteredData.filter(item =>
             item.record.fields['Status'] === statusFilter
@@ -2875,100 +2864,117 @@ function applyPayrollFilters() {
     displayPayrollRecords(filteredData);
 }
 
-// ---- Employee Picker (checkbox multi-select) ----
+// ---- Modal Employee Checkbox Picker ----
+let selectedModalEmployeeIds = new Set();
+let modalEmployeeList = []; // [{id, name}]
 
-function populateEmployeePicker() {
-    const list = document.getElementById('payrollEmployeePickerList');
+function populateModalEmployeePicker(employees, preselectedId) {
+    modalEmployeeList = employees.map(emp => ({
+        id: emp.id,
+        name: emp.fields['Full Name'] || ''
+    }));
+    selectedModalEmployeeIds.clear();
+    if (preselectedId) selectedModalEmployeeIds.add(preselectedId);
+    renderModalEmployeePickerList('');
+    updateModalEmployeePickerLabel();
+}
+
+function renderModalEmployeePickerList(searchTerm) {
+    const list = document.getElementById('modalEmployeePickerList');
     if (!list) return;
+    const lower = searchTerm.toLowerCase();
+    const visible = lower
+        ? modalEmployeeList.filter(e => e.name.toLowerCase().includes(lower))
+        : modalEmployeeList;
 
-    // Build unique employee list from payroll data
-    const seen = new Map();
-    allPayrollData.forEach(item => {
-        if (item.employeeId && !seen.has(item.employeeId)) {
-            seen.set(item.employeeId, item.employeeName);
-        }
-    });
-
-    const employees = [...seen.entries()].sort((a, b) => a[1].localeCompare(b[1]));
-    list.innerHTML = employees.map(([id, name]) => `
-        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 emp-picker-row" data-name="${name.toLowerCase()}">
-            <input type="checkbox" class="emp-picker-cb w-4 h-4 rounded border-gray-300 text-red-600"
-                data-id="${id}" ${selectedEmployeeIds.has(id) ? 'checked' : ''}
-                onchange="toggleEmployeePickerItem('${id}', this.checked)" />
-            ${name}
+    list.innerHTML = visible.map(e => `
+        <label class="flex items-center gap-2 px-3 py-1.5 hover:bg-gray-50 cursor-pointer text-sm text-gray-700 modal-emp-row">
+            <input type="checkbox" class="modal-emp-cb w-4 h-4 rounded border-gray-300 text-red-600"
+                data-id="${e.id}" ${selectedModalEmployeeIds.has(e.id) ? 'checked' : ''}
+                onchange="toggleModalEmployeeItem('${e.id}', this.checked)" />
+            ${e.name}
         </label>
     `).join('');
-
-    syncSelectAllCheckbox();
+    syncModalSelectAll();
 }
 
-function toggleEmployeePicker() {
-    const panel = document.getElementById('payrollEmployeePickerPanel');
+function toggleModalEmployeePicker() {
+    const panel = document.getElementById('modalEmployeePickerPanel');
     panel.classList.toggle('hidden');
     if (!panel.classList.contains('hidden')) {
-        document.getElementById('payrollPickerSearch').value = '';
-        filterEmployeePicker();
-        document.getElementById('payrollPickerSearch').focus();
+        const s = document.getElementById('modalPickerSearch');
+        s.value = '';
+        renderModalEmployeePickerList('');
+        s.focus();
     }
 }
 
-function filterEmployeePicker() {
-    const term = document.getElementById('payrollPickerSearch').value.toLowerCase();
-    document.querySelectorAll('.emp-picker-row').forEach(row => {
-        row.style.display = row.dataset.name.includes(term) ? '' : 'none';
+function filterModalEmployeePicker() {
+    renderModalEmployeePickerList(document.getElementById('modalPickerSearch').value);
+}
+
+function toggleSelectAllModalEmployees(checked) {
+    // Only affect currently visible rows
+    document.querySelectorAll('.modal-emp-cb').forEach(cb => {
+        cb.checked = checked;
+        if (checked) selectedModalEmployeeIds.add(cb.dataset.id);
+        else selectedModalEmployeeIds.delete(cb.dataset.id);
     });
+    syncModalSelectAll();
+    updateModalEmployeePickerLabel();
+    // auto-populate only when single employee
+    if (selectedModalEmployeeIds.size === 1) {
+        triggerAutoPopulate([...selectedModalEmployeeIds][0]);
+    }
 }
 
-function toggleSelectAllEmployees(checked) {
-    document.querySelectorAll('.emp-picker-cb').forEach(cb => {
-        // Only affect visible rows
-        if (cb.closest('.emp-picker-row').style.display !== 'none') {
-            cb.checked = checked;
-            const id = cb.dataset.id;
-            if (checked) selectedEmployeeIds.add(id);
-            else selectedEmployeeIds.delete(id);
-        }
-    });
-    updateEmployeePickerLabel();
-    applyPayrollFilters();
+function toggleModalEmployeeItem(employeeId, checked) {
+    if (checked) selectedModalEmployeeIds.add(employeeId);
+    else selectedModalEmployeeIds.delete(employeeId);
+    syncModalSelectAll();
+    updateModalEmployeePickerLabel();
+    // auto-populate salary fields when exactly one employee is chosen
+    if (selectedModalEmployeeIds.size === 1) {
+        triggerAutoPopulate([...selectedModalEmployeeIds][0]);
+    }
 }
 
-function toggleEmployeePickerItem(employeeId, checked) {
-    if (checked) selectedEmployeeIds.add(employeeId);
-    else selectedEmployeeIds.delete(employeeId);
-    syncSelectAllCheckbox();
-    updateEmployeePickerLabel();
-    applyPayrollFilters();
+function syncModalSelectAll() {
+    const allCbs = document.querySelectorAll('.modal-emp-cb');
+    const sa = document.getElementById('modalSelectAllEmployees');
+    if (!sa || allCbs.length === 0) return;
+    const n = [...allCbs].filter(cb => cb.checked).length;
+    sa.indeterminate = n > 0 && n < allCbs.length;
+    sa.checked = n === allCbs.length;
 }
 
-function syncSelectAllCheckbox() {
-    const allCbs = document.querySelectorAll('.emp-picker-cb');
-    const selectAll = document.getElementById('payrollSelectAllEmployees');
-    if (!selectAll || allCbs.length === 0) return;
-    const checkedCount = [...allCbs].filter(cb => cb.checked).length;
-    selectAll.indeterminate = checkedCount > 0 && checkedCount < allCbs.length;
-    selectAll.checked = checkedCount === allCbs.length;
-}
-
-function updateEmployeePickerLabel() {
-    const label = document.getElementById('payrollEmployeePickerLabel');
+function updateModalEmployeePickerLabel() {
+    const label = document.getElementById('modalEmployeePickerLabel');
     if (!label) return;
-    if (selectedEmployeeIds.size === 0) {
-        label.textContent = 'All Employees';
-    } else if (selectedEmployeeIds.size === 1) {
-        const id = [...selectedEmployeeIds][0];
-        const row = document.querySelector(`.emp-picker-cb[data-id="${id}"]`);
-        label.textContent = row ? row.closest('label').textContent.trim() : '1 employee';
+    if (selectedModalEmployeeIds.size === 0) {
+        label.textContent = 'Select Employee';
+    } else if (selectedModalEmployeeIds.size === 1) {
+        const id = [...selectedModalEmployeeIds][0];
+        const emp = modalEmployeeList.find(e => e.id === id);
+        label.textContent = emp ? emp.name : '1 employee';
     } else {
-        label.textContent = `${selectedEmployeeIds.size} employees selected`;
+        label.textContent = `${selectedModalEmployeeIds.size} employees selected`;
     }
+    // keep hidden input in sync for single-employee edit mode
+    const hidden = document.getElementById('payrollEmployee');
+    if (hidden) hidden.value = selectedModalEmployeeIds.size === 1 ? [...selectedModalEmployeeIds][0] : '';
 }
 
-// Close picker when clicking outside
+function triggerAutoPopulate(employeeId) {
+    const monthValue = document.getElementById('payrollMonth').value;
+    if (employeeId && monthValue) autoPopulatePayrollData(employeeId, monthValue);
+}
+
+// Close modal picker on outside click
 document.addEventListener('click', function(e) {
-    const wrap = document.getElementById('payrollEmployeePickerWrap');
+    const wrap = document.getElementById('modalEmployeePickerWrap');
     if (wrap && !wrap.contains(e.target)) {
-        const panel = document.getElementById('payrollEmployeePickerPanel');
+        const panel = document.getElementById('modalEmployeePickerPanel');
         if (panel) panel.classList.add('hidden');
     }
 });
@@ -3165,49 +3171,23 @@ async function openAddPayrollModal() {
         fillPayrollDates(this.value);
     });
 
-    // Populate employee dropdown
-    const select = document.getElementById('payrollEmployee');
-    select.innerHTML = '<option value="">Select Employee</option>';
-
+    // Populate employee picker
     try {
         const data = await getEmployees();
-        const employees = data.records || [];
-        employees.sort((a, b) => {
-            const nameA = (a.fields['Full Name'] || '').toLowerCase();
-            const nameB = (b.fields['Full Name'] || '').toLowerCase();
-            return nameA.localeCompare(nameB);
-        });
+        const employees = (data.records || []).sort((a, b) =>
+            (a.fields['Full Name'] || '').localeCompare(b.fields['Full Name'] || '')
+        );
+        populateModalEmployeePicker(employees, null);
+    } catch (error) {}
 
-        employees.forEach(emp => {
-            const option = document.createElement('option');
-            option.value = emp.id;
-            option.textContent = emp.fields['Full Name'];
-            select.appendChild(option);
-        });
-    } catch (error) {
-
-    }
-
-    // Add event listener to auto-populate from previous payroll or employee salary
-    const payrollEmployeeSelect = document.getElementById('payrollEmployee');
+    // When month changes and exactly one employee is selected, auto-populate salary
     const payrollMonthInput = document.getElementById('payrollMonth');
-
-    const autoPopulateHandler = async function() {
-        const employeeId = payrollEmployeeSelect.value;
-        const selectedMonth = payrollMonthInput.value;
-
-        if (!employeeId || !selectedMonth) return;
-
-        await autoPopulatePayrollData(employeeId, selectedMonth);
+    payrollMonthInput.onchange = function() {
+        fillPayrollDates(this.value);
+        if (selectedModalEmployeeIds.size === 1) {
+            triggerAutoPopulate([...selectedModalEmployeeIds][0]);
+        }
     };
-
-    // Remove old listeners to prevent duplicates
-    payrollEmployeeSelect.removeEventListener('change', autoPopulateHandler);
-    payrollMonthInput.removeEventListener('change', autoPopulateHandler);
-
-    // Add new listeners
-    payrollEmployeeSelect.addEventListener('change', autoPopulateHandler);
-    payrollMonthInput.addEventListener('change', autoPopulateHandler);
 
     document.getElementById('payrollModal').classList.add('active');
 }
@@ -3343,31 +3323,18 @@ async function editPayroll(record) {
     payrollModalTitle.textContent = 'Edit Payroll';
     if (payrollId) payrollId.value = record.id;
 
-    // Populate employee dropdown
-    if (payrollEmployee) {
-        payrollEmployee.innerHTML = '<option value="">Select Employee</option>';
-        try {
-            const data = await getEmployees();
-            const employees = data.records || [];
-            employees.sort((a, b) => {
-                const nameA = (a.fields['Full Name'] || '').toLowerCase();
-                const nameB = (b.fields['Full Name'] || '').toLowerCase();
-                return nameA.localeCompare(nameB);
-            });
-
-            employees.forEach(emp => {
-                const option = document.createElement('option');
-                option.value = emp.id;
-                option.textContent = emp.fields['Full Name'];
-                payrollEmployee.appendChild(option);
-            });
-        } catch (error) {
-            // Continue even if employee fetch fails
-        }
-    }
-
+    // Populate employee picker (edit mode: pre-select this record's employee)
     const fields = record.fields;
-    if (payrollEmployee) payrollEmployee.value = fields['Employee'] ? fields['Employee'][0] : '';
+    const preselectedEmpId = fields['Employee'] ? fields['Employee'][0] : null;
+    try {
+        const data = await getEmployees();
+        const employees = (data.records || []).sort((a, b) =>
+            (a.fields['Full Name'] || '').localeCompare(b.fields['Full Name'] || '')
+        );
+        populateModalEmployeePicker(employees, preselectedEmpId);
+    } catch (error) {}
+    // Keep hidden input in sync so edit-mode submit can read it
+    if (payrollEmployee) payrollEmployee.value = preselectedEmpId || '';
     if (payrollMonth) payrollMonth.value = fields['Month'] || '';
     if (payrollStatus) payrollStatus.value = fields['Status'] || 'Processed';
     if (payslipTitle) payslipTitle.value = fields['Payslip Title'] || '';
@@ -3690,25 +3657,23 @@ document.getElementById('payrollForm').addEventListener('submit', async function
     const statusEl = document.getElementById('payrollStatus');
     const statusValue = statusEl ? statusEl.value : 'Processed';
 
-    const payrollData = {
-        'Employee': [document.getElementById('payrollEmployee').value],
-        'Month': monthValue,  // Text field for YYYY-MM format
+    const sharedFields = {
+        'Month': monthValue,
         'Basic Salary': basicSalary,
         'Housing Allowance': housingAllowance,
         'Transport Allowance': transportAllowance,
         'Benefits': benefits,
         'Other Allowances': otherAllowances + customAllowancesTotal,
-        // Total Allowances, Gross Salary, Total Deductions are Formula fields in Airtable - don't send them
         'Income Tax': paye,
         'Welfare': welfare,
         'Social Security': socialSecurity,
         'Health Insurance': healthInsurance,
         'Other Deductions': otherDeductions + customDeductionsTotal,
-        'Net Salary': netSalary,  // This is a Number field, not Formula, so we can send it
-        'Amount to Pay': amountToPay,  // Amount to Pay field
+        'Net Salary': netSalary,
+        'Amount to Pay': amountToPay,
         'Custom Allowances': JSON.stringify(customAllowances),
         'Custom Deductions': JSON.stringify(customDeductions),
-        'Status': statusValue,  // Options: Processed, Pending - read from dropdown
+        'Status': statusValue,
         'Period Start Date': (document.getElementById('periodStartDate') || {}).value || '',
         'Period End Date': (document.getElementById('periodEndDate') || {}).value || '',
         'Payment Date': (document.getElementById('paymentDate') || {}).value || new Date().toISOString().split('T')[0]
@@ -3716,29 +3681,34 @@ document.getElementById('payrollForm').addEventListener('submit', async function
 
     try {
         if (payrollId) {
-            await updatePayroll(payrollId, payrollData);
+            // Edit mode — single record
+            const singleId = document.getElementById('payrollEmployee').value;
+            await updatePayroll(payrollId, { ...sharedFields, 'Employee': [singleId] });
             showToast('success', 'Payroll Updated', 'Payroll updated successfully!');
         } else {
-            await createPayroll(payrollData);
-            showToast('success', 'Payroll Created', 'Payroll created successfully!');
+            // Create mode — one record per selected employee
+            const empIds = [...selectedModalEmployeeIds];
+            if (empIds.length === 0) {
+                showToast('error', 'No Employee Selected', 'Please select at least one employee.');
+                return;
+            }
+            await Promise.all(empIds.map(empId =>
+                createPayroll({ ...sharedFields, 'Employee': [empId] })
+            ));
+            const msg = empIds.length === 1 ? 'Payroll created successfully!' : `${empIds.length} payroll records created!`;
+            showToast('success', 'Payroll Created', msg);
         }
 
         closePayrollModal();
         loadPayrollRecords();
     } catch (error) {
-        // Try to parse the error message to show specific field issues
         let errorMessage = 'Error saving payroll. Please try again.';
         if (error.message) {
             try {
                 const errorObj = JSON.parse(error.message);
-                if (errorObj.error && errorObj.error.message) {
-                    errorMessage = `${errorObj.error.message}`;
-                }
-            } catch (e) {
-                errorMessage = error.message;
-            }
+                if (errorObj.error && errorObj.error.message) errorMessage = errorObj.error.message;
+            } catch (e) { errorMessage = error.message; }
         }
-
         showToast('error', 'Payroll Save Failed', errorMessage);
     }
 });
