@@ -1347,11 +1347,30 @@
             </div>
           </div>
 
+          <!-- Bulk Actions Bar (shown when rows are selected) -->
+          <div id="payrollBulkBar" class="hidden mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg flex items-center justify-between flex-wrap gap-3">
+            <span class="text-sm font-medium text-red-700">
+              <span id="payrollSelectedCount">0</span> record(s) selected
+            </span>
+            <div class="flex gap-2">
+              <button onclick="markSelectedPayrollAsProcessed()" class="button button-green button-sm">
+                <i class="fas fa-check mr-1"></i> Mark as Processed
+              </button>
+              <button onclick="deleteSelectedPayroll()" class="button button-red button-sm">
+                <i class="fas fa-trash mr-1"></i> Delete Selected
+              </button>
+            </div>
+          </div>
+
           <!-- Payroll Table -->
           <div class="overflow-x-auto">
             <table class="min-w-full">
               <thead class="bg-gray-50">
                 <tr>
+                  <th class="px-4 py-3 text-left">
+                    <input type="checkbox" id="payrollSelectAll" onchange="toggleSelectAllPayroll(this.checked)"
+                      class="w-4 h-4 rounded border-gray-300 text-red-600 cursor-pointer" />
+                  </th>
                   <th
                     class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                   >
@@ -1399,7 +1418,7 @@
                 class="bg-white divide-y divide-gray-200"
               >
                 <tr>
-                  <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                  <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                     <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
                     <p>Loading payroll records...</p>
                   </td>
@@ -2944,7 +2963,7 @@
     <script src="shared-modal.js"></script>
 
     <script src="cloudinary-config.js"></script>
-    <script src="assets/js/admin.js?v=74"></script>
+    <script src="assets/js/admin.js?v=75"></script>
     <script src="upcoming-leaves.js?v=1"></script>
 
     <script>

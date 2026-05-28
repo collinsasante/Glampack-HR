@@ -2743,6 +2743,7 @@ let customAllowances = [];
 let customDeductions = [];
 
 let allPayrollData = []; // Store all payroll with employee names
+let selectedPayrollIds = new Set(); // Track selected payroll record IDs
 
 async function loadPayrollRecords() {
     try {
@@ -2804,7 +2805,7 @@ async function loadPayrollRecords() {
 
         document.getElementById('payrollTableBody').innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-4 text-center text-red-600">
+                <td colspan="9" class="px-6 py-4 text-center text-red-600">
                     Error loading payroll records. Please try again.
                 </td>
             </tr>
@@ -2942,7 +2943,7 @@ async function displayPayrollRecords(filteredData = null) {
     if (dataToDisplay.length === 0) {
         tbody.innerHTML = `
             <tr>
-                <td colspan="8" class="px-6 py-12 text-center text-gray-500">
+                <td colspan="9" class="px-6 py-12 text-center text-gray-500">
                     <i class="fas fa-receipt text-4xl mb-4"></i>
                     <p>No payroll records found</p>
                 </td>
@@ -2951,10 +2952,17 @@ async function displayPayrollRecords(filteredData = null) {
         return;
     }
 
+    // Preserve selections across re-renders
+    const currentIds = new Set(dataToDisplay.map(item => item.record.id));
+    for (const id of [...selectedPayrollIds]) {
+        if (!currentIds.has(id)) selectedPayrollIds.delete(id);
+    }
+
     tbody.innerHTML = dataToDisplay.map(item => {
         const record = item.record;
         const fields = record.fields;
         const employeeName = item.employeeName;
+        const isChecked = selectedPayrollIds.has(record.id);
 
         // Calculate values if not present (for calculated fields or manual calculation)
         const basicSalary = parseFloat(fields['Basic Salary'] || 0);
@@ -3000,7 +3008,12 @@ async function displayPayrollRecords(filteredData = null) {
         window.payrollRecordsMap[record.id] = record;
 
         return `
-            <tr class="hover:bg-gray-50 cursor-pointer transition-colors" onclick="showPayrollDetails(payrollRecordsMap['${record.id}'])">
+            <tr class="hover:bg-gray-50 cursor-pointer transition-colors${isChecked ? ' bg-red-50' : ''}" id="payroll-row-${record.id}" onclick="showPayrollDetails(payrollRecordsMap['${record.id}'])">
+                <td class="px-4 py-4 whitespace-nowrap" onclick="event.stopPropagation()">
+                    <input type="checkbox" class="payroll-row-checkbox w-4 h-4 rounded border-gray-300 text-red-600 cursor-pointer"
+                        data-id="${record.id}" ${isChecked ? 'checked' : ''}
+                        onchange="togglePayrollRowSelection('${record.id}', this.checked)" />
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${employeeName}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">${monthDisplay}</td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">GH₵${basicSalary.toFixed(2)}</td>
@@ -3020,6 +3033,87 @@ async function displayPayrollRecords(filteredData = null) {
             </tr>
         `;
     }).join('');
+
+    updatePayrollBulkBar();
+}
+
+function toggleSelectAllPayroll(checked) {
+    const currentData = document.querySelectorAll('.payroll-row-checkbox');
+    currentData.forEach(cb => {
+        const id = cb.dataset.id;
+        cb.checked = checked;
+        if (checked) {
+            selectedPayrollIds.add(id);
+            document.getElementById(`payroll-row-${id}`)?.classList.add('bg-red-50');
+        } else {
+            selectedPayrollIds.delete(id);
+            document.getElementById(`payroll-row-${id}`)?.classList.remove('bg-red-50');
+        }
+    });
+    updatePayrollBulkBar();
+}
+
+function togglePayrollRowSelection(recordId, checked) {
+    if (checked) {
+        selectedPayrollIds.add(recordId);
+        document.getElementById(`payroll-row-${recordId}`)?.classList.add('bg-red-50');
+    } else {
+        selectedPayrollIds.delete(recordId);
+        document.getElementById(`payroll-row-${recordId}`)?.classList.remove('bg-red-50');
+    }
+    const allCbs = document.querySelectorAll('.payroll-row-checkbox');
+    const selectAllCb = document.getElementById('payrollSelectAll');
+    if (selectAllCb) {
+        selectAllCb.indeterminate = selectedPayrollIds.size > 0 && selectedPayrollIds.size < allCbs.length;
+        selectAllCb.checked = allCbs.length > 0 && selectedPayrollIds.size === allCbs.length;
+    }
+    updatePayrollBulkBar();
+}
+
+function updatePayrollBulkBar() {
+    const bar = document.getElementById('payrollBulkBar');
+    const countEl = document.getElementById('payrollSelectedCount');
+    if (!bar) return;
+    if (selectedPayrollIds.size > 0) {
+        bar.classList.remove('hidden');
+        countEl.textContent = selectedPayrollIds.size;
+    } else {
+        bar.classList.add('hidden');
+    }
+}
+
+async function deleteSelectedPayroll() {
+    const ids = [...selectedPayrollIds];
+    if (ids.length === 0) return;
+    if (!confirm(`Delete ${ids.length} selected payroll record(s)? This cannot be undone.`)) return;
+
+    try {
+        await Promise.all(ids.map(id => deletePayroll(id)));
+        selectedPayrollIds.clear();
+        const selectAllCb = document.getElementById('payrollSelectAll');
+        if (selectAllCb) selectAllCb.checked = false;
+        showToast('success', 'Records Deleted', `${ids.length} payroll record(s) deleted.`);
+        loadPayrollRecords();
+    } catch (error) {
+        showToast('error', 'Delete Failed', 'Some records could not be deleted. Please try again.');
+    }
+}
+
+async function markSelectedPayrollAsProcessed() {
+    const ids = [...selectedPayrollIds];
+    if (ids.length === 0) return;
+    if (!confirm(`Mark ${ids.length} selected record(s) as Processed?`)) return;
+
+    try {
+        await Promise.all(ids.map(id => updatePayroll(id, { Status: 'Processed' })));
+        selectedPayrollIds.clear();
+        const selectAllCb = document.getElementById('payrollSelectAll');
+        if (selectAllCb) selectAllCb.checked = false;
+        showToast('success', 'Status Updated', `${ids.length} record(s) marked as Processed.`);
+        loadPayrollRecords();
+    } catch (error) {
+        showToast('error', 'Update Failed', 'Some records could not be updated. Please try again.');
+    }
 }
 
 async function openAddPayrollModal() {
