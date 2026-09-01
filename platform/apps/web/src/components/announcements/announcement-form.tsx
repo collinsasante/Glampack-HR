@@ -28,10 +28,11 @@ export interface AnnouncementDraft {
   message: string;
   type: AnnouncementType;
   priority: AnnouncementPriority | "";
-  imageUrl: string | null;
+  // undefined = leave the existing image alone; null = remove it; string = a freshly uploaded key.
+  imageS3Key: string | null | undefined;
 }
 
-const EMPTY_DRAFT: AnnouncementDraft = { title: "", message: "", type: "General", priority: "", imageUrl: null };
+const EMPTY_DRAFT: AnnouncementDraft = { title: "", message: "", type: "General", priority: "", imageS3Key: null };
 
 export function AnnouncementForm({
   open,
@@ -49,6 +50,8 @@ export function AnnouncementForm({
   onSaved: () => void;
 }) {
   const [draft, setDraft] = useState<AnnouncementDraft>(EMPTY_DRAFT);
+  const [initialPreviewUrl, setInitialPreviewUrl] = useState<string | null>(null);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -63,10 +66,14 @@ export function AnnouncementForm({
               message: source.message,
               type: source.type,
               priority: source.priority ?? "",
-              imageUrl: editing ? source.imageUrl : null,
+              // Editing: leave the image untouched unless the user changes it.
+              // Duplicating: never carry the attachment over to the copy.
+              imageS3Key: editing ? undefined : null,
             }
           : EMPTY_DRAFT
       );
+      setInitialPreviewUrl(editing ? editing.imageUrl : null);
+      setUploadingImage(false);
       setError(null);
     }
   }, [open, source, editing]);
@@ -80,7 +87,7 @@ export function AnnouncementForm({
       message: draft.message.trim(),
       type: draft.type,
       priority: draft.priority || undefined,
-      imageUrl: draft.imageUrl ?? undefined,
+      imageS3Key: draft.imageS3Key,
     };
     try {
       if (editing) {
@@ -174,7 +181,12 @@ export function AnnouncementForm({
 
           <div className="space-y-2">
             <Label>Attachment</Label>
-            <AttachmentUploader value={draft.imageUrl} onChange={(url) => setDraft((d) => ({ ...d, imageUrl: url }))} />
+            <AttachmentUploader
+              s3Key={draft.imageS3Key}
+              initialPreviewUrl={initialPreviewUrl}
+              onChange={(key) => setDraft((d) => ({ ...d, imageS3Key: key }))}
+              onUploadingChange={setUploadingImage}
+            />
           </div>
 
           {error && <div className="rounded-lg bg-destructive/10 px-4 py-3 text-sm text-destructive">{error}</div>}
@@ -183,8 +195,8 @@ export function AnnouncementForm({
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Saving…" : editing ? "Save Changes" : "Publish Announcement"}
+            <Button type="submit" disabled={submitting || uploadingImage}>
+              {submitting ? "Saving…" : uploadingImage ? "Waiting for upload…" : editing ? "Save Changes" : "Publish Announcement"}
             </Button>
           </DialogFooter>
         </form>

@@ -27,9 +27,12 @@ function formatSize(bytes: number) {
 export function ReceiptUploader({
   receipts,
   onChange,
+  onUploadingChange,
 }: {
   receipts: PendingReceipt[];
   onChange: (receipts: PendingReceipt[]) => void;
+  /** Lets the parent form block submission until any in-flight upload finishes. */
+  onUploadingChange?: (uploading: boolean) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
@@ -47,6 +50,7 @@ export function ReceiptUploader({
         continue;
       }
       setUploading(true);
+      onUploadingChange?.(true);
       try {
         const presign = await presignMedicalReceipt(file.type);
         await uploadFileToS3(presign, file);
@@ -55,6 +59,7 @@ export function ReceiptUploader({
         setError("Upload failed. Please try again.");
       } finally {
         setUploading(false);
+        onUploadingChange?.(false);
       }
     }
   }

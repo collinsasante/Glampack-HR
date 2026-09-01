@@ -301,8 +301,8 @@ function EmployeesContent() {
       </div>
 
       <Card>
-        <CardHeader className="flex-row flex-wrap items-center gap-3 space-y-0">
-          <div className="relative min-w-[220px] flex-1">
+        <CardHeader className="flex flex-nowrap items-center gap-3 space-y-0 overflow-x-auto">
+          <div className="relative w-56 shrink-0">
             <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Search by name or email…"
@@ -312,7 +312,7 @@ function EmployeesContent() {
             />
           </div>
           <Select value={departmentFilter} onValueChange={(v) => setDepartmentFilter(v ?? "all")}>
-            <SelectTrigger className="w-44">
+            <SelectTrigger className="w-44 shrink-0">
               <SelectValue>{departmentFilter === "all" ? "All departments" : humanize(departmentFilter)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -325,7 +325,7 @@ function EmployeesContent() {
             </SelectContent>
           </Select>
           <Select value={roleFilter} onValueChange={(v) => setRoleFilter(v ?? "all")}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 shrink-0">
               <SelectValue>{roleFilter === "all" ? "All roles" : roleFilter}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -338,7 +338,7 @@ function EmployeesContent() {
             </SelectContent>
           </Select>
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v ?? "all")}>
-            <SelectTrigger className="w-36">
+            <SelectTrigger className="w-36 shrink-0">
               <SelectValue>{statusFilter === "all" ? "All statuses" : statusFilter}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -348,7 +348,7 @@ function EmployeesContent() {
             </SelectContent>
           </Select>
           <Select value={employmentTypeFilter} onValueChange={(v) => setEmploymentTypeFilter(v ?? "all")}>
-            <SelectTrigger className="w-40">
+            <SelectTrigger className="w-40 shrink-0">
               <SelectValue>{employmentTypeFilter === "all" ? "All employment types" : humanize(employmentTypeFilter)}</SelectValue>
             </SelectTrigger>
             <SelectContent>
@@ -362,13 +362,13 @@ function EmployeesContent() {
           </Select>
 
           {filtersActive && (
-            <Button variant="ghost" size="sm" onClick={resetFilters}>
+            <Button variant="ghost" size="sm" className="shrink-0" onClick={resetFilters}>
               <RotateCcw className="h-3.5 w-3.5" /> Reset Filters
             </Button>
           )}
 
           <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="outline" size="sm" />}>
+            <DropdownMenuTrigger render={<Button variant="outline" size="sm" className="shrink-0" />}>
               <Columns3 className="h-4 w-4" /> Customize Columns
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">

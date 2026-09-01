@@ -1,5 +1,6 @@
-import { S3Client } from "@aws-sdk/client-s3";
+import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { createPresignedPost } from "@aws-sdk/s3-presigned-post";
+import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { randomUUID } from "node:crypto";
 import { env } from "../config/env.js";
 
@@ -21,6 +22,9 @@ export interface PresignedUpload {
   uploadUrl: string;
   fields: Record<string, string>;
   s3Key: string;
+  // Not directly loadable — the bucket is private. Kept only as a stable,
+  // human-readable reference (e.g. for stored audit fields); real access
+  // always goes through presignGet() at read time.
   publicUrl: string;
 }
 
@@ -42,4 +46,13 @@ export async function presignUpload(folder: string, contentType: string): Promis
   });
 
   return { uploadUrl: url, fields, s3Key, publicUrl };
+}
+
+// The bucket has Block Public Access on (real per-object privacy, not just
+// unguessable keys) — every read, whether a medical receipt or an
+// announcement image, goes through a short-lived signed GET minted here.
+export async function presignGet(s3Key: string, expiresInSeconds = 900): Promise<string> {
+  return getSignedUrl(s3, new GetObjectCommand({ Bucket: env.S3_BUCKET_NAME, Key: s3Key }), {
+    expiresIn: expiresInSeconds,
+  });
 }

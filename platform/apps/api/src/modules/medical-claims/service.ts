@@ -1,17 +1,29 @@
 import type { CreateMedicalClaimInput, DecideMedicalClaimInput } from "@glampack/shared";
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/errorHandler.js";
+import { presignGet } from "../../lib/s3.js";
+
+// The bucket is private — the `url` column is kept only as a stable reference
+// (see lib/s3.ts's presignUpload comment); every response gets a freshly
+// signed, short-lived URL derived from the receipt's real s3Key instead.
+async function withSignedReceipts<T extends { receipts: { s3Key: string }[] }>(claim: T): Promise<T> {
+  const receipts = await Promise.all(
+    claim.receipts.map(async (r) => ({ ...r, url: await presignGet(r.s3Key) }))
+  );
+  return { ...claim, receipts };
+}
 
 export async function listMedicalClaims(filters: { employeeId?: string; status?: string }) {
-  return prisma.medicalClaim.findMany({
+  const claims = await prisma.medicalClaim.findMany({
     where: { employeeId: filters.employeeId, status: filters.status as any },
     include: { receipts: true },
     orderBy: { createdAt: "desc" },
   });
+  return Promise.all(claims.map(withSignedReceipts));
 }
 
 export async function createMedicalClaim(employeeId: string, input: CreateMedicalClaimInput) {
-  return prisma.medicalClaim.create({
+  const claim = await prisma.medicalClaim.create({
     data: {
       employeeId,
       dateOfVisit: input.dateOfVisit,
@@ -25,6 +37,7 @@ export async function createMedicalClaim(employeeId: string, input: CreateMedica
     },
     include: { receipts: true },
   });
+  return withSignedReceipts(claim);
 }
 
 async function decide(id: string, status: "Approved" | "Rejected", adminNotes?: string) {

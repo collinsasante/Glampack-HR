@@ -1,13 +1,25 @@
 import type { CreateAnnouncementInput, UpdateAnnouncementInput } from "@glampack/shared";
 import { prisma } from "../../lib/prisma.js";
 import { HttpError } from "../../middleware/errorHandler.js";
+import { presignGet } from "../../lib/s3.js";
+
+// The bucket is private, so nothing stores a real image URL — every response
+// gets a freshly signed one derived from the stored S3 key.
+async function withSignedImage<T extends { imageS3Key: string | null }>(
+  announcement: T
+): Promise<Omit<T, "imageS3Key"> & { imageUrl: string | null }> {
+  const { imageS3Key, ...rest } = announcement;
+  return { ...rest, imageUrl: imageS3Key ? await presignGet(imageS3Key) : null };
+}
 
 export async function listAnnouncements() {
-  return prisma.announcement.findMany({ orderBy: { createdAt: "desc" } });
+  const announcements = await prisma.announcement.findMany({ orderBy: { createdAt: "desc" } });
+  return Promise.all(announcements.map(withSignedImage));
 }
 
 export async function createAnnouncement(postedByEmployeeId: string, input: CreateAnnouncementInput) {
-  return prisma.announcement.create({ data: { ...input, postedByEmployeeId } });
+  const announcement = await prisma.announcement.create({ data: { ...input, postedByEmployeeId } });
+  return withSignedImage(announcement);
 }
 
 export async function updateAnnouncement(
@@ -20,7 +32,8 @@ export async function updateAnnouncement(
   if (!requester.isAdmin && announcement.postedByEmployeeId !== requester.id) {
     throw new HttpError(403, "Only the author or an admin can edit this announcement");
   }
-  return prisma.announcement.update({ where: { id }, data: input });
+  const updated = await prisma.announcement.update({ where: { id }, data: input });
+  return withSignedImage(updated);
 }
 
 export async function deleteAnnouncement(id: string, requester: { id: string; isAdmin: boolean }) {

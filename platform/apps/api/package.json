@@ -18,6 +18,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.658.1",
     "@aws-sdk/s3-presigned-post": "^3.658.1",
+    "@aws-sdk/s3-request-presigner": "^3.1123.0",
     "@glampack/shared": "*",
     "@prisma/client": "^5.20.0",
     "compression": "^1.7.4",

@@ -266,7 +266,9 @@ model Announcement {
   postedByEmployeeId String
   postedBy           Employee @relation(fields: [postedByEmployeeId], references: [id])
 
-  imageUrl String?
+  // S3 key, not a stored URL — the bucket is private, so a real (short-lived,
+  // signed) URL is minted on every read instead of persisted here.
+  imageS3Key String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

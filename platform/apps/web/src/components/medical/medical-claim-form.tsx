@@ -31,12 +31,14 @@ export function MedicalClaimForm({
 }) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [receipts, setReceipts] = useState<PendingReceipt[]>([]);
+  const [uploadingReceipt, setUploadingReceipt] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   function reset() {
     setForm(EMPTY_FORM);
     setReceipts([]);
+    setUploadingReceipt(false);
     setError(null);
   }
 
@@ -128,7 +130,7 @@ export function MedicalClaimForm({
 
           <div className="space-y-2">
             <Label>Receipts</Label>
-            <ReceiptUploader receipts={receipts} onChange={setReceipts} />
+            <ReceiptUploader receipts={receipts} onChange={setReceipts} onUploadingChange={setUploadingReceipt} />
           </div>
 
           <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
@@ -141,8 +143,8 @@ export function MedicalClaimForm({
             <Button type="button" variant="ghost" onClick={() => onOpenChange(false)} disabled={submitting}>
               Cancel
             </Button>
-            <Button type="submit" disabled={submitting}>
-              {submitting ? "Submitting…" : "Submit Claim"}
+            <Button type="submit" disabled={submitting || uploadingReceipt}>
+              {submitting ? "Submitting…" : uploadingReceipt ? "Waiting for upload…" : "Submit Claim"}
             </Button>
           </DialogFooter>
         </form>

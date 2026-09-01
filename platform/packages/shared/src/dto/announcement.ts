@@ -6,7 +6,8 @@ export const createAnnouncementSchema = z.object({
   message: z.string().min(1),
   type: z.enum(ANNOUNCEMENT_TYPES).default("General"),
   priority: z.enum(ANNOUNCEMENT_PRIORITIES).optional(),
-  imageUrl: z.string().url().optional(),
+  // undefined = leave the existing image alone (partial update); null = explicitly remove it.
+  imageS3Key: z.string().min(1).nullable().optional(),
 });
 export type CreateAnnouncementInput = z.infer<typeof createAnnouncementSchema>;
 

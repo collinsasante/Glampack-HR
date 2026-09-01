@@ -1,7 +1,7 @@
 "use client";
 
 import { ImageIcon, Loader2, Upload, X } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { presignAnnouncementImage, uploadFileToS3 } from "@/lib/api/medical-claims";
 
@@ -14,20 +14,37 @@ function formatSize(bytes: number) {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-// Backed by the real `imageUrl` field and the real S3 presign flow — this is a
+// Backed by the real `imageS3Key` field and the real S3 presign flow — a
 // single optional image, not a general multi-file attachment system (the
-// backend has no field for that yet).
+// backend has no field for that yet). The bucket is private, so the preview
+// for a freshly-picked file is a local blob URL (never touches S3 at all);
+// the preview for an existing image (edit mode) is a short-lived signed URL
+// the parent already has from fetching the announcement.
 export function AttachmentUploader({
-  value,
+  s3Key,
+  initialPreviewUrl,
   onChange,
+  onUploadingChange,
 }: {
-  value: string | null;
-  onChange: (url: string | null) => void;
+  /** undefined = an existing image, untouched; null = no image / removed; string = freshly uploaded. */
+  s3Key: string | null | undefined;
+  initialPreviewUrl?: string | null;
+  onChange: (s3Key: string | null) => void;
+  /** Lets the parent form block submission until the upload finishes. */
+  onUploadingChange?: (uploading: boolean) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fileMeta, setFileMeta] = useState<{ name: string; size: number } | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState<string | null>(null);
+
+  // Revoke the blob URL when it's replaced or the component unmounts.
+  useEffect(() => {
+    return () => {
+      if (localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+    };
+  }, [localPreviewUrl]);
 
   async function handleFile(file: File) {
     setError(null);
@@ -39,40 +56,62 @@ export function AttachmentUploader({
       setError("Image must be 5MB or smaller.");
       return;
     }
+
+    setLocalPreviewUrl(URL.createObjectURL(file));
+    setFileMeta({ name: file.name, size: file.size });
     setUploading(true);
+    onUploadingChange?.(true);
     try {
       const presign = await presignAnnouncementImage(file.type);
       await uploadFileToS3(presign, file);
-      setFileMeta({ name: file.name, size: file.size });
-      onChange(presign.publicUrl);
+      onChange(presign.s3Key);
     } catch {
       setError("Upload failed. Please try again.");
+      setLocalPreviewUrl(null);
+      setFileMeta(null);
     } finally {
       setUploading(false);
+      onUploadingChange?.(false);
     }
   }
 
-  if (value) {
+  const previewUrl = localPreviewUrl ?? initialPreviewUrl;
+  const hasImage = s3Key !== null && (typeof s3Key === "string" || !!initialPreviewUrl);
+
+  if (hasImage || uploading) {
     return (
       <div className="flex items-center gap-3 rounded-lg border border-border p-3">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={value} alt="" className="h-12 w-12 rounded-md object-cover" />
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={previewUrl} alt="" className="h-12 w-12 rounded-md object-cover" />
+        ) : (
+          <div className="flex h-12 w-12 items-center justify-center rounded-md bg-muted">
+            <ImageIcon className="h-5 w-5 text-muted-foreground" />
+          </div>
+        )}
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium text-foreground">{fileMeta?.name ?? "Attached image"}</p>
-          {fileMeta && <p className="text-xs text-muted-foreground">{formatSize(fileMeta.size)}</p>}
+          <p className="truncate text-sm font-medium text-foreground">
+            {uploading ? "Uploading…" : (fileMeta?.name ?? "Attached image")}
+          </p>
+          {fileMeta && !uploading && <p className="text-xs text-muted-foreground">{formatSize(fileMeta.size)}</p>}
         </div>
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon-sm"
-          onClick={() => {
-            onChange(null);
-            setFileMeta(null);
-          }}
-          aria-label="Remove image"
-        >
-          <X className="h-4 w-4" />
-        </Button>
+        {uploading ? (
+          <Loader2 className="h-4 w-4 shrink-0 animate-spin text-muted-foreground" />
+        ) : (
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon-sm"
+            onClick={() => {
+              onChange(null);
+              setFileMeta(null);
+              setLocalPreviewUrl(null);
+            }}
+            aria-label="Remove image"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
     );
   }
@@ -93,23 +132,13 @@ export function AttachmentUploader({
       <button
         type="button"
         onClick={() => inputRef.current?.click()}
-        disabled={uploading}
-        className="flex w-full flex-col items-center gap-1.5 rounded-lg border border-dashed border-border py-6 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted disabled:cursor-not-allowed"
+        className="flex w-full flex-col items-center gap-1.5 rounded-lg border border-dashed border-border py-6 text-sm text-muted-foreground transition-colors hover:border-primary/40 hover:bg-muted"
       >
-        {uploading ? (
-          <>
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Uploading…
-          </>
-        ) : (
-          <>
-            <ImageIcon className="h-5 w-5" />
-            <span className="flex items-center gap-1 font-medium text-foreground">
-              <Upload className="h-3.5 w-3.5" /> Attach an image
-            </span>
-            <span className="text-xs">JPEG, PNG, GIF, or WEBP · up to 5MB</span>
-          </>
-        )}
+        <ImageIcon className="h-5 w-5" />
+        <span className="flex items-center gap-1 font-medium text-foreground">
+          <Upload className="h-3.5 w-3.5" /> Attach an image
+        </span>
+        <span className="text-xs">JPEG, PNG, GIF, or WEBP · up to 5MB</span>
       </button>
       {error && <p className="mt-1.5 text-xs text-destructive">{error}</p>}
     </div>
