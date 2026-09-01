@@ -1,0 +1,153 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-sans);
+  --font-heading: var(--font-sans);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar: var(--sidebar);
+  --color-chart-5: var(--chart-5);
+  --color-chart-4: var(--chart-4);
+  --color-chart-3: var(--chart-3);
+  --color-chart-2: var(--chart-2);
+  --color-chart-1: var(--chart-1);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+body {
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out;
+}
+
+/* Modern SaaS: bold grotesk type, generous rounded corners, soft-shadow cards
+   floating on a warm light-gray page ground instead of hairline flat panels.
+   Referenced from two picked dashboards — a light AIRES-style sidebar (kept for
+   light mode) and a near-black Mate-style sidebar (adopted for dark mode) — with
+   the app's existing red kept as the one sparing accent in both. */
+:root {
+  --background: #f4f4f3;
+  --foreground: #18181b;
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+  --primary: #c81e3a;
+  --primary-foreground: #ffffff;
+  --secondary: #eeeeec;
+  --secondary-foreground: #18181b;
+  --muted: #eeeeec;
+  --muted-foreground: #71717a;
+  --accent: #eeeeec;
+  --accent-foreground: #18181b;
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: #e6e6e3;
+  --input: #e6e6e3;
+  --ring: #c81e3a;
+  --chart-1: #c81e3a;
+  --chart-2: #18181b;
+  --chart-3: #a1a1aa;
+  --chart-4: #d4d4d8;
+  --chart-5: #71717a;
+  --radius: 0.85rem;
+  --sidebar: #f4f4f3;
+  --sidebar-foreground: #18181b;
+  --sidebar-primary: #c81e3a;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #ffffff;
+  --sidebar-accent-foreground: #18181b;
+  --sidebar-border: #e6e6e3;
+  --sidebar-ring: #c81e3a;
+}
+
+/* Dark mode no longer auto-applies from the OS/browser preference — the app
+   stayed on this light theme in every review, and switching underneath the
+   user based on their system setting meant they were seeing an unapproved
+   look without knowing why. Kept only as an explicit opt-in (nothing sets
+   data-theme="dark" today), not a silent default. */
+:root[data-theme="dark"] {
+  --background: #121214;
+  --foreground: #f4f4f3;
+  --card: #1a1a1d;
+  --card-foreground: #f4f4f3;
+  --popover: #1e1e21;
+  --popover-foreground: #f4f4f3;
+  --primary: #e14a63;
+  --primary-foreground: #ffffff;
+  --secondary: #212124;
+  --secondary-foreground: #f4f4f3;
+  --muted: #212124;
+  --muted-foreground: #a3a1a6;
+  --accent: #212124;
+  --accent-foreground: #f4f4f3;
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: #27272a;
+  --input: #27272a;
+  --ring: #e14a63;
+  --sidebar: #0f0f11;
+  --sidebar-foreground: #e5e5e5;
+  --sidebar-primary: #e14a63;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #1f1f22;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #232326;
+  --sidebar-ring: #e14a63;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+}

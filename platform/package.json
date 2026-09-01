@@ -1,0 +1,24 @@
+{
+  "name": "glampack-hr-platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "scripts/*"
+  ],
+  "scripts": {
+    "build:shared": "npm run build --workspace=packages/shared",
+    "dev:api": "npm run build:shared && npm run dev --workspace=apps/api",
+    "build:api": "npm run build:shared && npm run build --workspace=apps/api",
+    "start:api": "npm run start --workspace=apps/api",
+    "test:api": "npm run build:shared && npm run test --workspace=apps/api",
+    "prisma:migrate": "npm run prisma:migrate --workspace=apps/api",
+    "prisma:studio": "npm run prisma:studio --workspace=apps/api",
+    "migrate:airtable": "npm run build:shared && npm run migrate --workspace=scripts/migrate-airtable",
+    "migrate:airtable:dry-run": "npm run build:shared && npm run migrate:dry-run --workspace=scripts/migrate-airtable",
+    "test:migrate-airtable": "npm run build:shared && npm run test --workspace=scripts/migrate-airtable"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

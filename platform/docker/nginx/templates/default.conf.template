@@ -1,0 +1,53 @@
+# Rendered by the official nginx:alpine image's envsubst-on-startup templating
+# (files under /etc/nginx/templates/*.template -> /etc/nginx/conf.d/*.conf).
+
+server {
+    listen 80;
+    server_name ${DOMAIN};
+
+    # Required for certbot's webroot renewal method (see DEPLOYMENT.md) — must stay
+    # reachable over plain HTTP even after HTTPS is set up.
+    location /.well-known/acme-challenge/ {
+        root /var/www/certbot;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+server {
+    listen 443 ssl;
+    http2 on;
+    server_name ${DOMAIN};
+
+    ssl_certificate     /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+
+    client_max_body_size 5m; # matches the API's own 5MB upload limit
+
+    # The API, under /api/v1 — proxied to the Express container.
+    location /api/ {
+        proxy_pass http://api:4000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+
+    # Everything else — the Next.js app.
+    location / {
+        proxy_pass http://web:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        # Next.js dev/HMR websocket support (harmless in production, needed if
+        # ever run with `next dev` behind this same proxy for a staging check).
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+}

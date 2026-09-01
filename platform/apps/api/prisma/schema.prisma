@@ -1,0 +1,431 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------------------------------------------------------------------
+// Enums (verified against the live Airtable base — see /Users/.../plans/clever-mixing-donut.md)
+// ---------------------------------------------------------------------------
+
+enum Role {
+  Employee
+  Admin
+  HR
+  Manager
+}
+
+enum EmployeeStatus {
+  Permanent
+  Intern
+  NationalServicePersonnel
+  IndependentContractor
+}
+
+enum AccountStatus {
+  Active
+  Inactive
+}
+
+enum EmploymentType {
+  FullTime
+  PartTime
+  Contract
+  Temporary
+}
+
+enum Department {
+  Administration
+  Management
+  Production
+  Operations
+  CustomerService
+  Logistics
+  WarehousingAndFulfilment
+  Finance
+  Sales
+  Marketing
+  Engineering
+  CreativeDesign
+  Pakkmax
+}
+
+enum Shift {
+  MorningProductionDay
+  NightProduction
+  StraightShift
+  HybridMorning
+  HybridAfternoon
+  SaturdayShift
+}
+
+enum LeaveType {
+  Vacation
+  Sick
+  Study
+  Other
+}
+
+enum LeaveStatus {
+  Pending
+  Approved
+  Rejected
+  Cancelled
+}
+
+enum AnnouncementType {
+  General
+  HR
+  Urgent
+  Event
+  Other
+}
+
+// Confirmed against every real Announcement record in production (10/10): all of them
+// set Priority (Low/Medium/High), none set Type/Announcement Type at all. These are two
+// genuinely different dimensions — urgency vs. category — not a naming fork of one field,
+// despite Type being what the old employee-authored creation path (never actually
+// functional — see Announcement.postedByEmployeeId comment) would have written.
+enum AnnouncementPriority {
+  Low
+  Medium
+  High
+}
+
+enum ClaimStatus {
+  Pending
+  Approved
+  Rejected
+}
+
+enum PayrollStatus {
+  Pending
+  Processed
+  Paid
+}
+
+enum PaymentMethod {
+  BankTransfer
+  Cash
+  MobileMoney
+}
+
+enum EmergencyContactRelationship {
+  Spouse
+  Parent
+  Sibling
+  Child
+  Friend
+  Other
+}
+
+enum LocationMethod {
+  GPS
+  IPFallback
+}
+
+// ---------------------------------------------------------------------------
+// Models
+// ---------------------------------------------------------------------------
+
+model Employee {
+  id          String   @id @default(cuid())
+  firebaseUid String?  @unique
+  employeeId  String   @unique
+
+  fullName String
+  email    String @unique
+
+  // Legacy Airtable password hash, kept for audit only. Never read for auth again —
+  // Firebase Auth is the sole credential store going forward.
+  passwordLegacy String?
+
+  role           Role
+  status         EmployeeStatus
+  accountStatus  AccountStatus  @default(Active)
+  employmentType EmploymentType?
+  department     Department?
+  jobTitle       String?
+
+  annualLeaveBalance Int      @default(20)
+  salary             Decimal? @db.Decimal(12, 2)
+  dateOfBirth        DateTime? @db.Date
+  joiningDate        DateTime? @db.Date
+
+  phone   String?
+  address String?
+  city    String?
+  country String?
+
+  ghanaCardNumber String?
+  ssnitNumber     String?
+
+  bankName          String?
+  bankAccountNumber String?
+  bankBranch        String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  attendance             Attendance[]
+  leaveRequests          LeaveRequest[]        @relation("LeaveRequestEmployee")
+  approvedLeaveRequests  LeaveRequest[]        @relation("LeaveRequestApprover")
+  announcementsPosted    Announcement[]
+  announcementReads      AnnouncementRead[]
+  announcementComments   AnnouncementComment[]
+  payrolls               Payroll[]
+  medicalClaims          MedicalClaim[]
+  emergencyContacts      EmergencyContact[]
+
+  @@index([department])
+  @@index([role])
+}
+
+model Attendance {
+  id String @id @default(cuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  date         DateTime @db.Date
+  checkInTime  DateTime?
+  checkOutTime DateTime?
+
+  // Distance from the fixed office point (Haversine, computed server-side from lat/lng) —
+  // NOT device GPS accuracy. Purely informational in the old app (a "logging purposes only"
+  // 5-meter geofence that real check-ins routinely miss by 20km+, never actually enforced)
+  // and kept non-blocking here for the same reason.
+  checkInLat               Decimal? @db.Decimal(10, 7)
+  checkInLng               Decimal? @db.Decimal(10, 7)
+  checkInDistanceFromOfficeM Decimal? @db.Decimal(10, 2)
+  checkInMethod    LocationMethod?
+  checkInCity      String?
+  checkInRegion    String?
+
+  checkOutLat               Decimal? @db.Decimal(10, 7)
+  checkOutLng               Decimal? @db.Decimal(10, 7)
+  checkOutDistanceFromOfficeM Decimal? @db.Decimal(10, 2)
+  checkOutMethod    LocationMethod?
+  checkOutCity      String?
+  checkOutRegion    String?
+
+  ipAddress  String?
+  shift      Shift
+  lateReason String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, date])
+  @@index([date])
+}
+
+model LeaveRequest {
+  id String @id @default(cuid())
+
+  employeeId String
+  employee   Employee @relation("LeaveRequestEmployee", fields: [employeeId], references: [id], onDelete: Cascade)
+
+  leaveType LeaveType
+  startDate DateTime  @db.Date
+  endDate   DateTime  @db.Date
+
+  // Server-computed at creation (Math.ceil(days)+1, inclusive of weekends). Never client-trusted.
+  numberOfDays Int
+
+  status LeaveStatus @default(Pending)
+  notes  String?
+
+  adminComments String?
+  approvedById  String?
+  approvedBy    Employee? @relation("LeaveRequestApprover", fields: [approvedById], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId, status])
+  @@index([leaveType, startDate])
+}
+
+model Announcement {
+  id String @id @default(cuid())
+
+  title    String
+  message  String
+  type     AnnouncementType @default(General)
+  priority AnnouncementPriority?
+
+  // "Created By" (a linked record the employee-authored path in announcements.html tries
+  // to write) isn't even a real field in the live Airtable table — confirmed via the API
+  // itself returning a 422 for it. That whole self-service creation path was never
+  // functional in production; every real announcement went through admin.js's Posted-By
+  // (plain text name) path instead. Migration resolves postedByEmployeeId from that name.
+  postedByEmployeeId String
+  postedBy           Employee @relation(fields: [postedByEmployeeId], references: [id])
+
+  imageUrl String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  reads    AnnouncementRead[]
+  comments AnnouncementComment[]
+
+  @@index([type])
+}
+
+model AnnouncementRead {
+  id String @id @default(cuid())
+
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  readDate DateTime @default(now())
+
+  @@unique([announcementId, employeeId])
+}
+
+model AnnouncementComment {
+  id String @id @default(cuid())
+
+  announcementId String
+  announcement   Announcement @relation(fields: [announcementId], references: [id], onDelete: Cascade)
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  comment String
+
+  parentCommentId String?
+  parentComment   AnnouncementComment?  @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  replies         AnnouncementComment[] @relation("CommentReplies")
+
+  createdAt DateTime @default(now())
+
+  @@index([announcementId])
+}
+
+model Payroll {
+  id String @id @default(cuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  month String // YYYY-MM
+
+  basicSalary          Decimal @db.Decimal(12, 2)
+  housingAllowance     Decimal @default(0) @db.Decimal(12, 2)
+  transportAllowance   Decimal @default(0) @db.Decimal(12, 2)
+  benefits             Decimal @default(0) @db.Decimal(12, 2)
+  otherAllowances      Decimal @default(0) @db.Decimal(12, 2)
+  bonus                Decimal @default(0) @db.Decimal(12, 2)
+
+  // Server-computed — never accepted directly from the client.
+  totalAllowances Decimal @db.Decimal(12, 2)
+  grossSalary     Decimal @db.Decimal(12, 2)
+
+  incomeTax        Decimal @default(0) @db.Decimal(12, 2)
+  welfare          Decimal @default(0) @db.Decimal(12, 2)
+  socialSecurity   Decimal @default(0) @db.Decimal(12, 2)
+  healthInsurance  Decimal @default(0) @db.Decimal(12, 2)
+  otherDeductions  Decimal @default(0) @db.Decimal(12, 2)
+
+  // Server-computed — never accepted directly from the client.
+  totalDeductions Decimal @db.Decimal(12, 2)
+  netSalary       Decimal @db.Decimal(12, 2)
+  amountToPay     Decimal @db.Decimal(12, 2) // netSalary + incomeTax + socialSecurity
+
+  status        PayrollStatus @default(Pending)
+  paymentMethod PaymentMethod?
+  paymentDate   DateTime? @db.Date
+
+  periodStartDate DateTime? @db.Date
+  periodEndDate   DateTime? @db.Date
+
+  notes String?
+
+  customAllowances PayrollCustomAllowance[]
+  customDeductions PayrollCustomDeduction[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([employeeId, month])
+  @@index([month, status])
+}
+
+model PayrollCustomAllowance {
+  id              String  @id @default(cuid())
+  payrollId       String
+  payroll         Payroll @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  name            String
+  amount          Decimal @db.Decimal(12, 2)
+  isRecurring     Boolean @default(false)
+  monthsRemaining Int?
+  totalMonths     Int?
+}
+
+model PayrollCustomDeduction {
+  id              String  @id @default(cuid())
+  payrollId       String
+  payroll         Payroll @relation(fields: [payrollId], references: [id], onDelete: Cascade)
+  name            String
+  amount          Decimal @db.Decimal(12, 2)
+  isRecurring     Boolean @default(false)
+  monthsRemaining Int?
+  totalMonths     Int?
+}
+
+model MedicalClaim {
+  id String @id @default(cuid())
+
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  dateOfVisit             DateTime @db.Date
+  hospitalClinicName      String
+  descriptionOfTreatment  String
+  amountSpent             Decimal  @db.Decimal(12, 2)
+
+  status     ClaimStatus @default(Pending)
+  adminNotes String?
+
+  receipts MedicalClaimReceipt[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([employeeId, status])
+}
+
+model MedicalClaimReceipt {
+  id             String       @id @default(cuid())
+  medicalClaimId String
+  medicalClaim   MedicalClaim @relation(fields: [medicalClaimId], references: [id], onDelete: Cascade)
+  filename       String
+  s3Key          String
+  url            String
+}
+
+model EmergencyContact {
+  id String @id @default(cuid())
+
+  // Immutable at the app layer (never included in update DTOs), not a DB-level constraint.
+  employeeId String
+  employee   Employee @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+
+  name         String
+  relationship EmergencyContactRelationship
+  phoneNumber  String
+  email        String?
+  address      String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

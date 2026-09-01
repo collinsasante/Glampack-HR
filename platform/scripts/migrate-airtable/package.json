@@ -1,0 +1,24 @@
+{
+  "name": "@glampack/migrate-airtable",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "migrate": "tsx src/migrate.ts",
+    "migrate:dry-run": "tsx src/migrate.ts --dry-run",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.658.1",
+    "@glampack/shared": "*",
+    "@prisma/client": "^5.20.0",
+    "dotenv": "^16.4.5",
+    "firebase-admin": "^12.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.7.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.2"
+  }
+}
