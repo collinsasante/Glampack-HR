@@ -28,7 +28,9 @@ export function RequireAuth({ children, allowRoles }: RequireAuthProps) {
 
   if (loading || !firebaseUser || !employee) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background text-sm text-muted-foreground">
+      <div className="flex min-h-screen flex-col items-center justify-center gap-3 bg-background text-sm text-muted-foreground">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-icon.png" alt="" className="h-9 w-9 animate-pulse" />
         Loading…
       </div>
     );

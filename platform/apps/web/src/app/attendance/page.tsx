@@ -236,6 +236,16 @@ function StaffAttendanceView() {
 
   return (
     <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">Organization-wide snapshot for the selected date.</p>
+        <div className="flex items-center gap-2">
+          <Label htmlFor="date" className="text-xs text-muted-foreground">
+            Stats for
+          </Label>
+          <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 w-40" />
+        </div>
+      </div>
+
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-5">
         <StatCard label="Total Employees" value={activeCount} />
         <StatCard label="Present Today" value={presentCount} />
@@ -272,17 +282,6 @@ function StaffAttendanceView() {
           </CardContent>
         </Card>
       </div>
-
-      <Card>
-        <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">
-          <div className="space-y-1">
-            <Label htmlFor="date" className="text-xs text-muted-foreground">
-              Stats for date
-            </Label>
-            <Input id="date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 w-40" />
-          </div>
-        </CardHeader>
-      </Card>
 
       <Card>
         <CardHeader className="flex-row flex-wrap items-center justify-between gap-3 space-y-0">

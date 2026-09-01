@@ -8,7 +8,6 @@ import { TodayAttendanceCard } from "@/components/attendance/today-attendance-ca
 import { EmployeeStatCards } from "@/components/dashboard/stat-cards";
 import { AttentionPanel } from "@/components/dashboard/attention-panel";
 import { AttendancePerformance } from "@/components/dashboard/attendance-performance";
-import { LeaveBalanceCard } from "@/components/dashboard/leave-balance-card";
 import { PayrollSummaryCard } from "@/components/dashboard/payroll-summary-card";
 import { AnnouncementsPreview } from "@/components/dashboard/announcements-preview";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -80,20 +79,14 @@ function DashboardContent() {
 
       <EmployeeStatCards employee={employee} />
 
-      <TodayAttendanceCard onChange={refresh} />
-
-      <AttentionPanel employee={employee} />
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <AttendancePerformance employee={employee} />
-        </div>
-        <div className="lg:col-span-1">
-          <LeaveBalanceCard employee={employee} />
-        </div>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <TodayAttendanceCard onChange={refresh} />
+        <AnnouncementsPreview />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <AttentionPanel employee={employee} />
+
         <Card
           role="button"
           tabIndex={0}
@@ -128,7 +121,7 @@ function DashboardContent() {
         <PayrollSummaryCard employee={employee} />
       </div>
 
-      <AnnouncementsPreview />
+      <AttendancePerformance employee={employee} />
     </div>
   );
 }

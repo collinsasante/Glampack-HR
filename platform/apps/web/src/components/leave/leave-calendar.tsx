@@ -63,26 +63,26 @@ export function LeaveCalendar({
           <Button
             variant="outline"
             size="icon"
-            className="h-7 w-7"
+            className="h-6 w-6"
             onClick={() => setCursor((c) => new Date(Date.UTC(c.getUTCFullYear(), c.getUTCMonth() - 1, 1)))}
           >
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-3.5 w-3.5" />
           </Button>
-          <p className="w-28 text-center text-sm font-medium text-foreground">
+          <p className="w-24 text-center text-xs font-medium text-foreground">
             {cursor.toLocaleDateString(undefined, { month: "long", year: "numeric", timeZone: "UTC" })}
           </p>
           <Button
             variant="outline"
             size="icon"
-            className="h-7 w-7"
+            className="h-6 w-6"
             onClick={() => setCursor((c) => new Date(Date.UTC(c.getUTCFullYear(), c.getUTCMonth() + 1, 1)))}
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-7 gap-1 text-center text-xs text-muted-foreground">
+        <div className="mx-auto grid max-w-xs grid-cols-7 gap-0.5 text-center text-[11px] text-muted-foreground">
           {["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"].map((d) => (
             <div key={d} className="py-1 font-medium">
               {d}
@@ -100,7 +100,7 @@ export function LeaveCalendar({
                 type="button"
                 disabled={dayRequests.length === 0}
                 onClick={() => setSelected(isSelected ? null : dStr)}
-                className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-lg border text-xs transition-colors ${
+                className={`flex aspect-square flex-col items-center justify-center gap-0.5 rounded-md border text-[11px] transition-colors ${
                   isSelected
                     ? "border-primary bg-primary/10"
                     : isToday

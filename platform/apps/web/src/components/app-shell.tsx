@@ -106,12 +106,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     <SidebarProvider>
       <Sidebar collapsible="offcanvas" className="border-r-0">
         <SidebarHeader className="px-4 py-5">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-xs font-bold text-background">
-              G
-            </div>
-            <span className="text-sm font-bold text-foreground">Glampack HR</span>
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.png" alt="Packaging Glamour" className="h-auto w-full" />
         </SidebarHeader>
         <SidebarContent className="px-3 py-2">
           <SidebarGroup className="p-0">

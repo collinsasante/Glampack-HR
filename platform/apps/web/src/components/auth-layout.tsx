@@ -12,9 +12,8 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-12">
       <div className="w-full max-w-[400px] animate-fade-in-up">
         <div className="mb-6 flex items-center gap-2.5">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-foreground text-sm font-bold text-background">
-            G
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-icon.png" alt="" className="h-9 w-9 shrink-0" />
           <span className="text-sm font-semibold text-foreground">Glampack HR</span>
         </div>
 
