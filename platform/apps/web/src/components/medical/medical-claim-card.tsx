@@ -3,7 +3,7 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
-import { currency } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { claimStatusVariant } from "@/lib/medical-claim-format";
 import type { MedicalClaim } from "@/lib/api/medical-claims";
 import type { Employee } from "@/lib/api/employees";
@@ -47,7 +47,7 @@ export function MedicalClaimCard({
         </div>
 
         <div className="flex items-center justify-between border-t border-border pt-3">
-          <span className="font-medium tabular-nums text-foreground">{currency(Number(claim.amountSpent))}</span>
+          <MaskedCurrency amount={Number(claim.amountSpent)} className="font-medium text-foreground" />
           <span className="text-xs text-muted-foreground">
             Submitted {new Date(claim.createdAt).toLocaleDateString()}
           </span>

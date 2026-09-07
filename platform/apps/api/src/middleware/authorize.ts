@@ -1,10 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
-import type { Role } from "@glampack/shared";
+import type { PermissionKey } from "@glampack/shared";
+import { hasPermission } from "../lib/permissions.js";
 
-export function requireRole(roles: Role[]) {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function requirePermission(key: PermissionKey) {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
-    if (!roles.includes(req.user.role as Role)) {
+    if (!(await hasPermission(req.user.role, key))) {
       return res.status(403).json({ error: "Insufficient role" });
     }
     next();
@@ -13,14 +14,13 @@ export function requireRole(roles: Role[]) {
 
 /**
  * Allows the request through if the authenticated user is acting on their own
- * record (per `getEmployeeId(req)`), or holds one of `staffRoles`.
+ * record (per `getEmployeeId(req)`), or their role holds `key`.
  */
-export function requireSelfOrRole(staffRoles: Role[], getEmployeeId: (req: Request) => string) {
-  return (req: Request, res: Response, next: NextFunction) => {
+export function requireSelfOrPermission(key: PermissionKey, getEmployeeId: (req: Request) => string) {
+  return async (req: Request, res: Response, next: NextFunction) => {
     if (!req.user) return res.status(401).json({ error: "Not authenticated" });
     const isSelf = getEmployeeId(req) === req.user.id;
-    const isStaff = staffRoles.includes(req.user.role as Role);
-    if (!isSelf && !isStaff) {
+    if (!isSelf && !(await hasPermission(req.user.role, key))) {
       return res.status(403).json({ error: "Insufficient role" });
     }
     next();

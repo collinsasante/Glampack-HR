@@ -23,6 +23,8 @@ import {
   nestedEmergencyContactsRouter,
 } from "./modules/emergency-contacts/routes.js";
 import { uploadsRouter } from "./modules/uploads/routes.js";
+import { officesRouter } from "./modules/offices/routes.js";
+import { rolesRouter } from "./modules/roles/routes.js";
 
 export const app = express();
 
@@ -85,6 +87,8 @@ v1.use("/announcement-comments", announcementCommentsRouter);
 v1.use("/payroll", payrollRouter);
 v1.use("/medical-claims", medicalClaimsRouter);
 v1.use("/uploads", uploadsRouter);
+v1.use("/offices", officesRouter);
+v1.use("/roles", rolesRouter);
 
 app.use("/api/v1", v1);
 

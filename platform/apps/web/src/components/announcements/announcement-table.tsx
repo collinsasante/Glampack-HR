@@ -14,6 +14,7 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { priorityBadgeVariant, typeBadgeVariant } from "@/lib/announcement-format";
 import type { Announcement } from "@/lib/api/announcements";
+import { hasPermission } from "@/lib/api/employees";
 import type { Employee } from "@/lib/api/employees";
 
 function initials(name: string) {
@@ -42,7 +43,7 @@ export function AnnouncementTable({
   onDuplicate: (a: Announcement) => void;
   onDelete: (a: Announcement) => void;
 }) {
-  const canDuplicate = currentEmployee.role === "Admin" || currentEmployee.role === "HR";
+  const canDuplicate = hasPermission(currentEmployee, "announcements.create");
 
   return (
     <Table>
@@ -60,7 +61,7 @@ export function AnnouncementTable({
       <TableBody>
         {announcements.map((a) => {
           const author = employeeById[a.postedByEmployeeId];
-          const canManage = currentEmployee.role === "Admin" || a.postedByEmployeeId === currentEmployee.id;
+          const canManage = hasPermission(currentEmployee, "announcements.manage_any") || a.postedByEmployeeId === currentEmployee.id;
           return (
             <TableRow key={a.id} className="cursor-pointer" onClick={() => onView(a)}>
               <TableCell className="max-w-xs">

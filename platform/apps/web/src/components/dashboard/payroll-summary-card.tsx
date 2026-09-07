@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listPayroll, type Payroll } from "@/lib/api/payroll";
-import { currency } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
 import type { Employee } from "@/lib/api/employees";
 
 export function PayrollSummaryCard({ employee }: { employee: Employee }) {
@@ -41,15 +41,19 @@ export function PayrollSummaryCard({ employee }: { employee: Employee }) {
           <>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Gross Salary</span>
-              <span className="tabular-nums text-foreground">{currency(payslip.grossSalary)}</span>
+              <MaskedCurrency amount={payslip.grossSalary} className="text-foreground" />
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-muted-foreground">Total Deductions</span>
-              <span className="tabular-nums text-foreground">{currency(payslip.totalDeductions)}</span>
+              <MaskedCurrency amount={payslip.totalDeductions} className="text-foreground" />
             </div>
             <div className="rounded-lg bg-muted p-3">
               <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Net Salary</p>
-              <p className="font-heading text-2xl font-bold text-foreground">{currency(payslip.netSalary)}</p>
+              <MaskedCurrency
+                amount={payslip.netSalary}
+                className="font-heading text-2xl font-bold text-foreground"
+                iconClassName="h-4 w-4"
+              />
             </div>
             <p className="text-xs text-muted-foreground">
               Payment Date{" "}

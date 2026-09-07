@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listAttendance, type AttendanceRecord } from "@/lib/api/attendance";
 import { listEmployees, type Employee } from "@/lib/api/employees";
+import { attendanceStatus, attendanceStatusVariant } from "@/lib/attendance-status";
 import { humanize } from "@/lib/format";
 
 export function AttendanceTab() {
@@ -70,18 +72,29 @@ export function AttendanceTab() {
                 <TableHead>Shift</TableHead>
                 <TableHead>Check In</TableHead>
                 <TableHead>Check Out</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Late Reason</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {records.map((r) => (
-                <TableRow key={r.id}>
-                  <TableCell className="font-medium">{employeeName(r.employeeId)}</TableCell>
-                  <TableCell>{new Date(r.date).toLocaleDateString()}</TableCell>
-                  <TableCell>{humanize(r.shift)}</TableCell>
-                  <TableCell>{r.checkInTime ? new Date(r.checkInTime).toLocaleTimeString() : "-"}</TableCell>
-                  <TableCell>{r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : "-"}</TableCell>
-                </TableRow>
-              ))}
+              {records.map((r) => {
+                const status = attendanceStatus(r);
+                return (
+                  <TableRow key={r.id}>
+                    <TableCell className="font-medium">{employeeName(r.employeeId)}</TableCell>
+                    <TableCell>{new Date(r.date).toLocaleDateString()}</TableCell>
+                    <TableCell>{humanize(r.shift)}</TableCell>
+                    <TableCell>{r.checkInTime ? new Date(r.checkInTime).toLocaleTimeString() : "-"}</TableCell>
+                    <TableCell>{r.checkOutTime ? new Date(r.checkOutTime).toLocaleTimeString() : "-"}</TableCell>
+                    <TableCell>
+                      <Badge variant={attendanceStatusVariant(status)}>{status}</Badge>
+                    </TableCell>
+                    <TableCell className="max-w-64 truncate text-muted-foreground" title={r.lateReason ?? undefined}>
+                      {r.lateReason ?? "-"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}

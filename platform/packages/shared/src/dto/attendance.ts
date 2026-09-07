@@ -11,6 +11,12 @@ const geoPositionSchema = z.object({
 export const checkInSchema = z.object({
   shift: z.enum(SHIFTS),
   position: geoPositionSchema.optional(),
+  // Which of the company's real offices the employee says they're working at today —
+  // the distance-from-office figure is only meaningful relative to a specific office,
+  // so with multiple real locations this can't be assumed. Left optional at the schema
+  // level (never blocks a check-in even without an office selected or configured yet),
+  // but the client UI requires a selection whenever offices exist.
+  officeId: z.string().optional(),
   ipAddress: z.string().optional(),
   city: z.string().optional(),
   region: z.string().optional(),
@@ -20,6 +26,7 @@ export type CheckInInput = z.infer<typeof checkInSchema>;
 
 export const checkOutSchema = z.object({
   position: geoPositionSchema.optional(),
+  officeId: z.string().optional(),
   ipAddress: z.string().optional(),
   city: z.string().optional(),
   region: z.string().optional(),

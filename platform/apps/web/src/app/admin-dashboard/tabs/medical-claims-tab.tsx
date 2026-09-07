@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { approveMedicalClaim, listMedicalClaims, rejectMedicalClaim, type MedicalClaim } from "@/lib/api/medical-claims";
 import { listEmployees, type Employee } from "@/lib/api/employees";
 
@@ -40,7 +41,8 @@ export function MedicalClaimsTab() {
   const employeeName = (id: string) => employees.find((e) => e.id === id)?.fullName ?? id;
 
   async function handleApprove(id: string) {
-    await approveMedicalClaim(id, { adminNotes: "Receipt verified" });
+    const adminNotes = window.prompt("Add a note (optional):") ?? undefined;
+    await approveMedicalClaim(id, { adminNotes: adminNotes || undefined });
     await refresh();
   }
 
@@ -84,8 +86,8 @@ export function MedicalClaimsTab() {
                     <p className="font-medium text-foreground">
                       {employeeName(c.employeeId)} · {c.hospitalClinicName}
                     </p>
-                    <p className="text-muted-foreground">
-                      {new Date(c.dateOfVisit).toLocaleDateString()} · GH₵{c.amountSpent}
+                    <p className="flex items-center gap-1 text-muted-foreground">
+                      {new Date(c.dateOfVisit).toLocaleDateString()} · <MaskedCurrency amount={c.amountSpent} />
                     </p>
                     <p className="text-muted-foreground">{c.descriptionOfTreatment}</p>
                     {c.receipts.length > 0 && (

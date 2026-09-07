@@ -2,7 +2,7 @@
 
 import { ArrowDownRight, ArrowUpRight, Banknote, Receipt, TrendingUp, Wallet } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { currency } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { cn } from "@/lib/utils";
 import type { Payroll } from "@/lib/api/payroll";
 
@@ -42,13 +42,13 @@ export function PayrollStatCards({
     {
       label: "Total Payroll",
       icon: Wallet,
-      value: currency(totalNet),
+      value: <MaskedCurrency amount={totalNet} />,
       footnote: monthLabel(month),
     },
     {
       label: "Gross Payroll",
       icon: TrendingUp,
-      value: currency(totalGross),
+      value: <MaskedCurrency amount={totalGross} />,
       trend:
         grossTrendPct !== null
           ? { direction: grossTrendPct >= 0 ? ("up" as const) : ("down" as const), pct: grossTrendPct }
@@ -58,13 +58,13 @@ export function PayrollStatCards({
     {
       label: "Total Deductions",
       icon: Receipt,
-      value: currency(totalDeductions),
+      value: <MaskedCurrency amount={totalDeductions} />,
       footnote: `${deductionsPctOfGross.toFixed(1)}% of gross`,
     },
     {
       label: "Net Payroll",
       icon: Banknote,
-      value: currency(totalNet),
+      value: <MaskedCurrency amount={totalNet} />,
       footnote: `${processedCount} employee${processedCount === 1 ? "" : "s"} processed`,
     },
   ];

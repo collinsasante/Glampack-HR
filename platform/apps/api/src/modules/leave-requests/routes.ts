@@ -6,7 +6,7 @@ import {
   rejectLeaveRequestSchema,
 } from "@glampack/shared";
 import { authenticate } from "../../middleware/authenticate.js";
-import { requireRole } from "../../middleware/authorize.js";
+import { requirePermission } from "../../middleware/authorize.js";
 import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import * as controller from "./controller.js";
@@ -21,13 +21,13 @@ leaveRequestsRouter.post("/", validate(createLeaveRequestSchema), asyncHandler(c
 
 leaveRequestsRouter.patch(
   "/:id/approve",
-  requireRole(["Admin", "HR"]),
+  requirePermission("leave.approve"),
   asyncHandler(controller.approve)
 );
 
 leaveRequestsRouter.patch(
   "/:id/reject",
-  requireRole(["Admin", "HR"]),
+  requirePermission("leave.approve"),
   validate(rejectLeaveRequestSchema),
   asyncHandler(controller.reject)
 );

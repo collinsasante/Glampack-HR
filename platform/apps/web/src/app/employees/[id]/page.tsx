@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Skeleton } from "@/components/ui/skeleton";
 import { getEmployee, updateEmployee, type Employee } from "@/lib/api/employees";
 import { humanize } from "@/lib/format";
-import type { AccountStatus, Department, EmployeeStatus, EmploymentType, Role } from "@glampack/shared";
+import type { AccountStatus, Department, EmployeeStatus, EmploymentType } from "@glampack/shared";
 
 const DEPARTMENTS: Department[] = [
   "Administration",
@@ -36,7 +36,6 @@ const DEPARTMENTS: Department[] = [
   "CreativeDesign",
   "Pakkmax",
 ];
-const ROLES: Role[] = ["Employee", "Manager", "HR", "Admin"];
 const EMPLOYEE_STATUSES: EmployeeStatus[] = ["Permanent", "Intern", "NationalServicePersonnel", "IndependentContractor"];
 const EMPLOYMENT_TYPES: EmploymentType[] = ["FullTime", "PartTime", "Contract", "Temporary"];
 
@@ -139,11 +138,6 @@ function EmployeeDetailContent() {
     }
   }
 
-  async function handleRoleChange(role: Role) {
-    await updateEmployee(id, { role });
-    await load();
-  }
-
   async function handleToggleActive() {
     if (!employee) return;
     const accountStatus: AccountStatus = employee.accountStatus === "Active" ? "Inactive" : "Active";
@@ -196,18 +190,9 @@ function EmployeeDetailContent() {
           <Badge variant={employee.accountStatus === "Active" ? "success" : "secondary"}>
             {employee.accountStatus}
           </Badge>
-          <Select value={employee.role} onValueChange={(v) => handleRoleChange(v as Role)}>
-            <SelectTrigger size="sm" className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {ROLES.map((r) => (
-                <SelectItem key={r} value={r}>
-                  {r}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Badge variant="secondary" title="Change roles from the Roles & Permissions tab">
+            {employee.role}
+          </Badge>
           <Button variant="outline" size="sm" onClick={handleToggleActive}>
             {employee.accountStatus === "Active" ? "Deactivate" : "Activate"}
           </Button>
@@ -363,7 +348,7 @@ function EmployeeDetailContent() {
 
 export default function EmployeeDetailPage() {
   return (
-    <RequireAuth allowRoles={["Admin", "HR", "Manager"]}>
+    <RequireAuth requireStaff>
       <AppShell>
         <EmployeeDetailContent />
       </AppShell>

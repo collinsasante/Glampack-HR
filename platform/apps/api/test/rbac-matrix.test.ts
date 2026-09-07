@@ -13,12 +13,17 @@ const ROLES: Role[] = ["Employee", "Admin", "HR", "Manager"];
 // today. This is the single highest-value test in Phase 1: for each (route, role) pair,
 // assert the new API actually enforces the intended gate instead of letting anyone through.
 const CASES: { method: "get" | "post" | "patch" | "delete"; path: string; allowed: Role[] }[] = [
-  { method: "get", path: "/api/v1/employees", allowed: ["Admin", "HR", "Manager"] },
+  // Open to every authenticated role — self-service pages (leave, attendance,
+  // announcements, medical claims) all need to resolve other employees' names.
+  // Sensitive fields (salary, bank, SSN, ...) are nulled out for non-staff callers
+  // at the service layer instead — see employees/service.ts.
+  { method: "get", path: "/api/v1/employees", allowed: ["Admin", "HR", "Manager", "Employee"] },
   { method: "post", path: "/api/v1/employees", allowed: ["Admin", "HR"] },
   { method: "post", path: "/api/v1/announcements", allowed: ["Admin", "HR"] },
   { method: "get", path: "/api/v1/announcements/reads/counts", allowed: ["Admin", "HR", "Manager"] },
   { method: "post", path: "/api/v1/payroll", allowed: ["Admin", "HR"] },
   { method: "delete", path: "/api/v1/payroll/nonexistent-id", allowed: ["Admin"] },
+  { method: "post", path: "/api/v1/offices", allowed: ["Admin", "HR"] },
 ];
 
 describe("RBAC matrix", () => {

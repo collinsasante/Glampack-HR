@@ -6,10 +6,14 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AuthLayout } from "@/components/auth-layout";
 import { AuthButton, AuthInput } from "@/components/auth-input";
+import { AuthDivider, GoogleSignInButton } from "@/components/google-sign-in-button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { firebaseAuth } from "@/lib/firebase";
 import { signUp } from "@/lib/api/auth";
+import { continueWithGoogle } from "@/lib/google-sign-in";
+import { useAuth } from "@/lib/auth-context";
+import { isStaffRole } from "@/lib/api/employees";
 import { ApiError } from "@/lib/apiClient";
 import { humanize } from "@/lib/format";
 import type { Department } from "@glampack/shared";
@@ -32,12 +36,30 @@ const DEPARTMENTS: Department[] = [
 
 export default function SignUpPage() {
   const router = useRouter();
+  const { refreshEmployee } = useAuth();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [department, setDepartment] = useState<Department | "">("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  async function handleGoogle() {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      const employee = await continueWithGoogle();
+      await refreshEmployee();
+      router.replace(isStaffRole(employee) ? "/admin-dashboard" : "/dashboard");
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code;
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -143,6 +165,9 @@ export default function SignUpPage() {
           Create account
         </AuthButton>
       </form>
+
+      <AuthDivider />
+      <GoogleSignInButton onClick={handleGoogle} loading={googleLoading} />
     </AuthLayout>
   );
 }

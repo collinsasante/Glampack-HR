@@ -16,7 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { currency, humanize } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
+import { humanize } from "@/lib/format";
 import { downloadPayslip, previewPayslip } from "@/lib/payslip-pdf";
 import type { Employee } from "@/lib/api/employees";
 import type { Payroll } from "@/lib/api/payroll";
@@ -198,13 +199,17 @@ export function PayrollRecordsTable({
                         <TableCell className="text-muted-foreground">
                           {emp?.department ? humanize(emp.department) : "—"}
                         </TableCell>
-                        <TableCell className="tabular-nums">{currency(r.basicSalary)}</TableCell>
-                        <TableCell className="tabular-nums">{currency(r.grossSalary)}</TableCell>
-                        <TableCell className="tabular-nums text-muted-foreground">
-                          {currency(r.totalDeductions)}
+                        <TableCell>
+                          <MaskedCurrency amount={r.basicSalary} />
                         </TableCell>
-                        <TableCell className="font-medium tabular-nums text-foreground">
-                          {currency(r.netSalary)}
+                        <TableCell>
+                          <MaskedCurrency amount={r.grossSalary} />
+                        </TableCell>
+                        <TableCell className="text-muted-foreground">
+                          <MaskedCurrency amount={r.totalDeductions} />
+                        </TableCell>
+                        <TableCell className="font-medium text-foreground">
+                          <MaskedCurrency amount={r.netSalary} />
                         </TableCell>
                         <TableCell>
                           <Badge variant={statusVariant(r.status)}>{r.status}</Badge>
@@ -254,11 +259,11 @@ export function PayrollRecordsTable({
                     <div className="mt-3 grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <p className="text-xs text-muted-foreground">Gross Salary</p>
-                        <p className="tabular-nums text-foreground">{currency(r.grossSalary)}</p>
+                        <MaskedCurrency amount={r.grossSalary} className="text-foreground" />
                       </div>
                       <div>
                         <p className="text-xs text-muted-foreground">Net Salary</p>
-                        <p className="font-medium tabular-nums text-foreground">{currency(r.netSalary)}</p>
+                        <MaskedCurrency amount={r.netSalary} className="font-medium text-foreground" />
                       </div>
                     </div>
                     <div className="mt-3 flex items-center justify-between">

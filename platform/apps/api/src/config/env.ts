@@ -10,9 +10,6 @@ const envSchema = z.object({
   AWS_ACCESS_KEY_ID: z.string().min(1),
   AWS_SECRET_ACCESS_KEY: z.string().min(1),
   S3_BUCKET_NAME: z.string().min(1),
-  // Matches the old app's hardcoded OFFICE_LOCATION in attendance-tracker.html.
-  OFFICE_LATITUDE: z.coerce.number().default(5.603717),
-  OFFICE_LONGITUDE: z.coerce.number().default(-0.186964),
   CORS_ORIGIN: z
     .string()
     .default("http://localhost:3000")

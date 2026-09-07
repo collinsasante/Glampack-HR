@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { priorityBadgeVariant, typeBadgeVariant } from "@/lib/announcement-format";
 import { listAnnouncementReadCounts, listAnnouncements, type Announcement } from "@/lib/api/announcements";
-import { isStaffRole, listEmployees, type Employee } from "@/lib/api/employees";
+import { hasPermission, isStaffRole, listEmployees, type Employee } from "@/lib/api/employees";
 import { resolveDateRange } from "@/lib/dates";
 import { useAuth } from "@/lib/auth-context";
 
@@ -99,7 +99,7 @@ function StaffAnnouncementsView({ employee }: { employee: Employee }) {
   const [deleteTarget, setDeleteTarget] = useState<Announcement | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
-  const canCreate = employee.role === "Admin" || employee.role === "HR";
+  const canCreate = hasPermission(employee, "announcements.create");
 
   async function refresh() {
     setLoading(true);
@@ -397,7 +397,7 @@ function AnnouncementsContent() {
   const { employee } = useAuth();
   if (!employee) return null;
 
-  return isStaffRole(employee.role) ? (
+  return isStaffRole(employee) ? (
     <StaffAnnouncementsView employee={employee} />
   ) : (
     <EmployeeAnnouncementsFeed employee={employee} />

@@ -9,9 +9,13 @@ export interface AttendanceRecord {
   checkOutTime: string | null;
   checkInCity: string | null;
   checkInRegion: string | null;
+  checkInOfficeId: string | null;
+  checkInOffice: { id: string; name: string } | null;
   checkInDistanceFromOfficeM: string | null;
   checkOutCity: string | null;
   checkOutRegion: string | null;
+  checkOutOfficeId: string | null;
+  checkOutOffice: { id: string; name: string } | null;
   checkOutDistanceFromOfficeM: string | null;
   shift: Shift;
   lateReason: string | null;

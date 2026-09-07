@@ -11,12 +11,9 @@ datasource db {
 // Enums (verified against the live Airtable base — see /Users/.../plans/clever-mixing-donut.md)
 // ---------------------------------------------------------------------------
 
-enum Role {
-  Employee
-  Admin
-  HR
-  Manager
-}
+// Roles are dynamic (see the Role model below) — this enum was removed so an admin
+// can create/delete roles and edit their permissions from the Roles & Permissions
+// tab instead of the role list being fixed at deploy time.
 
 enum EmployeeStatus {
   Permanent
@@ -131,6 +128,31 @@ enum LocationMethod {
 // Models
 // ---------------------------------------------------------------------------
 
+// One row per real role (seeded: Employee, Manager, HR, Admin) — admin-creatable
+// and deletable via the Roles & Permissions tab. `isSystem` protects the 4 seeded
+// roles' names from being renamed/deleted out from under existing employees who
+// still reference them by name, and is otherwise not treated as special.
+model Role {
+  name      String   @id
+  isSystem  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  permissions RolePermission[]
+  employees   Employee[]
+}
+
+// Which of the fixed PERMISSIONS keys (packages/shared/src/permissions.ts) a role
+// currently grants — this table is what makes the permissions matrix's checkboxes
+// real rather than cosmetic; every requirePermission() check reads from here.
+model RolePermission {
+  id            String @id @default(cuid())
+  roleName      String
+  role          Role   @relation(fields: [roleName], references: [name], onDelete: Cascade)
+  permissionKey String
+
+  @@unique([roleName, permissionKey])
+}
+
 model Employee {
   id          String   @id @default(cuid())
   firebaseUid String?  @unique
@@ -143,7 +165,8 @@ model Employee {
   // Firebase Auth is the sole credential store going forward.
   passwordLegacy String?
 
-  role           Role
+  role           String
+  roleRef        Role   @relation(fields: [role], references: [name])
   status         EmployeeStatus
   accountStatus  AccountStatus  @default(Active)
   employmentType EmploymentType?
@@ -184,6 +207,22 @@ model Employee {
   @@index([role])
 }
 
+// One row per real company office — the distance-from-office figure on an
+// Attendance record is only meaningful relative to a specific office, so with
+// multiple real locations the employee must say which one they're at when they
+// check in/out rather than the app assuming a single hardcoded location.
+model Office {
+  id        String   @id @default(cuid())
+  name      String
+  latitude  Decimal  @db.Decimal(10, 7)
+  longitude Decimal  @db.Decimal(10, 7)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  checkInAttendance  Attendance[] @relation("CheckInOffice")
+  checkOutAttendance Attendance[] @relation("CheckOutOffice")
+}
+
 model Attendance {
   id String @id @default(cuid())
 
@@ -194,12 +233,14 @@ model Attendance {
   checkInTime  DateTime?
   checkOutTime DateTime?
 
-  // Distance from the fixed office point (Haversine, computed server-side from lat/lng) —
-  // NOT device GPS accuracy. Purely informational in the old app (a "logging purposes only"
-  // 5-meter geofence that real check-ins routinely miss by 20km+, never actually enforced)
-  // and kept non-blocking here for the same reason.
+  // Distance from the office the employee said they were checking in/out at (Haversine,
+  // computed server-side from lat/lng) — NOT device GPS accuracy. Purely informational,
+  // matching the old app's "logging purposes only" 5-meter geofence that real check-ins
+  // routinely miss by 20km+, never actually enforced, and kept non-blocking here too.
   checkInLat               Decimal? @db.Decimal(10, 7)
   checkInLng               Decimal? @db.Decimal(10, 7)
+  checkInOfficeId            String?
+  checkInOffice               Office? @relation("CheckInOffice", fields: [checkInOfficeId], references: [id], onDelete: SetNull)
   checkInDistanceFromOfficeM Decimal? @db.Decimal(10, 2)
   checkInMethod    LocationMethod?
   checkInCity      String?
@@ -207,6 +248,8 @@ model Attendance {
 
   checkOutLat               Decimal? @db.Decimal(10, 7)
   checkOutLng               Decimal? @db.Decimal(10, 7)
+  checkOutOfficeId            String?
+  checkOutOffice               Office? @relation("CheckOutOffice", fields: [checkOutOfficeId], references: [id], onDelete: SetNull)
   checkOutDistanceFromOfficeM Decimal? @db.Decimal(10, 2)
   checkOutMethod    LocationMethod?
   checkOutCity      String?

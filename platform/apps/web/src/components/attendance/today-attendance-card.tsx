@@ -1,13 +1,23 @@
 "use client";
 
 import { CheckCircle2, LogIn, LogOut as LogOutIcon, MapPin, MapPinOff } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Textarea } from "@/components/ui/textarea";
 import { checkIn, checkOut, listAttendance, type AttendanceRecord } from "@/lib/api/attendance";
+import { listOffices, type Office } from "@/lib/api/offices";
 import { useAuth } from "@/lib/auth-context";
 import type { Shift } from "@glampack/shared";
 
@@ -19,6 +29,33 @@ const SHIFT_OPTIONS: { value: Shift; label: string }[] = [
   { value: "HybridAfternoon", label: "Hybrid Afternoon" },
   { value: "SaturdayShift", label: "Saturday Shift" },
 ];
+
+// Per-shift late-arrival cutoff (24h "HH:MM"), matching the original app's shift
+// schedule: each shift's start time plus a 30-minute grace period.
+const SHIFT_LATE_THRESHOLDS: Record<Shift, string> = {
+  MorningProductionDay: "08:30",
+  NightProduction: "20:30",
+  StraightShift: "08:30",
+  HybridMorning: "07:30",
+  HybridAfternoon: "14:30",
+  SaturdayShift: "09:30",
+};
+
+// Night Production starts at 8pm — a check-in in the early morning is the tail end
+// of the previous night's shift finishing up, not a late start, so it's never flagged.
+function isLateForShift(shift: Shift, now: Date): boolean {
+  if (shift === "NightProduction" && now.getHours() < 20) return false;
+  const [thresholdHour, thresholdMinute] = SHIFT_LATE_THRESHOLDS[shift].split(":").map(Number);
+  const nowMinutes = now.getHours() * 60 + now.getMinutes();
+  return nowMinutes > thresholdHour * 60 + thresholdMinute;
+}
+
+function formatThreshold(shift: Shift): string {
+  const [hour, minute] = SHIFT_LATE_THRESHOLDS[shift].split(":").map(Number);
+  const period = hour >= 12 ? "PM" : "AM";
+  const hour12 = hour % 12 === 0 ? 12 : hour % 12;
+  return `${hour12}:${String(minute).padStart(2, "0")} ${period}`;
+}
 
 function formatTime(iso: string) {
   return new Date(iso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
@@ -41,10 +78,13 @@ function formatElapsed(startIso: string, endIso: string) {
 function locationSummary(record: AttendanceRecord, which: "checkIn" | "checkOut") {
   const city = which === "checkIn" ? record.checkInCity : record.checkOutCity;
   const region = which === "checkIn" ? record.checkInRegion : record.checkOutRegion;
+  const office = which === "checkIn" ? record.checkInOffice : record.checkOutOffice;
   const distance = which === "checkIn" ? record.checkInDistanceFromOfficeM : record.checkOutDistanceFromOfficeM;
   if (!city && !distance) return null;
   const place = [city, region].filter(Boolean).join(", ");
-  const distanceLabel = distance ? `${Number(distance).toFixed(0)}m from office` : null;
+  const distanceLabel = distance
+    ? `${Number(distance).toFixed(0)}m from ${office?.name ?? "office"}`
+    : null;
   return [place, distanceLabel].filter(Boolean).join(" · ");
 }
 
@@ -55,18 +95,27 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
   const [today, setToday] = useState<AttendanceRecord | null>(null);
   const [loading, setLoading] = useState(true);
   const [shift, setShift] = useState<Shift>("MorningProductionDay");
+  const [offices, setOffices] = useState<Office[]>([]);
+  const [officeId, setOfficeId] = useState<string>("");
   const [phase, setPhase] = useState<"idle" | "locating" | "saving">("idle");
   const [message, setMessage] = useState<string | null>(null);
   const [locationFailed, setLocationFailed] = useState(false);
   const [now, setNow] = useState(() => new Date());
+  const [lateReasonOpen, setLateReasonOpen] = useState(false);
+  const [lateReasonText, setLateReasonText] = useState("");
 
   async function refresh() {
     if (!employee) return;
     setLoading(true);
     try {
-      const attendance = await listAttendance({ employeeId: employee.id });
+      const [attendance, officeList] = await Promise.all([
+        listAttendance({ employeeId: employee.id }),
+        listOffices(),
+      ]);
       const todayStr = new Date().toISOString().slice(0, 10);
       setToday(attendance.find((a) => a.date.slice(0, 10) === todayStr) ?? null);
+      setOffices(officeList);
+      setOfficeId((current) => current || officeList[0]?.id || "");
     } finally {
       setLoading(false);
     }
@@ -95,7 +144,16 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
     });
   }
 
-  async function handleCheckIn() {
+  function handleCheckIn() {
+    if (isLateForShift(shift, new Date())) {
+      setLateReasonText("");
+      setLateReasonOpen(true);
+      return;
+    }
+    performCheckIn();
+  }
+
+  async function performCheckIn(lateReason?: string) {
     setMessage(null);
     setLocationFailed(false);
     setPhase("locating");
@@ -106,6 +164,8 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
       await checkIn({
         shift,
         position: position ? { lat: position.coords.latitude, lng: position.coords.longitude } : undefined,
+        officeId: officeId || undefined,
+        lateReason,
       });
       setMessage("Checked in successfully.");
       await refresh();
@@ -115,6 +175,13 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
     } finally {
       setPhase("idle");
     }
+  }
+
+  function handleLateReasonSubmit(e: FormEvent) {
+    e.preventDefault();
+    const reason = lateReasonText.trim();
+    setLateReasonOpen(false);
+    performCheckIn(reason);
   }
 
   async function handleCheckOut() {
@@ -127,6 +194,7 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
     try {
       await checkOut({
         position: position ? { lat: position.coords.latitude, lng: position.coords.longitude } : undefined,
+        officeId: officeId || undefined,
       });
       setMessage("Checked out successfully.");
       await refresh();
@@ -231,16 +299,58 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button onClick={handleCheckIn} disabled={busy} aria-label="Check in for today">
+                  {offices.length > 0 && (
+                    <Select value={officeId} onValueChange={(v) => setOfficeId(v ?? "")} disabled={busy}>
+                      <SelectTrigger className="w-56">
+                        <SelectValue placeholder="Which office?">
+                          {offices.find((o) => o.id === officeId)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {offices.map((o) => (
+                          <SelectItem key={o.id} value={o.id}>
+                            {o.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <Button
+                    onClick={handleCheckIn}
+                    disabled={busy || (offices.length > 0 && !officeId)}
+                    aria-label="Check in for today"
+                  >
                     <LogIn className="h-4 w-4" />
                     {phase === "locating" ? "Detecting location…" : phase === "saving" ? "Checking in…" : "Check In"}
                   </Button>
                 </div>
               ) : !today?.checkOutTime ? (
-                <Button onClick={handleCheckOut} disabled={busy} aria-label="Check out for today">
-                  <LogOutIcon className="h-4 w-4" />
-                  {phase === "locating" ? "Detecting location…" : phase === "saving" ? "Checking out…" : "Check Out"}
-                </Button>
+                <div className="flex flex-wrap items-center gap-3">
+                  {offices.length > 0 && (
+                    <Select value={officeId} onValueChange={(v) => setOfficeId(v ?? "")} disabled={busy}>
+                      <SelectTrigger className="w-56">
+                        <SelectValue placeholder="Which office?">
+                          {offices.find((o) => o.id === officeId)?.name}
+                        </SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        {offices.map((o) => (
+                          <SelectItem key={o.id} value={o.id}>
+                            {o.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <Button
+                    onClick={handleCheckOut}
+                    disabled={busy || (offices.length > 0 && !officeId)}
+                    aria-label="Check out for today"
+                  >
+                    <LogOutIcon className="h-4 w-4" />
+                    {phase === "locating" ? "Detecting location…" : phase === "saving" ? "Checking out…" : "Check Out"}
+                  </Button>
+                </div>
               ) : (
                 <p className="flex items-center gap-1.5 text-sm text-muted-foreground">
                   <CheckCircle2 className="h-4 w-4 text-emerald-600" /> Attendance completed for today.
@@ -256,6 +366,32 @@ export function TodayAttendanceCard({ onChange }: { onChange?: () => void }) {
           </>
         )}
       </CardContent>
+
+      <Dialog open={lateReasonOpen} onOpenChange={setLateReasonOpen}>
+        <DialogContent className="sm:max-w-sm">
+          <form onSubmit={handleLateReasonSubmit}>
+            <DialogHeader>
+              <DialogTitle>Late Check-In</DialogTitle>
+              <DialogDescription>
+                You are checking in after {formatThreshold(shift)}. Please provide a reason.
+              </DialogDescription>
+            </DialogHeader>
+            <Textarea
+              className="mt-4"
+              value={lateReasonText}
+              onChange={(e) => setLateReasonText(e.target.value)}
+              placeholder="Why are you checking in late?"
+              autoFocus
+            />
+            <DialogFooter className="mt-4">
+              <Button type="button" variant="ghost" onClick={() => setLateReasonOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit">Check In</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

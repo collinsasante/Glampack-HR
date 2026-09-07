@@ -18,6 +18,7 @@ import {
   type Announcement,
   type AnnouncementComment,
 } from "@/lib/api/announcements";
+import { hasPermission } from "@/lib/api/employees";
 import type { Employee } from "@/lib/api/employees";
 
 function initials(name: string) {
@@ -66,7 +67,7 @@ export function AnnouncementDetailSheet({
   if (!announcement) return null;
 
   const author = employeeById[announcement.postedByEmployeeId];
-  const canManage = currentEmployee.role === "Admin" || announcement.postedByEmployeeId === currentEmployee.id;
+  const canManage = hasPermission(currentEmployee, "announcements.manage_any") || announcement.postedByEmployeeId === currentEmployee.id;
   const showReadStats = readCount !== undefined && activeEmployeeCount !== undefined;
   const readRate = showReadStats && activeEmployeeCount! > 0 ? Math.round((readCount! / activeEmployeeCount!) * 100) : 0;
   const wasEdited = announcement.updatedAt !== announcement.createdAt;
@@ -175,7 +176,7 @@ export function AnnouncementDetailSheet({
                 {comments.length === 0 && <li className="text-sm text-muted-foreground">No comments yet.</li>}
                 {comments.map((c) => {
                   const commenter = employeeById[c.employeeId];
-                  const canDeleteComment = currentEmployee.role === "Admin" || c.employeeId === currentEmployee.id;
+                  const canDeleteComment = hasPermission(currentEmployee, "announcements.manage_any") || c.employeeId === currentEmployee.id;
                   return (
                     <li key={c.id} className="flex items-start gap-2.5 text-sm">
                       <Avatar size="sm" className="mt-0.5">

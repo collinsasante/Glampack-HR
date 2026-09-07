@@ -2,18 +2,19 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, type ReactNode } from "react";
-import type { Role } from "@glampack/shared";
 import { useAuth } from "@/lib/auth-context";
+import { isStaffRole } from "@/lib/api/employees";
 
 interface RequireAuthProps {
   children: ReactNode;
-  /** If given, only these roles may view the page — anyone else is bounced to /dashboard. */
-  allowRoles?: Role[];
+  /** If true, only a role holding at least one real permission may view the page. */
+  requireStaff?: boolean;
 }
 
-export function RequireAuth({ children, allowRoles }: RequireAuthProps) {
+export function RequireAuth({ children, requireStaff }: RequireAuthProps) {
   const { firebaseUser, employee, loading } = useAuth();
   const router = useRouter();
+  const blocked = Boolean(employee && requireStaff && !isStaffRole(employee));
 
   useEffect(() => {
     if (loading) return;
@@ -21,10 +22,10 @@ export function RequireAuth({ children, allowRoles }: RequireAuthProps) {
       router.replace("/sign-in");
       return;
     }
-    if (employee && allowRoles && !allowRoles.includes(employee.role)) {
+    if (blocked) {
       router.replace("/dashboard");
     }
-  }, [loading, firebaseUser, employee, allowRoles, router]);
+  }, [loading, firebaseUser, blocked, router]);
 
   if (loading || !firebaseUser || !employee) {
     return (
@@ -36,7 +37,7 @@ export function RequireAuth({ children, allowRoles }: RequireAuthProps) {
     );
   }
 
-  if (allowRoles && !allowRoles.includes(employee.role)) {
+  if (blocked) {
     return null;
   }
 

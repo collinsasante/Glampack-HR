@@ -26,7 +26,7 @@ import {
   rejectLeaveRequest,
   type LeaveRequest,
 } from "@/lib/api/leave-requests";
-import { isStaffRole, listEmployees, type Employee } from "@/lib/api/employees";
+import { hasPermission, isStaffRole, listEmployees, type Employee } from "@/lib/api/employees";
 import { useAuth } from "@/lib/auth-context";
 import { humanize } from "@/lib/format";
 import type { Department } from "@glampack/shared";
@@ -267,7 +267,7 @@ function StaffLeaveView({ currentEmployee }: { currentEmployee: Employee }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [exportOpen, setExportOpen] = useState(false);
 
-  const canReview = currentEmployee.role === "Admin" || currentEmployee.role === "HR";
+  const canReview = hasPermission(currentEmployee, "leave.approve");
 
   async function refresh() {
     setLoading(true);
@@ -505,13 +505,13 @@ function LeaveContent() {
       <div>
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">Leave Management</h1>
         <p className="text-sm text-muted-foreground">
-          {isStaffRole(employee.role)
+          {isStaffRole(employee)
             ? "Review requests, track balances, and see who's out across the organization."
             : "Request time off, track your balance, and review your leave history."}
         </p>
       </div>
 
-      {isStaffRole(employee.role) ? (
+      {isStaffRole(employee) ? (
         <StaffLeaveView currentEmployee={employee} />
       ) : (
         <OwnLeaveView employee={employee} onEmployeeRefresh={refreshEmployee} />

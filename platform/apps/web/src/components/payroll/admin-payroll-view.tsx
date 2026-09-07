@@ -134,8 +134,13 @@ export function AdminPayrollView() {
           <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">Payroll</h1>
           <p className="text-sm text-muted-foreground">Manage employee compensation and payroll processing.</p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
-          <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-9 w-40" />
+        <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto">
+          <Input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="h-9 w-full min-w-0 sm:w-44"
+          />
           <Button variant="outline" size="sm" onClick={() => setExportModalOpen(true)}>
             <Download className="h-4 w-4" /> Export
           </Button>

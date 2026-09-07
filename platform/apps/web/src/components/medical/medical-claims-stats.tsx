@@ -2,7 +2,7 @@
 
 import { Clock, HeartPulse, ShieldCheck, Wallet } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { currency } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
 import type { MedicalClaim } from "@/lib/api/medical-claims";
 
 function currentMonthKey() {
@@ -25,7 +25,7 @@ export function MedicalClaimsStats({ claims }: { claims: MedicalClaim[] }) {
     { label: "Total Claims", value: String(claims.length), sub: "All time", icon: HeartPulse },
     { label: "Pending Review", value: String(pending), sub: "Awaiting HR decision", icon: Clock },
     { label: "Approved This Month", value: String(approvedThisMonth), sub: "Decided this month", icon: ShieldCheck },
-    { label: "Total Reimbursed", value: currency(totalReimbursed), sub: "All approved claims", icon: Wallet },
+    { label: "Total Reimbursed", value: <MaskedCurrency amount={totalReimbursed} />, sub: "All approved claims", icon: Wallet },
   ];
 
   return (

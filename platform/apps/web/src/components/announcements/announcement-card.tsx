@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { priorityBadgeVariant, typeBadgeVariant } from "@/lib/announcement-format";
 import type { Announcement } from "@/lib/api/announcements";
+import { hasPermission } from "@/lib/api/employees";
 import type { Employee } from "@/lib/api/employees";
 
 function initials(name: string) {
@@ -43,8 +44,8 @@ export function AnnouncementCard({
   onDelete: (a: Announcement) => void;
 }) {
   const author = employeeById[announcement.postedByEmployeeId];
-  const canManage = currentEmployee.role === "Admin" || announcement.postedByEmployeeId === currentEmployee.id;
-  const canDuplicate = currentEmployee.role === "Admin" || currentEmployee.role === "HR";
+  const canManage = hasPermission(currentEmployee, "announcements.manage_any") || announcement.postedByEmployeeId === currentEmployee.id;
+  const canDuplicate = hasPermission(currentEmployee, "announcements.create");
 
   return (
     <Card className="cursor-pointer transition-shadow hover:shadow-md" onClick={() => onView(announcement)}>

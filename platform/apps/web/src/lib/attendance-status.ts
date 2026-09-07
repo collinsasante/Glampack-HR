@@ -2,9 +2,9 @@ import type { AttendanceRecord } from "./api/attendance";
 
 export type AttendanceStatus = "Present" | "Late" | "Incomplete";
 
-// "Late" comes solely from the real lateReason field — no invented lateness
-// threshold. Nothing in the app sets it today, so it will read 0 until a real
-// mechanism (future or admin-set) populates it; that's honest, not a bug.
+// "Late" comes solely from the real lateReason field, set when an employee checks
+// in after their shift's late threshold (see SHIFT_LATE_THRESHOLDS in
+// today-attendance-card.tsx) and fills in the late-reason prompt.
 // "Incomplete" means checked in but not yet checked out — never "Absent",
 // since the record existing at all means the employee did check in.
 export function attendanceStatus(record: AttendanceRecord): AttendanceStatus {

@@ -16,7 +16,7 @@ import { listAnnouncements, listMyReadAnnouncementIds } from "@/lib/api/announce
 import { listLeaveRequests } from "@/lib/api/leave-requests";
 import { listMedicalClaims } from "@/lib/api/medical-claims";
 import { useAuth } from "@/lib/auth-context";
-import { isStaffRole } from "@/lib/api/employees";
+import { hasPermission, isStaffRole } from "@/lib/api/employees";
 
 interface NotificationRow {
   key: string;
@@ -34,14 +34,14 @@ export function NotificationsBell() {
 
   async function refresh() {
     if (!employee) return;
-    const isStaff = isStaffRole(employee.role);
-    const isAdminOrHr = employee.role === "Admin" || employee.role === "HR";
+    const isStaff = isStaffRole(employee);
+    const canViewClaims = hasPermission(employee, "medical_claims.view_all");
 
     const [announcements, readIds, pendingLeave, pendingClaims] = await Promise.all([
       listAnnouncements(),
       listMyReadAnnouncementIds(),
       isStaff ? listLeaveRequests({ status: "Pending" }) : Promise.resolve([]),
-      isAdminOrHr ? listMedicalClaims({ status: "Pending" }) : Promise.resolve([]),
+      canViewClaims ? listMedicalClaims({ status: "Pending" }) : Promise.resolve([]),
     ]);
 
     const readSet = new Set(readIds);

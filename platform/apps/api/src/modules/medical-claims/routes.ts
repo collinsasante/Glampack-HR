@@ -5,7 +5,7 @@ import {
   listMedicalClaimsQuerySchema,
 } from "@glampack/shared";
 import { authenticate } from "../../middleware/authenticate.js";
-import { requireRole } from "../../middleware/authorize.js";
+import { requirePermission } from "../../middleware/authorize.js";
 import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import * as controller from "./controller.js";
@@ -23,14 +23,14 @@ medicalClaimsRouter.post("/", validate(createMedicalClaimSchema), asyncHandler(c
 
 medicalClaimsRouter.patch(
   "/:id/approve",
-  requireRole(["Admin", "HR"]),
+  requirePermission("medical_claims.decide"),
   validate(decideMedicalClaimSchema),
   asyncHandler(controller.approve)
 );
 
 medicalClaimsRouter.patch(
   "/:id/reject",
-  requireRole(["Admin", "HR"]),
+  requirePermission("medical_claims.decide"),
   validate(decideMedicalClaimSchema),
   asyncHandler(controller.reject)
 );

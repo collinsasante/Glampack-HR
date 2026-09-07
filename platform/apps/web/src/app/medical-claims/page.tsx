@@ -29,7 +29,7 @@ import {
   rejectMedicalClaim,
   type MedicalClaim,
 } from "@/lib/api/medical-claims";
-import { listEmployees, type Employee } from "@/lib/api/employees";
+import { hasPermission, listEmployees, type Employee } from "@/lib/api/employees";
 import { claimStatusVariant } from "@/lib/medical-claim-format";
 import { resolveDateRange } from "@/lib/dates";
 import { currency } from "@/lib/format";
@@ -132,9 +132,9 @@ function StaffMedicalClaimsView({ employee }: { employee: Employee }) {
     setDetailOpen(true);
   }
 
-  async function handleApprove(id: string) {
+  async function handleApprove(id: string, notes?: string) {
     try {
-      await approveMedicalClaim(id, {});
+      await approveMedicalClaim(id, { adminNotes: notes });
       toast.success("Medical claim approved.");
       await refresh();
     } catch (err) {
@@ -392,7 +392,7 @@ function MedicalClaimsContent() {
   const { employee } = useAuth();
   if (!employee) return null;
 
-  const canReview = employee.role === "Admin" || employee.role === "HR";
+  const canReview = hasPermission(employee, "medical_claims.decide");
 
   return canReview ? <StaffMedicalClaimsView employee={employee} /> : <OwnMedicalClaimsView employee={employee} />;
 }

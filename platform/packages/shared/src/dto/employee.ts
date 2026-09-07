@@ -4,13 +4,16 @@ import {
   DEPARTMENTS,
   EMPLOYEE_STATUSES,
   EMPLOYMENT_TYPES,
-  ROLES,
 } from "../enums.js";
+
+// Roles are dynamic (see the Role table) — validated against real rows at the
+// service layer, not against a fixed compile-time list.
+const roleNameSchema = z.string().min(1);
 
 export const createEmployeeSchema = z.object({
   fullName: z.string().min(1),
   email: z.string().email(),
-  role: z.enum(ROLES).default("Employee"),
+  role: roleNameSchema.default("Employee"),
   status: z.enum(EMPLOYEE_STATUSES),
   employmentType: z.enum(EMPLOYMENT_TYPES).optional(),
   department: z.enum(DEPARTMENTS).optional(),
@@ -57,15 +60,26 @@ export const signUpSchema = z.object({
 });
 export type SignUpInput = z.infer<typeof signUpSchema>;
 
+// Narrow, dedicated schema for the Roles & Permissions tab — deliberately doesn't
+// accept any of the other staff-editable fields (salary, bank details, ...), since
+// Manager is allowed to call this endpoint but not the general staff-edit one.
+export const updateRoleSchema = z.object({
+  role: roleNameSchema,
+});
+export type UpdateRoleInput = z.infer<typeof updateRoleSchema>;
+
 export const listEmployeesQuerySchema = z.object({
   department: z.enum(DEPARTMENTS).optional(),
-  role: z.enum(ROLES).optional(),
+  role: roleNameSchema.optional(),
 });
 export type ListEmployeesQuery = z.infer<typeof listEmployeesQuerySchema>;
 
+// role is deliberately NOT accepted here — it must go through the dedicated
+// PATCH /:id/role endpoint (updateRoleSchema above), which is the only path that
+// enforces the senior-role escalation guards. Accepting it here too would let
+// anyone with employees.edit_others bypass those guards entirely.
 export const updateEmployeeAsStaffSchema = updateOwnEmployeeSchema.extend({
   fullName: z.string().min(1).optional(),
-  role: z.enum(ROLES).optional(),
   status: z.enum(EMPLOYEE_STATUSES).optional(),
   accountStatus: z.enum(ACCOUNT_STATUSES).optional(),
   employmentType: z.enum(EMPLOYMENT_TYPES).optional(),

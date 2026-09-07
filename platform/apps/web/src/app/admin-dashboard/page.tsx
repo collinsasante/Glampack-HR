@@ -14,6 +14,8 @@ import { LeaveTab } from "./tabs/leave-tab";
 import { PayrollTab } from "./tabs/payroll-tab";
 import { AttendanceTab } from "./tabs/attendance-tab";
 import { MedicalClaimsTab } from "./tabs/medical-claims-tab";
+import { RolesPermissionsTab } from "./tabs/roles-permissions-tab";
+import { OfficesTab } from "./tabs/offices-tab";
 
 function AdminDashboardContent() {
   const { employee } = useAuth();
@@ -46,13 +48,18 @@ function AdminDashboardContent() {
       <Tabs defaultValue="employees">
         <TabsList>
           <TabsTrigger value="employees">Employees</TabsTrigger>
+          <TabsTrigger value="roles">Roles & Permissions</TabsTrigger>
           <TabsTrigger value="leave">Leave Management</TabsTrigger>
           <TabsTrigger value="payroll">Payroll</TabsTrigger>
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
+          <TabsTrigger value="offices">Offices</TabsTrigger>
           <TabsTrigger value="medical">Medical Claims</TabsTrigger>
         </TabsList>
         <TabsContent value="employees">
           <EmployeesTab />
+        </TabsContent>
+        <TabsContent value="roles">
+          <RolesPermissionsTab />
         </TabsContent>
         <TabsContent value="leave">
           <LeaveTab />
@@ -62,6 +69,9 @@ function AdminDashboardContent() {
         </TabsContent>
         <TabsContent value="attendance">
           <AttendanceTab />
+        </TabsContent>
+        <TabsContent value="offices">
+          <OfficesTab />
         </TabsContent>
         <TabsContent value="medical">
           <MedicalClaimsTab />
@@ -73,7 +83,7 @@ function AdminDashboardContent() {
 
 export default function AdminDashboardPage() {
   return (
-    <RequireAuth allowRoles={["Admin", "HR", "Manager"]}>
+    <RequireAuth requireStaff>
       <AppShell>
         <AdminDashboardContent />
       </AppShell>

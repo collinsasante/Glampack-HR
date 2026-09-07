@@ -8,7 +8,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
-import { currency, humanize } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
+import { humanize } from "@/lib/format";
 import { claimStatusVariant } from "@/lib/medical-claim-format";
 import type { MedicalClaim } from "@/lib/api/medical-claims";
 import type { Employee } from "@/lib/api/employees";
@@ -36,11 +37,12 @@ export function MedicalClaimDetailSheet({
   canReview: boolean;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onApprove?: (id: string) => Promise<void>;
+  onApprove?: (id: string, notes?: string) => Promise<void>;
   onReject?: (id: string, notes: string) => Promise<void>;
 }) {
   const [mode, setMode] = useState<"view" | "reject">("view");
   const [notes, setNotes] = useState("");
+  const [approveNotes, setApproveNotes] = useState("");
   const [busy, setBusy] = useState(false);
 
   if (!claim) return null;
@@ -48,6 +50,7 @@ export function MedicalClaimDetailSheet({
   function reset() {
     setMode("view");
     setNotes("");
+    setApproveNotes("");
     setBusy(false);
   }
 
@@ -55,7 +58,7 @@ export function MedicalClaimDetailSheet({
     if (!onApprove) return;
     setBusy(true);
     try {
-      await onApprove(claim!.id);
+      await onApprove(claim!.id, approveNotes.trim() || undefined);
       reset();
     } finally {
       setBusy(false);
@@ -132,7 +135,11 @@ export function MedicalClaimDetailSheet({
 
           <div className="rounded-lg bg-muted p-4">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Amount Spent</p>
-            <p className="font-heading text-2xl font-bold text-foreground">{currency(Number(claim.amountSpent))}</p>
+            <MaskedCurrency
+              amount={Number(claim.amountSpent)}
+              className="font-heading text-2xl font-bold text-foreground"
+              iconClassName="h-4 w-4"
+            />
           </div>
 
           <div>
@@ -207,13 +214,21 @@ export function MedicalClaimDetailSheet({
           {showActions && (
             <>
               <Separator />
-              <div className="flex justify-end gap-2">
-                <Button variant="outline" size="sm" onClick={() => setMode("reject")}>
-                  Reject
-                </Button>
-                <Button size="sm" onClick={handleApprove} disabled={busy}>
-                  {busy ? "Approving…" : "Approve"}
-                </Button>
+              <div className="space-y-2">
+                <Textarea
+                  rows={2}
+                  value={approveNotes}
+                  onChange={(e) => setApproveNotes(e.target.value)}
+                  placeholder="Add a note (optional)…"
+                />
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" size="sm" onClick={() => setMode("reject")}>
+                    Reject
+                  </Button>
+                  <Button size="sm" onClick={handleApprove} disabled={busy}>
+                    {busy ? "Approving…" : "Approve"}
+                  </Button>
+                </div>
               </div>
             </>
           )}

@@ -1,13 +1,11 @@
-import { env } from "../config/env.js";
-
 // Haversine formula — matches attendance-tracker.html's calculateDistance() exactly,
 // so migrated historical distances and newly-computed ones stay consistent.
-export function distanceFromOfficeMeters(lat: number, lng: number): number {
+export function distanceMeters(lat1: number, lng1: number, lat2: number, lng2: number): number {
   const R = 6371e3;
-  const phi1 = (lat * Math.PI) / 180;
-  const phi2 = (env.OFFICE_LATITUDE * Math.PI) / 180;
-  const deltaPhi = ((env.OFFICE_LATITUDE - lat) * Math.PI) / 180;
-  const deltaLambda = ((env.OFFICE_LONGITUDE - lng) * Math.PI) / 180;
+  const phi1 = (lat1 * Math.PI) / 180;
+  const phi2 = (lat2 * Math.PI) / 180;
+  const deltaPhi = ((lat2 - lat1) * Math.PI) / 180;
+  const deltaLambda = ((lng2 - lng1) * Math.PI) / 180;
 
   const a =
     Math.sin(deltaPhi / 2) ** 2 + Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;

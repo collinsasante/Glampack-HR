@@ -45,6 +45,12 @@ export function AttendanceDetailDrawer({
   const checkOutLocation = record.checkOutCity
     ? [record.checkOutCity, record.checkOutRegion].filter(Boolean).join(", ")
     : null;
+  const checkInOfficeDistance = record.checkInDistanceFromOfficeM
+    ? `${Number(record.checkInDistanceFromOfficeM).toFixed(0)}m from ${record.checkInOffice?.name ?? "office"}`
+    : null;
+  const checkOutOfficeDistance = record.checkOutDistanceFromOfficeM
+    ? `${Number(record.checkOutDistanceFromOfficeM).toFixed(0)}m from ${record.checkOutOffice?.name ?? "office"}`
+    : null;
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
@@ -117,15 +123,25 @@ export function AttendanceDetailDrawer({
               <Separator />
               <div className="space-y-2 text-sm">
                 {checkInLocation && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span className="text-muted-foreground">Check-in Location</span>
-                    <span className="text-foreground">{checkInLocation}</span>
+                    <span className="text-right text-foreground">
+                      {checkInLocation}
+                      {checkInOfficeDistance && (
+                        <span className="block text-xs text-muted-foreground">{checkInOfficeDistance}</span>
+                      )}
+                    </span>
                   </div>
                 )}
                 {checkOutLocation && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between gap-3">
                     <span className="text-muted-foreground">Check-out Location</span>
-                    <span className="text-foreground">{checkOutLocation}</span>
+                    <span className="text-right text-foreground">
+                      {checkOutLocation}
+                      {checkOutOfficeDistance && (
+                        <span className="block text-xs text-muted-foreground">{checkOutOfficeDistance}</span>
+                      )}
+                    </span>
                   </div>
                 )}
               </div>

@@ -59,10 +59,14 @@ export async function listAllRecords(tableId: string): Promise<AirtableRecord[]>
   return records;
 }
 
-// Airtable single-select/linked-record fields come back as {id, name, color} objects
-// or arrays of them (per list_records_for_table's documented behavior) — these helpers
-// normalize to the plain values the transform functions actually want to work with.
+// Airtable's real REST API (api.airtable.com, used here) returns single-select fields
+// as plain strings — confirmed directly against the live base. The {id, name, color}
+// object shape only appears via the separate Airtable MCP tool, not this client; a
+// prior version of this helper assumed the object shape, which silently discarded
+// every select value and fell back to each caller's default (e.g. every migrated
+// Leave Request's real "Approved" status was lost, defaulting to "Pending").
 export function selectName(value: unknown): string | undefined {
+  if (typeof value === "string") return value;
   if (value && typeof value === "object" && "name" in value) return (value as { name: string }).name;
   return undefined;
 }

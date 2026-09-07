@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { listEmployees, type Employee } from "@/lib/api/employees";
 import { humanize } from "@/lib/format";
+import { cn } from "@/lib/utils";
 
 function initials(name: string) {
   return name
@@ -20,7 +21,7 @@ function initials(name: string) {
 // Searches the employee directory — the one dataset staff genuinely need to jump
 // to quickly. Fetched once and filtered client-side; the org is HR-scale, not
 // big-data, so this stays simple rather than standing up a search endpoint.
-export function GlobalSearch() {
+export function GlobalSearch({ className }: { className?: string } = {}) {
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
@@ -53,7 +54,7 @@ export function GlobalSearch() {
     : [];
 
   return (
-    <div ref={containerRef} className="relative w-full max-w-xs">
+    <div ref={containerRef} className={cn("relative w-full max-w-xs", className)}>
       <div className="relative">
         <Search className="pointer-events-none absolute top-1/2 left-2.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input

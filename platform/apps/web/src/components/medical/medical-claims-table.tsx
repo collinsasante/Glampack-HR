@@ -11,7 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { currency } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { claimStatusVariant } from "@/lib/medical-claim-format";
 import type { MedicalClaim } from "@/lib/api/medical-claims";
 import type { Employee } from "@/lib/api/employees";
@@ -67,8 +67,8 @@ export function MedicalClaimsTable({
                 <p className="text-foreground">{c.hospitalClinicName}</p>
                 <p className="text-xs text-muted-foreground">{new Date(c.dateOfVisit).toLocaleDateString()}</p>
               </TableCell>
-              <TableCell className="font-medium tabular-nums text-foreground">
-                {currency(Number(c.amountSpent))}
+              <TableCell className="font-medium text-foreground">
+                <MaskedCurrency amount={Number(c.amountSpent)} />
               </TableCell>
               <TableCell className="text-muted-foreground">{new Date(c.createdAt).toLocaleDateString()}</TableCell>
               <TableCell>

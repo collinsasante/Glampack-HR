@@ -1,5 +1,8 @@
-export const ROLES = ["Employee", "Admin", "HR", "Manager"] as const;
-export type Role = (typeof ROLES)[number];
+// Roles are dynamic — stored in the Role table, admin-creatable/deletable, with
+// permissions assigned per role (see permissions.ts and the Roles & Permissions tab).
+// "Employee", "Manager", "HR", "Admin" are just the 4 seeded starting roles, not a
+// fixed enum: any string that names a real Role row is valid here.
+export type Role = string;
 
 export const EMPLOYEE_STATUSES = [
   "Permanent",
@@ -75,6 +78,3 @@ export type EmergencyContactRelationship = (typeof EMERGENCY_CONTACT_RELATIONSHI
 
 export const LOCATION_METHODS = ["GPS", "IPFallback"] as const;
 export type LocationMethod = (typeof LOCATION_METHODS)[number];
-
-/** Roles allowed to act on behalf of / view all employees' records, not just their own. */
-export const STAFF_ROLES: Role[] = ["Admin", "HR", "Manager"];

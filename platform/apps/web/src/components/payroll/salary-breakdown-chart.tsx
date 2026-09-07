@@ -1,6 +1,7 @@
 "use client";
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { currency } from "@/lib/format";
 
 const COLORS = ["var(--color-primary)", "var(--color-foreground)", "var(--color-muted-foreground)"];
@@ -48,7 +49,11 @@ export function SalaryBreakdownChart({
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
           <p className="text-xs text-muted-foreground">Gross</p>
-          <p className="text-sm font-bold text-foreground">{currency(grossSalary)}</p>
+          <MaskedCurrency
+            amount={grossSalary}
+            className="text-sm font-bold text-foreground"
+            buttonClassName="pointer-events-auto"
+          />
         </div>
       </div>
       <div className="mt-2 flex flex-wrap justify-center gap-x-3 gap-y-1 text-xs text-muted-foreground">

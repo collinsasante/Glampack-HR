@@ -345,6 +345,7 @@ function StaffAttendanceView() {
                   <TableHead>Duration</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Office</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -372,6 +373,11 @@ function StaffAttendanceView() {
                       </TableCell>
                       <TableCell className="text-muted-foreground">
                         {[r.checkInCity, r.checkInRegion].filter(Boolean).join(", ") || "—"}
+                      </TableCell>
+                      <TableCell className="text-muted-foreground">
+                        {r.checkInDistanceFromOfficeM
+                          ? `${r.checkInOffice?.name ?? "Office"} (${Number(r.checkInDistanceFromOfficeM).toFixed(0)}m)`
+                          : "—"}
                       </TableCell>
                     </TableRow>
                   );
@@ -539,6 +545,7 @@ function OwnAttendanceHistory({ employeeId, employee }: { employeeId: string; em
                   <TableHead>Duration</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Location</TableHead>
+                  <TableHead>Office</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -563,6 +570,11 @@ function OwnAttendanceHistory({ employeeId, employee }: { employeeId: string; em
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {[r.checkInCity, r.checkInRegion].filter(Boolean).join(", ") || "—"}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {r.checkInDistanceFromOfficeM
+                        ? `${r.checkInOffice?.name ?? "Office"} (${Number(r.checkInDistanceFromOfficeM).toFixed(0)}m)`
+                        : "—"}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -596,7 +608,7 @@ function AttendanceContent() {
       <div>
         <h1 className="font-heading text-2xl font-bold tracking-tight text-foreground">Attendance</h1>
         <p className="text-sm text-muted-foreground">
-          {isStaffRole(employee.role)
+          {isStaffRole(employee)
             ? "Organization-wide attendance and check-in/out."
             : "Track your attendance, working hours, and check-in activity."}
         </p>
@@ -604,7 +616,7 @@ function AttendanceContent() {
 
       <TodayAttendanceCard onChange={() => setRefreshKey((k) => k + 1)} />
 
-      {isStaffRole(employee.role) ? (
+      {isStaffRole(employee) ? (
         <StaffAttendanceView key={refreshKey} />
       ) : (
         <OwnAttendanceHistory key={refreshKey} employeeId={employee.id} employee={employee} />

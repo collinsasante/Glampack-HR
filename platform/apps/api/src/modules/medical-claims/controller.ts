@@ -1,8 +1,9 @@
 import type { Request, Response } from "express";
+import { hasPermission } from "../../lib/permissions.js";
 import * as service from "./service.js";
 
 export async function list(req: Request, res: Response) {
-  const isStaff = ["Admin", "HR"].includes(req.user!.role);
+  const isStaff = await hasPermission(req.user!.role, "medical_claims.view_all");
   const { employeeId, status } = req.query as { employeeId?: string; status?: string };
   const scopedEmployeeId = isStaff ? employeeId : req.user!.id;
   res.json(await service.listMedicalClaims({ employeeId: scopedEmployeeId, status }));

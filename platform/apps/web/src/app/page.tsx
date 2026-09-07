@@ -15,7 +15,7 @@ export default function Home() {
     if (!firebaseUser || !firebaseUser.emailVerified) {
       router.replace("/sign-in");
     } else if (employee) {
-      router.replace(isStaffRole(employee.role) ? "/admin-dashboard" : "/dashboard");
+      router.replace(isStaffRole(employee) ? "/admin-dashboard" : "/dashboard");
     }
   }, [loading, firebaseUser, employee, router]);
 

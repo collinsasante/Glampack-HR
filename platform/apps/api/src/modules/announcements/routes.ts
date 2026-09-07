@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { createAnnouncementSchema, createCommentSchema, updateAnnouncementSchema } from "@glampack/shared";
 import { authenticate } from "../../middleware/authenticate.js";
-import { requireRole } from "../../middleware/authorize.js";
+import { requirePermission } from "../../middleware/authorize.js";
 import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import * as controller from "./controller.js";
@@ -14,13 +14,13 @@ announcementsRouter.get("/", asyncHandler(controller.list));
 announcementsRouter.get("/reads/me", asyncHandler(controller.listMyReads));
 announcementsRouter.get(
   "/reads/counts",
-  requireRole(["Admin", "HR", "Manager"]),
+  requirePermission("announcements.view_read_counts"),
   asyncHandler(controller.readCounts)
 );
 
 announcementsRouter.post(
   "/",
-  requireRole(["Admin", "HR"]),
+  requirePermission("announcements.create"),
   validate(createAnnouncementSchema),
   asyncHandler(controller.create)
 );

@@ -7,7 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/components/ui/sheet";
 import { SalaryBreakdownChart } from "@/components/payroll/salary-breakdown-chart";
-import { currency, humanize } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
+import { humanize } from "@/lib/format";
 import { downloadPayslip, previewPayslip } from "@/lib/payslip-pdf";
 import type { Employee } from "@/lib/api/employees";
 import type { Payroll } from "@/lib/api/payroll";
@@ -91,7 +92,9 @@ export function PayrollDetailSheet({
               {earnings.map(([label, amount]) => (
                 <div key={label} className="flex justify-between">
                   <dt className="text-muted-foreground">{label}</dt>
-                  <dd className="tabular-nums text-foreground">{currency(amount)}</dd>
+                  <dd className="text-foreground">
+                    <MaskedCurrency amount={amount} />
+                  </dd>
                 </div>
               ))}
             </dl>
@@ -101,7 +104,7 @@ export function PayrollDetailSheet({
 
           <div className="flex justify-between text-sm font-semibold text-foreground">
             <span>Gross Salary</span>
-            <span className="tabular-nums">{currency(payroll.grossSalary)}</span>
+            <MaskedCurrency amount={payroll.grossSalary} />
           </div>
 
           <Separator />
@@ -115,14 +118,16 @@ export function PayrollDetailSheet({
                 {deductions.map(([label, amount]) => (
                   <div key={label} className="flex justify-between">
                     <dt className="text-muted-foreground">{label}</dt>
-                    <dd className="tabular-nums text-foreground">{currency(amount)}</dd>
+                    <dd className="text-foreground">
+                      <MaskedCurrency amount={amount} />
+                    </dd>
                   </div>
                 ))}
               </dl>
             )}
             <div className="mt-2 flex justify-between border-t border-border pt-2 text-sm font-semibold text-foreground">
               <span>Total Deductions</span>
-              <span className="tabular-nums">{currency(payroll.totalDeductions)}</span>
+              <MaskedCurrency amount={payroll.totalDeductions} />
             </div>
           </div>
 
@@ -130,7 +135,11 @@ export function PayrollDetailSheet({
 
           <div className="rounded-lg bg-muted p-4">
             <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">Net Salary</p>
-            <p className="font-heading text-2xl font-bold text-foreground">{currency(payroll.netSalary)}</p>
+            <MaskedCurrency
+              amount={payroll.netSalary}
+              className="font-heading text-2xl font-bold text-foreground"
+              iconClassName="h-4 w-4"
+            />
           </div>
 
           <SalaryBreakdownChart

@@ -25,6 +25,8 @@ export interface Employee {
   bankName: string | null;
   bankAccountNumber: string | null;
   bankBranch: string | null;
+  /** Only present on the /me response — the current viewer's resolved permission keys. */
+  permissions?: string[];
 }
 
 export const getMe = () => apiGet<Employee>("/employees/me");
@@ -35,6 +37,14 @@ export const listEmployees = (params: { department?: string; role?: string } = {
 };
 export const updateEmployee = (id: string, data: Record<string, unknown>) =>
   apiPatch<Employee>(`/employees/${id}`, data);
+export const updateEmployeeRole = (id: string, role: Role) =>
+  apiPatch<Employee>(`/employees/${id}/role`, { role });
 export const createEmployee = (data: Record<string, unknown>) => apiPost<Employee>("/employees", data);
 
-export const isStaffRole = (role: Role) => role === "Admin" || role === "HR" || role === "Manager";
+// Any role holding at least one real permission counts as "staff" for nav/access
+// gating — this is what makes the check work for a brand-new custom role too,
+// without hardcoding role names anywhere on the frontend.
+export const isStaffRole = (employee: Pick<Employee, "permissions">) => (employee.permissions?.length ?? 0) > 0;
+
+export const hasPermission = (employee: Pick<Employee, "permissions">, key: string) =>
+  employee.permissions?.includes(key) ?? false;

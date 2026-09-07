@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { ApiError } from "@/lib/apiClient";
 import { listEmployees, type Employee } from "@/lib/api/employees";
 import { createPayroll, listPayroll, processPayroll, type Payroll } from "@/lib/api/payroll";
@@ -187,7 +188,9 @@ export function PayrollTab() {
                 <TableRow key={p.id}>
                   <TableCell className="font-medium">{employeeName(p.employeeId)}</TableCell>
                   <TableCell>{p.month}</TableCell>
-                  <TableCell>GH₵{p.netSalary}</TableCell>
+                  <TableCell>
+                    <MaskedCurrency amount={p.netSalary} />
+                  </TableCell>
                   <TableCell>
                     <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
                   </TableCell>

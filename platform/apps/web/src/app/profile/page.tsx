@@ -12,6 +12,7 @@ import { PersonalInfoForm } from "@/components/profile/personal-info-form";
 import { PersonalInformationCard } from "@/components/profile/personal-information-card";
 import { ProfileHero } from "@/components/profile/profile-hero";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { hasPermission } from "@/lib/api/employees";
 import { useAuth } from "@/lib/auth-context";
 
 function ProfileContent() {
@@ -20,7 +21,7 @@ function ProfileContent() {
 
   if (!employee) return null;
 
-  const canEditEmployment = employee.role === "Admin" || employee.role === "HR";
+  const canEditEmployment = hasPermission(employee, "employees.edit_others");
 
   return (
     <div className="mx-auto max-w-4xl space-y-6">

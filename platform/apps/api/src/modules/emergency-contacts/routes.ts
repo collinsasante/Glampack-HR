@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { createEmergencyContactSchema, updateEmergencyContactSchema } from "@glampack/shared";
 import { authenticate } from "../../middleware/authenticate.js";
-import { requireSelfOrRole } from "../../middleware/authorize.js";
+import { requireSelfOrPermission } from "../../middleware/authorize.js";
 import { validate } from "../../middleware/validate.js";
 import { asyncHandler } from "../../lib/asyncHandler.js";
 import * as controller from "./controller.js";
@@ -11,12 +11,12 @@ export const nestedEmergencyContactsRouter = Router({ mergeParams: true });
 nestedEmergencyContactsRouter.use(authenticate);
 nestedEmergencyContactsRouter.get(
   "/",
-  requireSelfOrRole(["Admin", "HR"], (req) => req.params.employeeId!),
+  requireSelfOrPermission("emergency_contacts.manage_any", (req) => req.params.employeeId!),
   asyncHandler(controller.list)
 );
 nestedEmergencyContactsRouter.post(
   "/",
-  requireSelfOrRole(["Admin", "HR"], (req) => req.params.employeeId!),
+  requireSelfOrPermission("emergency_contacts.manage_any", (req) => req.params.employeeId!),
   validate(createEmergencyContactSchema),
   asyncHandler(controller.create)
 );

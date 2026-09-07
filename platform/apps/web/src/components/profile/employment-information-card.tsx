@@ -3,7 +3,8 @@
 import type { ReactNode } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { currency, humanize } from "@/lib/format";
+import { MaskedCurrency } from "@/components/masked-currency";
+import { humanize } from "@/lib/format";
 import type { Employee } from "@/lib/api/employees";
 
 function Field({ label, value }: { label: string; value: ReactNode }) {
@@ -42,7 +43,12 @@ export function EmploymentInformationCard({ employee, showSalary }: { employee: 
           value={employee.joiningDate ? new Date(employee.joiningDate).toLocaleDateString(undefined, { month: "long", day: "numeric", year: "numeric" }) : ""}
         />
         <Field label="Years of Service" value={yearsOfService(employee.joiningDate)} />
-        {showSalary && <Field label="Salary" value={employee.salary ? currency(Number(employee.salary)) : ""} />}
+        {showSalary && (
+          <Field
+            label="Salary"
+            value={employee.salary ? <MaskedCurrency amount={Number(employee.salary)} /> : ""}
+          />
+        )}
       </CardContent>
     </Card>
   );

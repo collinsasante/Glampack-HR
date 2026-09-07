@@ -1,14 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { listAttendance } from "@/lib/api/attendance";
 import { listLeaveRequests } from "@/lib/api/leave-requests";
 import { listPayroll } from "@/lib/api/payroll";
 import type { Employee } from "@/lib/api/employees";
-import { currency } from "@/lib/format";
 
 function monthLabel(month: string) {
   const [y, m] = month.split("-").map(Number);
@@ -21,7 +21,7 @@ function monthLabel(month: string) {
 
 interface Stat {
   label: string;
-  value: string;
+  value: ReactNode;
   footnote: string;
   href: string;
 }
@@ -84,7 +84,7 @@ export function EmployeeStatCards({ employee }: { employee: Employee }) {
         },
         {
           label: "Latest Salary",
-          value: latestPayslip ? currency(Number(latestPayslip.netSalary)) : "—",
+          value: latestPayslip ? <MaskedCurrency amount={Number(latestPayslip.netSalary)} /> : "—",
           footnote: latestPayslip ? monthLabel(latestPayslip.month) : "No payslips yet",
           href: "/payroll",
         },

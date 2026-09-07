@@ -5,11 +5,13 @@ import { Download } from "lucide-react";
 import { RequireAuth } from "@/components/require-auth";
 import { AppShell } from "@/components/app-shell";
 import { AdminPayrollView } from "@/components/payroll/admin-payroll-view";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useAuth } from "@/lib/auth-context";
+import { hasPermission } from "@/lib/api/employees";
 import { listPayroll, type Payroll } from "@/lib/api/payroll";
 import { downloadPayslip } from "@/lib/payslip-pdf";
 
@@ -55,7 +57,9 @@ function PayrollContent() {
                 <li key={p.id} className="flex items-center justify-between px-6 py-3 text-sm">
                   <div>
                     <p className="font-medium text-foreground">{p.month}</p>
-                    <p className="text-muted-foreground">Net Salary: GH₵{p.netSalary}</p>
+                    <p className="flex items-center gap-1 text-muted-foreground">
+                      Net Salary: <MaskedCurrency amount={p.netSalary} className="text-foreground" />
+                    </p>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge variant={statusVariant(p.status)}>{p.status}</Badge>
@@ -76,7 +80,7 @@ function PayrollContent() {
 function PayrollPageContent() {
   const { employee } = useAuth();
   if (!employee) return null;
-  const isAdminOrHr = employee.role === "Admin" || employee.role === "HR";
+  const isAdminOrHr = hasPermission(employee, "payroll.view_all");
   return isAdminOrHr ? <AdminPayrollView /> : <PayrollContent />;
 }
 

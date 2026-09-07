@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listAnnouncements, listMyReadAnnouncementIds } from "@/lib/api/announcements";
 import { listAttendance } from "@/lib/api/attendance";
-import { listEmployees } from "@/lib/api/employees";
+import { hasPermission, listEmployees } from "@/lib/api/employees";
 import { listLeaveRequests } from "@/lib/api/leave-requests";
 import { listMedicalClaims } from "@/lib/api/medical-claims";
 import type { Employee } from "@/lib/api/employees";
@@ -27,7 +27,7 @@ export function AdminAttentionPanel({ employee }: { employee: Employee }) {
   const [items, setItems] = useState<AttentionItem[] | null>(null);
 
   useEffect(() => {
-    const isAdminOrHr = employee.role === "Admin" || employee.role === "HR";
+    const isAdminOrHr = hasPermission(employee, "medical_claims.view_all");
     (async () => {
       const [employees, presentToday, pendingLeave, pendingClaims, announcements, readIds] = await Promise.all([
         listEmployees(),

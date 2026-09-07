@@ -507,7 +507,7 @@ function EmployeesContent() {
 
 export default function EmployeesPage() {
   return (
-    <RequireAuth allowRoles={["Admin", "HR", "Manager"]}>
+    <RequireAuth requireStaff>
       <AppShell>
         <EmployeesContent />
       </AppShell>

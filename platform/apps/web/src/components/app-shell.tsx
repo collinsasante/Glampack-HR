@@ -76,7 +76,7 @@ function initials(name: string) {
 export function AppShell({ children }: { children: ReactNode }) {
   const { employee, signOut } = useAuth();
   const pathname = usePathname();
-  const isStaff = Boolean(employee && isStaffRole(employee.role));
+  const isStaff = Boolean(employee && isStaffRole(employee));
   const visibleNavItems = NAV_ITEMS.filter((item) => !item.staffOnly || isStaff);
   const visibleManagementItems = MANAGEMENT_ITEMS.filter((item) => !item.staffOnly || isStaff);
   const activeItem = visibleNavItems.find(
@@ -175,14 +175,14 @@ export function AppShell({ children }: { children: ReactNode }) {
         </SidebarFooter>
       </Sidebar>
       <SidebarInset className="bg-background">
-        <header className="flex h-16 shrink-0 items-center gap-3 px-6">
+        <header className="flex h-16 shrink-0 items-center gap-2 px-4 sm:gap-3 sm:px-6">
           <SidebarTrigger />
           <Separator orientation="vertical" className="h-4" />
-          <span className="text-sm font-semibold text-foreground">
+          <span className="truncate text-sm font-semibold text-foreground">
             {activeItem?.name ?? (pathname?.startsWith("/admin-dashboard") ? "Admin Dashboard" : "")}
           </span>
-          <div className="flex flex-1 items-center justify-end gap-2">
-            {isStaff && <GlobalSearch />}
+          <div className="flex min-w-0 flex-1 items-center justify-end gap-2">
+            {isStaff && <GlobalSearch className="hidden sm:block" />}
             <ThemeToggle />
             <NotificationsBell />
           </div>

@@ -2,16 +2,16 @@
 
 import { ArrowDownRight, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { MaskedCurrency } from "@/components/masked-currency";
 import { listAttendance } from "@/lib/api/attendance";
-import { listEmployees } from "@/lib/api/employees";
+import { hasPermission, listEmployees } from "@/lib/api/employees";
 import { listLeaveRequests } from "@/lib/api/leave-requests";
 import { listMedicalClaims } from "@/lib/api/medical-claims";
 import { listPayroll } from "@/lib/api/payroll";
 import { useAuth } from "@/lib/auth-context";
-import { currency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 function monthStr(offset = 0) {
@@ -28,7 +28,7 @@ function dateStr(offsetDays = 0) {
 
 interface Stat {
   label: string;
-  value: string;
+  value: ReactNode;
   trend?: { direction: "up" | "down"; label: string };
   footnote: string;
   href: string;
@@ -43,7 +43,8 @@ export function AdminStatCards() {
 
   useEffect(() => {
     if (!employee) return;
-    const isAdminOrHr = employee.role === "Admin" || employee.role === "HR";
+    const canViewClaims = hasPermission(employee, "medical_claims.view_all");
+    const canViewPayroll = hasPermission(employee, "payroll.view_all");
 
     (async () => {
       const [employees, presentToday, presentYesterday, pendingLeave, pendingClaims, thisMonthPayroll, lastMonthPayroll] =
@@ -52,9 +53,9 @@ export function AdminStatCards() {
           listAttendance({ from: dateStr(0), to: dateStr(0) }),
           listAttendance({ from: dateStr(-1), to: dateStr(-1) }),
           listLeaveRequests({ status: "Pending" }),
-          isAdminOrHr ? listMedicalClaims({ status: "Pending" }) : Promise.resolve([]),
-          isAdminOrHr ? listPayroll({ month: monthStr(0) }) : Promise.resolve([]),
-          isAdminOrHr ? listPayroll({ month: monthStr(-1) }) : Promise.resolve([]),
+          canViewClaims ? listMedicalClaims({ status: "Pending" }) : Promise.resolve([]),
+          canViewPayroll ? listPayroll({ month: monthStr(0) }) : Promise.resolve([]),
+          canViewPayroll ? listPayroll({ month: monthStr(-1) }) : Promise.resolve([]),
         ]);
 
       const active = employees.filter((e) => e.accountStatus === "Active");
@@ -96,12 +97,12 @@ export function AdminStatCards() {
         },
         {
           label: "This Month's Payroll",
-          value: isAdminOrHr ? currency(thisMonthNet) : "—",
+          value: canViewPayroll ? <MaskedCurrency amount={thisMonthNet} /> : "—",
           trend:
-            isAdminOrHr && payrollDelta !== null
+            canViewPayroll && payrollDelta !== null
               ? { direction: payrollDelta >= 0 ? "up" : "down", label: `${payrollDelta >= 0 ? "+" : ""}${payrollDelta.toFixed(1)}%` }
               : undefined,
-          footnote: isAdminOrHr ? "Net payroll, this month" : "Visible to Admin/HR only",
+          footnote: canViewPayroll ? "Net payroll, this month" : "Visible to Admin/HR only",
           href: "/payroll",
         },
       ]);

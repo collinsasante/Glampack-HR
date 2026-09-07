@@ -6,8 +6,10 @@ import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { AuthLayout } from "@/components/auth-layout";
 import { AuthButton, AuthInput } from "@/components/auth-input";
+import { AuthDivider, GoogleSignInButton } from "@/components/google-sign-in-button";
 import { firebaseAuth } from "@/lib/firebase";
 import { useAuth } from "@/lib/auth-context";
+import { continueWithGoogle } from "@/lib/google-sign-in";
 import { getMe, isStaffRole } from "@/lib/api/employees";
 
 export default function SignInPage() {
@@ -17,6 +19,23 @@ export default function SignInPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+  async function handleGoogle() {
+    setError(null);
+    setGoogleLoading(true);
+    try {
+      const employee = await continueWithGoogle();
+      await refreshEmployee();
+      router.replace(isStaffRole(employee) ? "/admin-dashboard" : "/dashboard");
+    } catch (err: unknown) {
+      const code = (err as { code?: string })?.code;
+      if (code === "auth/popup-closed-by-user" || code === "auth/cancelled-popup-request") return;
+      setError(err instanceof Error ? err.message : "Google sign-in failed");
+    } finally {
+      setGoogleLoading(false);
+    }
+  }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -33,7 +52,7 @@ export default function SignInPage() {
 
       await refreshEmployee();
       const employee = await getMe();
-      router.replace(isStaffRole(employee.role) ? "/admin-dashboard" : "/dashboard");
+      router.replace(isStaffRole(employee) ? "/admin-dashboard" : "/dashboard");
     } catch {
       // Deliberately generic — never reveal whether the email exists (matches
       // Firebase's own default behavior and avoids account enumeration).
@@ -89,6 +108,9 @@ export default function SignInPage() {
           Continue
         </AuthButton>
       </form>
+
+      <AuthDivider />
+      <GoogleSignInButton onClick={handleGoogle} loading={googleLoading} />
     </AuthLayout>
   );
 }

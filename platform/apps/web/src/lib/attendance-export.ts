@@ -9,11 +9,17 @@ function csvEscape(value: string) {
   return value;
 }
 
+function officeDistanceLabel(r: AttendanceRecord) {
+  if (!r.checkInDistanceFromOfficeM) return "";
+  const office = r.checkInOffice?.name ?? "office";
+  return `${office} (${Number(r.checkInDistanceFromOfficeM).toFixed(0)}m)`;
+}
+
 // Real client-side CSV generation — no backend export endpoint exists, and none
 // is needed for a file built entirely from data the page already has in hand.
 export function exportAttendanceCsv(records: AttendanceRecord[], employees: Employee[], label: string) {
   const employeeName = (id: string) => employees.find((e) => e.id === id)?.fullName ?? id;
-  const headers = ["Employee", "Date", "Check In", "Check Out", "Duration", "Status", "Location"];
+  const headers = ["Employee", "Date", "Check In", "Check Out", "Duration", "Status", "Location", "Office"];
   const rows = records.map((r) => [
     employeeName(r.employeeId),
     new Date(r.date).toLocaleDateString(),
@@ -22,6 +28,7 @@ export function exportAttendanceCsv(records: AttendanceRecord[], employees: Empl
     attendanceDuration(r) ?? "",
     attendanceStatus(r),
     [r.checkInCity, r.checkInRegion].filter(Boolean).join(", "),
+    officeDistanceLabel(r),
   ]);
   const csv = [headers, ...rows].map((row) => row.map((v) => csvEscape(String(v))).join(",")).join("\n");
 
@@ -47,7 +54,7 @@ export function exportAttendancePdf(records: AttendanceRecord[], employees: Empl
 
   autoTable(doc, {
     startY: 29,
-    head: [["Employee", "Date", "Check In", "Check Out", "Duration", "Status", "Location"]],
+    head: [["Employee", "Date", "Check In", "Check Out", "Duration", "Status", "Location", "Office"]],
     body: records.map((r) => [
       employeeName(r.employeeId),
       new Date(r.date).toLocaleDateString(),
@@ -56,6 +63,7 @@ export function exportAttendancePdf(records: AttendanceRecord[], employees: Empl
       attendanceDuration(r) ?? "—",
       attendanceStatus(r),
       [r.checkInCity, r.checkInRegion].filter(Boolean).join(", ") || "—",
+      officeDistanceLabel(r) || "—",
     ]),
     styles: { fontSize: 8 },
   });

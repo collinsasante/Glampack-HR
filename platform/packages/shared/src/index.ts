@@ -6,3 +6,6 @@ export * from "./dto/announcement.js";
 export * from "./dto/payroll.js";
 export * from "./dto/medical-claim.js";
 export * from "./dto/emergency-contact.js";
+export * from "./dto/office.js";
+export * from "./dto/role.js";
+export * from "./permissions.js";
